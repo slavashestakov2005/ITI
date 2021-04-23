@@ -1,0 +1,17 @@
+{% extends "page1.html" %}
+{% block content %}
+
+<center>
+    <h1>Вход на сайт</h1>
+    <form action="login" method="post">
+        <input type="text" name="login" placeholder="Логин">
+        <br/>
+        <input type="text" name="password" placeholder="Пароль">
+        <br/>
+        {% if error %} <font color="red">[ {{ error }} ]</font><br/>
+        {% endif %}
+        <input type="submit" value="Войти">
+    </form>
+</center>
+
+{% endblock %}

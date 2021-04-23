@@ -1,0 +1,16 @@
+<!-- login required -->
+{% extends "page1.html" %}
+{% block content %}
+
+<center><h1>Настройки пользователя</h1></center>
+<form action="settings" method="post">
+	<p>Логин: {{ current_user.login }} (неизменяем)</p>
+	<p>Старый пароль: <input type="text" name="password_old"></p>
+	<p>Новый пароль: <input type="text" name="password"></p>
+	<p>Подтверждение пароля: <input type="text" name="password2"></p>
+	{% if error %} <p><font color="red">[ {{ error }} ]</font></p>
+	{% endif %}
+	<input type="submit" value="Сохранить">
+</form>
+
+{% endblock %}

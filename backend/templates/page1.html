@@ -1,0 +1,85 @@
+<!-- login required -->
+<!-- -2 -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ИТИ</title>
+        <link rel="stylesheet" href="CSS/style.css">
+        <script src="JS/scripts.js" type="text/javascript"> </script>
+    </head>
+    <body>
+        <div class="header">
+            <table width="100%">
+                <tr>
+                    <td width="70%">
+                        <center><h1><a href="index.html">ИТИ</a></h1></center>
+                    </td>
+                    <td width="10%">
+                        <center>
+                            <div class="dropdown">
+                                <button class="dropbtn">Год</button>
+                                <div class="dropdown-content">
+                                    <a href="index.html">Главная</a>
+                                    <a href="#">ИТИ-2019</a>
+                                    <a href="2020/main.html">ИТИ-2020</a>
+                                    <a href="#">ИТИ-2021</a>
+                                    <a href="#">ИТИ-2022</a>
+                                </div>
+                            </div>
+                        </center>
+                    </td>
+                    </td>
+                    <td width="10%">
+                        <center>
+                            <div class="dropdown">
+                                <button class="dropbtn">О нас</button>
+                                <div class="dropdown-content">
+                                    <a href="Info/organizer.html">Организаторы</a>
+                                    <a href="#">Авторы</a>
+                                </div>
+                            </div>
+                        </center>
+                    </td>
+                    <td width="10%">
+                        <center>
+                            <div class="dropdown">
+                                <button class="dropbtn">
+                                    {% if current_user.is_anonymous %} Аккаунт
+                                    {% else %} {{ current_user.login }}
+                                    {% endif %}
+                                </button>
+                                <div class="dropdown-content">
+                                    {% if not current_user.is_anonymous and current_user.can_do(-1) %}
+                                    <a href="user_edit.html">Пользователи</a>
+                                    <a href="add_subject">Добавить предмет</a>
+                                    {% endif %}
+
+                                    {% if not current_user.is_anonymous and current_user.can_do(-2) %}
+                                    <a href="#" onclick="edit(document)">Редактировать</a>
+                                    {% endif %}
+
+                                    {% if current_user.is_anonymous %} <a href="login.html">Войти</a>
+                                    {% else %}
+                                    <a href="settings.html">Настройки</a>
+                                    <a href="logout">Выйти</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </center>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="content">
+            {% block content %}{% endblock %}
+            <div class="footer_space" />
+        </div>
+        <div class="footer">
+            <center>
+                <br/>
+                Автор: Шестаков Вячеслав Григорьевич 9 «И».<br/>
+                Связь: v.shestakov@student.univers.su<br/>
+            </center>
+        </div>
+    </body>
+</html>

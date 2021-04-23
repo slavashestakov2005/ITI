@@ -1,0 +1,12 @@
+{% extends "page1.html" %}
+{% block content %}
+
+<center>
+    <h1>Ошибка доступа :(</h1>
+    {% if current_user.is_anonymous %} <p>Для просмотра данной страницы необходимо зайти на сайт.</p>
+    {% else %} <p>У вас недостаточно прав для просмоотра данной страницы.</p>
+    {% endif %}
+    <p><font color="red">[ Ошибка 403 ]</font></p>
+</center>
+
+{% endblock %}

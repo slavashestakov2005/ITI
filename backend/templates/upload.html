@@ -1,0 +1,23 @@
+<!-- login required -->
+<!-- -1 -->
+{% extends "page1.html" %}
+{% block content %}
+
+<h1>Загрузка нового файла</h1>
+<form action="upload" method="post" enctype=multipart/form-data>
+	<input type="file" name="file">
+	<br/>
+	<input type="text" name="new_path" placeholder="Новый путь к файлу">
+	<br/>
+	<input type="text" name="new_name" placeholder="Новое имя (без расширения)">
+	<br/>
+	<input type="submit" value="Загрузить">
+</form>
+<br>
+Придерживайтесь следующей структуры файлов:<br/>
+/ index.html (общии страницы)<br/>
+/ CSS (служебные папки)<br/>
+/ 2020	(год ИТИ)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/ individual (индивидуальный тур)<br/>
+
+{% endblock %}

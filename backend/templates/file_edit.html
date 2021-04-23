@@ -1,0 +1,18 @@
+<!-- login required -->
+<!-- -2 -->
+{% extends "page1.html" %}
+{% block content %}
+
+<center>
+    <form action="save_file" method="post">
+        <h2>Редактирование файла {{ file_name }}</h2>
+        <input name="file_name" type="text" value="{{file_name}}" readonly>
+        <p><textarea name="file_text" id="file_text" oninput="textInput(document)">{{ file_text }}</textarea></p>
+        <script>textInput(document)</script>
+        <input type="submit" value="Сохранить">
+    </form>
+    {% if error %} <p><font color="red">[ {{ error }} ]</font></p>
+    {% endif %}
+</center>
+
+{% endblock %}
