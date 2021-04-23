@@ -1,0 +1,49 @@
+<!-- login required -->
+{% extends "page1.html" %}
+{% block content %}
+
+<table width="100%">
+	<tr>
+		<td width="33%" valign="top">
+			<h1>Добавить ИТИ</h1>
+			<form action="add_year" method="post">
+				<p>Год: <input type="text" name="name"></p>
+				{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+				{% endif %}
+				<input type="submit" value="Добавить">
+			</form>
+		</td>
+		<td width="33%" valign="top">
+			<h1>Добавить предмет</h1>
+			<form action="add_subject" method="post">
+				<p>Название: <input type="text" name="name"></p>
+				{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
+				{% endif %}
+				<input type="submit" value="Добавить">
+			</form>
+			<h1>Редактировать предмет</h1>
+			<form action="edit_subject" method="post">
+				<p>Номер: <input type="text" name="id"></p>
+				<p>Название: <input type="text" name="new_name"></p>
+				{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
+				{% endif %}
+				<input type="submit" value="Сохранить">
+			</form>
+			<h1>Удалить предмет</h1>
+			<form action="delete_subject" method="post">
+				<p>Номер: <input type="text" name="id"></p>
+				{% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
+				{% endif %}
+				<input type="submit" value="Удалить">
+			</form>
+		</td>
+		<td width="33%" valign="top">
+			<h1>Список предметов</h1>
+			{% for subject in subjects %}
+				<p>[ {{subject.id}} ] {{subject.name}}</p>
+			{% endfor %}
+		</td>
+	</tr>
+</table>
+
+{% endblock %}

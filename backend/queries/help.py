@@ -1,4 +1,4 @@
-from flask import render_template
+from backend.help.errors import forbidden_error
 from flask_login import current_user
 from functools import wraps
 from glob import glob
@@ -7,10 +7,6 @@ from backend.config import Config
 
 LOGIN_REQUIRED_FILES = []
 STATUS_REQUIRED_FILES = {}
-
-
-def create_forbidden_error():
-    return render_template('403.html'), 403
 
 
 def parse_files():
@@ -51,7 +47,7 @@ def check_status(status: str):
             else:
                 value = int(status)
             if not current_user.can_do(value):
-                return create_forbidden_error()
+                return forbidden_error()
             return function_to_decorate(*args, **kwargs)
 
         return wrapped

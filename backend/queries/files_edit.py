@@ -4,6 +4,7 @@ from flask_cors import cross_origin
 from flask_login import login_required
 from backend.config import Config
 from .help import check_status
+from ..help.errors import not_found_error
 import os
 
 
@@ -49,8 +50,11 @@ def edit(path):
 @check_status('full')
 def editor():
     file_name = request.args.get('file_text')
-    with open(Config.TEMPLATES_FOLDER + '/' + file_name, 'r', encoding='UTF-8') as f:
-        file_text = f.read()
+    try:
+        with open(Config.TEMPLATES_FOLDER + '/' + file_name, 'r', encoding='UTF-8') as f:
+            file_text = f.read()
+    except FileNotFoundError as e:
+        return not_found_error()
     return render_template('file_edit.html', file_text=file_text, file_name=file_name)
 
 

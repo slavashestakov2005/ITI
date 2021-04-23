@@ -51,11 +51,11 @@
                                 <div class="dropdown-content">
                                     {% if not current_user.is_anonymous and current_user.can_do(-1) %}
                                     <a href="user_edit.html">Пользователи</a>
-                                    <a href="add_subject">Добавить предмет</a>
                                     {% endif %}
 
                                     {% if not current_user.is_anonymous and current_user.can_do(-2) %}
-                                    <a href="#" onclick="edit(document)">Редактировать</a>
+                                    <a href="subjects_and_years">Новые предметы и ИТИ</a>
+                                    <a href="#" onclick="edit(document)">Редактировать страницу</a>
                                     {% endif %}
 
                                     {% if current_user.is_anonymous %} <a href="login.html">Войти</a>

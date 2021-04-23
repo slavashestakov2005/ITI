@@ -4,7 +4,8 @@ from flask_cors import cross_origin
 from random import random
 from backend.database import ConstantsTable
 from flask_login import current_user
-from .help import create_forbidden_error, LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES
+from ..help.errors import forbidden_error
+from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES
 
 
 @app.route('/')
@@ -20,7 +21,7 @@ def static_file(path):
     if path in LOGIN_REQUIRED_FILES and (not current_user.is_authenticated
                                          or path in STATUS_REQUIRED_FILES
                                          and current_user.status not in STATUS_REQUIRED_FILES[path]):
-        return create_forbidden_error()
+        return forbidden_error()
     if len(parts) >= 2 and parts[1] == 'html':
         parts = path.split('/')
         if parts[0].isdigit():
