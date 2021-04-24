@@ -3,10 +3,15 @@ from flask_login import current_user
 from functools import wraps
 from glob import glob
 from backend.config import Config
+import re
 
 
 LOGIN_REQUIRED_FILES = []
 STATUS_REQUIRED_FILES = {}
+
+
+def all_templates():
+    return glob(Config.TEMPLATES_FOLDER + '/**/*.html', recursive=True)
 
 
 def parse_files():
@@ -14,7 +19,7 @@ def parse_files():
         return
     path = Config.TEMPLATES_FOLDER + "/"
     length = len(path)
-    for file_name in glob(path + '**/*.html', recursive=True):
+    for file_name in all_templates():
         with open(file_name, 'r', encoding='utf-8') as f:
             line1 = f.readline()
             line2 = f.readline()
@@ -54,3 +59,47 @@ def check_status(status: str):
 
     return my_decorator
 
+
+class FilePart:
+    def __init__(self, text, is_comment=False):
+        self.text = text
+        self.is_comment = is_comment
+
+
+class SplitFile:
+    def __init__(self, parts: list):
+        self.parts = []
+        self.edited = False
+        is_comment = False
+        for part in parts:
+            if part == '<!--':
+                is_comment = True
+            elif part == '-->':
+                is_comment = False
+            else:
+                self.parts.append(FilePart(part, is_comment))
+
+    def insert_after_comment(self, comment: str, text: str, is_comment: bool = False):
+        for index in range(len(self.parts)):
+            if self.parts[index].is_comment and self.parts[index].text == comment:
+                self.edited = True
+                if not self.parts[index + 1].is_comment:
+                    self.parts[index + 1] = FilePart(text, is_comment)
+                else:
+                    self.parts.insert(index + 1, FilePart(text))
+
+    def writable(self) -> str:
+        result = ''
+        for part in self.parts:
+            if part.is_comment:
+                result += '<!--'
+            result += part.text
+            if part.is_comment:
+                result += '-->'
+        return result
+
+
+def read_and_split_file(file_name: str) -> SplitFile:
+    with open(file_name, 'r', encoding='UTF-8') as f:
+        data = f.read()
+    return SplitFile(re.split(r'(<!--|-->)', data))

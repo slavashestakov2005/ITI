@@ -27,7 +27,7 @@ class User(Row, UserMixin):
         self.password = generate_password_hash(password)
 
     def set_status(self, status: list) -> None:
-        if -1 in status: # admin
+        if -1 in status:# admin
             self.status = -1
         else:
             self.status = 0

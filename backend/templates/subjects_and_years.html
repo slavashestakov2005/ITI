@@ -1,4 +1,5 @@
 <!-- login required -->
+<!-- -2 -->
 {% extends "page1.html" %}
 {% block content %}
 
@@ -17,6 +18,7 @@
 			<h1>Добавить предмет</h1>
 			<form action="add_subject" method="post">
 				<p>Название: <input type="text" name="name"></p>
+				<p>Тип (i / g / a): <input type="text" name="type"></p>
 				{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
 				{% endif %}
 				<input type="submit" value="Добавить">
@@ -25,6 +27,7 @@
 			<form action="edit_subject" method="post">
 				<p>Номер: <input type="text" name="id"></p>
 				<p>Название: <input type="text" name="new_name"></p>
+				<p>Тип (i / g / a): <input type="text" name="new_type"></p>
 				{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
 				{% endif %}
 				<input type="submit" value="Сохранить">
@@ -39,9 +42,23 @@
 		</td>
 		<td width="33%" valign="top">
 			<h1>Список предметов</h1>
-			{% for subject in subjects %}
-				<p>[ {{subject.id}} ] {{subject.name}}</p>
-			{% endfor %}
+			<h2>Индивидуальные</h2>
+			<!-- list of individual tours (2) -->
+<p>[ 1 ] Математика</p>
+<p>[ 2 ] Английский язык</p>
+<p>[ 3 ] Литература</p>
+<p>[ 4 ] История</p>
+<p>[ 5 ] Обществознание</p>
+<p>[ 6 ] Русский язык</p>
+<p>[ 7 ] ИЦН</p>
+<p>[ 9 ] Естествознание</p>
+<!-- end -->
+			<h2>Групповые</h2>
+			<!-- list of group tours (2) -->
+<!-- end -->
+			<h2>Другие</h2>
+			<!-- list of another tours (2) -->
+<!-- end -->
 		</td>
 	</tr>
 </table>

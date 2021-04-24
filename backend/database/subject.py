@@ -6,8 +6,9 @@ class Subject(Row):
         Строка таблицы SubjectsTable
         id      INT     NOT NULL    PK  AI  UNIQUE
         name    TEXT    NOT NULL            UNIQUE
+        type    TEXT    NOT NULL    ('i' / 'g' / 'a')
     """
-    fields = ['id', 'name']
+    fields = ['id', 'name', 'type']
 
     def __init__(self, row):
         Row.__init__(self, Subject, row)
@@ -21,6 +22,7 @@ class SubjectsTable:
         DataBase.execute('''CREATE TABLE "''' + SubjectsTable.table + '''" (
         "id"	INTEGER NOT NULL UNIQUE,
         "name"	TEXT NOT NULL UNIQUE,
+        "type"	TEXT NOT NULL,
         PRIMARY KEY("id" AUTOINCREMENT)
         );''')
 
