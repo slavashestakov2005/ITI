@@ -1,0 +1,32 @@
+<!-- login required -->
+<!-- -1 -->
+
+{% extends "page2.html" %}
+{% block content %}
+
+<form action="subject_year" method="post">
+    <h2>Предметы:</h2>
+    <table width="100%">
+        <tr>
+            <td width="50%" valign="top">
+                <h3>Индивидуальные туры:</h3>
+                <!-- list of year_individual tours -->
+    <!-- end -->
+            </td>
+            <td width="50%" valign="top">
+                <h3>Групповые туры:</h3>
+                <!-- list of year_group tours -->
+    <!-- end -->
+                <h3>Другое:</h3>
+                <!-- list of year_another tours -->
+    <!-- end -->
+            </td>
+        </tr>
+    </table>
+
+    {% if error %} <p><font color="red">[ {{ error }} ]</font></p>
+    {% endif %}
+    <input type="submit" value="Сохранить">
+</form>
+
+{% endblock %}

@@ -44,7 +44,6 @@ def check_status(status: str):
 
         @wraps(function_to_decorate)
         def wrapped(*args, **kwargs):
-            print('We are check current user')
             if status == 'admin':
                 value = -1
             elif status == 'full':
@@ -67,10 +66,17 @@ class FilePart:
 
 
 class SplitFile:
-    def __init__(self, parts: list):
+    def read_file(self):
+        with open(self.file_name, 'r', encoding='UTF-8') as f:
+            data = f.read()
+        return re.split(r'(<!--|-->)', data)
+
+    def __init__(self, file_name: str):
+        self.file_name = file_name
         self.parts = []
         self.edited = False
         is_comment = False
+        parts = self.read_file()
         for part in parts:
             if part == '<!--':
                 is_comment = True
@@ -98,8 +104,7 @@ class SplitFile:
                 result += '-->'
         return result
 
-
-def read_and_split_file(file_name: str) -> SplitFile:
-    with open(file_name, 'r', encoding='UTF-8') as f:
-        data = f.read()
-    return SplitFile(re.split(r'(<!--|-->)', data))
+    def save_file(self):
+        if self.edited:
+            with open(self.file_name, 'w', encoding='UTF-8') as f:
+                f.write(self.writable())

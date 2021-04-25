@@ -13,6 +13,8 @@
 | Регистрация, редактирование и удаление новых пользователей | admin | users.py | 23.04.21 |
 | &nbsp; | | | |
 | Загрузка файлов | admin | files_edit.py | 23.04.21 |
-| Редактирование и сохранение всех файлов | full | files_edit.py | 23.04.21 |
+| Редактирование годовых файлов | admin | files_edit.py | 25.04.21 |
+| Редактирование глобальных файлов | full | files_edit.py | 25.04.21 |
 | &nbsp; | | | |
-| Работа с новыми ИТИ и предметами | full | full.py, auto_generate.py | 24.04.21 |
+| Работа с новыми ИТИ и предметами | full | full.py, auto_generator.py, file_creator.py | 25.04.21 |
+| Связь ИТИ и предметов | admin | full.py, auto_generator.py | 25.04.21 |

@@ -63,6 +63,10 @@ class Table:
         return cls(DataBase.execute_one("SELECT * FROM " + table_name + " WHERE " + field + " = ?", (value,)))
 
     @staticmethod
+    def select_list_by_field(table_name: str, field: str, value, cls) -> list:
+        return [cls(_) for _ in DataBase.execute("SELECT * FROM " + table_name + " WHERE " + field + " = ?", (value,))]
+
+    @staticmethod
     def update_by_field(table_name: str, field: str, value):
         params = value.update_string()
         params[1].append(getattr(value, field))
@@ -88,3 +92,7 @@ class Table:
     @staticmethod
     def delete(table_name: str, value):
         return DataBase.execute("DELETE FROM " + table_name + " WHERE id = ?", (value.id,))
+
+    @staticmethod
+    def delete_by_field(table_name: str, field: str, value):
+        return DataBase.execute("DELETE FROM " + table_name + " WHERE " + field + " = ?", (value,))

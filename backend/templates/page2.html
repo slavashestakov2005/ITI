@@ -27,7 +27,6 @@
 									<!-- list of years (2) -->
 <a href="../2020/main.html">ИТИ-2020</a>
 <a href="../2021/main.html">ИТИ-2021</a>
-<a href="../2022/main.html">ИТИ-2022</a>
 <!-- end -->
 								</div>
 							</div>
@@ -56,10 +55,10 @@
 								<div class="dropdown-content">
 									{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 									<a href="../user_edit.html">Пользователи</a>
-									<a href="#">Настройки ИТИ</a>
+									<a href="subjects_for_year.html">Настройки ИТИ</a>
 									{% endif %}
 
-									{% if not current_user.is_anonymous and current_user.can_do(-2) %}
+									{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 									<a href="#" onclick="edit(document)">Редактировать</a>
 									{% endif %}
 

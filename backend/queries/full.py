@@ -3,8 +3,9 @@ from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required
 from .help import check_status
-from backend.database import SubjectsTable, Subject, YearsTable, Year
-from .auto_generate import Generate
+from backend.database import SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, YearSubject
+from .auto_generator import Generate
+from .file_creator import FileCreator
 
 
 @app.route("/add_year", methods=['POST'])
@@ -18,7 +19,9 @@ def add_year():
         return render_template('subjects_and_years.html', error1='Год уже существует')
     year = Year([name])
     YearsTable.insert(year)
+    FileCreator.create_year(name)
     Generate.gen_years_lists()
+    Generate.gen_years_subjects_list(name)
     return render_template('subjects_and_years.html', error1='Год добавлен')
 
 
@@ -69,3 +72,16 @@ def delete_subject():
     Generate.gen_subjects_lists()
     return render_template('subjects_and_years.html', error4='Предмет удалён')
 
+
+@app.route("/<path:year>/subject_year", methods=['POST'])
+@cross_origin()
+@login_required
+@check_status('admin')
+def subject_for_year_123(year):
+    year = int(year)
+    subjects = request.form.getlist('subject')
+    YearsSubjectsTable.delete_by_year(year)
+    for subject in subjects:
+        YearsSubjectsTable.insert(YearSubject([year, int(subject)]))
+    Generate.gen_years_subjects_list(year)
+    return render_template(str(year) + '/subjects_for_year.html', error='Сохранено')

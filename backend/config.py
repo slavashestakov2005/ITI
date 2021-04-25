@@ -1,6 +1,7 @@
 class Config:
     UPLOAD_FOLDER = 'backend/static'
     TEMPLATES_FOLDER = 'backend/templates'
+    EXAMPLES_FOLDER = 'backend/examples'
     ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'html'])
     SECRET_KEY = 'you-will-never-guess'
 

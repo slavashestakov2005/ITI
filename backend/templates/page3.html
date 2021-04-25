@@ -27,7 +27,6 @@
 									<!-- list of years (3) -->
 <a href="../../2020/main.html">ИТИ-2020</a>
 <a href="../../2021/main.html">ИТИ-2021</a>
-<a href="../../2022/main.html">ИТИ-2022</a>
 <!-- end -->
 								</div>
 							</div>
@@ -59,7 +58,7 @@
 									<a href="#">Залить результаты</a>
 									{% endif %}
 
-									{% if not current_user.is_anonymous and current_user.can_do(-2) %}
+									{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 									<a href="#" onclick="edit(document)">Редактировать</a>
 									{% endif %}
 
