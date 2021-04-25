@@ -104,7 +104,9 @@ class SplitFile:
                 result += '-->'
         return result
 
-    def save_file(self):
+    def save_file(self, file_name=None):
+        if not file_name:
+            file_name = self.file_name
         if self.edited:
-            with open(self.file_name, 'w', encoding='UTF-8') as f:
+            with open(file_name, 'w', encoding='UTF-8') as f:
                 f.write(self.writable())

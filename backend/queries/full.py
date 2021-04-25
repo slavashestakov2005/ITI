@@ -77,11 +77,12 @@ def delete_subject():
 @cross_origin()
 @login_required
 @check_status('admin')
-def subject_for_year_123(year):
+def subject_year(year):
     year = int(year)
     subjects = request.form.getlist('subject')
     YearsSubjectsTable.delete_by_year(year)
     for subject in subjects:
         YearsSubjectsTable.insert(YearSubject([year, int(subject)]))
+    FileCreator.create_subjects(year, subjects)
     Generate.gen_years_subjects_list(year)
-    return render_template(str(year) + '/subjects_for_year.html', error='Сохранено')
+    return render_template(str(year) + '/subjects_for_year.html', error='Сохранено', year=year)

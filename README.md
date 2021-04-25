@@ -17,4 +17,4 @@
 | Редактирование глобальных файлов | full | files_edit.py | 25.04.21 |
 | &nbsp; | | | |
 | Работа с новыми ИТИ и предметами | full | full.py, auto_generator.py, file_creator.py | 25.04.21 |
-| Связь ИТИ и предметов | admin | full.py, auto_generator.py | 25.04.21 |
+| Связь ИТИ и предметов, генерация страниц | admin | full.py, auto_generator.py, file_creator.py | 25.04.21 |

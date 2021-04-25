@@ -49,15 +49,17 @@ class Generate:
     @staticmethod
     def gen_years_subjects_list(year: int):
         years_subjects = YearsSubjectsTable.select_by_year(year)
-        print(years_subjects)
         years_subjects = set([x.subject for x in years_subjects])
-        print(years_subjects)
         subjects = SubjectsTable.select_all()
-        text1 = text2 = text3 = '\n'
+        text1 = text2 = text3 = text4 = text5 = '\n'
         for subject in subjects:
             checked = ''
             if subject.id in years_subjects:
                 checked = ' checked'
+                if subject.type == 'i':
+                    text4 += '<p><a href="individual/' + str(subject.id) + '.html">' + subject.name + '</a></p>\n'
+                elif subject.type == 'g':
+                    text5 += '<p><a href="group/' + str(subject.id) + '.html">' + subject.name + '</a></p>\n'
             text = '<p><input type="checkbox" name="subject" value="' + str(subject.id) + '"' + checked + '>' + \
                    subject.name + '</p>\n'
             if subject.type == 'i':
@@ -71,4 +73,6 @@ class Generate:
             data.insert_after_comment(' list of year_individual tours ', text1)
             data.insert_after_comment(' list of year_group tours ', text2)
             data.insert_after_comment(' list of year_another tours ', text3)
+            data.insert_after_comment(' list of year_individual tour (main page) ', text4)
+            data.insert_after_comment(' list of year_group tour (main page) ', text5)
             data.save_file()
