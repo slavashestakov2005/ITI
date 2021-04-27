@@ -4,6 +4,11 @@ import glob
 from backend.config import Config
 from .help import SplitFile
 from ..database import SubjectsTable
+'''
+    class FileCreator           Создаёт необходимые файлы.
+        create_year(year)                   Создаёт стандартные страницы ИТИ (копирует шаблоны).
+        create_subjects(year, subject)      Создаёт html-страницу для нужного года и предмета.
+'''
 
 
 class FileCreator:
@@ -39,10 +44,11 @@ class FileCreator:
                 file_name += 'team/'
                 tour_name = 'Командный тур'
             file_name += str(subject.id) + ".html"
-            data.insert_after_comment(' tour_name ', tour_name)
-            data.insert_after_comment(' subject_name ', subject.name)
-            data.save_file(file_name)
-            s.add(file_name)
+            if not os.path.exists(file_name):
+                data.insert_after_comment(' tour_name ', tour_name)
+                data.insert_after_comment(' subject_name ', subject.name)
+                data.save_file(file_name)
+                s.add(file_name)
         for file_name in glob.glob(directory + '**/*.html', recursive=False):
             file_name = file_name.replace('\\', '/')
             if file_name not in s:

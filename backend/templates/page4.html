@@ -4,8 +4,8 @@
 <html>
 	<head>
 		<title>ИТИ</title>
-		<link rel="stylesheet" href="../../CSS/style.css">
-		<script src="../../JS/scripts.js" type="text/javascript"> </script>
+		<link rel="stylesheet" href="../../../CSS/style.css">
+		<script src="../../../JS/scripts.js" type="text/javascript"> </script>
 	</head>
 	<body>
 		<div class="header">
@@ -13,8 +13,8 @@
 				<tr>
 					<td width="70%">
 						<center><h1>
-							{% if year %}<a href="../main.html">ИТИ-{{year}}</a>
-							{% else %}<a href="../main.html">ИТИ</a>
+							{% if year %}<a href="../../main.html">ИТИ-{{year}}</a>
+							{% else %}<a href="../../main.html">ИТИ</a>
 							{% endif %}
 						</h1></center>
 					</td>
@@ -23,10 +23,10 @@
 							<div class="dropdown">
 								<button class="dropbtn">Год</button>
 								<div class="dropdown-content">
-									<a href="../../index.html">Главная</a>
-									<!-- list of years (3) -->
-<a href="../../2020/main.html">ИТИ-2020</a>
-<a href="../../2021/main.html">ИТИ-2021</a>
+									<a href="../../../index.html">Главная</a>
+									<!-- list of years (4) -->
+<a href="../../../2020/main.html">ИТИ-2020</a>
+<a href="../../../2021/main.html">ИТИ-2021</a>
 <!-- end -->
 								</div>
 							</div>
@@ -38,7 +38,7 @@
 							<div class="dropdown">
 								<button class="dropbtn">О нас</button>
 								<div class="dropdown-content">
-									<a href="../../Info/organizer.html">Организаторы</a>
+									<a href="../../../Info/organizer.html">Организаторы</a>
 									<a href="#">Авторы</a>
 								</div>
 							</div>
@@ -54,18 +54,13 @@
 								</button>
 								<div class="dropdown-content">
 									{% if not current_user.is_anonymous and current_user.can_do(-1) %}
-									<a href="../../user_edit.html">Пользователи</a>
-									<a href="#" onclick="addResult(window)">Залить результаты</a>
-									{% endif %}
-
-									{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 									<a href="#" onclick="edit(document)">Редактировать</a>
 									{% endif %}
 
-									{% if current_user.is_anonymous %} <a href="../../login.html">Войти</a>
+									{% if current_user.is_anonymous %} <a href="../../../login.html">Войти</a>
 									{% else %}
-									<a href="../../settings.html">Настройки</a>
-									<a href="../../logout">Выйти</a>
+									<a href="../../../settings.html">Настройки</a>
+									<a href="../../../logout">Выйти</a>
 									{% endif %}
 								</div>
 							</div>

@@ -6,6 +6,13 @@ from backend.config import Config
 from .help import check_status
 from ..help.errors import not_found_error, forbidden_error
 import os
+'''
+    generate_filename()                 Генерирует имя для нового файла.
+    /upload         upload()            Загружает файлы (admin).
+    /<path>/edit    edit(path)          redirect на страницу с редактированием (admin).
+    /editor         editor()            Возвращает html-код редактируемойстраницы (admin | full).
+    /save_file      save_file()         Сохраняет изменения html-страницы (admin | full).
+'''
 
 
 def generate_filename(last_name, new_path, new_name):
@@ -22,7 +29,7 @@ def generate_filename(last_name, new_path, new_name):
 @cross_origin()
 @login_required
 @check_status('admin')
-def load():
+def upload():
     if request.method == 'POST':
         file = request.files['file']
         new_path = request.form['new_path']

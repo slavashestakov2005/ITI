@@ -7,3 +7,7 @@ function textInput(document){
     textarea.style.height = '1px';
     textarea.style.height = (textarea.scrollHeight + 6) + 'px';
 }
+
+function addResult(window) {
+    document.location.replace(window.location + '/add_result');
+}

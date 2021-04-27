@@ -1,0 +1,43 @@
+<!-- login required -->
+{% extends "page1.html" %}
+{% block content %}
+
+<table width="100%">
+    <tr>
+        <td width="30%" valign="top">
+            <table width="100%" border="1">
+                <tr>
+                    <td width="10%">Фамилия</td>
+                    <td width="10%">Имя</td>
+                    <td width="10%">Класс</td>
+                </tr>
+                {% block table1 %}{% endblock %}
+            </table>
+        </td>
+        <td width="5%"></td>
+        <td width="30%" valign="top">
+            <table width="100%" border="1">
+                <tr>
+                    <td width="10%">Фамилия</td>
+                    <td width="10%">Имя</td>
+                    <td width="10%">Класс</td>
+                </tr>
+                {% block table2 %}{% endblock %}
+            </table>
+        </td>
+        <td width="5%"></td>
+        <td width="30%" valign="top">
+            <table width="100%" border="1">
+                <tr>
+                    <td width="10%">Фамилия</td>
+                    <td width="10%">Имя</td>
+                    <td width="10%">Класс</td>
+                </tr>
+                {% block table3 %}{% endblock %}
+            </table>
+        </td>
+        <td width="5%"></td>
+    </tr>
+</table>
+
+{% endblock %}

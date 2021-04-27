@@ -5,3 +5,5 @@ import backend.queries.help
 import backend.queries.full
 import backend.queries.auto_generator
 import backend.queries.file_creator
+import backend.queries.results
+import backend.queries.students

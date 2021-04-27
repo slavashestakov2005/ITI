@@ -4,7 +4,19 @@ from functools import wraps
 from glob import glob
 from backend.config import Config
 import re
-
+'''
+    LOGIN_REQUIRED_FILES = []       Файлы, доступные после входа на сайт.
+    STATUS_REQUIRED_FILES = {}      Отображение файла и доступа к нему.
+    all_templates()                 Список всех файлов-шаблонов из папки шаблонов.
+    parse_files()                   Проходит все файл, генерирует списки доступа.
+    @check_status(status)           Проверяет открыт ли доступ для текущего пользователя.
+    class FilePart                  Один кусочек html-страницы (поля 'text' и 'is_comment').
+    class SplitFile                 Связывает html-страницу и программное представление.
+        __init__(file_name)                                 Парсит файл 'file_name'.
+        insert_after_comment(comment, text, is_comment)     Добавляет 'text' после комментария 'comment'.
+        writable()                                          Генерирует строку для записи в файл.
+        save_file(file_name)                                Сохраняет файл под именем 'file_name'.
+'''
 
 LOGIN_REQUIRED_FILES = []
 STATUS_REQUIRED_FILES = {}

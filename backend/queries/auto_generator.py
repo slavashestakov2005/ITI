@@ -1,23 +1,32 @@
 from .help import SplitFile, all_templates
-from ..database import YearsTable, SubjectsTable, YearsSubjectsTable
+from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable
 from backend.config import Config
 import glob
+'''
+    class Generator             Заменяет комментарии специального вида на код.
+        gen_years_lists()                   Изменяет списки годов.
+        gen_subjects_lists()                Изменяет глобальные списки предметов.
+        gen_years_subjects_list(year)       Изменяет списки предметов для одного года.
+        gen_students_list(class_n)          Изменяет таблицу учеников класса class_n.
+'''
 
 
-class Generate:
+class Generator:
     @staticmethod
     def gen_years_lists():
         years = YearsTable.select_all()
-        type1 = type2 = type3 = '\n'
+        type1 = type2 = type3 = type4 = '\n'
         for year in years:
             type1 += '<a href="' + str(year.year) + '/main.html">ИТИ-' + str(year.year) + "</a>\n"
             type2 += '<a href="../' + str(year.year) + '/main.html">ИТИ-' + str(year.year) + "</a>\n"
             type3 += '<a href="../../' + str(year.year) + '/main.html">ИТИ-' + str(year.year) + "</a>\n"
+            type4 += '<a href="../../../' + str(year.year) + '/main.html">ИТИ-' + str(year.year) + "</a>\n"
         for file_name in all_templates():
             data = SplitFile(file_name)
             data.insert_after_comment(' list of years (1) ', type1)
             data.insert_after_comment(' list of years (2) ', type2)
             data.insert_after_comment(' list of years (3) ', type3)
+            data.insert_after_comment(' list of years (4) ', type4)
             data.save_file()
 
     @staticmethod
@@ -76,3 +85,26 @@ class Generate:
             data.insert_after_comment(' list of year_individual tour (main page) ', text4)
             data.insert_after_comment(' list of year_group tour (main page) ', text5)
             data.save_file()
+
+    @staticmethod
+    def gen_students_list(class_n: int):
+        file_name = Config.TEMPLATES_FOLDER + '/students_' + str(class_n) + '.html'
+        students = StudentsTable.select_by_class_n(class_n)
+        length = len(students)
+        m1 = length // 3
+        m2 = length * 2 // 3
+        text1 = text2 = text3 = '\n'
+        for i in range(0, m1):
+            text1 += '<tr><td>' + students[i].name_1 + '</td><td>' + students[i].name_2 + '</td><td>' +\
+                     str(students[i].class_n) + students[i].class_l + '</td></tr>\n'
+        for i in range(m1, m2):
+            text2 += '<tr><td>' + students[i].name_1 + '</td><td>' + students[i].name_2 + '</td><td>' + \
+                     str(students[i].class_n) + students[i].class_l + '</td></tr>\n'
+        for i in range(m2, length):
+            text3 += '<tr><td>' + students[i].name_1 + '</td><td>' + students[i].name_2 + '</td><td>' + \
+                     str(students[i].class_n) + students[i].class_l + '</td></tr>\n'
+        data = SplitFile(file_name)
+        data.insert_after_comment(' students_table 1 ', text3)
+        data.insert_after_comment(' students_table 2 ', text2)
+        data.insert_after_comment(' students_table 3 ', text1)
+        data.save_file()

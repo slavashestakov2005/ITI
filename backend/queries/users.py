@@ -4,6 +4,14 @@ from flask_cors import cross_origin
 from flask_login import login_user, logout_user, current_user, login_required
 from backend.database import UsersTable, User
 from .help import check_status
+'''
+    /login          login()             Вход пользователя.
+    /logout         logout()            Выход пользователя.
+    /settings       settings()          Изменение данных текущего пользователя.
+    /registration   registration()      Регистрирует пользователя (только для admin).
+    /edit_status    edit_status()       Редактирует статус другого пользователя (только для admin).
+    /delete         delete()            Удаляет другого пользователя.
+'''
 
 
 @login.user_loader

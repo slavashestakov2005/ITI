@@ -1,0 +1,16 @@
+<!-- login required -->
+{% extends "page4.html" %}
+{% block content %}
+
+<h1>Сохранение результатов</h1>
+<form action="save_result" method="post">
+	<p>Год: {{year}}</p>
+	<p>Код предмета: {{subject}}</p>
+	<p>Код участника: <input type="text" name="code"></p>
+	<p>Результат: <input type="text" name="result"></p>
+	{% if error %} <p><font color="red">[ {{ error }} ]</font></p>
+	{% endif %}
+	<input type="submit" value="Сохранить">
+</form>
+
+{% endblock %}

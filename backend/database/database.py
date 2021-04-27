@@ -55,6 +55,17 @@ class Row:
 
 class Table:
     @staticmethod
+    def conditional_query(args):
+        text = ' WHERE '
+        params = []
+        for i in range(0, len(args), 2):
+            if i > 0:
+                text += ' AND '
+            text += args[i] + ' = ?'
+            params.append(args[i + 1])
+        return text, params
+
+    @staticmethod
     def select_all(table_name: str, cls) -> list:
         return [cls(_) for _ in DataBase.execute("SELECT * FROM " + table_name)]
 
@@ -63,14 +74,30 @@ class Table:
         return cls(DataBase.execute_one("SELECT * FROM " + table_name + " WHERE " + field + " = ?", (value,)))
 
     @staticmethod
+    def select_by_fields(table_name: str, cls, *args):
+        x = Table.conditional_query(args)
+        return cls(DataBase.execute_one("SELECT * FROM " + table_name + x[0], x[1]))
+
+    @staticmethod
     def select_list_by_field(table_name: str, field: str, value, cls) -> list:
         return [cls(_) for _ in DataBase.execute("SELECT * FROM " + table_name + " WHERE " + field + " = ?", (value,))]
+
+    @staticmethod
+    def select_list_by_fields(table_name: str, cls, *args):
+        x = Table.conditional_query(args)
+        return [cls(_) for _ in DataBase.execute("SELECT * FROM " + table_name + x[0], x[1])]
 
     @staticmethod
     def update_by_field(table_name: str, field: str, value):
         params = value.update_string()
         params[1].append(getattr(value, field))
         return DataBase.execute("UPDATE " + table_name + " SET " + params[0] + " WHERE " + field + " = ?", params[1])
+
+    @staticmethod
+    def update_by_fields(table_name: str, new, *args):
+        new = new.update_string()
+        x = Table.conditional_query(args)
+        return DataBase.execute("UPDATE " + table_name + " SET " + new[0] + x[0], new[1] + x[1])
 
     @staticmethod
     def insert(table_name: str, value, fields: list):
@@ -96,3 +123,8 @@ class Table:
     @staticmethod
     def delete_by_field(table_name: str, field: str, value):
         return DataBase.execute("DELETE FROM " + table_name + " WHERE " + field + " = ?", (value,))
+
+    @staticmethod
+    def delete_by_fields(table_name: str, *args):
+        x = Table.conditional_query(args)
+        return DataBase.execute("DELETE FROM " + table_name + x[0], x[1])
