@@ -6,7 +6,6 @@ from backend.database import ConstantsTable
 from flask_login import current_user
 from ..help.errors import forbidden_error
 from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES
-from .auto_generator import Generator
 '''
     /           index()             Возвращает стартовую страницу.
     /<path>     static_file(path)   Возвращает статическую страницу, проверяя статус пользователя и доступ к файлу.
@@ -66,6 +65,5 @@ def constants2():
 @app.route('/random')
 @cross_origin()
 def template_file():
-    Generator.gen_students_list(9)
     return render_template('page_random.html', number=str(random()))
 

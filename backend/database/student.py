@@ -53,6 +53,11 @@ class StudentsTable:
                                       'class_n', old.class_n, 'class_l', old.class_l)
 
     @staticmethod
+    def update_code(student: Student) -> None:
+        return Table.update_by_fields(StudentsTable.table, student, 'name_1', student.name_1, 'name_2', student.name_2,
+                                      'class_n', student.class_n, 'class_l', student.class_l)
+
+    @staticmethod
     def delete(student: Student) -> None:
         return Table.delete_by_fields(StudentsTable.table, 'name_1', student.name_1, 'name_2', student.name_2,
                                       'class_n', student.class_n, 'class_l', student.class_l)

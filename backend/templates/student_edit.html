@@ -46,12 +46,26 @@
 	</tr>
 </table>
 <br>
-<center>
-	<p>Для просмотра списка всех участников перейдите по ссылкам:</p>
-	<p><a href="students_5.html">5 класс</a></p>
-	<p><a href="students_6.html">6 класс</a></p>
-	<p><a href="students_7.html">7 класс</a></p>
-	<p><a href="students_8.html">8 класс</a></p>
-	<p><a href="students_9.html">9 класс</a></p>
-</center>
+<table width="100%">
+	<tr>
+		<td width="50%" valign="top">
+			<p>Для просмотра списка всех участников перейдите по ссылкам:</p>
+			<p><a href="students_5.html">5 класс</a></p>
+			<p><a href="students_6.html">6 класс</a></p>
+			<p><a href="students_7.html">7 класс</a></p>
+			<p><a href="students_8.html">8 класс</a></p>
+			<p><a href="students_9.html">9 класс</a></p>
+		</td>
+		<td width="50%" valign="top">
+			<h1>Опции</h1>
+			{% if not current_user.is_anonymous and current_user.can_do(-1) %}
+				<p><a href="create_codes">Сгенерировать коды</a></p>
+				<p><a href="create_students_lists">Сгенерировать списки участников</a></p>
+			{% endif %}
+			{% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
+			{% endif %}
+		</td>
+	</tr>
+</table>
+
 {% endblock %}

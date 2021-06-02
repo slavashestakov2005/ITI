@@ -1,9 +1,12 @@
 from backend import app
 from ..database import StudentsTable, Student
+from .help import check_status
+from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required
 from time import time
+from random import shuffle
 '''
     /registration_student   registration_student()      Регистрирует участника.
     /edit_student           edit_student()              Редактирует ученика.
@@ -25,6 +28,7 @@ def registration_student():
     if not s.__is_none__:
         return render_template('student_edit.html', error1='Такой участник уже есть')
     StudentsTable.insert(student)
+    Generator.gen_students_list(student.class_n)
     return render_template('student_edit.html', error1='Участник добавлен')
 
 
@@ -50,6 +54,8 @@ def edit_student():
     rows.append(student_old.code)
     s = Student(rows)
     StudentsTable.update_by_student(student_old, s)
+    Generator.gen_students_list(student_old.class_n)
+    Generator.gen_students_list(s.class_n)
     return render_template('student_edit.html', error2='Участник удалён')
 
 
@@ -63,4 +69,33 @@ def delete_student():
     if s.__is_none__:
         return render_template('student_edit.html', error3='Такого участника нет')
     StudentsTable.delete(student)
+    Generator.gen_students_list(student.class_n)
     return render_template('student_edit.html', error3='Участник удалён')
+
+
+@app.route("/create_codes")
+@cross_origin()
+@login_required
+@check_status('admin')
+def create_codes():
+    students = StudentsTable.select_all()
+    length = len(students)
+    codes = [_ for _ in range(9999, 9999 - length, -1)]
+    shuffle(codes)
+    for i in range(length):
+        students[i].code = int(time() * 1000)
+        StudentsTable.update_code(students[i])
+    for i in range(length):
+        students[i].code = codes[i]
+        StudentsTable.update_code(students[i])
+    return render_template('student_edit.html', error4='Коды сгенерированы')
+
+
+@app.route("/create_students_lists")
+@cross_origin()
+@login_required
+@check_status('admin')
+def create_students_lists():
+    for i in range(5, 10):
+        Generator.gen_students_list(i)
+    return render_template('student_edit.html', error4='Таблицы участников обновлены')
