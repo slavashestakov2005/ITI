@@ -91,6 +91,15 @@ def create_codes():
     return render_template('student_edit.html', error4='Коды сгенерированы')
 
 
+@app.route("/<path:year>/print_codes")
+@cross_origin()
+@login_required
+@check_status('admin')
+def print_codes(year):
+    Generator.gen_codes(year)
+    return render_template(year + '/codes.html')
+
+
 @app.route("/create_students_lists")
 @cross_origin()
 @login_required

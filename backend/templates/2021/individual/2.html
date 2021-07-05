@@ -1,0 +1,26 @@
+{% extends "page3.html" %}
+
+{% block page_num %}
+{% if not current_user.is_anonymous and current_user.can_do(2) %}
+<a href="#" onclick="addResult(window)">Залить результаты</a>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<table width="100%">
+	<tr>
+		<td>
+			<font size="3">
+				<a href="../main.html"><!-- year -->ИТИ-2021<!-- end --></a>
+				/
+				<a href="../individual_tours.html"><!-- tour_name -->Индивидуальный тур<!-- end --></a>
+				/
+				<!-- subject_name -->История<!-- end -->
+			</font>
+		</td>
+	</tr>
+</table>
+<center><h1><!-- subject_name -->История<!-- end --></h1></center>
+
+{% endblock %}

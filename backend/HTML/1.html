@@ -1,4 +1,11 @@
 {% extends "page3.html" %}
+
+{% block page_num %}
+{% if not current_user.is_anonymous and current_user.can_do(<!-- {page num} -->) %}
+<a href="#" onclick="addResult(window)">Залить результаты</a>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 
 <table width="100%">

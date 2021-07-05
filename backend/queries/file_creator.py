@@ -47,8 +47,9 @@ class FileCreator:
             if not os.path.exists(file_name):
                 data.insert_after_comment(' tour_name ', tour_name)
                 data.insert_after_comment(' subject_name ', subject.name)
+                data.replace_comment(' {page num} ', str(subject.id))
                 data.save_file(file_name)
-                s.add(file_name)
+            s.add(file_name)
         for file_name in glob.glob(directory + '**/*.html', recursive=False):
             file_name = file_name.replace('\\', '/')
             if file_name not in s:

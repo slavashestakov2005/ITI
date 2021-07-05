@@ -34,7 +34,17 @@ class ResultsTable:
 
     @staticmethod
     def select_by_year_and_subject(year: int, subject: int) -> list:
-        return Table.select_list_by_two_fields(ResultsTable.table, 'year', year, 'subject', subject, Result)
+        return Table.select_list_by_fields(ResultsTable.table, Result, 'year', year, 'subject', subject)
+
+    @staticmethod
+    def select_for_people(result: Result) -> Result:
+        return Table.select_by_fields(ResultsTable.table, Result, 'year', result.year, 'subject', result.subject,
+                                      'user', result.user)
+
+    @staticmethod
+    def update(result: Result):
+        return Table.update_by_fields(ResultsTable.table, result, 'year', result.year, 'subject', result.subject,
+                                      'user', result.user)
 
     @staticmethod
     def insert(result: Result) -> None:

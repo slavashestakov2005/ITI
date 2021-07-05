@@ -31,6 +31,15 @@ def save_result(path1, path2, path3):
     result = request.form['result']
     if not current_user.can_do(subject):
         return forbidden_error()
-    ResultsTable.insert(Result([year, subject, user_id, result]))
+    r = Result([year, subject, user_id, result])
+    if not ResultsTable.select_for_people(r).__is_none__:
+        if not current_user.can_do(-1):
+            return render_template('add_result.html', year=year, subject=subject,
+                                   error='Результат участника ' + str(user_id) + ' уже сохранён. Для изменения ' +
+                                         'необходимы права администратора')
+        else:
+            ResultsTable.update(r)
+    else:
+        ResultsTable.insert(r)
     return render_template('add_result.html', year=year, subject=subject,
                            error='Результат участника ' + str(user_id) + ' сохранён')

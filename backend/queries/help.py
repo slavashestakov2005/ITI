@@ -26,6 +26,10 @@ def all_templates():
     return glob(Config.TEMPLATES_FOLDER + '/**/*.html', recursive=True)
 
 
+def correct_slash(s: str):
+    return s.replace(r'\\', '/').replace('\\', '/').replace(r'//', '/')
+
+
 def parse_files():
     if len(LOGIN_REQUIRED_FILES) > 0:
         return
@@ -36,17 +40,17 @@ def parse_files():
             line1 = f.readline()
             line2 = f.readline()
         if line1 == "<!-- login required -->\n":
-            LOGIN_REQUIRED_FILES.append(file_name[length:])
+            LOGIN_REQUIRED_FILES.append(correct_slash(file_name[length:]))
             begin = line2[0:5]
             end = line2[-5:-1]
             if begin == '<!-- ' and end == ' -->':
                 value = int(line2[5:-5])
                 if value > 0:
-                    STATUS_REQUIRED_FILES[file_name[length:]] = {value, -2, -1}
+                    STATUS_REQUIRED_FILES[correct_slash(file_name[length:])] = {value, -2, -1}
                 elif value == -1:
-                    STATUS_REQUIRED_FILES[file_name[length:]] = {-2, -1}
+                    STATUS_REQUIRED_FILES[correct_slash(file_name[length:])] = {-2, -1}
                 else:
-                    STATUS_REQUIRED_FILES[file_name[length:]] = {-2}
+                    STATUS_REQUIRED_FILES[correct_slash(file_name[length:])] = {-2}
     print("Login required files: " + str(LOGIN_REQUIRED_FILES))
     print("Status: " + str(STATUS_REQUIRED_FILES))
 
@@ -86,6 +90,7 @@ class SplitFile:
     def __init__(self, file_name: str):
         self.file_name = file_name
         self.parts = []
+        self.replace = {}
         self.edited = False
         is_comment = False
         parts = self.read_file()
@@ -106,14 +111,27 @@ class SplitFile:
                 else:
                     self.parts.insert(index + 1, FilePart(text))
 
+    def replace_comment(self, comment: str, text: str):
+        for index in range(len(self.parts)):
+            if index >= len(self.parts):
+                break
+            if self.parts[index].is_comment and self.parts[index].text == comment:
+                self.edited = True
+                self.replace[index] = text
+
     def writable(self) -> str:
         result = ''
+        index = 0
         for part in self.parts:
-            if part.is_comment:
-                result += '<!--'
-            result += part.text
-            if part.is_comment:
-                result += '-->'
+            if index in self.replace:
+                result += self.replace[index]
+            else:
+                if part.is_comment:
+                    result += '<!--'
+                result += part.text
+                if part.is_comment:
+                    result += '-->'
+            index += 1
         return result
 
     def save_file(self, file_name=None):
@@ -122,3 +140,4 @@ class SplitFile:
         if self.edited:
             with open(file_name, 'w', encoding='UTF-8') as f:
                 f.write(self.writable())
+        self.replace = {}

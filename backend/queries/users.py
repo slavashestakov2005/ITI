@@ -98,10 +98,10 @@ def registration():
 def edit_status():
     if request.method == 'POST':
         user_login = request.form['login']
-        user_status = request.form['status']
+        user_status = request.form.getlist('status')
         u = UsersTable.select_by_login(user_login)
         if not u.__is_none__:
-            u.status = user_status
+            u.set_status(user_status)
             UsersTable.update_by_login(u)
             return render_template('user_edit.html', error2='Статус пользователя ' + user_login + ' обнавлён')
         else:

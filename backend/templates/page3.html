@@ -39,7 +39,7 @@
 								<button class="dropbtn">О нас</button>
 								<div class="dropdown-content">
 									<a href="../../Info/organizer.html">Организаторы</a>
-									<a href="#">Авторы</a>
+									<a href="../../Info/author.html">Авторы</a>
 								</div>
 							</div>
 						</center>
@@ -55,8 +55,8 @@
 								<div class="dropdown-content">
 									{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 									<a href="../../user_edit.html">Пользователи</a>
-									<a href="#" onclick="addResult(window)">Залить результаты</a>
 									{% endif %}
+									{% block page_num %}{% endblock %}
 
 									{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 									<a href="#" onclick="edit(document)">Редактировать</a>

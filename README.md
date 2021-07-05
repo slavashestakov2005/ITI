@@ -19,6 +19,6 @@
 | &nbsp; | | | |
 | Работа с новыми ИТИ и предметами | full | full.py, auto_generator.py, file_creator.py | 25.04.21 |
 | Связь ИТИ и предметов, генерация страниц | admin | full.py, auto_generator.py, file_creator.py | 25.04.21 |
-| Генерация кодов для участников | admin | students.py | 27.04.21 |
+| Генерация кодов для участников, таблица со всеми кодами | admin | students.py, auto_generator.py | 05.07.21 |
 | &nbsp; | | | |
-| Сохранение результатов | Предметник | results.py | 27.04.21 |
+| Сохранение результатов | Предметник | results.py | 05.07.21 |

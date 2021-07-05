@@ -8,6 +8,7 @@ import glob
         gen_subjects_lists()                Изменяет глобальные списки предметов.
         gen_years_subjects_list(year)       Изменяет списки предметов для одного года.
         gen_students_list(class_n)          Изменяет таблицу учеников класса class_n.
+        gen_codes(year)                     Генерирует страницу с кодами участников.
 '''
 
 
@@ -107,4 +108,28 @@ class Generator:
         data.insert_after_comment(' students_table 1 ', text3)
         data.insert_after_comment(' students_table 2 ', text2)
         data.insert_after_comment(' students_table 3 ', text1)
+        data.save_file()
+
+    @staticmethod
+    def gen_codes(year: int):
+        file_name = Config.TEMPLATES_FOLDER + "/" + str(year) + "/codes.html"
+        students = StudentsTable.select_all()
+        # sort list
+        length = len(students)
+        m1 = length // 3
+        m2 = length * 2 // 3
+        text1 = text2 = text3 = '\n'
+        for i in range(0, m1):
+            text1 += '<tr><td>' + str(students[i].class_n) + students[i].class_l + '</td><td>' + students[i].name_1 + \
+                     '</td><td>' + students[i].name_2 + '</td><td>' + str(students[i].code) + '</td></tr>'
+        for i in range(m1, m2):
+            text2 += '<tr><td>' + str(students[i].class_n) + students[i].class_l + '</td><td>' + students[i].name_1 + \
+                     '</td><td>' + students[i].name_2 + '</td><td>' + str(students[i].code) + '</td></tr>'
+        for i in range(m2, length):
+            text3 += '<tr><td>' + str(students[i].class_n) + students[i].class_l + '</td><td>' + students[i].name_1 + \
+                     '</td><td>' + students[i].name_2 + '</td><td>' + str(students[i].code) + '</td></tr>'
+        data = SplitFile(file_name)
+        data.insert_after_comment(' codes_table 1 ', text3)
+        data.insert_after_comment(' codes_table 2 ', text2)
+        data.insert_after_comment(' codes_table 3 ', text1)
         data.save_file()
