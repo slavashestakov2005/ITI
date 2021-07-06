@@ -2,7 +2,7 @@
 
 {% block page_num %}
 {% if not current_user.is_anonymous and current_user.can_do(18) %}
-<a href="#" onclick="addResult(window)">Залить результаты</a>
+<a href="#" onclick="addResult(window)">Результаты</a>
 {% endif %}
 {% endblock %}
 
@@ -22,5 +22,5 @@
 	</tr>
 </table>
 <center><h1><!-- subject_name -->Изобретательство<!-- end --></h1></center>
-
+<!-- results table --><!-- end -->
 {% endblock %}

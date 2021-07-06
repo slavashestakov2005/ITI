@@ -8,9 +8,13 @@ from flask_login import login_required
 from time import time
 from random import shuffle
 '''
+    split_class(class)                                  Разбивает класс на букву и цифру.
     /registration_student   registration_student()      Регистрирует участника.
     /edit_student           edit_student()              Редактирует ученика.
     /delete_student         delete_student()            Удаляет ученика.
+    /create_codes           create_codes()              Создаёт коды для участников (admin).
+    /print_codes            /print_codes()              Генерирует страницу с кодами всех участников (admin).
+    /create_students_lists  create_students_lists()     Генериркет списки участников для всех классов (admin).
 '''
 
 
@@ -97,7 +101,7 @@ def create_codes():
 @check_status('admin')
 def print_codes(year):
     Generator.gen_codes(year)
-    return render_template(year + '/codes.html')
+    return render_template(year + '/codes.html', year=year)
 
 
 @app.route("/create_students_lists")

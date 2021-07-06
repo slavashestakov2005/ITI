@@ -14,6 +14,10 @@ class Result(Row):
     def __init__(self, row):
         Row.__init__(self, Result, row)
 
+    @staticmethod
+    def sort_by_result(result):
+        return -result.result
+
 
 class ResultsTable:
     table = "result"

@@ -15,6 +15,10 @@ class Student(Row):
     def __init__(self, row):
         Row.__init__(self, Student, row)
 
+    @staticmethod
+    def sort_by_class(student):
+        return str(student.class_n) + student.class_l
+
 
 class StudentsTable:
     table = "student"
@@ -61,4 +65,3 @@ class StudentsTable:
     def delete(student: Student) -> None:
         return Table.delete_by_fields(StudentsTable.table, 'name_1', student.name_1, 'name_2', student.name_2,
                                       'class_n', student.class_n, 'class_l', student.class_l)
-

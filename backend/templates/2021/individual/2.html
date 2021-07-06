@@ -2,7 +2,7 @@
 
 {% block page_num %}
 {% if not current_user.is_anonymous and current_user.can_do(2) %}
-<a href="#" onclick="addResult(window)">Залить результаты</a>
+<a href="#" onclick="addResult(window)">Результаты</a>
 {% endif %}
 {% endblock %}
 
@@ -22,5 +22,58 @@
 	</tr>
 </table>
 <center><h1><!-- subject_name -->История<!-- end --></h1></center>
-
+<!-- results table --><center><h2>Результаты</h2></center>
+<table width="100%"><tr>
+<td width="30%" valign="top">
+<center><h3>5 класс</h3></center>
+<table width="100%" border="1">
+                    <tr>
+                        <td width="10%">Место</td>
+                        <td width="30%">Фамилия</td>
+                        <td width="30%">Имя</td>
+                        <td width="10%">Класс</td>
+                        <td width="10%">Балл</td>
+                        <td width="10%">Балл в рейтинг</td>
+                    </tr>
+<tr><td>1</td><td>Место 1</td><td>Имя5</td><td>5Я</td><td>40</td><td>???</td></tr>
+</table></td>
+<td width="5%"></td><td width="30%" valign="top">
+<center><h3>7 класс</h3></center>
+<table width="100%" border="1">
+                    <tr>
+                        <td width="10%">Место</td>
+                        <td width="30%">Фамилия</td>
+                        <td width="30%">Имя</td>
+                        <td width="10%">Класс</td>
+                        <td width="10%">Балл</td>
+                        <td width="10%">Балл в рейтинг</td>
+                    </tr>
+<tr><td>1</td><td>Место1</td><td>Имя7</td><td>7Е</td><td>50</td><td>???</td></tr>
+</table></td>
+<td width="5%"></td><td width="30%" valign="top"><center><h3>8 класс</h3></center>
+<table width="100%" border="1">
+                    <tr>
+                        <td width="10%">Место</td>
+                        <td width="30%">Фамилия</td>
+                        <td width="30%">Имя</td>
+                        <td width="10%">Класс</td>
+                        <td width="10%">Балл</td>
+                        <td width="10%">Балл в рейтинг</td>
+                    </tr>
+<tr><td>1</td><td>Место1</td><td>Имя8</td><td>8Г</td><td>70</td><td>???</td></tr>
+<tr><td>2</td><td>Место2</td><td>Имя8</td><td>8Д</td><td>60</td><td>???</td></tr>
+</table></td></tr><tr><td width="30%" valign="top"><center><h3>9 класс</h3></center>
+<table width="100%" border="1">
+                    <tr>
+                        <td width="10%">Место</td>
+                        <td width="30%">Фамилия</td>
+                        <td width="30%">Имя</td>
+                        <td width="10%">Класс</td>
+                        <td width="10%">Балл</td>
+                        <td width="10%">Балл в рейтинг</td>
+                    </tr>
+<tr><td>1</td><td>Место 1</td><td>Имя</td><td>9А</td><td>100</td><td>???</td></tr>
+<tr><td>2</td><td>Место 2</td><td>Имя</td><td>9Б</td><td>90</td><td>???</td></tr>
+<tr><td>3</td><td>Место 3</td><td>Имя</td><td>9В</td><td>80</td><td>???</td></tr>
+</table></td></tr></table><!-- end -->
 {% endblock %}
