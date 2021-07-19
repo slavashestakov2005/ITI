@@ -136,7 +136,7 @@ class Generator:
         data.save_file()
 
     @staticmethod
-    def gen_results_0(results: list, codes: map):
+    def gen_results_1(results: list, codes: map, maximum: int):
         if len(results) == 0:
             return None
         text = '''<table width="100%" border="1">
@@ -150,6 +150,8 @@ class Generator:
                     </tr>\n'''
         cnt = 1
         for result in results:
+            if result.result > maximum:
+                raise ValueError("Bad results are saved")
             people = codes[result.user]
             text += '<tr><td>' + str(cnt) + '</td><td>' + people.name_1 + '</td><td>' + people.name_2 + '</td><td>' + \
                     str(people.class_n) + people.class_l + '</td><td>' + str(result.result) + '</td><td>???</td></tr>\n'
@@ -158,35 +160,47 @@ class Generator:
         return text
 
     @staticmethod
+    def gen_results_2(results: list, codes: map, class_n: int, maximum: int):
+        txt = Generator.gen_results_1(results, codes, maximum)
+        if txt:
+            txt = '''<td width="30%" valign="top">
+            <center>
+                <h3>''' + str(class_n) + ''' класс</h3>
+                <p>(Максимум: ''' + str(maximum) + ''' баллов)</p>
+            </center>''' + txt + '</td>\n'''
+        return txt
+
+    @staticmethod
     def gen_results(year: int, subject: int, file_name: str):
         results = ResultsTable.select_by_year_and_subject(year, subject)
+        year_subject = YearsSubjectsTable.select(year, subject)
         codes = {_.code: _ for _ in StudentsTable.select_all()}
         sorted_results = [[] for _ in range(5)]
         for r in results:
             sorted_results[codes[r.user].class_n - 5].append(r)
         for lst in sorted_results:
             lst.sort(key=Result.sort_by_result)
-        txt5 = Generator.gen_results_0(sorted_results[0], codes)
-        txt6 = Generator.gen_results_0(sorted_results[1], codes)
-        txt7 = Generator.gen_results_0(sorted_results[2], codes)
-        txt8 = Generator.gen_results_0(sorted_results[3], codes)
-        txt9 = Generator.gen_results_0(sorted_results[4], codes)
+        txt5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5)
+        txt6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6)
+        txt7 = Generator.gen_results_2(sorted_results[2], codes, 7, year_subject.score_7)
+        txt8 = Generator.gen_results_2(sorted_results[3], codes, 8, year_subject.score_8)
+        txt9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9)
         txt = '<center><h2>Результаты</h2></center>\n<table width="100%"><tr>\n'
-        txt += '<td width="30%" valign="top">\n<center><h3>5 класс</h3></center>\n' + txt5 + '</td>\n' if txt5 else ''
+        txt += txt5 if txt5 else ''
         txt += '<td width="5%"></td>' if txt5 and txt6 else ''
-        txt += '<td width="30%" valign="top">\n<center><h3>6 класс</h3></center>\n' + txt6 + '</td>\n' if txt6 else ''
+        txt += txt6 if txt6 else ''
         txt += '<td width="5%"></td>' if (txt5 or txt6) and txt7 else ''
-        txt += '<td width="30%" valign="top">\n<center><h3>7 класс</h3></center>\n' + txt7 + '</td>\n' if txt7 else ''
+        txt += txt7 if txt7 else ''
         if txt5 and txt6 and txt7:
             txt += '</tr><tr>'
         elif txt8 and (txt5 or txt6 or txt7):
             txt += '<td width="5%"></td>'
-        txt += '<td width="30%" valign="top"><center><h3>8 класс</h3></center>\n' + txt8 + '</td>' if txt8 else ''
+        txt += txt8 if txt8 else ''
         if txt8 and int(not txt5) + int(not txt6) + int(not txt7) == 1:
             txt += '</tr><tr>'
         elif txt9 and (txt5 or txt6 or txt7 or txt8):
             txt += '<td width="5%"></td>'
-        txt += '<td width="30%" valign="top"><center><h3>9 класс</h3></center>\n' + txt9 + '</td>' if txt9 else ''
+        txt += txt9 if txt9 else ''
         txt += '</tr></table>'
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
         data.insert_after_comment(' results table ', txt)

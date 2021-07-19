@@ -90,7 +90,7 @@ def subject_year(year):
     subjects = request.form.getlist('subject')
     YearsSubjectsTable.delete_by_year(year)
     for subject in subjects:
-        YearsSubjectsTable.insert(YearSubject([year, int(subject)]))
+        YearsSubjectsTable.insert(YearSubject([year, int(subject), 0, 0, 0, 0, 0]))
     FileCreator.create_subjects(year, subjects)
     Generator.gen_years_subjects_list(year)
     return render_template(str(year) + '/subjects_for_year.html', error='Сохранено', year=year)
