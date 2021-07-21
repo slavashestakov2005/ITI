@@ -4,29 +4,56 @@
 {% extends "page2.html" %}
 {% block content %}
 
-<form action="subject_year" method="post">
-    <h2>Предметы:</h2>
-    <table width="100%">
-        <tr>
-            <td width="50%" valign="top">
-                <h3>Индивидуальные туры:</h3>
-                <!-- list of year_individual tours -->
-    <!-- end -->
-            </td>
-            <td width="50%" valign="top">
-                <h3>Групповые туры:</h3>
-                <!-- list of year_group tours -->
-    <!-- end -->
-                <h3>Другое:</h3>
-                <!-- list of year_another tours -->
-    <!-- end -->
-            </td>
-        </tr>
-    </table>
+<table width="100%">
+    <tr>
+        <td>
+            <font size="3">
+                <a href="main.html"><!-- year --><!-- end --></a>
+                /
+                Настройки ИТИ
+            </font>
+        </td>
+    </tr>
+</table>
 
-    {% if error %} <p><font color="red">[ {{ error }} ]</font></p>
-    {% endif %}
-    <input type="submit" value="Сохранить">
-</form>
+<center><h1>Настройки ИТИ</h1></center>
+
+<table width="100%">
+    <tr>
+        <td width="40%" valign="top">
+            <form action="subject_year" method="post"><center>
+                <h2>Предметы:</h2>
+                <table width="100%">
+                    <tr>
+                        <td width="50%" valign="top">
+                            <h3>Индивидуальные туры:</h3>
+                            <!-- list of year_individual tours -->
+                <!-- end -->
+                        </td>
+                        <td width="50%" valign="top">
+                            <h3>Групповые туры:</h3>
+                            <!-- list of year_group tours -->
+                <!-- end -->
+                            <h3>Другое:</h3>
+                            <!-- list of year_another tours -->
+                <!-- end -->
+                        </td>
+                    </tr>
+                </table>
+
+                {% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+                {% endif %}
+                <input type="submit" value="Сохранить">
+            </center></form>
+        </td>
+        <td width="60%">
+            <p><a href="#">Настройки команд</a></p>
+            <p><a href="#">Участники команд</a></p>
+            <p><a href="ratings_update">Обновить рейтинг</a></p>
+            {% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
+            {% endif %}
+        </td>
+    </tr>
+</table>
 
 {% endblock %}

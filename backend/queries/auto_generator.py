@@ -9,7 +9,9 @@ import glob
         gen_years_subjects_list(year)       Изменяет списки предметов для одного года.
         gen_students_list(class_n)          Изменяет таблицу учеников класса class_n.
         gen_codes(year)                     Генерирует страницу с кодами участников.
+        gen_net_score(...)                  Генерирует балл в рейтинг [нужно уточнить!].
         geb_results(year, sub, file)        Генерирует таблицу результатов по предмету sub.
+        gen_ratings(year)                   Генерирует рейтинговые таблицы года year.
 '''
 
 
@@ -136,6 +138,12 @@ class Generator:
         data.save_file()
 
     @staticmethod
+    def gen_net_score(maximum: int, best_score: int, score: int) -> int:
+        if 2 * best_score >= maximum:
+            return int(0.5 + score * 100 / best_score)
+        return int(0.5 + score * 100 / maximum)
+
+    @staticmethod
     def gen_results_1(results: list, codes: map, maximum: int):
         if len(results) == 0:
             return None
@@ -153,8 +161,11 @@ class Generator:
             if result.result > maximum:
                 raise ValueError("Bad results are saved")
             people = codes[result.user]
+            result.net_score = Generator.gen_net_score(maximum, results[0].result, result.result)
             text += '<tr><td>' + str(cnt) + '</td><td>' + people.name_1 + '</td><td>' + people.name_2 + '</td><td>' + \
-                    str(people.class_n) + people.class_l + '</td><td>' + str(result.result) + '</td><td>???</td></tr>\n'
+                    str(people.class_n) + people.class_l + '</td><td>' + str(result.result) + '</td><td>' + \
+                    str(result.net_score) + '</td></tr>\n'
+            ResultsTable.update(result)
             cnt += 1
         text += '</table>'
         return text
@@ -205,3 +216,69 @@ class Generator:
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
         data.insert_after_comment(' results table ', txt)
         data.save_file()
+
+    @staticmethod
+    def gen_ratings_1(results: list, index: int, start: int):
+        txt = ''
+        for i in range(min(20, len(results) - index)):
+            s = results[index + i][1]
+            if s.class_n != start:
+                break
+            txt += '<tr><td>' + str(i + 1) + '</td><td>' + str(s.class_n) + s.class_l + '</td><td>' + s.name_1 + \
+                   '</td><td>' + s.name_2 + '</td><td>' + str(s.result) + '</td></tr>\n'
+        while index < len(results) and results[index][1].class_n == start:
+            index += 1
+        return txt, index
+
+    @staticmethod
+    def gen_ratings_2(results: list):
+        txt = ''
+        i = 0
+        for x in results:
+            txt += '<tr><td>' + str(i + 1) + '</td><td>' + x[0] + '</td><td>' + str(x[1]) + '</td></tr>\n'
+            i += 1
+            if i == 20:
+                break
+        return txt
+
+    @staticmethod
+    def gen_ratings(year: int):
+        results = ResultsTable.select_by_year(year)
+        codes = {_.code: _ for _ in StudentsTable.select_all()}
+        class_results = {}
+        student_result = {}
+        for r in results:
+            student = codes[r.user]
+            class_name = str(student.class_n) + student.class_l
+            if class_name in class_results:
+                class_results[class_name] += r.net_score
+            else:
+                class_results[class_name] = r.net_score
+            if student.code in student_result:
+                student_result[student.code].append(r.net_score)
+            else:
+                student_result[student.code] = [r.net_score]
+        for r in student_result:
+            student_result[r].sort(reverse=True)
+            cnt = 0
+            for i in range(min(4, len(student_result[r]))):
+                cnt += student_result[r][i]
+            codes[r].result = cnt
+        codes = sorted(codes.items(), key=lambda x: -x[1].class_n * 1000 - x[1].result)
+        class_results = sorted(class_results.items(), key=lambda x: -x[1])
+        index = 0
+        best_9, index = Generator.gen_ratings_1(codes, index, 9)
+        best_8, index = Generator.gen_ratings_1(codes, index, 8)
+        best_7, index = Generator.gen_ratings_1(codes, index, 7)
+        best_6, index = Generator.gen_ratings_1(codes, index, 6)
+        best_5, index = Generator.gen_ratings_1(codes, index, 5)
+        best_class = Generator.gen_ratings_2(class_results)
+        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating.html')
+        data.insert_after_comment(' rating_class ', best_class)
+        data.insert_after_comment(' rating_parallel_5 ', best_5)
+        data.insert_after_comment(' rating_parallel_6 ', best_6)
+        data.insert_after_comment(' rating_parallel_7 ', best_7)
+        data.insert_after_comment(' rating_parallel_8 ', best_8)
+        data.insert_after_comment(' rating_parallel_9 ', best_9)
+        data.save_file()
+        # лучшие результаты в первый / второй дни :(

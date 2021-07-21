@@ -1,0 +1,142 @@
+<!-- login required -->
+<!-- -2 -->
+{% extends "page2.html" %}
+{% block content %}
+
+{% block head %}{% endblock %}
+
+<center>
+    <H2>Командный зачёт</H2>
+    <table width="90%" border="1">
+        <tr>
+            <td width="5%">Место</td>
+            <td width="15%">Название</td>
+            <td width="8%">День 1</td>
+            <td width="8%">День 2</td>
+            <td width="8%">Гр. тур 1</td>
+            <td width="8%">Гр. тур 2</td>
+            <td width="8%">Гр. тур 3</td>
+            <td width="8%">Гр. тур 4</td>
+            <td width="8%">Гр. тур 5</td>
+            <td width="8%">Гр. тур 6</td>
+            <td width="8%">Командный</td>
+            <td width="8%">Сумма</td>
+        </tr>
+        {% block rating_teams %}{% endblock %}
+    </table>
+</center>
+
+<table width="100%">
+    <tr>
+        <td width="45%"><center><h2>Суперчемпион</h2></center></td>
+        <td width="10%"></td>
+        <td width="45%"><center><h2>Лучший класс</h2></center></td>
+    </tr>
+    <tr>
+        <td>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="5%">Место</td>
+                    <td width="5%">Класс</td>
+                    <td width="10%">Фамилия</td>
+                    <td width="10%">Имя</td>
+                    <td width="20%">???</td>
+                </tr>
+                {% block rating_student %}{% endblock %}
+            </table>
+        </td>
+        <td></td>
+        <td>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="5%">Место</td>
+                    <td width="5%">Класс</td>
+                    <td width="10%">Сумма</td>
+                </tr>
+                {% block rating_class %}{% endblock %}
+            </table>
+        </td>
+    </tr>
+</table>
+
+<center><H2>Топ параллелей</H2></center>
+<table width="100%">
+    <tr>
+        <td width="30%" valign="top">
+            <center><h3>Лучшие пятиклассники</h3></center>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="5%">Место</td>
+                    <td width="5%">Класс</td>
+                    <td width="10%">Фамилия</td>
+                    <td width="10%">Имя</td>
+                    <td width="10%">Сумма</td>
+                </tr>
+                {% block rating_parallel_5 %}{% endblock %}
+            </table>
+        </td>
+        <td width="5%"></td>
+        <td width="30%" valign="top">
+            <center><h3>Лучшие шестиклассники</h3></center>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="5%">Место</td>
+                    <td width="5%">Класс</td>
+                    <td width="10%">Фамилия</td>
+                    <td width="10%">Имя</td>
+                    <td width="10%">Сумма</td>
+                </tr>
+                {% block rating_parallel_6 %}{% endblock %}
+            </table>
+        </td>
+        <td width="5%"></td>
+        <td width="30%" valign="top">
+            <center><h3>Лучшие семиклассники</h3></center>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="5%">Место</td>
+                    <td width="5%">Класс</td>
+                    <td width="10%">Фамилия</td>
+                    <td width="10%">Имя</td>
+                    <td width="10%">Сумма</td>
+                </tr>
+                {% block rating_parallel_7 %}{% endblock %}
+            </table>
+        </td>
+    </tr>
+</table>
+<table width="100%">
+    <tr>
+        <td width="15%"></td>
+        <td width="30%" valign="top">
+            <center><h3>Лучшие восьмиклассники</h3></center>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="5%">Место</td>
+                    <td width="5%">Класс</td>
+                    <td width="10%">Фамилия</td>
+                    <td width="10%">Имя</td>
+                    <td width="10%">Сумма</td>
+                </tr>
+                {% block rating_parallel_8 %}{% endblock %}
+            </table>
+        </td>
+        <td width="10%"></td>
+        <td width="30%" valign="top">
+            <center><h3>Лучшие девятиклассники</h3></center>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="5%">Место</td>
+                    <td width="5%">Класс</td>
+                    <td width="10%">Фамилия</td>
+                    <td width="10%">Имя</td>
+                    <td width="10%">Сумма</td>
+                </tr>
+                {% block rating_parallel_9 %}{% endblock %}
+            </table>
+        </td>
+        <td width="15%"></td>
+    </tr>
+</table>
+
+{% endblock %}

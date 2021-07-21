@@ -39,6 +39,10 @@ class ResultsTable:
         return Table.select_all(ResultsTable.table, Result)
 
     @staticmethod
+    def select_by_year(year: int) -> list:
+        return Table.select_list_by_field(ResultsTable.table, 'year', year, Result)
+
+    @staticmethod
     def select_by_year_and_subject(year: int, subject: int) -> list:
         return Table.select_list_by_fields(ResultsTable.table, Result, 'year', year, 'subject', subject)
 

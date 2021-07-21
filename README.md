@@ -23,4 +23,5 @@
 | &nbsp; | | | |
 | Настройка предмета | Предметник | results.py | 19.07.21 |
 | Сохранение результатов | Предметник | results.py | 05.07.21 |
-| Публикация результатов | admin | results.py, auto_generator.py, | 19.07.21 |
+| Публикация результатов | admin | results.py, auto_generator.py | 19.07.21 |
+| Публикация рейтинга | admin | results.py, auto_generator.py | 21.07.21 |

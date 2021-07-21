@@ -1,7 +1,7 @@
 {% extends "page3.html" %}
 
 {% block page_num %}
-{% if not current_user.is_anonymous and current_user.can_do(11) %}
+{% if not current_user.is_anonymous and current_user.can_do(4) %}
 <a href="#" onclick="addResult(window)">Результаты</a>
 {% endif %}
 {% endblock %}
@@ -16,11 +16,11 @@
 				/
 				<a href="../individual_tours.html"><!-- tour_name -->Индивидуальный тур<!-- end --></a>
 				/
-				<!-- subject_name -->Исскуство<!-- end -->
+				<!-- subject_name -->Русский язык<!-- end -->
 			</font>
 		</td>
 	</tr>
 </table>
-<center><h1><!-- subject_name -->Исскуство<!-- end --></h1></center>
+<center><h1><!-- subject_name -->Русский язык<!-- end --></h1></center>
 <!-- results table --><!-- end -->
 {% endblock %}

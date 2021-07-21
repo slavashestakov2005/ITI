@@ -13,6 +13,7 @@ from .auto_generator import Generator
     /<path1>/<path2>/<path3>/max_score      max_score(...)      Сохраняет максимальные баллы по предмету.
     /<path1>/<path2>/<path3>/save_result    save_result(...)    Сохранение результатов (для предметников).
     /<path1>/<path2>/<path3>/share_results  share_results(...)  Генерирует таблицу с результатами (admin).
+    /<year>/ratings_update                  ratings_update(...) Обновляет рейтинги (admin).
 '''
 
 
@@ -102,3 +103,21 @@ def share_results(path1, path2, path3):
         return render_template('add_result.html', **page_params(path1, path2, path3),
                 error3='Сохранены некоректные результаты (есть участник с количеством баллов большим максимального)')
     return render_template('add_result.html', **page_params(path1, path2, path3), error3='Результаты опубликованы')
+
+
+'''
+# Можно объединить с публикацией результатов, так как:
+# 1. Меньше запросов к БД.
+# 2. Меньше нажимать кнопок.
+# 3. Это логично (участники могут сделать это и руками).
+'''
+
+
+@app.route("/<path:year>/ratings_update")
+@cross_origin()
+@login_required
+@check_status('admin')
+def ratings_update(year):
+    year = int(year)
+    Generator.gen_ratings(year)
+    return render_template(str(year) + '/subjects_for_year.html', error2='Рейтинги обновлены', year=year)

@@ -93,4 +93,4 @@ def subject_year(year):
         YearsSubjectsTable.insert(YearSubject([year, int(subject), 0, 0, 0, 0, 0]))
     FileCreator.create_subjects(year, subjects)
     Generator.gen_years_subjects_list(year)
-    return render_template(str(year) + '/subjects_for_year.html', error='Сохранено', year=year)
+    return render_template(str(year) + '/subjects_for_year.html', error1='Сохранено', year=year)

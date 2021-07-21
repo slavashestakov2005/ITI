@@ -14,6 +14,7 @@ class Student(Row):
 
     def __init__(self, row):
         Row.__init__(self, Student, row)
+        self.result = 0
 
     @staticmethod
     def sort_by_class(student):
