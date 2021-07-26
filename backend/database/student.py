@@ -4,13 +4,13 @@ from backend.database import DataBase, Table, Row
 class Student(Row):
     """
         Строка таблицы StudentsTable
-        name_1      TEXT    NOT NULL    PK
-        name_2      TEXT    NOT NULL    PK
-        class_n     INT     NOT NULL    PK
-        class_l     TEXT    NOT NULL    PK
-        code        INT     NOT NULL            UNIQUE
+        id          INT     NOT NULL    PK  AI  UNIQUE
+        name_1      TEXT    NOT NULL                        (Фамилия)
+        name_2      TEXT    NOT NULL                        (Имя)
+        class_n     INT     NOT NULL
+        class_l     TEXT    NOT NULL
     """
-    fields = ['name_1', 'name_2', 'class_n', 'class_l', 'code']
+    fields = ['id', 'name_1', 'name_2', 'class_n', 'class_l']
 
     def __init__(self, row):
         Row.__init__(self, Student, row)
@@ -27,12 +27,12 @@ class StudentsTable:
     @staticmethod
     def create_table() -> None:
         DataBase.execute('''CREATE TABLE "''' + StudentsTable.table + '''
+        "id"	INTEGER NOT NULL UNIQUE,
         "name_1"	TEXT NOT NULL,
         "name_2"	TEXT NOT NULL,
         "class_n"	INTEGER NOT NULL,
         "class_l"	TEXT NOT NULL,
-        "code"	INTEGER NOT NULL UNIQUE,
-        PRIMARY KEY("name_1","name_2","class_n","class_l")
+        PRIMARY KEY("id" AUTOINCREMENT)
         );''')
 
     @staticmethod
@@ -53,16 +53,9 @@ class StudentsTable:
         return Table.insert(StudentsTable.table, student, student.fields)
 
     @staticmethod
-    def update_by_student(old: Student, new: Student) -> None:
-        return Table.update_by_fields(StudentsTable.table, new, 'name_1', old.name_1, 'name_2', old.name_2,
-                                      'class_n', old.class_n, 'class_l', old.class_l)
-
-    @staticmethod
-    def update_code(student: Student) -> None:
-        return Table.update_by_fields(StudentsTable.table, student, 'name_1', student.name_1, 'name_2', student.name_2,
-                                      'class_n', student.class_n, 'class_l', student.class_l)
+    def update(new: Student) -> None:
+        return Table.update_by_field(StudentsTable.table, 'id', new)
 
     @staticmethod
     def delete(student: Student) -> None:
-        return Table.delete_by_fields(StudentsTable.table, 'name_1', student.name_1, 'name_2', student.name_2,
-                                      'class_n', student.class_n, 'class_l', student.class_l)
+        return Table.delete(StudentsTable.table, student)

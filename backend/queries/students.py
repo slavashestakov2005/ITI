@@ -1,25 +1,19 @@
 from backend import app
-from ..database import StudentsTable, Student
-from .help import check_status
+from ..database import StudentsTable, Student, StudentsCodesTable, StudentCode
+from .help import check_status, split_class
 from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required
-from time import time
 from random import shuffle
 '''
-    split_class(class)                                  Разбивает класс на букву и цифру.
     /registration_student   registration_student()      Регистрирует участника.
     /edit_student           edit_student()              Редактирует ученика.
     /delete_student         delete_student()            Удаляет ученика.
-    /create_codes           create_codes()              Создаёт коды для участников (admin).
-    /print_codes            /print_codes()              Генерирует страницу с кодами всех участников (admin).
+    /<year>/create_codes           create_codes()              Создаёт коды для участников (admin).
+    /<year>/print_codes            /print_codes()              Генерирует страницу с кодами всех участников (admin).
     /create_students_lists  create_students_lists()     Генериркет списки участников для всех классов (admin).
 '''
-
-
-def split_class(class_):
-    return int(class_[:-1]), class_[-1],
 
 
 @app.route('/registration_student', methods=['POST'])
@@ -27,7 +21,7 @@ def split_class(class_):
 @login_required
 def registration_student():
     class_ = split_class(request.form['class'])
-    student = Student([request.form['last_name'], request.form['first_name'], class_[0], class_[1], int(time() * 10)])
+    student = Student([None, request.form['name1'], request.form['name2'], class_[0], class_[1]])
     s = StudentsTable.select_by_student(student)
     if not s.__is_none__:
         return render_template('student_edit.html', error1='Такой участник уже есть')
@@ -41,11 +35,12 @@ def registration_student():
 @login_required
 def edit_student():
     class_old = split_class(request.form['o_class'])
-    student_old = Student([request.form['o_name1'], request.form['o_name2'], class_old[0], class_old[1], int(time() * 10)])
+    student_old = Student([None, request.form['o_name1'], request.form['o_name2'], class_old[0], class_old[1]])
     student_old = StudentsTable.select_by_student(student_old)
     rows = []
     if student_old.__is_none__:
         return render_template('student_edit.html', error2='Такого участника нет')
+    rows.append(student_old.id)
     rows.append(request.form['n_name1'] if request.form['n_name1'] else student_old.name_1)
     rows.append(request.form['n_name2'] if request.form['n_name2'] else student_old.name_2)
     if request.form['n_class']:
@@ -55,12 +50,11 @@ def edit_student():
     else:
         rows.append(student_old.class_n)
         rows.append(student_old.class_l)
-    rows.append(student_old.code)
     s = Student(rows)
-    StudentsTable.update_by_student(student_old, s)
+    StudentsTable.update(s)
     Generator.gen_students_list(student_old.class_n)
     Generator.gen_students_list(s.class_n)
-    return render_template('student_edit.html', error2='Участник удалён')
+    return render_template('student_edit.html', error2='Данные изменены')
 
 
 @app.route('/delete_student', methods=['POST'])
@@ -68,31 +62,30 @@ def edit_student():
 @login_required
 def delete_student():
     class_ = split_class(request.form['class'])
-    student = Student([request.form['last_name'], request.form['first_name'], class_[0], class_[1], int(time() * 10)])
-    s = StudentsTable.select_by_student(student)
-    if s.__is_none__:
+    student = Student([None, request.form['name1'], request.form['name2'], class_[0], class_[1]])
+    student = StudentsTable.select_by_student(student)
+    if student.__is_none__:
         return render_template('student_edit.html', error3='Такого участника нет')
     StudentsTable.delete(student)
     Generator.gen_students_list(student.class_n)
     return render_template('student_edit.html', error3='Участник удалён')
 
 
-@app.route("/create_codes")
+@app.route("/<path:year>/create_codes")
 @cross_origin()
 @login_required
 @check_status('admin')
-def create_codes():
+def create_codes(year):
+    year = int(year)
     students = StudentsTable.select_all()
     length = len(students)
     codes = [_ for _ in range(9999, 9999 - length, -1)]
     shuffle(codes)
+    StudentsCodesTable.delete_by_year(year)
     for i in range(length):
-        students[i].code = int(time() * 1000)
-        StudentsTable.update_code(students[i])
-    for i in range(length):
-        students[i].code = codes[i]
-        StudentsTable.update_code(students[i])
-    return render_template('student_edit.html', error4='Коды сгенерированы')
+        codes[i] = StudentCode([year, codes[i], students[i].id])
+    StudentsCodesTable.insert_all(codes)
+    return render_template(str(year) + '/codes.html', year=year, error='Коды сгенерированы')
 
 
 @app.route("/<path:year>/print_codes")
@@ -101,7 +94,7 @@ def create_codes():
 @check_status('admin')
 def print_codes(year):
     Generator.gen_codes(year)
-    return render_template(year + '/codes.html', year=year)
+    return render_template(year + '/codes.html', year=year, error='Таблица обновлена')
 
 
 @app.route("/create_students_lists")

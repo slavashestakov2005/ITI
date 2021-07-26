@@ -2,6 +2,18 @@
 {% extends "page1.html" %}
 {% block content %}
 
+<table width="100%">
+	<tr>
+		<td>
+			<font size="3">
+				<a href="index.html">ИТИ</a>
+				/
+				Настройки
+			</font>
+		</td>
+	</tr>
+</table>
+
 <center><h1>Настройки пользователя</h1></center>
 <form action="settings" method="post">
 	<p>Логин: {{ current_user.login }} (неизменяем)</p>

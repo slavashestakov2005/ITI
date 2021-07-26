@@ -8,12 +8,15 @@ import re
     LOGIN_REQUIRED_FILES = []       Файлы, доступные после входа на сайт.
     STATUS_REQUIRED_FILES = {}      Отображение файла и доступа к нему.
     all_templates()                 Список всех файлов-шаблонов из папки шаблонов.
-    parse_files()                   Проходит все файл, генерирует списки доступа.
+    correct_slash(str)              Заменяет все слэши на '/'.
+    split_class(str)                Разбивает класс на букву и цифру.
+    parse_files()                   Проходит все файлы, генерирует списки доступа.
     @check_status(status)           Проверяет открыт ли доступ для текущего пользователя.
     class FilePart                  Один кусочек html-страницы (поля 'text' и 'is_comment').
     class SplitFile                 Связывает html-страницу и программное представление.
         __init__(file_name)                                 Парсит файл 'file_name'.
         insert_after_comment(comment, text, is_comment)     Добавляет 'text' после комментария 'comment'.
+        replace_comment(comment, text)                      Заменяет комментарий 'comment' на 'text'.
         writable()                                          Генерирует строку для записи в файл.
         save_file(file_name)                                Сохраняет файл под именем 'file_name'.
 '''
@@ -28,6 +31,10 @@ def all_templates():
 
 def correct_slash(s: str):
     return s.replace(r'\\', '/').replace('\\', '/').replace(r'//', '/')
+
+
+def split_class(class_):
+    return int(class_[:-1]), class_[-1],
 
 
 def parse_files():
@@ -113,8 +120,6 @@ class SplitFile:
 
     def replace_comment(self, comment: str, text: str):
         for index in range(len(self.parts)):
-            if index >= len(self.parts):
-                break
             if self.parts[index].is_comment and self.parts[index].text == comment:
                 self.edited = True
                 self.replace[index] = text

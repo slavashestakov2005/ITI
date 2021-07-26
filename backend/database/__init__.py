@@ -6,3 +6,6 @@ from .year import *
 from .year_subject import *
 from .result import *
 from .student import *
+from .team import *
+from .student_code import *
+from .team_student import *

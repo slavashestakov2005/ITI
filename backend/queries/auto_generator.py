@@ -1,5 +1,6 @@
 from .help import SplitFile, all_templates
-from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, Result, Student
+from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
+    TeamsTable, TeamsStudentsTable, Result, Student, Team
 from backend.config import Config
 import glob
 '''
@@ -9,9 +10,12 @@ import glob
         gen_years_subjects_list(year)       Изменяет списки предметов для одного года.
         gen_students_list(class_n)          Изменяет таблицу учеников класса class_n.
         gen_codes(year)                     Генерирует страницу с кодами участников.
-        gen_net_score(...)                  Генерирует балл в рейтинг [нужно уточнить!].
-        geb_results(year, sub, file)        Генерирует таблицу результатов по предмету sub.
+        get_net_score(...)                  Генерирует балл в рейтинг [нужно уточнить!].
+        get_codes()
+        gen_results(year, sub, file)        Генерирует таблицу результатов по предмету sub.
         gen_ratings(year)                   Генерирует рейтинговые таблицы года year.
+        gen_teams(year)                     Генерирует списки команд года year.
+        gen_teams_students(year)            Генерирует списки участников команд года year.
 '''
 
 
@@ -114,23 +118,25 @@ class Generator:
         data.save_file()
 
     @staticmethod
+    def gen_codes_1(student):
+        return '<tr><td>' + str(student[1].class_n) + student[1].class_l + '</td><td>' + student[1].name_1 +\
+               '</td><td>' + student[1].name_2 + '</td><td>' + str(student[0]) + '</td></tr>\n'
+
+    @staticmethod
     def gen_codes(year: int):
         file_name = Config.TEMPLATES_FOLDER + "/" + str(year) + "/codes.html"
-        students = StudentsTable.select_all()
-        students.sort(key=Student.sort_by_class)
+        students = Generator.get_codes(year)
+        students = sorted(students.items(), key=lambda x: Student.sort_by_class(x[1]))
         length = len(students)
         m1 = length - length * 2 // 3
         m2 = length - length // 3
         text1 = text2 = text3 = '\n'
         for i in range(0, m1):
-            text1 += '<tr><td>' + str(students[i].class_n) + students[i].class_l + '</td><td>' + students[i].name_1 + \
-                     '</td><td>' + students[i].name_2 + '</td><td>' + str(students[i].code) + '</td></tr>\n'
+            text1 += Generator.gen_codes_1(students[i])
         for i in range(m1, m2):
-            text2 += '<tr><td>' + str(students[i].class_n) + students[i].class_l + '</td><td>' + students[i].name_1 + \
-                     '</td><td>' + students[i].name_2 + '</td><td>' + str(students[i].code) + '</td></tr>\n'
+            text2 += Generator.gen_codes_1(students[i])
         for i in range(m2, length):
-            text3 += '<tr><td>' + str(students[i].class_n) + students[i].class_l + '</td><td>' + students[i].name_1 + \
-                     '</td><td>' + students[i].name_2 + '</td><td>' + str(students[i].code) + '</td></tr>\n'
+            text3 += Generator.gen_codes_1(students[i])
         data = SplitFile(file_name)
         data.insert_after_comment(' codes_table 1 ', text1)
         data.insert_after_comment(' codes_table 2 ', text2)
@@ -138,10 +144,19 @@ class Generator:
         data.save_file()
 
     @staticmethod
-    def gen_net_score(maximum: int, best_score: int, score: int) -> int:
+    def get_net_score(maximum: int, best_score: int, score: int) -> int:
         if 2 * best_score >= maximum:
             return int(0.5 + score * 100 / best_score)
         return int(0.5 + score * 100 / maximum)
+
+    @staticmethod
+    def get_codes(year):
+        students = {_.id: _ for _ in StudentsTable.select_all()}
+        all_codes = StudentsCodesTable.select_by_year(year)
+        codes = {}
+        for code in all_codes:
+            codes[code.code] = students[code.student]
+        return codes
 
     @staticmethod
     def gen_results_1(results: list, codes: map, maximum: int):
@@ -161,7 +176,7 @@ class Generator:
             if result.result > maximum:
                 raise ValueError("Bad results are saved")
             people = codes[result.user]
-            result.net_score = Generator.gen_net_score(maximum, results[0].result, result.result)
+            result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
             text += '<tr><td>' + str(cnt) + '</td><td>' + people.name_1 + '</td><td>' + people.name_2 + '</td><td>' + \
                     str(people.class_n) + people.class_l + '</td><td>' + str(result.result) + '</td><td>' + \
                     str(result.net_score) + '</td></tr>\n'
@@ -185,7 +200,7 @@ class Generator:
     def gen_results(year: int, subject: int, file_name: str):
         results = ResultsTable.select_by_year_and_subject(year, subject)
         year_subject = YearsSubjectsTable.select(year, subject)
-        codes = {_.code: _ for _ in StudentsTable.select_all()}
+        codes = Generator.get_codes(year)
         sorted_results = [[] for _ in range(5)]
         for r in results:
             sorted_results[codes[r.user].class_n - 5].append(r)
@@ -244,7 +259,7 @@ class Generator:
     @staticmethod
     def gen_ratings(year: int):
         results = ResultsTable.select_by_year(year)
-        codes = {_.code: _ for _ in StudentsTable.select_all()}
+        codes = Generator.get_codes(year)
         class_results = {}
         student_result = {}
         for r in results:
@@ -254,10 +269,10 @@ class Generator:
                 class_results[class_name] += r.net_score
             else:
                 class_results[class_name] = r.net_score
-            if student.code in student_result:
-                student_result[student.code].append(r.net_score)
+            if r.user in student_result:
+                student_result[r.user].append(r.net_score)
             else:
-                student_result[student.code] = [r.net_score]
+                student_result[r.user] = [r.net_score]
         for r in student_result:
             student_result[r].sort(reverse=True)
             cnt = 0
@@ -282,3 +297,54 @@ class Generator:
         data.insert_after_comment(' rating_parallel_9 ', best_9)
         data.save_file()
         # лучшие результаты в первый / второй дни :(
+
+    @staticmethod
+    def gen_teams(year: int):
+        teams = TeamsTable.select_by_year(year)
+        text1, text2 = '', ''
+        for team in teams:
+            txt = '<td>' + team.later + '</td><td>' + team.name + '</td></tr>\n'
+            text1 += '<tr><td>' + str(team.id) + '</td>' + txt
+            text2 += '<tr>' + txt
+        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/subjects_for_year.html")
+        data.insert_after_comment(' list of teams (full) ', text1)
+        data.save_file()
+        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams.html")
+        data.insert_after_comment(' list of teams ', text2)
+        data.save_file()
+
+    @staticmethod
+    def gen_teams_students(year: int):
+        codes = {_.id: _ for _ in StudentsTable.select_all()}
+        teams = TeamsTable.select_by_year(year)
+        teams.sort(key=Team.sort_by_later)
+        txt = ''
+        cnt = 0
+        for team in teams:
+            students = TeamsStudentsTable.select_by_team(team.id)
+            students = [codes[_.student] for _ in students]
+            students.sort(key=Student.sort_by_class)
+            if len(students) == 0:
+                continue
+            if cnt % 3 == 0:
+                txt += '<tr>'
+            txt += '<td valign="top"><center><h2>' + team.name + '''</h2></center>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="10%">Класс</td>
+                    <td width="45%">Фамилия</td>
+                    <td width="45%">Имя</td>
+                </tr>
+                '''
+            for student in students:
+                txt += '<tr><td>' + str(student.class_n) + student.class_l + '</td><td>' + student.name_1 +\
+                       '</td><td>' + student.name_2 + '</td></tr>\n'
+            txt += '</table></td>\n'
+            if cnt % 3 == 2:
+                txt += '</tr>'
+            cnt += 1
+            if cnt % 3 != 2:
+                txt += '<td/>\n'
+        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams.html")
+        data.insert_after_comment(' list of students_in_team ', txt)
+        data.save_file()

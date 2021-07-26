@@ -15,8 +15,10 @@
     </tr>
 </table>
 <center>
-    <h1>Коды участников</h1><br>
-    <a href="print_codes">Сгенерировать</a>
+    <h1>Коды участников</h1>
+    <p><a href="create_codes">Присвоить коды</a></p>
+    <p><a href="print_codes">Вывести таблицу</a></p>
+    {% if error %} <p><font color="red">[ {{ error }} ]</font></p> {% endif %}
 </center>
 {% endblock %}
 

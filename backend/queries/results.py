@@ -120,4 +120,4 @@ def share_results(path1, path2, path3):
 def ratings_update(year):
     year = int(year)
     Generator.gen_ratings(year)
-    return render_template(str(year) + '/subjects_for_year.html', error2='Рейтинги обновлены', year=year)
+    return render_template(str(year) + '/rating.html', error='Рейтинги обновлены', year=year)
