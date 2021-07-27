@@ -1,0 +1,50 @@
+<!-- login required -->
+{% extends "page4.html" %}
+{% block content %}
+
+<table width="100%">
+	<tr>
+		<td>
+			<font size="3">
+				<a href="../../main.html"><!-- year --><!-- end --></a>
+				/
+				<a href="../../{{h_type_1}}_tours.html">{{h_type_2}}</a>
+				/
+				<a href="../{{subject}}.html">{{h_sub_name}}</a>
+				/
+				Результаты
+			</font>
+		</td>
+	</tr>
+</table>
+
+<center><table width="80%">
+	<tr>
+		<td width="45%" />
+		<td width="10%" />
+		<td width="45%" />
+	</tr>
+	<tr>
+		<td valign="top"><center>
+			<h1>Сохранение результатов</h1>
+			<form action="save_group_results" method="post">
+				<!-- teams list for saving group results --><!-- end -->
+				<p>Если результат ещё не был сохранён, то в поле отображается 0.</p>
+				{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+				{% endif %}
+				<input type="submit" value="Сохранить">
+			</form>
+		</center></td>
+		<td />
+		<td valign="top"><center>
+			{% if not current_user.is_anonymous and current_user.can_do(-1) %}
+			<h1><a href="share_group_results">Публикация результатов</a></h1>
+			<p>После публикаяии результатов они станут доступны для просмотра всем.</p>
+			{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
+			{% endif %}
+			{% endif %}
+		</center></td>
+	</tr>
+</table></center>
+
+{% endblock %}

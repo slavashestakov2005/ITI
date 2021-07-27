@@ -35,18 +35,19 @@ class FileCreator:
         for subject in subjects:
             file_name = directory
             if subject.type == 'i':
-                file_name += 'individual/'
+                ref = 'individual'
                 tour_name = 'Индивидуальный тур'
             elif subject.type == 'g':
-                file_name += 'group/'
+                ref = 'group'
                 tour_name = 'Групповой тур'
             else:
-                file_name += 'team/'
+                ref = 'team'
                 tour_name = 'Командный тур'
-            file_name += str(subject.id) + ".html"
+            file_name += ref + '/' + str(subject.id) + ".html"
             if not os.path.exists(file_name):
                 data.insert_after_comment(' tour_name ', tour_name)
                 data.insert_after_comment(' subject_name ', subject.name)
+                data.replace_comment(' {ref} ', ref)
                 data.replace_comment(' {page num} ', str(subject.id))
                 data.save_file(file_name)
             s.add(file_name)

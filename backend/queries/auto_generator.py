@@ -1,6 +1,6 @@
 from .help import SplitFile, all_templates
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
-    TeamsTable, TeamsStudentsTable, Result, Student, Team
+    TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team
 from backend.config import Config
 import glob
 '''
@@ -11,8 +11,10 @@ import glob
         gen_students_list(class_n)          Изменяет таблицу учеников класса class_n.
         gen_codes(year)                     Генерирует страницу с кодами участников.
         get_net_score(...)                  Генерирует балл в рейтинг [нужно уточнить!].
-        get_codes()
+        get_codes(...)                      Отображает код участника в участника.
+        get_student_team(...)               Отображает участника в команду.
         gen_results(year, sub, file)        Генерирует таблицу результатов по предмету sub.
+        gen_group_results(year, sub, file)  Генерирует таблицу групповых результатов по предмету sub.
         gen_ratings(year)                   Генерирует рейтинговые таблицы года year.
         gen_teams(year)                     Генерирует списки команд года year.
         gen_teams_students(year)            Генерирует списки участников команд года year.
@@ -159,6 +161,16 @@ class Generator:
         return codes
 
     @staticmethod
+    def get_student_team(year):
+        teams = TeamsTable.select_by_year(year)
+        ans = {}
+        for team in teams:
+            students = TeamsStudentsTable.select_by_team(team.id)
+            for student in students:
+                ans[student.student] = student.team
+        return ans
+
+    @staticmethod
     def gen_results_1(results: list, codes: map, maximum: int):
         if len(results) == 0:
             return None
@@ -233,8 +245,31 @@ class Generator:
         data.save_file()
 
     @staticmethod
+    def gen_group_results(year: int, subject: int, file_name: str):
+        teams = TeamsTable.select_by_year(year)
+        if len(teams) == 0:
+            return None
+        results = {_: GroupResultsTable.select_by_team_and_subject(_.id, subject) for _ in teams}
+        results = sorted(results.items(), key=lambda x: -10000 * x[1].result + ord(x[0].later[0]))
+        txt = '''<center><h2>Результаты</h2>\n<table width="30%" border="1">
+                    <tr>
+                        <td width="10%">Место</td>
+                        <td width="30%">Команда</td>
+                        <td width="10%">Балл в рейтинг</td>
+                    </tr>\n'''
+        i = 1
+        for result in results:
+            txt += '<tr><td>' + str(i) + '</td><td>' + result[0].name + '</td><td>' + str(result[1].result) +\
+                   '</td></tr>\n'
+            i += 1
+        txt += '</table></center>'
+        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
+        data.insert_after_comment(' results table ', txt)
+        data.save_file()
+
+    @staticmethod
     def gen_ratings_1(results: list, index: int, start: int):
-        txt = ''
+        txt = '\n'
         for i in range(min(20, len(results) - index)):
             s = results[index + i][1]
             if s.class_n != start:
@@ -247,7 +282,7 @@ class Generator:
 
     @staticmethod
     def gen_ratings_2(results: list):
-        txt = ''
+        txt = '\n'
         i = 0
         for x in results:
             txt += '<tr><td>' + str(i + 1) + '</td><td>' + x[0] + '</td><td>' + str(x[1]) + '</td></tr>\n'
@@ -257,11 +292,53 @@ class Generator:
         return txt
 
     @staticmethod
+    def gen_ratings_3(year: int, results: map):
+        subjects = []
+        team = None
+        new_results = {}
+        txt = '''
+        <table width="90%" border="1">
+        <tr>
+            <td width="5%">Место</td>
+            <td width="15%">Название</td>
+            <td width="16%">День 1 + День 2</td>\n'''
+        for x in YearsSubjectsTable.select_by_year(year):
+            subject = SubjectsTable.select_by_id(x.subject)
+            if subject.type == 'g':
+                subjects.append(subject)
+                txt += '<td width="8%">' + subject.name + '</td>\n'
+            elif subject.type == 'a':
+                team = subject
+        if team:
+            subjects.append(team)
+            txt += '<td width="8%">Командный</td>\n'
+        txt += '<td width="8%">Сумма</td>\n</tr>\n'
+        for x in results:
+            summ = results[x]
+            text = '<td>' + TeamsTable.select_by_id(x).name + '</td><td>' + str(results[x]) + '</td>'
+            for subject in subjects:
+                res = GroupResultsTable.select_by_team_and_subject(x, subject.id)
+                if res.__is_none__:
+                    res.result = 0
+                text += '<td>' + str(res.result) + '</td>'
+                summ += res.result
+            text += '<td>' + str(summ) + '</td></tr>\n'
+            new_results[text] = summ
+        new_results = sorted(new_results.items(), key=lambda x: -x[1])
+        i = 1
+        for x in new_results:
+            txt += '<tr><td>' + str(i) + '</td>' + x[0]
+            i += 1
+        return txt + '</table>'
+
+    @staticmethod
     def gen_ratings(year: int):
         results = ResultsTable.select_by_year(year)
         codes = Generator.get_codes(year)
+        student_team = Generator.get_student_team(year)
         class_results = {}
         student_result = {}
+        team_result = {_.id: 0 for _ in TeamsTable.select_by_year(year)}
         for r in results:
             student = codes[r.user]
             class_name = str(student.class_n) + student.class_l
@@ -273,6 +350,8 @@ class Generator:
                 student_result[r.user].append(r.net_score)
             else:
                 student_result[r.user] = [r.net_score]
+            if student.id in student_team:
+                team_result[student_team[student.id]] += r.net_score
         for r in student_result:
             student_result[r].sort(reverse=True)
             cnt = 0
@@ -288,7 +367,9 @@ class Generator:
         best_6, index = Generator.gen_ratings_1(codes, index, 6)
         best_5, index = Generator.gen_ratings_1(codes, index, 5)
         best_class = Generator.gen_ratings_2(class_results)
+        best_team = Generator.gen_ratings_3(year, team_result)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating.html')
+        data.insert_after_comment(' rating_teams ', best_team)
         data.insert_after_comment(' rating_class ', best_class)
         data.insert_after_comment(' rating_parallel_5 ', best_5)
         data.insert_after_comment(' rating_parallel_6 ', best_6)
@@ -301,16 +382,21 @@ class Generator:
     @staticmethod
     def gen_teams(year: int):
         teams = TeamsTable.select_by_year(year)
-        text1, text2 = '', ''
+        text1, text2, text3 = '', '', ''
         for team in teams:
             txt = '<td>' + team.later + '</td><td>' + team.name + '</td></tr>\n'
             text1 += '<tr><td>' + str(team.id) + '</td>' + txt
             text2 += '<tr>' + txt
+            text3 += '<p>' + team.name + ': <input type="text" name="score_' + str(team.id) + '" value="{{t' +\
+                     str(team.id) + '}}"></p>\n'
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/subjects_for_year.html")
         data.insert_after_comment(' list of teams (full) ', text1)
         data.save_file()
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams.html")
         data.insert_after_comment(' list of teams ', text2)
+        data.save_file()
+        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/add_result.html")
+        data.insert_after_comment(' teams list for saving group results ', text3)
         data.save_file()
 
     @staticmethod
@@ -342,9 +428,9 @@ class Generator:
             txt += '</table></td>\n'
             if cnt % 3 == 2:
                 txt += '</tr>'
-            cnt += 1
             if cnt % 3 != 2:
                 txt += '<td/>\n'
+            cnt += 1
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams.html")
         data.insert_after_comment(' list of students_in_team ', txt)
         data.save_file()

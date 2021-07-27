@@ -6,24 +6,8 @@
 {% block head %}{% endblock %}
 
 <center>
-    <H2>Командный зачёт</H2>
-    <table width="90%" border="1">
-        <tr>
-            <td width="5%">Место</td>
-            <td width="15%">Название</td>
-            <td width="8%">День 1</td>
-            <td width="8%">День 2</td>
-            <td width="8%">Гр. тур 1</td>
-            <td width="8%">Гр. тур 2</td>
-            <td width="8%">Гр. тур 3</td>
-            <td width="8%">Гр. тур 4</td>
-            <td width="8%">Гр. тур 5</td>
-            <td width="8%">Гр. тур 6</td>
-            <td width="8%">Командный</td>
-            <td width="8%">Сумма</td>
-        </tr>
-        {% block rating_teams %}{% endblock %}
-    </table>
+    <h2>Командный зачёт</h2>
+    {% block rating_teams %}{% endblock %}
 </center>
 
 <table width="100%">
@@ -33,7 +17,7 @@
         <td width="45%"><center><h2>Лучший класс</h2></center></td>
     </tr>
     <tr>
-        <td>
+        <td valign="top">
             <table width="100%" border="1">
                 <tr>
                     <td width="5%">Место</td>
@@ -46,7 +30,7 @@
             </table>
         </td>
         <td></td>
-        <td>
+        <td valign="top">
             <table width="100%" border="1">
                 <tr>
                     <td width="5%">Место</td>

@@ -1,7 +1,7 @@
 {% extends "page3.html" %}
 
 {% block page_num %}
-{% if not current_user.is_anonymous and current_user.can_do(18) %}
+{% if not current_user.is_anonymous and current_user.can_do(1) %}
 <a href="#" onclick="addResult(window)">Результаты</a>
 {% endif %}
 {% endblock %}
@@ -14,14 +14,14 @@
 			<font size="3">
 				<a href="../main.html"><!-- year -->ИТИ-2021<!-- end --></a>
 				/
-				<a href="../group_tours.html"><!-- tour_name -->Групповой тур<!-- end --></a>
+				<a href="../team_tours.html"><!-- tour_name -->Командный тур<!-- end --></a>
 				/
-				<!-- subject_name -->Изобретательство<!-- end -->
+				<!-- subject_name -->Командный тур<!-- end -->
 			</font>
 		</td>
 	</tr>
 </table>
-<center><h1><!-- subject_name -->Изобретательство<!-- end --></h1></center>
+<center><h1><!-- subject_name -->Командный тур<!-- end --></h1></center>
 <!-- results table --><center><h2>Результаты</h2>
 <table width="30%" border="1">
                     <tr>
@@ -29,7 +29,7 @@
                         <td width="30%">Команда</td>
                         <td width="10%">Балл в рейтинг</td>
                     </tr>
-<tr><td>1</td><td>Бобры</td><td>300</td></tr>
-<tr><td>2</td><td>Апельсин</td><td>150</td></tr>
+<tr><td>1</td><td>Апельсин</td><td>1000</td></tr>
+<tr><td>2</td><td>Бобры</td><td>500</td></tr>
 </table></center><!-- end -->
 {% endblock %}
