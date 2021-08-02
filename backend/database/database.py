@@ -56,6 +56,8 @@ class Row:
 class Table:
     @staticmethod
     def conditional_query(args):
+        if not args or not len(args):
+            return '', []
         text = ' WHERE '
         params = []
         for i in range(0, len(args), 2):
@@ -66,38 +68,28 @@ class Table:
         return text, params
 
     @staticmethod
-    def select_all(table_name: str, cls) -> list:
-        return [cls(_) for _ in DataBase.execute("SELECT * FROM " + table_name)]
-
-    @staticmethod
-    def select_by_field(table_name: str, field: str, value, cls):
-        return cls(DataBase.execute_one("SELECT * FROM " + table_name + " WHERE " + field + " = ?", (value,)))
-
-    @staticmethod
-    def select_by_fields(table_name: str, cls, *args):
+    def select_one(table_name: str, cls, *args):
+        if not len(args):
+            raise ValueError("Cannot select one row without parameters")
         x = Table.conditional_query(args)
         return cls(DataBase.execute_one("SELECT * FROM " + table_name + x[0], x[1]))
 
     @staticmethod
-    def select_list_by_field(table_name: str, field: str, value, cls) -> list:
-        return [cls(_) for _ in DataBase.execute("SELECT * FROM " + table_name + " WHERE " + field + " = ?", (value,))]
-
-    @staticmethod
-    def select_list_by_fields(table_name: str, cls, *args):
+    def select_list(table_name: str, cls, *args):
         x = Table.conditional_query(args)
         return [cls(_) for _ in DataBase.execute("SELECT * FROM " + table_name + x[0], x[1])]
 
     @staticmethod
-    def update_by_field(table_name: str, field: str, value):
-        params = value.update_string()
-        params[1].append(getattr(value, field))
-        return DataBase.execute("UPDATE " + table_name + " SET " + params[0] + " WHERE " + field + " = ?", params[1])
-
-    @staticmethod
-    def update_by_fields(table_name: str, new, *args):
-        new = new.update_string()
-        x = Table.conditional_query(args)
-        return DataBase.execute("UPDATE " + table_name + " SET " + new[0] + x[0], new[1] + x[1])
+    def update(table_name: str, value, *args):
+        if not args or not len(args):
+            args = ['id']
+        new_args = []
+        for arg in args:
+            new_args.append(arg)
+            new_args.append(getattr(value, arg))
+        value = value.update_string()
+        x = Table.conditional_query(new_args)
+        return DataBase.execute("UPDATE " + table_name + " SET " + value[0] + x[0], value[1] + x[1])
 
     @staticmethod
     def insert_query(table_name: str, fields: list):
@@ -116,38 +108,25 @@ class Table:
         return text[:-2] + ')', params
 
     @staticmethod
-    def insert(table_name: str, value, fields: list):
-        if value.__is_none__:
-            raise ValueError("Insert row is {None}")
-        text, params = Table.insert_value(value, fields)
-        return DataBase.execute(Table.insert_query(table_name, fields) + text, params)
-
-    @staticmethod
-    def insert_all_columns(table_name: str, value):
-        return Table.insert(table_name, value, value.cls.fields)
-
-    @staticmethod
-    def insert_rows(table_name: str, rows: list):
+    def insert(table_name: str, rows):
+        if issubclass(type(rows), Row):
+            rows = [rows]
         if rows is None or len(rows) == 0:
             raise ValueError("Insert empty list of rows")
         fields = rows[0].cls.fields
         text = Table.insert_query(table_name, fields)
         params = []
         for row in rows:
+            if row is None or row.__is_none__:
+                raise ValueError("Insert row is {None}")
             t, p = Table.insert_value(row, fields)
             text += t + ', '
             params.extend(p)
         return DataBase.execute(text[:-2], params)
 
     @staticmethod
-    def delete(table_name: str, value):
-        return DataBase.execute("DELETE FROM " + table_name + " WHERE id = ?", (value.id,))
-
-    @staticmethod
-    def delete_by_field(table_name: str, field: str, value):
-        return DataBase.execute("DELETE FROM " + table_name + " WHERE " + field + " = ?", (value,))
-
-    @staticmethod
-    def delete_by_fields(table_name: str, *args):
+    def delete(table_name: str, *args):
+        if len(args) == 1:
+            args = ['id', args[0].id]
         x = Table.conditional_query(args)
         return DataBase.execute("DELETE FROM " + table_name + x[0], x[1])

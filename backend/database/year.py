@@ -23,13 +23,13 @@ class YearsTable:
         );''')
 
     @staticmethod
-    def select_all():
-        return Table.select_all(YearsTable.table, Year)
+    def select_all() -> list:
+        return Table.select_list(YearsTable.table, Year)
 
     @staticmethod
     def select_by_year(year: int) -> Year:
-        return Table.select_by_field(YearsTable.table, 'year', year, Year)
+        return Table.select_one(YearsTable.table, Year, 'year', year)
 
     @staticmethod
     def insert(year: Year) -> None:
-        return Table.insert(YearsTable.table, year, year.fields)
+        return Table.insert(YearsTable.table, year)

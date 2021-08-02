@@ -28,32 +28,32 @@
                         <td width="50%" valign="top">
                             <h3>Индивидуальные туры:</h3>
                             <!-- list of year_individual tours -->
-<p><input type="checkbox" name="subject" value="2" checked>История</p>
-<p><input type="checkbox" name="subject" value="3" checked>Английский язык</p>
-<p><input type="checkbox" name="subject" value="4" checked>Русский язык</p>
-<p><input type="checkbox" name="subject" value="5">Информатика</p>
-<p><input type="checkbox" name="subject" value="6">ИЦН</p>
-<p><input type="checkbox" name="subject" value="7">Математика</p>
-<p><input type="checkbox" name="subject" value="8">Обществознание</p>
-<p><input type="checkbox" name="subject" value="9">Естествознание</p>
-<p><input type="checkbox" name="subject" value="10">Литература</p>
-<p><input type="checkbox" name="subject" value="11">Исскуство</p>
+<p><input type="checkbox" name="subject" value="2" checked>[ 2 ] История</p>
+<p><input type="checkbox" name="subject" value="3" checked>[ 3 ] Английский язык</p>
+<p><input type="checkbox" name="subject" value="4" checked>[ 4 ] Русский язык</p>
+<p><input type="checkbox" name="subject" value="5">[ 5 ] Информатика</p>
+<p><input type="checkbox" name="subject" value="6">[ 6 ] ИЦН</p>
+<p><input type="checkbox" name="subject" value="7">[ 7 ] Математика</p>
+<p><input type="checkbox" name="subject" value="8">[ 8 ] Обществознание</p>
+<p><input type="checkbox" name="subject" value="9">[ 9 ] Естествознание</p>
+<p><input type="checkbox" name="subject" value="10">[ 10 ] Литература</p>
+<p><input type="checkbox" name="subject" value="11">[ 11 ] Исскуство</p>
 <!-- end -->
                         </td>
                         <td width="50%" valign="top">
                             <h3>Групповые туры:</h3>
                             <!-- list of year_group tours -->
-<p><input type="checkbox" name="subject" value="12">Карусель</p>
-<p><input type="checkbox" name="subject" value="13">Естественно-научные бои</p>
-<p><input type="checkbox" name="subject" value="14">Коммуникативные бои</p>
-<p><input type="checkbox" name="subject" value="15">Литература (групповая)</p>
-<p><input type="checkbox" name="subject" value="16">Английский язык (групповой)</p>
-<p><input type="checkbox" name="subject" value="17">Театр</p>
-<p><input type="checkbox" name="subject" value="18" checked>Изобретательство</p>
+<p><input type="checkbox" name="subject" value="12">[ 12 ] Карусель</p>
+<p><input type="checkbox" name="subject" value="13">[ 13 ] Естественно-научные бои</p>
+<p><input type="checkbox" name="subject" value="14">[ 14 ] Коммуникативные бои</p>
+<p><input type="checkbox" name="subject" value="15">[ 15 ] Литература (групповая)</p>
+<p><input type="checkbox" name="subject" value="16">[ 16 ] Английский язык (групповой)</p>
+<p><input type="checkbox" name="subject" value="17">[ 17 ] Театр</p>
+<p><input type="checkbox" name="subject" value="18" checked>[ 18 ] Изобретательство</p>
 <!-- end -->
                             <h3>Другое:</h3>
                             <!-- list of year_another tours -->
-<p><input type="checkbox" name="subject" value="1" checked>Командный тур</p>
+<p><input type="checkbox" name="subject" value="1" checked>[ 1 ] Командный тур</p>
 <!-- end -->
                         </td>
                     </tr>
@@ -114,6 +114,23 @@
                 {% if error5 %} <p><font color="red">[ {{ error5 }} ]</font></p>
                 {% endif %}
                 <input type="submit" value="Удалить">
+            </center></form>
+        </center></td>
+    </tr>
+    <tr>
+        <td valign="top"><center>
+            <h2>Расписание:</h2>
+            <form action="subject_description" method="post"><center>
+                <p>Предмет (номер): <input type="text" name="subject"></p>
+                <p>Кабинет: <input type="text" name="place" size="40"></p>
+                <p>
+                    День: <input type="date" name="date">
+                    Начало: <input type="time" name="start">
+                    Конец: <input type="time" name="end">
+                </p>
+                {% if error6 %} <p><font color="red">[ {{ error6 }} ]</font></p>
+                {% endif %}
+                <p><input type="submit" value="Сохранить"></p>
             </center></form>
         </center></td>
     </tr>

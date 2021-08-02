@@ -24,10 +24,10 @@ class ConstantsTable:
                 PRIMARY KEY("name"));''')
 
     @staticmethod
-    def select_all():
-        return Table.select_all(ConstantsTable.table, Constant)
+    def select_all() -> list:
+        return Table.select_list(ConstantsTable.table, Constant)
 
     @staticmethod
     def select_by_name(name: str) -> Constant:
-        return Table.select_by_field(ConstantsTable.table, 'name', name, Constant)
+        return Table.select_one(ConstantsTable.table, Constant, 'name', name)
 

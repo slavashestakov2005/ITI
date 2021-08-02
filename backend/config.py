@@ -17,8 +17,6 @@ class Config:
     MAIL_SERVER = "smtp.googlemail.com"
     MAIL_PORT = 587
     MAIL_USE_TLS = 1
-    MAIL_USERNAME = "qrup211@gmail.com"
-    MAIL_PASSWORD = "tima4102!"
-    ADMINS = ['v.shestakov@student.univers.su']
-
-
+    MAIL_USERNAME = "iti.univers106@gmail.com"
+    MAIL_PASSWORD = None
+    ADMINS = ['iti.univers106@gmail.com']

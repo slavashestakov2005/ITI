@@ -27,24 +27,24 @@ class SubjectsTable:
         );''')
 
     @staticmethod
-    def select_all():
-        return Table.select_all(SubjectsTable.table, Subject)
+    def select_all() -> list:
+        return Table.select_list(SubjectsTable.table, Subject)
 
     @staticmethod
     def select_by_name(name: str) -> Subject:
-        return Table.select_by_field(SubjectsTable.table, 'name', name, Subject)
+        return Table.select_one(SubjectsTable.table, Subject, 'name', name)
 
     @staticmethod
     def select_by_id(id: int) -> Subject:
-        return Table.select_by_field(SubjectsTable.table, 'id', id, Subject)
+        return Table.select_one(SubjectsTable.table, Subject, 'id', id)
 
     @staticmethod
     def insert(subject: Subject) -> None:
-        return Table.insert(SubjectsTable.table, subject, subject.fields[1:])
+        return Table.insert(SubjectsTable.table, subject)
 
     @staticmethod
     def update_by_id(subject: Subject) -> None:
-        return Table.update_by_field(SubjectsTable.table, 'id', subject)
+        return Table.update(SubjectsTable.table, subject)
 
     @staticmethod
     def delete(subject: Subject) -> None:

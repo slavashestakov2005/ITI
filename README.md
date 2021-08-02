@@ -1,7 +1,7 @@
 Это код сайта для провидения ИТИ в гимназии «Универс».  
 
 ## Введение
-Данный сайт создан после ИТИ 2020, вызвавших у меня большие вопросы, описанные [в документе](https://docs.google.com/document/d/1EVA8DLRzNT_RM08moMkHQI5ec5AY2vNwJUmSYoydi4M/edit?usp=sharing).  
+Данный сайт создан после ИТИ 2020, вызвавших у меня большие вопросы, описанные [в документе](https://docs.google.com/document/d/1-kQDHJF7G2VTbGUDE-pVWSsK-hd90rPEaE97XZG1YqY/edit?usp=sharing).  
 Сайт разрабатывается при поддержке организаторов ИТИ 2020 (Савокина Е.В. и Проходский А.Н.), а также
 учителя информатики Инженерной школы (Вахитова Е.Ю.).
 
@@ -18,12 +18,21 @@
 | Редактирование глобальных файлов | full | files_edit.py | 25.04.21 |
 | &nbsp; | | | |
 | Работа с новыми ИТИ и предметами | full | full.py, auto_generator.py, file_creator.py | 25.04.21 |
-| Связь ИТИ и предметов, генерация страниц | admin | full.py, auto_generator.py, file_creator.py | 25.04.21 |
+| Связь ИТИ и предметов, генерация страниц | admin | subjects.py, auto_generator.py, file_creator.py | 25.04.21 |
 | Генерация кодов для участников, таблица со всеми кодами | admin | students.py, auto_generator.py | 05.07.21 |
 | Добавление и удаление команд | admin | teams.py, auto_generator.py  | 26.07.21 |
 | Добавление и удаление участников команд | admin | teams.py, auto_generator.py | 26.07.21 |
 | &nbsp; | | | |
-| Настройка предмета | Предметник | results.py | 19.07.21 |
+| Время и место проведения туров | admin | subjects.py | 01.08.21 |
+| Максимальный балл предмета | Предметник | subjects.py | 19.07.21 |
 | Сохранение результатов | Предметник | results.py | 27.07.21 |
 | Публикация результатов | admin | results.py, auto_generator.py | 27.07.21 |
 | Публикация рейтинга | admin | results.py, auto_generator.py | 27.07.21 |
+| &nbsp; | | | |
+| Форма обратной связи | — | Google Forms | 02.08.21 |
+
+## Ссылки
++ Электронная почта `iti.univers106@gmail.com` (создана 2 августа для систематизации информации).
++ [Документ](https://docs.google.com/document/d/1-kQDHJF7G2VTbGUDE-pVWSsK-hd90rPEaE97XZG1YqY/edit?usp=sharing) с предложениями по организации.
++ [Таблица](https://drive.google.com/file/d/1v1KRGQv0LXIG6qS9Tl2b0p9_R18J4shq/view?usp=sharing) с результатами ИТИ 2019 и 2020.
++ [Форма](https://docs.google.com/forms/d/e/1FAIpQLSd7FopqmHoR5Ugcg_-ZAs-guy8NHS5PSvvDsx_rYetaPMKxjw/viewform?usp=sf_link) обратной связи.

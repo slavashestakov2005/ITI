@@ -4,6 +4,7 @@ from flask_cors import cross_origin
 from flask_login import login_user, logout_user, current_user, login_required
 from backend.database import UsersTable, User
 from .help import check_status
+
 '''
     /login          login()             Вход пользователя.
     /logout         logout()            Выход пользователя.
@@ -62,7 +63,10 @@ def settings():
                                                               ' не совпадают')
         else:
             return render_template('settings.html', error='Ваш старый пароль не ' + password_old)
-    return redirect('settings.html')
+    params = {'password': 'Уже введён' if app.config['MAIL_PASSWORD'] else 'Отсутствует',
+              'email': app.config['MAIL_USERNAME'], 'admins': str(app.config['ADMINS'])}\
+        if current_user.can_do(-2) else {}
+    return render_template('settings.html', **params)
 
 
 @app.route("/registration", methods=['GET', 'POST'])
@@ -78,7 +82,7 @@ def registration():
         u = UsersTable.select_by_login(user_login)
         if u.__is_none__:
             if user_password == user_password2:
-                u = User([0, user_login, '', -100])
+                u = User([None, user_login, '', -100])
                 u.set_password(user_password)
                 u.set_status(user_status)
                 UsersTable.insert(u)

@@ -1,3 +1,4 @@
+from datetime import datetime
 from backend.database import DataBase, Table, Row
 
 
@@ -11,11 +12,27 @@ class YearSubject(Row):
         score_7     INT     NOT NULL
         score_8     INT     NOT NULL
         score_9     INT     NOT NULL
+        start       INT     NOT NULL
+        end         INT     NOT NULL
+        place       TEXT    NOT NULL
     """
-    fields = ['year', 'subject', 'score_5', 'score_6', 'score_7', 'score_8', 'score_9']
+    fields = ['year', 'subject', 'score_5', 'score_6', 'score_7', 'score_8', 'score_9', 'start', 'end', 'place']
 
     def __init__(self, row):
         Row.__init__(self, YearSubject, row)
+
+    @staticmethod
+    def sort_by_start(year_subject):
+        return year_subject.start
+
+    def date_str(self) -> str:
+        return datetime.fromtimestamp(self.start).strftime('%Y-%m-%d')
+
+    def start_str(self) -> str:
+        return datetime.fromtimestamp(self.start).strftime('%H:%M')
+
+    def end_str(self) -> str:
+        return datetime.fromtimestamp(self.end).strftime('%H:%M')
 
 
 class YearsSubjectsTable:
@@ -31,30 +48,32 @@ class YearsSubjectsTable:
         "score_7"	INTEGER NOT NULL,
         "score_8"	INTEGER NOT NULL,
         "score_9"	INTEGER NOT NULL,
+        "start"	INTEGER NOT NULL,
+        "end"	INTEGER NOT NULL,
+        "place"	TEXT NOT NULL,
         PRIMARY KEY("year","subject")
         );''')
 
     @staticmethod
-    def select_all():
-        return Table.select_all(YearsSubjectsTable.table, YearSubject)
+    def select_all() -> list:
+        return Table.select_list(YearsSubjectsTable.table, YearSubject)
 
     @staticmethod
     def select_by_year(year: int) -> list:
-        return Table.select_list_by_field(YearsSubjectsTable.table, 'year', year, YearSubject)
+        return Table.select_list(YearsSubjectsTable.table, YearSubject, 'year', year)
 
     @staticmethod
     def select(year: int, subject: int) -> YearSubject:
-        return Table.select_by_fields(YearsSubjectsTable.table, YearSubject, 'year', year, 'subject', subject)
+        return Table.select_one(YearsSubjectsTable.table, YearSubject, 'year', year, 'subject', subject)
 
     @staticmethod
     def insert(year_subject: YearSubject) -> None:
-        return Table.insert(YearsSubjectsTable.table, year_subject, year_subject.fields)
+        return Table.insert(YearsSubjectsTable.table, year_subject)
 
     @staticmethod
     def update(year_subject: YearSubject) -> None:
-        return Table.update_by_fields(YearsSubjectsTable.table, year_subject,
-                                      'year', year_subject.year, 'subject', year_subject.subject)
+        return Table.update(YearsSubjectsTable.table, year_subject, 'year', 'subject')
 
     @staticmethod
     def delete_by_year(year: int) -> None:
-        return Table.delete_by_field(YearsSubjectsTable.table, 'year', year)
+        return Table.delete(YearsSubjectsTable.table, 'year', year)

@@ -31,18 +31,17 @@ class GroupResultsTable:
         );''')
 
     @staticmethod
-    def select_all():
-        return Table.select_all(GroupResultsTable.table, GroupResult)
+    def select_all() -> list:
+        return Table.select_list(GroupResultsTable.table, GroupResult)
 
     @staticmethod
     def select_by_team_and_subject(team: int, subject: int) -> GroupResult:
-        return Table.select_by_fields(GroupResultsTable.table, GroupResult, 'team', team, 'subject', subject)
+        return Table.select_one(GroupResultsTable.table, GroupResult, 'team', team, 'subject', subject)
 
     @staticmethod
-    def update(group_result: GroupResult):
-        return Table.update_by_fields(GroupResultsTable.table, group_result, 'team', group_result.team, 'subject',
-                                      group_result.subject)
+    def update(group_result: GroupResult) -> None:
+        return Table.update(GroupResultsTable.table, group_result, 'team', 'subject')
 
     @staticmethod
     def insert(group_result: GroupResult) -> None:
-        return Table.insert(GroupResultsTable.table, group_result, group_result.fields)
+        return Table.insert(GroupResultsTable.table, group_result)

@@ -12,7 +12,6 @@ from .auto_generator import Generator
     page_params(path1, path2, path3)                            Возвращает параметры для страницы 'add_result.html'.
     group_page_params(path1, path2, path3)                      Возвращает параметры для '<year>/add_result.html'.
     /<path1>/<path2>/<path3>/add_result     add_result(...)     redirect на страницу редактирования (для предметников).
-    /<path1>/<path2>/<path3>/max_score      max_score(...)      Сохраняет максимальные баллы по предмету.
     /<path1>/<path2>/<path3>/save_result    save_result(...)    Сохранение результатов (для предметников).
     /<path1>/<path2>/<path3>/share_results  share_results(...)  Генерирует таблицу с результатами (admin).
     /<year>/ratings_update                  ratings_update(...) Обновляет рейтинги (admin).
@@ -61,26 +60,6 @@ def add_result(path1, path2, path3):
     if path2 == 'group' or path2 == 'team':
         return render_template(path1 + '/add_result.html', **group_page_params(path1, path2, path3))
     return render_template('add_result.html', **page_params(path1, path2, path3))
-
-
-@app.route('/<path:path1>/<path:path2>/<path:path3>/max_score', methods=['POST'])
-@cross_origin()
-@login_required
-def max_score(path1, path2, path3):
-    subject = int(path3[:-5])
-    year = int(path1)
-    if not current_user.can_do(subject):
-        return forbidden_error()
-    if YearsSubjectsTable.select(year, subject).__is_none__:
-        return render_template('add_result.html', **page_params(path1, path2, path3),
-                               error0='Такого предмета в этом году нет')
-    s5 = request.form['score_5'] if request.form['score_5'] else 0
-    s6 = request.form['score_6'] if request.form['score_6'] else 0
-    s7 = request.form['score_7'] if request.form['score_7'] else 0
-    s8 = request.form['score_8'] if request.form['score_8'] else 0
-    s9 = request.form['score_9'] if request.form['score_9'] else 0
-    YearsSubjectsTable.update(YearSubject([year, subject, s5, s6, s7, s8, s9]))
-    return render_template('add_result.html', **page_params(path1, path2, path3), error1='Обновлено')
 
 
 @app.route('/<path:path1>/<path:path2>/<path:path3>/save_result', methods=['POST'])

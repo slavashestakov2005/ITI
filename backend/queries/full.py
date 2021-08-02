@@ -3,7 +3,8 @@ from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required
 from .help import check_status
-from backend.database import SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, YearSubject
+from ..help import init_mail_messages
+from backend.database import SubjectsTable, Subject, YearsTable, Year
 from .auto_generator import Generator
 from .file_creator import FileCreator
 '''
@@ -12,7 +13,7 @@ from .file_creator import FileCreator
     /add_subject            add_subject()           Создаёт новый предмет.
     /edit_subject           edit_subject()          Редактирует предмет.
     /delete_subject         delete_subject()        Удаляет предмет.
-    /<year>/subject_year    subject_year(year)      Сопастовляет ИТИ и предметы.
+    /global_settings        global_settings()       Сохраняет глобальные настройки (пароль от почты).
 '''
 
 
@@ -43,7 +44,7 @@ def add_subject():
     subject = SubjectsTable.select_by_name(name)
     if not subject.__is_none__:
         return render_template('subjects_and_years.html', error2='Предмет уже существует')
-    subject = Subject([0, name, subject_type])
+    subject = Subject([None, name, subject_type])
     SubjectsTable.insert(subject)
     Generator.gen_subjects_lists()
     return render_template('subjects_and_years.html', error2='Предмет добавлен')
@@ -81,16 +82,12 @@ def delete_subject():
     return render_template('subjects_and_years.html', error4='Предмет удалён')
 
 
-@app.route("/<path:year>/subject_year", methods=['POST'])
+@app.route("/global_settings", methods=['POST'])
 @cross_origin()
 @login_required
-@check_status('admin')
-def subject_year(year):
-    year = int(year)
-    subjects = request.form.getlist('subject')
-    YearsSubjectsTable.delete_by_year(year)
-    for subject in subjects:
-        YearsSubjectsTable.insert(YearSubject([year, int(subject), 0, 0, 0, 0, 0]))
-    FileCreator.create_subjects(year, subjects)
-    Generator.gen_years_subjects_list(year)
-    return render_template(str(year) + '/subjects_for_year.html', error1='Сохранено', year=year)
+@check_status('full')
+def global_settings():
+    app.config['MAIL_PASSWORD'] = request.form['password']
+    init_mail_messages()
+    return render_template('settings.html', error2='Успех', email=app.config['MAIL_USERNAME'],
+                           admins=str(app.config['ADMINS']), password='Уже введён')

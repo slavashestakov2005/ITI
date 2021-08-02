@@ -55,23 +55,23 @@ class UsersTable:
 
     @staticmethod
     def select_all() -> list:
-        return Table.select_all(UsersTable.table, User)
+        return Table.select_list(UsersTable.table, User)
 
     @staticmethod
     def select_by_id(id: int) -> User:
-        return Table.select_by_field(UsersTable.table, 'id', id, User)
+        return Table.select_one(UsersTable.table, User, 'id', id)
 
     @staticmethod
     def select_by_login(login: str) -> User:
-        return Table.select_by_field(UsersTable.table, 'login', login, User)
+        return Table.select_one(UsersTable.table, User, 'login', login)
 
     @staticmethod
     def update_by_login(user: User) -> None:
-        return Table.update_by_field(UsersTable.table, 'login', user)
+        return Table.update(UsersTable.table, user, 'login')
 
     @staticmethod
     def insert(user: User) -> None:
-        return Table.insert(UsersTable.table, user, user.fields[1:])
+        return Table.insert(UsersTable.table, user)
 
     @staticmethod
     def delete(user: User) -> None:

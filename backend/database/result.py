@@ -35,36 +35,26 @@ class ResultsTable:
         );''')
 
     @staticmethod
-    def select_all():
-        return Table.select_all(ResultsTable.table, Result)
+    def select_all() -> list:
+        return Table.select_list(ResultsTable.table, Result)
 
     @staticmethod
     def select_by_year(year: int) -> list:
-        return Table.select_list_by_field(ResultsTable.table, 'year', year, Result)
+        return Table.select_list(ResultsTable.table, Result, 'year', year)
 
     @staticmethod
     def select_by_year_and_subject(year: int, subject: int) -> list:
-        return Table.select_list_by_fields(ResultsTable.table, Result, 'year', year, 'subject', subject)
+        return Table.select_list(ResultsTable.table, Result, 'year', year, 'subject', subject)
 
     @staticmethod
     def select_for_people(result: Result) -> Result:
-        return Table.select_by_fields(ResultsTable.table, Result, 'year', result.year, 'subject', result.subject,
-                                      'user', result.user)
+        return Table.select_one(ResultsTable.table, Result, 'year', result.year, 'subject', result.subject,
+                                'user', result.user)
 
     @staticmethod
-    def update(result: Result):
-        return Table.update_by_fields(ResultsTable.table, result, 'year', result.year, 'subject', result.subject,
-                                      'user', result.user)
+    def update(result: Result) -> None:
+        return Table.update(ResultsTable.table, result, 'year', 'subject', 'user')
 
     @staticmethod
     def insert(result: Result) -> None:
-        return Table.insert(ResultsTable.table, result, result.fields)
-    '''
-    @staticmethod
-    def update_by_id(subject: Subject) -> None:
-        return Table.update_by_field(SubjectsTable.table, 'id', subject)
-
-    @staticmethod
-    def delete(subject: Subject) -> None:
-        return Table.delete(SubjectsTable.table, subject)
-    '''
+        return Table.insert(ResultsTable.table, result)

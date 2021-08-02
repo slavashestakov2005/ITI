@@ -8,3 +8,4 @@ import backend.queries.file_creator
 import backend.queries.results
 import backend.queries.students
 import backend.queries.teams
+import backend.queries.subjects

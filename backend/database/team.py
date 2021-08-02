@@ -34,23 +34,23 @@ class TeamsTable:
 
     @staticmethod
     def select_all() -> list:
-        return Table.select_all(TeamsTable.table, Team)
+        return Table.select_list(TeamsTable.table, Team)
 
     @staticmethod
     def select_by_year(year: int) -> list:
-        return Table.select_list_by_field(TeamsTable.table, 'year', year, Team)
+        return Table.select_list(TeamsTable.table, Team, 'year', year)
 
     @staticmethod
     def select_by_year_and_later(year: int, later: str) -> Team:
-        return Table.select_by_fields(TeamsTable.table, Team, 'year', year, 'later', later)
+        return Table.select_one(TeamsTable.table, Team, 'year', year, 'later', later)
 
     @staticmethod
     def select_by_id(id: int) -> Team:
-        return Table.select_by_field(TeamsTable.table, 'id', id, Team)
+        return Table.select_one(TeamsTable.table, Team, 'id', id)
 
     @staticmethod
     def insert(team: Team) -> None:
-        return Table.insert_all_columns(TeamsTable.table, team)
+        return Table.insert(TeamsTable.table, team)
 
     @staticmethod
     def delete(team: Team) -> None:

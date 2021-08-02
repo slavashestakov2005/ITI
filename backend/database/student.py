@@ -36,25 +36,25 @@ class StudentsTable:
         );''')
 
     @staticmethod
-    def select_all():
-        return Table.select_all(StudentsTable.table, Student)
+    def select_all() -> list:
+        return Table.select_list(StudentsTable.table, Student)
 
     @staticmethod
     def select_by_class_n(class_n: int) -> list:
-        return Table.select_list_by_field(StudentsTable.table, 'class_n', class_n, Student)
+        return Table.select_list(StudentsTable.table, Student, 'class_n', class_n)
 
     @staticmethod
     def select_by_student(student: Student) -> Student:
-        return Table.select_by_fields(StudentsTable.table, Student, 'name_1', student.name_1, 'name_2', student.name_2,
-                                           'class_n', student.class_n, 'class_l', student.class_l)
+        return Table.select_one(StudentsTable.table, Student, 'name_1', student.name_1, 'name_2', student.name_2,
+                                'class_n', student.class_n, 'class_l', student.class_l)
 
     @staticmethod
     def insert(student: Student) -> None:
-        return Table.insert(StudentsTable.table, student, student.fields)
+        return Table.insert(StudentsTable.table, student)
 
     @staticmethod
     def update(new: Student) -> None:
-        return Table.update_by_field(StudentsTable.table, 'id', new)
+        return Table.update(StudentsTable.table, new)
 
     @staticmethod
     def delete(student: Student) -> None:

@@ -97,6 +97,23 @@
             </center></form>
         </center></td>
     </tr>
+    <tr>
+        <td valign="top"><center>
+            <h2>Расписание:</h2>
+            <form action="subject_description" method="post"><center>
+                <p>Предмет (номер): <input type="text" name="subject"></p>
+                <p>Кабинет: <input type="text" name="place" size="40"></p>
+                <p>
+                    День: <input type="date" name="date">
+                    Начало: <input type="time" name="start">
+                    Конец: <input type="time" name="end">
+                </p>
+                {% if error6 %} <p><font color="red">[ {{ error6 }} ]</font></p>
+                {% endif %}
+                <p><input type="submit" value="Сохранить"></p>
+            </center></form>
+        </center></td>
+    </tr>
 </table>
 
 {% endblock %}

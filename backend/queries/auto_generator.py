@@ -1,6 +1,6 @@
 from .help import SplitFile, all_templates
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
-    TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team
+    TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject
 from backend.config import Config
 import glob
 '''
@@ -18,6 +18,7 @@ import glob
         gen_ratings(year)                   Генерирует рейтинговые таблицы года year.
         gen_teams(year)                     Генерирует списки команд года year.
         gen_teams_students(year)            Генерирует списки участников команд года year.
+        gen_timetable(year)                 Генерирует расписание предметов года year.
 '''
 
 
@@ -79,8 +80,8 @@ class Generator:
                     text4 += '<p><a href="individual/' + str(subject.id) + '.html">' + subject.name + '</a></p>\n'
                 elif subject.type == 'g':
                     text5 += '<p><a href="group/' + str(subject.id) + '.html">' + subject.name + '</a></p>\n'
-            text = '<p><input type="checkbox" name="subject" value="' + str(subject.id) + '"' + checked + '>' + \
-                   subject.name + '</p>\n'
+            text = '<p><input type="checkbox" name="subject" value="' + str(subject.id) + '"' + checked + '>[ ' + \
+                   str(subject.id) + ' ] ' + subject.name + '</p>\n'
             if subject.type == 'i':
                 text1 += text
             elif subject.type == 'g':
@@ -433,4 +434,17 @@ class Generator:
             cnt += 1
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams.html")
         data.insert_after_comment(' list of students_in_team ', txt)
+        data.save_file()
+
+    @staticmethod
+    def gen_timetable(year: int):
+        subjects = [_ for _ in YearsSubjectsTable.select_by_year(year) if _.start or _.end or _.place]
+        subjects.sort(key=YearSubject.sort_by_start)
+        txt = '\n'
+        for subject in subjects:
+            txt += '<tr><td>' + subject.date_str() + '</td><td>' + SubjectsTable.select_by_id(subject.subject).name +\
+                   '</td><td>' + subject.start_str() + '</td><td>' + subject.end_str() + '</td><td>' + subject.place +\
+                   '</td></tr>\n'
+        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/timetable.html")
+        data.insert_after_comment(' timetable ', txt)
         data.save_file()

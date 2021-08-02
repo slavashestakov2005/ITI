@@ -25,23 +25,22 @@ class TeamsStudentsTable:
         );''')
 
     @staticmethod
-    def select_all():
-        return Table.select_all(TeamsStudentsTable.table, TeamStudent)
+    def select_all() -> list:
+        return Table.select_list(TeamsStudentsTable.table, TeamStudent)
 
     @staticmethod
     def select_by_team(team: int) -> list:
-        return Table.select_list_by_field(TeamsStudentsTable.table, 'team', team, TeamStudent)
+        return Table.select_list(TeamsStudentsTable.table, TeamStudent, 'team', team)
 
     @staticmethod
     def select(team_student: TeamStudent) -> TeamStudent:
-        return Table.select_by_fields(TeamsStudentsTable.table, TeamStudent, 'team', team_student.team, 'student',
-                                      team_student.student)
+        return Table.select_one(TeamsStudentsTable.table, TeamStudent, 'team', team_student.team, 'student',
+                                team_student.student)
 
     @staticmethod
     def insert(team_student: TeamStudent) -> None:
-        return Table.insert_all_columns(TeamsStudentsTable.table, team_student)
+        return Table.insert(TeamsStudentsTable.table, team_student)
 
     @staticmethod
     def delete(team_student: TeamStudent) -> None:
-        return Table.delete_by_fields(TeamsStudentsTable.table, 'team', team_student.team, 'student',
-               team_student.student)
+        return Table.delete(TeamsStudentsTable.table, 'team', team_student.team, 'student', team_student.student)
