@@ -7,6 +7,7 @@ from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from .help import check_status
 from .auto_generator import Generator
+import re
 '''
     tour_type(name)                                             Преобразует названия туров.
     page_params(path1, path2, path3)                            Возвращает параметры для страницы 'add_result.html'.
@@ -69,11 +70,12 @@ def save_result(path1, path2, path3):
     year = int(path1)
     subject = int(path3[:-5])
     user_id = request.form['code']
-    result = request.form['result']
+    result_sum = sum(map(int, re.split('\D+', request.form['result'])))
+    text_result = ' '.join(re.split('[^\dXxХх]+', request.form['result']))
     if not current_user.can_do(subject):
         return forbidden_error()
-    r = Result([year, subject, user_id, result, result])
-    if user_id == "" or result == "":
+    r = Result([year, subject, user_id, result_sum, 0, text_result])
+    if user_id == "" or request.form['result'] == "":
         return render_template('add_result.html', **page_params(path1, path2, path3), error2='Поля не заполнены')
     if not ResultsTable.select_for_people(r).__is_none__:
         if not current_user.can_do(-1):

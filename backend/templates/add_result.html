@@ -42,12 +42,12 @@
 		<td valign="top"><center>
 			<h1>Сохранение результатов</h1>
 			<form action="save_result" method="post">
-				<p>Год: {{year}}</p>
-				<p>Код предмета: {{subject}}</p>
 				<p>Код участника: <input type="text" name="code"></p>
 				<p>Результат: <input type="text" name="result"></p>
 				{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
 				{% endif %}
+				<p>Введите баллы за все задачи. Разделитель может быть любым. Симолы 'х', 'Х', 'x', 'X' распазнаются как
+				задачи, к которым участник не писал решение.</p>
 				<input type="submit" value="Сохранить">
 			</form>
 		</center></td>

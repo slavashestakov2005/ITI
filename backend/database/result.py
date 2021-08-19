@@ -9,8 +9,9 @@ class Result(Row):
         user        INT     NOT NULL    PK
         result      INT     NOT NULL
         net_score   INT     NOT NULL
+        text_result TEXT    NOT NULL
     """
-    fields = ['year', 'subject', 'user', 'result', 'net_score']
+    fields = ['year', 'subject', 'user', 'result', 'net_score', 'text_result']
 
     def __init__(self, row):
         Row.__init__(self, Result, row)
@@ -31,6 +32,7 @@ class ResultsTable:
         "user"	INTEGER NOT NULL,
         "result"	INTEGER NOT NULL,
         "net_score"	INTEGER NOT NULL,
+        "text_result"	TEXT NOT NULL,
         PRIMARY KEY("year","subject","user")
         );''')
 

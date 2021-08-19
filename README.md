@@ -26,7 +26,7 @@
 | Время и место проведения туров | admin | subjects.py | 01.08.21 |
 | Максимальный балл предмета | Предметник | subjects.py | 19.07.21 |
 | Сохранение результатов | Предметник | results.py | 27.07.21 |
-| Публикация результатов | admin | results.py, auto_generator.py | 27.07.21 |
+| Публикация результатов и протокола | admin | results.py, auto_generator.py | 19.08.21 |
 | Публикация рейтинга | admin | results.py, auto_generator.py | 27.07.21 |
 | &nbsp; | | | |
 | Форма обратной связи | — | Google Forms | 02.08.21 |

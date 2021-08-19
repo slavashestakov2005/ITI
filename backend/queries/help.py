@@ -4,6 +4,7 @@ from functools import wraps
 from glob import glob
 from backend.config import Config
 import re
+import os
 '''
     LOGIN_REQUIRED_FILES = []       Файлы, доступные после входа на сайт.
     STATUS_REQUIRED_FILES = {}      Отображение файла и доступа к нему.
@@ -143,6 +144,8 @@ class SplitFile:
         if not file_name:
             file_name = self.file_name
         if self.edited:
+            if not os.path.exists(os.path.dirname(file_name)):
+                os.makedirs(os.path.dirname(file_name))
             with open(file_name, 'w', encoding='UTF-8') as f:
                 f.write(self.writable())
         self.replace = {}

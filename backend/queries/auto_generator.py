@@ -199,7 +199,43 @@ class Generator:
         return text
 
     @staticmethod
-    def gen_results_2(results: list, codes: map, class_n: int, maximum: int):
+    def gen_results_protocol(results: list, codes: map, file_name: str, args: map):
+        txt = '''<table width="100%" border="1">
+                    <tr>
+                        <td width="5%">Место</td>
+                        <td width="15%">Фамилия</td>
+                        <td width="15%">Имя</td>
+                        <td width="10%">Класс</td>'''
+        r_split = []
+        ln = len(results)
+        tasks_cnt = 0
+        for result in results:
+            r_split.append(result.text_result.split())
+            tasks_cnt = max(tasks_cnt, len(r_split[-1]))
+        for i in range(tasks_cnt):
+            txt += '<td width="5%">№ ' + str(i + 1) + '</td>\n'
+        txt += '''<td width="5%">Балл</td>
+                        <td width="5%">Балл в рейтинг</td>
+                    </tr>\n'''
+        for i in range(ln):
+            people = codes[results[i].user]
+            txt += '<tr><td>' + str(i + 1) + '</td><td>' + people.name_1 + '</td><td>' + people.name_2 + '</td><td>' + \
+                    str(people.class_n) + people.class_l + '</td>'
+            for x in range(tasks_cnt):
+                if x < len(r_split[i]):
+                    txt += '<td>' + r_split[i][x] + '</td>'
+                else:
+                    txt += '<td>—</td>'
+            txt += '<td>' + str(results[i].result) + '</td><td>' + str(results[i].net_score) + '</td></tr>\n'
+        txt += '</table>'
+        data = SplitFile(Config.HTML_FOLDER + "/protocol.html")
+        data.insert_after_comment(' results table ', txt)
+        for arg in args:
+            data.replace_comment(arg, args[arg])
+        data.save_file(file_name)
+
+    @staticmethod
+    def gen_results_2(results: list, codes: map, class_n: int, maximum: int, file_name: str, args: map):
         txt = Generator.gen_results_1(results, codes, maximum)
         if txt:
             txt = '''<td width="30%" valign="top">
@@ -207,6 +243,8 @@ class Generator:
                 <h3>''' + str(class_n) + ''' класс</h3>
                 <p>(Максимум: ''' + str(maximum) + ''' баллов)</p>
             </center>''' + txt + '</td>\n'''
+            args[' {class} '] = str(class_n)
+            Generator.gen_results_protocol(results, codes, file_name, args)
         return txt
 
     @staticmethod
@@ -219,12 +257,22 @@ class Generator:
             sorted_results[codes[r.user].class_n - 5].append(r)
         for lst in sorted_results:
             lst.sort(key=Result.sort_by_result)
-        txt5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5)
-        txt6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6)
-        txt7 = Generator.gen_results_2(sorted_results[2], codes, 7, year_subject.score_7)
-        txt8 = Generator.gen_results_2(sorted_results[3], codes, 8, year_subject.score_8)
-        txt9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9)
+        pth = Config.TEMPLATES_FOLDER + '/' + str(year) + '/individual/' + str(subject) + '/protocol'
+        params = {' {year} ': str(year), ' {subject_id} ': str(subject),
+                  ' {subject} ': SubjectsTable.select_by_id(subject).name}
+        txt5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5, pth + '_5.html', params)
+        txt6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6, pth + '_6.html', params)
+        txt7 = Generator.gen_results_2(sorted_results[2], codes, 7, year_subject.score_7, pth + '_7.html', params)
+        txt8 = Generator.gen_results_2(sorted_results[3], codes, 8, year_subject.score_8, pth + '_8.html', params)
+        txt9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9, pth + '_9.html', params)
         txt = '<center><h2>Результаты</h2></center>\n<table width="100%"><tr>\n'
+        protocols = '<center><h2>Протоколы</h2></center>\n'
+        prot_start = '<p><a href="' + str(subject) + '/protocol_'
+        protocols += prot_start + '5.html">5 класс</a></p>\n' if txt5 else ''
+        protocols += prot_start + '6.html">6 класс</a></p>\n' if txt6 else ''
+        protocols += prot_start + '7.html">7 класс</a></p>\n' if txt7 else ''
+        protocols += prot_start + '8.html">8 класс</a></p>\n' if txt8 else ''
+        protocols += prot_start + '9.html">9 класс</a></p>\n' if txt9 else ''
         txt += txt5 if txt5 else ''
         txt += '<td width="5%"></td>' if txt5 and txt6 else ''
         txt += txt6 if txt6 else ''
@@ -240,7 +288,7 @@ class Generator:
         elif txt9 and (txt5 or txt6 or txt7 or txt8):
             txt += '<td width="5%"></td>'
         txt += txt9 if txt9 else ''
-        txt += '</tr></table>'
+        txt += '</tr></table>\n' + protocols
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
         data.insert_after_comment(' results table ', txt)
         data.save_file()
