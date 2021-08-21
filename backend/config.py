@@ -3,7 +3,7 @@ class Config:
     TEMPLATES_FOLDER = 'backend/templates'
     EXAMPLES_FOLDER = 'backend/examples'
     HTML_FOLDER = 'backend/HTML'
-    ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'html'])
+    ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'html', 'docx'])
     SECRET_KEY = 'you-will-never-guess'
 
     '''

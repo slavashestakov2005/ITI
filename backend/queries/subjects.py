@@ -25,7 +25,7 @@ def subject_year(year):
     subjects = request.form.getlist('subject')
     YearsSubjectsTable.delete_by_year(year)
     for subject in subjects:
-        YearsSubjectsTable.insert(YearSubject([year, int(subject), 0, 0, 0, 0, 0, 0, 0, '']))
+        YearsSubjectsTable.insert(YearSubject([year, int(subject), 0, 0, 0, 0, 0, 0, 0, '', '']))
     FileCreator.create_subjects(year, subjects)
     Generator.gen_years_subjects_list(year)
     return render_template(str(year) + '/subjects_for_year.html', error1='Сохранено', year=year)
@@ -58,6 +58,7 @@ def max_score(path1, path2, path3):
 def subject_description(year):
     year = int(year)
     subject = int(request.form['subject'])
+    classes = request.form['classes']
     place = request.form['place']
     date = [int(_) for _ in request.form['date'].split('-')]
     start = [int(_) for _ in request.form['start'].split(':')]
@@ -69,6 +70,7 @@ def subject_description(year):
         return render_template(str(year) + '/subjects_for_year.html', error6='Этого предмета нет в этом году.')
     year_subject.start = start
     year_subject.end = end
+    year_subject.classes = classes
     year_subject.place = place
     YearsSubjectsTable.update(year_subject)
     Generator.gen_timetable(year)

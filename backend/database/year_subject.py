@@ -14,9 +14,11 @@ class YearSubject(Row):
         score_9     INT     NOT NULL
         start       INT     NOT NULL
         end         INT     NOT NULL
+        classes     TEXT    NOT NULL
         place       TEXT    NOT NULL
     """
-    fields = ['year', 'subject', 'score_5', 'score_6', 'score_7', 'score_8', 'score_9', 'start', 'end', 'place']
+    fields = ['year', 'subject', 'score_5', 'score_6', 'score_7', 'score_8', 'score_9', 'start', 'end', 'classes',
+              'place']
 
     def __init__(self, row):
         Row.__init__(self, YearSubject, row)
@@ -50,6 +52,7 @@ class YearsSubjectsTable:
         "score_9"	INTEGER NOT NULL,
         "start"	INTEGER NOT NULL,
         "end"	INTEGER NOT NULL,
+        "classes"	TEXT NOT NULL,
         "place"	TEXT NOT NULL,
         PRIMARY KEY("year","subject")
         );''')

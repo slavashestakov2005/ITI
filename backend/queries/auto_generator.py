@@ -491,8 +491,8 @@ class Generator:
         txt = '\n'
         for subject in subjects:
             txt += '<tr><td>' + subject.date_str() + '</td><td>' + SubjectsTable.select_by_id(subject.subject).name +\
-                   '</td><td>' + subject.start_str() + '</td><td>' + subject.end_str() + '</td><td>' + subject.place +\
-                   '</td></tr>\n'
+                   '</td><td>' + subject.classes + '</td><td>' + subject.start_str() + '</td><td>' + subject.end_str() +\
+                   '</td><td>' + subject.place + '</td></tr>\n'
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/timetable.html")
         data.insert_after_comment(' timetable ', txt)
         data.save_file()

@@ -3,8 +3,9 @@ from flask import request, redirect, render_template, url_for
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend.config import Config
-from .help import check_status
+from .help import check_status, SplitFile
 from ..help.errors import not_found_error, forbidden_error
+from ..database import SubjectsTable
 import os
 '''
     generate_filename()                 Генерирует имя для нового файла.
@@ -22,7 +23,26 @@ def generate_filename(last_name, new_path, new_name):
     filename = os.path.join(os.path.realpath('.'), Config.UPLOAD_FOLDER, new_path)
     if not os.path.exists(filename):
         os.makedirs(filename)
-    return os.path.join(new_path, new_name + '.' + parts[1])
+    return new_path + '/' + new_name + '.' + parts[1]
+
+
+def generate_filename_by_type(year: str, subject: int, types: list, classes: list):
+    filename = 'ИТИ ' + year + '. '
+    subject = SubjectsTable.select_by_id(subject)
+    if subject.__is_none__ or not types or not classes or not len(types) or not len(classes):
+        return None
+    filename += subject.name + '. '
+    types_translate = {'task': 'задания', 'solution': 'решения', 'criteria': 'критерии'}
+    types = [types_translate[_] for _ in types]
+    just_filename = types[0].title()
+    for i in range(1, len(types)):
+        just_filename += ' и ' if i == len(types) - 1 else ', '
+        just_filename += types[i]
+    just_filename += ' ' + classes[0]
+    for i in range(1, len(classes)):
+        just_filename += ', ' + classes[i]
+    just_filename += ' классы' if len(classes) > 1 else ' класс'
+    return filename + just_filename, just_filename
 
 
 @app.route("/upload", methods=['GET', 'POST'])
@@ -39,6 +59,25 @@ def upload():
             file.save(os.path.join(Config.UPLOAD_FOLDER, filename))
             return redirect(filename)
     return render_template('upload.html')
+
+
+@app.route('/<path:path1>/<path:path2>/<path:path3>/main_uploader', methods=['POST'])
+@cross_origin()
+@login_required
+def main_uploader(path1, path2, path3):
+    file = request.files['file']
+    types = request.form.getlist('type')
+    classes = request.form.getlist('class_n')
+    filename, just_filename = generate_filename_by_type(path1, int(path3.split('.')[0]), types, classes)
+    filename = generate_filename(file.filename, path1 + '/' + path2 + '/' + path3.rsplit('.', 1)[0], filename)
+    if filename:
+        file.save(os.path.join(Config.UPLOAD_FOLDER, filename))
+        data = SplitFile(Config.TEMPLATES_FOLDER + '/' + path1 + '/' + path2 + '/' + path3)
+        txt = '<p><a href="/' + filename + '">' + just_filename + '</a></p>\n'
+        data.insert_after_comment(' files ', txt, append=True)
+        data.save_file()
+        return redirect('/' + filename)
+    return forbidden_error()
 
 
 @app.route('/<path:path>/edit')

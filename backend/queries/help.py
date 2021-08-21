@@ -110,12 +110,15 @@ class SplitFile:
             else:
                 self.parts.append(FilePart(part, is_comment))
 
-    def insert_after_comment(self, comment: str, text: str, is_comment: bool = False):
+    def insert_after_comment(self, comment: str, text: str, is_comment: bool = False, append: bool = False):
         for index in range(len(self.parts)):
             if self.parts[index].is_comment and self.parts[index].text == comment:
                 self.edited = True
                 if not self.parts[index + 1].is_comment:
-                    self.parts[index + 1] = FilePart(text, is_comment)
+                    if not append:
+                        self.parts[index + 1] = FilePart(text, is_comment)
+                    else:
+                        self.parts[index + 1] = FilePart(self.parts[index + 1].text + text, is_comment)
                 else:
                     self.parts.insert(index + 1, FilePart(text))
 

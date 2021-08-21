@@ -61,6 +61,27 @@
 			{% endif %}
 		</center></td>
 	</tr>
+	<tr><td/>
+		<td valign="top"><center>
+			<h1>Загрузка файлов</h1>
+			<form action="main_uploader" method="post" enctype=multipart/form-data>
+				<p>Файл: <input type="file" name="file"></p>
+				<p>Тип:
+					<input type="checkbox" name="type" value="task">Задания
+					<input type="checkbox" name="type" value="solution">Решения
+					<input type="checkbox" name="type" value="criteria">Критерии
+				</p>
+				<p>Класс:
+					<input type="checkbox" name="class_n" value="5">5
+					<input type="checkbox" name="class_n" value="6">6
+					<input type="checkbox" name="class_n" value="7">7
+					<input type="checkbox" name="class_n" value="8">8
+					<input type="checkbox" name="class_n" value="9">9
+				</p>
+				<input type="submit" value="Загрузить">
+			</form>
+		</center></td>
+	<td/></tr>
 </table></center>
 
 {% endblock %}
