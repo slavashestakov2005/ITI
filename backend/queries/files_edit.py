@@ -65,6 +65,8 @@ def upload():
 @cross_origin()
 @login_required
 def main_uploader(path1, path2, path3):
+    if not current_user.can_do(int(path3.rsplit('.', 1)[0])):
+        return forbidden_error()
     file = request.files['file']
     types = request.form.getlist('type')
     classes = request.form.getlist('class_n')
