@@ -191,8 +191,8 @@ class Generator:
             people = codes[result.user]
             result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
             text += '<tr><td>' + str(cnt) + '</td><td>' + people.name_1 + '</td><td>' + people.name_2 + '</td><td>' + \
-                    str(people.class_n) + people.class_l + '</td><td>' + str(result.result) + '</td><td>' + \
-                    str(result.net_score) + '</td></tr>\n'
+                    people.class_name() + '</td><td>' + str(result.result) + '</td><td>' + str(result.net_score) +\
+                    '</td></tr>\n'
             ResultsTable.update(result)
             cnt += 1
         text += '</table>'
@@ -220,7 +220,7 @@ class Generator:
         for i in range(ln):
             people = codes[results[i].user]
             txt += '<tr><td>' + str(i + 1) + '</td><td>' + people.name_1 + '</td><td>' + people.name_2 + '</td><td>' + \
-                    str(people.class_n) + people.class_l + '</td>'
+                    people.class_name() + '</td>'
             for x in range(tasks_cnt):
                 if x < len(r_split[i]):
                     txt += '<td>' + r_split[i][x] + '</td>'
@@ -323,7 +323,7 @@ class Generator:
             s = results[index + i][1]
             if s.class_n != start:
                 break
-            txt += '<tr><td>' + str(i + 1) + '</td><td>' + str(s.class_n) + s.class_l + '</td><td>' + s.name_1 + \
+            txt += '<tr><td>' + str(i + 1) + '</td><td>' + s.class_name() + '</td><td>' + s.name_1 + \
                    '</td><td>' + s.name_2 + '</td><td>' + str(s.result) + '</td></tr>\n'
         while index < len(results) and results[index][1].class_n == start:
             index += 1
@@ -381,6 +381,42 @@ class Generator:
         return txt + '</table>'
 
     @staticmethod
+    def gen_ratings_4(codes: map, class_n: int, filename: str):
+        class_results = {}
+        for x in codes:
+            student = x[1]
+            if student.class_n == class_n:
+                if student.class_l in class_results:
+                    class_results[student.class_l].append(student)
+                else:
+                    class_results[student.class_l] = [student]
+        txt, cnt = '<tr>\n', 0
+        for r in class_results:
+            txt += '<td><center><h3>' + str(class_n) + r + '''</h3></center>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="10%">Место</td>
+                    <td width="40%">Фамилия</td>
+                    <td width="40%">Имя</td>
+                    <td width="10%">Сумма</td>
+                </tr>\n'''
+            position = 1
+            for x in class_results[r]:
+                txt += '<tr><td>' + str(position) + '</td><td>' + x.name_1 + '</td><td>' + x.name_2 +\
+                       '</td><td>' + str(x.result) + '</tr>\n'
+                position += 1
+            txt += '</table></td>\n'
+            cnt += 1
+            if cnt % 3 == 0:
+                txt += '</tr><tr>\n'
+            else:
+                txt += '<td />'
+        txt += '</tr>\n'
+        data = SplitFile(filename)
+        data.insert_after_comment(' results ', txt)
+        data.save_file()
+
+    @staticmethod
     def gen_ratings(year: int):
         results = ResultsTable.select_by_year(year)
         codes = Generator.get_codes(year)
@@ -390,7 +426,7 @@ class Generator:
         team_result = {_.id: 0 for _ in TeamsTable.select_by_year(year)}
         for r in results:
             student = codes[r.user]
-            class_name = str(student.class_n) + student.class_l
+            class_name = student.class_name()
             if class_name in class_results:
                 class_results[class_name] += r.net_score
             else:
@@ -426,6 +462,9 @@ class Generator:
         data.insert_after_comment(' rating_parallel_8 ', best_8)
         data.insert_after_comment(' rating_parallel_9 ', best_9)
         data.save_file()
+        for i in range(5, 10):
+            filename = Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating_' + str(i) + '.html'
+            Generator.gen_ratings_4(codes, i, filename)
         # лучшие результаты в первый / второй дни :(
 
     @staticmethod
@@ -472,7 +511,7 @@ class Generator:
                 </tr>
                 '''
             for student in students:
-                txt += '<tr><td>' + str(student.class_n) + student.class_l + '</td><td>' + student.name_1 +\
+                txt += '<tr><td>' + student.class_name() + '</td><td>' + student.name_1 +\
                        '</td><td>' + student.name_2 + '</td></tr>\n'
             txt += '</table></td>\n'
             if cnt % 3 == 2:

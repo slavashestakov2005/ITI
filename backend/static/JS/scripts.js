@@ -11,3 +11,7 @@ function textInput(document, txt){
 function addResult(window) {
     document.location.replace(window.location + '/add_result');
 }
+
+function addAppeal(window) {
+    document.location.replace(window.location + '/add_appeal');
+}

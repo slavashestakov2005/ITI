@@ -4,6 +4,9 @@
 {% if not current_user.is_anonymous and current_user.can_do(2) %}
 <a href="#" onclick="addResult(window)">Результаты</a>
 {% endif %}
+{% if 'individual' == 'individual' and not current_user.is_anonymous %}
+<a href="#" onclick="addAppeal(window)">Апелляция</a>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -64,6 +67,6 @@
 <!-- end -->
 <center><h2>Файлы</h2></center>
 <!-- files -->
-<p><a href="/2021/individual/2/ИТИ 2021. История. Решения 9 класс.jpg">Решения 9 класс </a></p>
+<p><a href="/2021/individual/2/ИТИ 2021. История. Решения 9 класс.jpg">Решения 9 класс</a></p>
 <!-- end -->
 {% endblock %}

@@ -16,9 +16,12 @@ class Student(Row):
         Row.__init__(self, Student, row)
         self.result = 0
 
+    def class_name(self):
+        return str(self.class_n) + self.class_l
+
     @staticmethod
     def sort_by_class(student):
-        return str(student.class_n) + student.class_l
+        return student.class_name()
 
 
 class StudentsTable:
@@ -38,6 +41,10 @@ class StudentsTable:
     @staticmethod
     def select_all() -> list:
         return Table.select_list(StudentsTable.table, Student)
+
+    @staticmethod
+    def select(id: int) -> Student:
+        return Table.select_one(StudentsTable.table, Student, 'id', id)
 
     @staticmethod
     def select_by_class_n(class_n: int) -> list:

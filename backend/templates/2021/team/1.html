@@ -4,6 +4,9 @@
 {% if not current_user.is_anonymous and current_user.can_do(1) %}
 <a href="#" onclick="addResult(window)">Результаты</a>
 {% endif %}
+{% if 'team' == 'individual' and not current_user.is_anonymous %}
+<a href="#" onclick="addAppeal(window)">Апелляция</a>
+{% endif %}
 {% endblock %}
 
 {% block content %}

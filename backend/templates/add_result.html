@@ -18,11 +18,13 @@
 	</tr>
 </table>
 
-<center><table width="80%">
+<center><table width="90%">
 	<tr>
-		<td width="33%" />
-		<td width="33%" />
-		<td width="33%" />
+		<td width="30%" />
+		<td width="5%" />
+		<td width="30%" />
+		<td width="5%" />
+		<td width="30%" />
 	</tr>
 	<tr>
 		<td valign="top"><center>
@@ -39,6 +41,7 @@
 				<input type="submit" value="Сохранить">
 			</form>
 		</center></td>
+		<td/>
 		<td valign="top"><center>
 			<h1>Сохранение результатов</h1>
 			<form action="save_result" method="post">
@@ -51,6 +54,7 @@
 				<input type="submit" value="Сохранить">
 			</form>
 		</center></td>
+		<td/>
 		<td valign="top"><center>
 			{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 			<h1><a href="share_results">Публикация результатов</a></h1>
@@ -61,7 +65,14 @@
 			{% endif %}
 		</center></td>
 	</tr>
-	<tr><td/>
+</table>
+<table width="90%">
+	<tr>
+		<td width="30%" />
+		<td width="5%" />
+		<td width="65%" />
+	</tr>
+	<tr>
 		<td valign="top"><center>
 			<h1>Загрузка файлов</h1>
 			<form action="main_uploader" method="post" enctype=multipart/form-data>
@@ -81,7 +92,31 @@
 				<input type="submit" value="Загрузить">
 			</form>
 		</center></td>
-	<td/></tr>
+		<td />
+		<td valign="top"><center>
+			<h1>Список апеллирующих</h1>
+			<table width="100%" border="1">
+				<tr>
+					<td width="5%">ID</td>
+					<td width="15%">Фамилия</td>
+					<td width="15%">Имя</td>
+					<td width="5%">Класс</td>
+					<td width="10%">Номер задачи</td>
+					<td width="50%">Причина апелляции</td>
+				</tr>
+				{% for x in appeals %}
+				<tr>
+					<td>{{ x[0].student }}</td>
+					<td>{{ x[1].name_1 }}</td>
+					<td>{{ x[1].name_2 }}</td>
+					<td>{{ x[1].class_name() }}</td>
+					<td>{{ x[0].tasks }}</td>
+					<td>{{ x[0].description }}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</center></td>
+	</tr>
 </table></center>
 
 {% endblock %}

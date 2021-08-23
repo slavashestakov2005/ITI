@@ -59,12 +59,12 @@
 									{% block page_num %}{% endblock %}
 
 									{% if not current_user.is_anonymous and current_user.can_do(-1) %}
-									<a href="#" onclick="edit(document)">Редактировать</a>
+									<a href="#" onclick="edit(document)">Редактировать страницу</a>
 									{% endif %}
 
 									{% if current_user.is_anonymous %} <a href="../../login.html">Войти</a>
 									{% else %}
-									<a href="../../settings">Настройки</a>
+									<a href="../../settings">Настройки пользователя</a>
 									<a href="../../logout">Выйти</a>
 									{% endif %}
 								</div>

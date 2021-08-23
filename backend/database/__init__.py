@@ -10,3 +10,4 @@ from .team import *
 from .student_code import *
 from .team_student import *
 from .group_result import *
+from .appeal import *

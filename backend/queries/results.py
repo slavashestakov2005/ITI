@@ -1,7 +1,7 @@
 from backend import app
 from backend.help.errors import forbidden_error
-from ..database import ResultsTable, Result, SubjectsTable, YearSubject, YearsSubjectsTable, TeamsTable,\
-    GroupResultsTable, GroupResult
+from ..database import ResultsTable, Result, SubjectsTable, YearsSubjectsTable, TeamsTable,\
+    GroupResultsTable, GroupResult, AppealsTable, Appeal, StudentsCodesTable, StudentsTable
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
@@ -11,6 +11,7 @@ import re
 '''
     tour_type(name)                                             Преобразует названия туров.
     page_params(path1, path2, path3)                            Возвращает параметры для страницы 'add_result.html'.
+    appeal_page_params(path1, path2, path3)                     Возвращает пераметры для страницы 'add_appeal.html'
     group_page_params(path1, path2, path3)                      Возвращает параметры для '<year>/add_result.html'.
     /<path1>/<path2>/<path3>/add_result     add_result(...)     redirect на страницу редактирования (для предметников).
     /<path1>/<path2>/<path3>/save_result    save_result(...)    Сохранение результатов (для предметников).
@@ -18,6 +19,7 @@ import re
     /<year>/ratings_update                  ratings_update(...) Обновляет рейтинги (admin).
     /<path1>/<path2>/<path3>/save_group_results      <...>      Сохранение групповых результатов (для предметников).
     /<path1>/<path2>/<path3>/share_group_results     <...>      Генерирует таблицу с групповыми результатами (admin).
+    /<path1>/<path2>/<path3>/add_appeal     add_appeal(...)     Сохранение апелляций и redirect на эту страницу.
 '''
 
 
@@ -32,9 +34,19 @@ def tour_type(name: str) -> str:
 def page_params(path1, path2, path3):
     subject = int(path3[:-5])
     sub = YearsSubjectsTable.select(int(path1), subject)
+    appeals = AppealsTable.select_by_year_and_subject(int(path1), subject)
+    appeals = [(_, StudentsTable.select(
+        StudentsCodesTable.select_by_code(int(path1), _.student).student
+    )) for _ in appeals]
     return {'year': path1, 'subject': subject, 'h_type_1': path2, 'h_type_2': tour_type(path2),
              'h_sub_name': SubjectsTable.select_by_id(subject).name, 's5': sub.score_5, 's6': sub.score_6,
-            's7': sub.score_5, 's8': sub.score_8, 's9': sub.score_9}
+            's7': sub.score_5, 's8': sub.score_8, 's9': sub.score_9, 'appeals': appeals}
+
+
+def appeal_page_params(path1, path2, path3):
+    subject = int(path3[:-5])
+    return {'year': path1, 'subject': subject, 'h_type_1': path2, 'h_type_2': tour_type(path2),
+            'h_sub_name': SubjectsTable.select_by_id(subject).name}
 
 
 def group_page_params(path1, path2, path3):
@@ -152,3 +164,19 @@ def share_group_results(path1, path2, path3):
     Generator.gen_group_results(year, subject, path1 + '/' + path2 + '/' + path3)
     return render_template(str(year) + '/add_result.html', **group_page_params(path1, path2, path3),
                            error2='Результаты опубликованы')
+
+
+@app.route('/<path:path1>/<path:path2>/<path:path3>/add_appeal', methods=['GET', 'POST'])
+@cross_origin()
+@login_required
+def add_appeal(path1, path2, path3):
+    params = appeal_page_params(path1, path2, path3)
+    if request.method == 'POST':
+        year = int(path1)
+        subject = int(path3[:-5])
+        code = int(request.form['code'])
+        tasks = request.form['tasks']
+        description = request.form['description']
+        AppealsTable.insert(Appeal([year, subject, code, tasks, description]))
+        params['error1'] = 'Апелляция подана'
+    return render_template('add_appeal.html', **params)
