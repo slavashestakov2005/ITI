@@ -83,7 +83,7 @@ def save_result(path1, path2, path3):
     subject = int(path3[:-5])
     user_id = request.form['code']
     result_sum = sum(map(int, re.split('\D+', request.form['result'])))
-    text_result = ' '.join(re.split('[^\dXxХх]+', request.form['result']))
+    text_result = re.sub('[XxХх]', 'X', ' '.join(re.split('[^\dXxХх]+', request.form['result'])))
     if not current_user.can_do(subject):
         return forbidden_error()
     r = Result([year, subject, user_id, result_sum, 0, text_result])

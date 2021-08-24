@@ -1,4 +1,4 @@
-from .help import SplitFile, all_templates
+from .help import SplitFile, all_templates, tr_format, compare
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject
 from backend.config import Config
@@ -28,10 +28,10 @@ class Generator:
         years = YearsTable.select_all()
         type1 = type2 = type3 = type4 = '\n'
         for year in years:
-            type1 += '<a href="' + str(year.year) + '/main.html">ИТИ-' + str(year.year) + "</a>\n"
-            type2 += '<a href="../' + str(year.year) + '/main.html">ИТИ-' + str(year.year) + "</a>\n"
-            type3 += '<a href="../../' + str(year.year) + '/main.html">ИТИ-' + str(year.year) + "</a>\n"
-            type4 += '<a href="../../../' + str(year.year) + '/main.html">ИТИ-' + str(year.year) + "</a>\n"
+            type1 += '<a href="{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+            type2 += '<a href="../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+            type3 += '<a href="../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+            type4 += '<a href="../../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
         for file_name in all_templates():
             data = SplitFile(file_name)
             data.insert_after_comment(' list of years (1) ', type1)
@@ -45,8 +45,8 @@ class Generator:
         subjects = SubjectsTable.select_all()
         type1 = type2 = type3 = type4 = type5 = type6 = '\n'
         for subject in subjects:
-            text1 = '<p><input type="checkbox" name="status" value="' + str(subject.id) + '">' + subject.name + '</p>\n'
-            text2 = '<p>[ ' + str(subject.id) + ' ] ' + subject.name + "</p>\n"
+            text1 = '<p><input type="checkbox" name="status" value="{0}">{1}</p>\n'.format(subject.id, subject.name)
+            text2 = '<p>[ {0} ] {1}</p>\n'.format(subject.id, subject.name)
             if subject.type == 'i':
                 type1 += text1
                 type4 += text2
@@ -77,11 +77,11 @@ class Generator:
             if subject.id in years_subjects:
                 checked = ' checked'
                 if subject.type == 'i':
-                    text4 += '<p><a href="individual/' + str(subject.id) + '.html">' + subject.name + '</a></p>\n'
+                    text4 += '<p><a href="individual/{0}.html">{1}</a></p>\n'.format(subject.id, subject.name)
                 elif subject.type == 'g':
-                    text5 += '<p><a href="group/' + str(subject.id) + '.html">' + subject.name + '</a></p>\n'
-            text = '<p><input type="checkbox" name="subject" value="' + str(subject.id) + '"' + checked + '>[ ' + \
-                   str(subject.id) + ' ] ' + subject.name + '</p>\n'
+                    text5 += '<p><a href="group/{0}.html">{1}</a></p>\n'.format(subject.id, subject.name)
+            text = '<p><input type="checkbox" name="subject" value="{0}" {1}>[ {0} ] {2}</p>\n'.\
+                format(subject.id, checked, subject.name)
             if subject.type == 'i':
                 text1 += text
             elif subject.type == 'g':
@@ -98,6 +98,10 @@ class Generator:
             data.save_file()
 
     @staticmethod
+    def gen_students_list_1(student):
+        return tr_format(student.name_1, student.name_2, student.class_name())
+
+    @staticmethod
     def gen_students_list(class_n: int):
         file_name = Config.TEMPLATES_FOLDER + '/students_' + str(class_n) + '.html'
         students = StudentsTable.select_by_class_n(class_n)
@@ -106,14 +110,11 @@ class Generator:
         m2 = length * 2 // 3
         text1 = text2 = text3 = '\n'
         for i in range(0, m1):
-            text1 += '<tr><td>' + students[i].name_1 + '</td><td>' + students[i].name_2 + '</td><td>' +\
-                     str(students[i].class_n) + students[i].class_l + '</td></tr>\n'
+            text1 += Generator.gen_students_list_1(students[i])
         for i in range(m1, m2):
-            text2 += '<tr><td>' + students[i].name_1 + '</td><td>' + students[i].name_2 + '</td><td>' + \
-                     str(students[i].class_n) + students[i].class_l + '</td></tr>\n'
+            text2 += Generator.gen_students_list_1(students[i])
         for i in range(m2, length):
-            text3 += '<tr><td>' + students[i].name_1 + '</td><td>' + students[i].name_2 + '</td><td>' + \
-                     str(students[i].class_n) + students[i].class_l + '</td></tr>\n'
+            text3 += Generator.gen_students_list_1(students[i])
         data = SplitFile(file_name)
         data.insert_after_comment(' students_table 1 ', text3)
         data.insert_after_comment(' students_table 2 ', text2)
@@ -122,14 +123,13 @@ class Generator:
 
     @staticmethod
     def gen_codes_1(student):
-        return '<tr><td>' + str(student[1].class_n) + student[1].class_l + '</td><td>' + student[1].name_1 +\
-               '</td><td>' + student[1].name_2 + '</td><td>' + str(student[0]) + '</td></tr>\n'
+        return tr_format(student[1].class_name(), student[1].name_1, student[1].name_2, student[0])
 
     @staticmethod
     def gen_codes(year: int):
         file_name = Config.TEMPLATES_FOLDER + "/" + str(year) + "/codes.html"
         students = Generator.get_codes(year)
-        students = sorted(students.items(), key=lambda x: Student.sort_by_class(x[1]))
+        students = sorted(students.items(), key=compare(Student.sort_by_class, lambda x: x[1]))
         length = len(students)
         m1 = length - length * 2 // 3
         m2 = length - length // 3
@@ -190,9 +190,7 @@ class Generator:
                 raise ValueError("Bad results are saved")
             people = codes[result.user]
             result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
-            text += '<tr><td>' + str(cnt) + '</td><td>' + people.name_1 + '</td><td>' + people.name_2 + '</td><td>' + \
-                    people.class_name() + '</td><td>' + str(result.result) + '</td><td>' + str(result.net_score) +\
-                    '</td></tr>\n'
+            text += tr_format(cnt, people.name_1, people.name_2, people.class_name(), result.result, result.net_score)
             ResultsTable.update(result)
             cnt += 1
         text += '</table>'
@@ -213,20 +211,19 @@ class Generator:
             r_split.append(result.text_result.split())
             tasks_cnt = max(tasks_cnt, len(r_split[-1]))
         for i in range(tasks_cnt):
-            txt += '<td width="5%">№ ' + str(i + 1) + '</td>\n'
+            txt += '<td width="5%">№ {0}</td>\n'.format(i + 1)
         txt += '''<td width="5%">Балл</td>
                         <td width="5%">Балл в рейтинг</td>
                     </tr>\n'''
         for i in range(ln):
             people = codes[results[i].user]
-            txt += '<tr><td>' + str(i + 1) + '</td><td>' + people.name_1 + '</td><td>' + people.name_2 + '</td><td>' + \
-                    people.class_name() + '</td>'
+            row = [i + 1, people.name_1, people.name_2, people.class_name()]
             for x in range(tasks_cnt):
                 if x < len(r_split[i]):
-                    txt += '<td>' + r_split[i][x] + '</td>'
+                    row.append(r_split[i][x])
                 else:
-                    txt += '<td>—</td>'
-            txt += '<td>' + str(results[i].result) + '</td><td>' + str(results[i].net_score) + '</td></tr>\n'
+                    row.append('—')
+            txt += tr_format(*row, results[i].result, results[i].net_score)
         txt += '</table>'
         data = SplitFile(Config.HTML_FOLDER + "/protocol.html")
         data.insert_after_comment(' results table ', txt)
@@ -240,9 +237,9 @@ class Generator:
         if txt:
             txt = '''<td width="30%" valign="top">
             <center>
-                <h3>''' + str(class_n) + ''' класс</h3>
-                <p>(Максимум: ''' + str(maximum) + ''' баллов)</p>
-            </center>''' + txt + '</td>\n'''
+                <h3>{0} класс</h3>
+                <p>(Максимум: {1} баллов)</p>
+            </center> {2} </td>\n'''.format(class_n, maximum, txt)
             args[' {class} '] = str(class_n)
             Generator.gen_results_protocol(results, codes, file_name, args)
         return txt
@@ -267,7 +264,7 @@ class Generator:
         txt9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9, pth + '_9.html', params)
         txt = '<center><h2>Результаты</h2></center>\n<table width="100%"><tr>\n'
         protocols = '<center><h2>Протоколы</h2></center>\n'
-        prot_start = '<p><a href="' + str(subject) + '/protocol_'
+        prot_start = '<p><a href="{0}/protocol_'.format(subject)
         protocols += prot_start + '5.html">5 класс</a></p>\n' if txt5 else ''
         protocols += prot_start + '6.html">6 класс</a></p>\n' if txt6 else ''
         protocols += prot_start + '7.html">7 класс</a></p>\n' if txt7 else ''
@@ -299,7 +296,8 @@ class Generator:
         if len(teams) == 0:
             return None
         results = {_: GroupResultsTable.select_by_team_and_subject(_.id, subject) for _ in teams}
-        results = sorted(results.items(), key=lambda x: -10000 * x[1].result + ord(x[0].later[0]))
+        results = sorted(results.items(), key=compare(Result.sort_by_result, lambda x: x[1],
+                                                      Team.sort_by_later, lambda x: x[0]))
         txt = '''<center><h2>Результаты</h2>\n<table width="30%" border="1">
                     <tr>
                         <td width="10%">Место</td>
@@ -308,8 +306,7 @@ class Generator:
                     </tr>\n'''
         i = 1
         for result in results:
-            txt += '<tr><td>' + str(i) + '</td><td>' + result[0].name + '</td><td>' + str(result[1].result) +\
-                   '</td></tr>\n'
+            txt += tr_format(i, result[0].name, result[1].result)
             i += 1
         txt += '</table></center>'
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
@@ -323,8 +320,7 @@ class Generator:
             s = results[index + i][1]
             if s.class_n != start:
                 break
-            txt += '<tr><td>' + str(i + 1) + '</td><td>' + s.class_name() + '</td><td>' + s.name_1 + \
-                   '</td><td>' + s.name_2 + '</td><td>' + str(s.result) + '</td></tr>\n'
+            txt += tr_format(i + 1, s.class_name(), s.name_1, s.name_2, s.result)
         while index < len(results) and results[index][1].class_n == start:
             index += 1
         return txt, index
@@ -334,7 +330,7 @@ class Generator:
         txt = '\n'
         i = 0
         for x in results:
-            txt += '<tr><td>' + str(i + 1) + '</td><td>' + x[0] + '</td><td>' + str(x[1]) + '</td></tr>\n'
+            txt += tr_format(i + 1, x[0], x[1])
             i += 1
             if i == 20:
                 break
@@ -344,7 +340,7 @@ class Generator:
     def gen_ratings_3(year: int, results: map):
         subjects = []
         team = None
-        new_results = {}
+        new_results = []
         txt = '''
         <table width="90%" border="1">
         <tr>
@@ -355,7 +351,7 @@ class Generator:
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'g':
                 subjects.append(subject)
-                txt += '<td width="8%">' + subject.name + '</td>\n'
+                txt += '<td width="8%">{0}</td>\n'.format(subject.name)
             elif subject.type == 'a':
                 team = subject
         if team:
@@ -364,19 +360,19 @@ class Generator:
         txt += '<td width="8%">Сумма</td>\n</tr>\n'
         for x in results:
             summ = results[x]
-            text = '<td>' + TeamsTable.select_by_id(x).name + '</td><td>' + str(results[x]) + '</td>'
+            row = [TeamsTable.select_by_id(x).name, results[x]]
             for subject in subjects:
                 res = GroupResultsTable.select_by_team_and_subject(x, subject.id)
                 if res.__is_none__:
                     res.result = 0
-                text += '<td>' + str(res.result) + '</td>'
+                row.append(res.result)
                 summ += res.result
-            text += '<td>' + str(summ) + '</td></tr>\n'
-            new_results[text] = summ
-        new_results = sorted(new_results.items(), key=lambda x: -x[1])
+            row.append(summ)
+            new_results.append([row, summ])
+        new_results.sort(key=lambda x: -x[1])
         i = 1
         for x in new_results:
-            txt += '<tr><td>' + str(i) + '</td>' + x[0]
+            txt += tr_format(i, *x[0])
             i += 1
         return txt + '</table>'
 
@@ -392,18 +388,17 @@ class Generator:
                     class_results[student.class_l] = [student]
         txt, cnt = '<tr>\n', 0
         for r in class_results:
-            txt += '<td><center><h3>' + str(class_n) + r + '''</h3></center>
+            txt += '''<td><center><h3>{0}</h3></center>
             <table width="100%" border="1">
                 <tr>
                     <td width="10%">Место</td>
                     <td width="40%">Фамилия</td>
                     <td width="40%">Имя</td>
                     <td width="10%">Сумма</td>
-                </tr>\n'''
+                </tr>\n'''.format(str(class_n) + r)
             position = 1
             for x in class_results[r]:
-                txt += '<tr><td>' + str(position) + '</td><td>' + x.name_1 + '</td><td>' + x.name_2 +\
-                       '</td><td>' + str(x.result) + '</tr>\n'
+                txt += tr_format(position, x.name_1, x.name_2, x.result)
                 position += 1
             txt += '</table></td>\n'
             cnt += 1
@@ -443,7 +438,7 @@ class Generator:
             for i in range(min(4, len(student_result[r]))):
                 cnt += student_result[r][i]
             codes[r].result = cnt
-        codes = sorted(codes.items(), key=lambda x: -x[1].class_n * 1000 - x[1].result)
+        codes = sorted(codes.items(), key=compare(lambda x: -x[1].class_n, lambda x: -x[1].result, field=True))
         class_results = sorted(class_results.items(), key=lambda x: -x[1])
         index = 0
         best_9, index = Generator.gen_ratings_1(codes, index, 9)
@@ -472,11 +467,11 @@ class Generator:
         teams = TeamsTable.select_by_year(year)
         text1, text2, text3 = '', '', ''
         for team in teams:
-            txt = '<td>' + team.later + '</td><td>' + team.name + '</td></tr>\n'
-            text1 += '<tr><td>' + str(team.id) + '</td>' + txt
-            text2 += '<tr>' + txt
-            text3 += '<p>' + team.name + ': <input type="text" name="score_' + str(team.id) + '" value="{{t' +\
-                     str(team.id) + '}}"></p>\n'
+            row = [team.later, team.name]
+            text1 += tr_format(team.id, *row)
+            text2 += tr_format(*row)
+            text3 += '<p>{0}: <input type="text" name="score_{1}" value="{{ t{1} }}"></p>\n'.\
+                format(team.name, team.id)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/subjects_for_year.html")
         data.insert_after_comment(' list of teams (full) ', text1)
         data.save_file()
@@ -502,17 +497,16 @@ class Generator:
                 continue
             if cnt % 3 == 0:
                 txt += '<tr>'
-            txt += '<td valign="top"><center><h2>' + team.name + '''</h2></center>
+            txt += '''<td valign="top"><center><h2>{0}</h2></center>
             <table width="100%" border="1">
                 <tr>
                     <td width="10%">Класс</td>
                     <td width="45%">Фамилия</td>
                     <td width="45%">Имя</td>
                 </tr>
-                '''
+                '''.format(team.name)
             for student in students:
-                txt += '<tr><td>' + student.class_name() + '</td><td>' + student.name_1 +\
-                       '</td><td>' + student.name_2 + '</td></tr>\n'
+                txt += tr_format(student.class_name(), student.name_1, student.name_2)
             txt += '</table></td>\n'
             if cnt % 3 == 2:
                 txt += '</tr>'
@@ -529,9 +523,8 @@ class Generator:
         subjects.sort(key=YearSubject.sort_by_start)
         txt = '\n'
         for subject in subjects:
-            txt += '<tr><td>' + subject.date_str() + '</td><td>' + SubjectsTable.select_by_id(subject.subject).name +\
-                   '</td><td>' + subject.classes + '</td><td>' + subject.start_str() + '</td><td>' + subject.end_str() +\
-                   '</td><td>' + subject.place + '</td></tr>\n'
+            txt += tr_format(subject.date_str(), SubjectsTable.select_by_id(subject.subject).name, subject.classes,
+                             subject.start_str(), subject.end_str(), subject.place)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/timetable.html")
         data.insert_after_comment(' timetable ', txt)
         data.save_file()

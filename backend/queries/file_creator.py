@@ -22,7 +22,7 @@ class FileCreator:
         text = 'ИТИ-' + str(year)
         for file_name in files:
             data = SplitFile(file_name)
-            data.insert_after_comment(' year ', text)
+            data.replace_comment(' {year} ', text)
             data.save_file()
 
     @staticmethod
@@ -31,7 +31,7 @@ class FileCreator:
         directory = Config.TEMPLATES_FOLDER + "/" + str(year) + "/"
         s = set()
         data = SplitFile(Config.HTML_FOLDER + "/1.html")
-        data.insert_after_comment(' year ', 'ИТИ-' + str(year))
+        data.replace_comment(' {year} ', 'ИТИ-' + str(year))
         for subject in subjects:
             file_name = directory
             if subject.type == 'i':
@@ -45,8 +45,8 @@ class FileCreator:
                 tour_name = 'Командный тур'
             file_name += ref + '/' + str(subject.id) + ".html"
             if not os.path.exists(file_name):
-                data.insert_after_comment(' tour_name ', tour_name)
-                data.insert_after_comment(' subject_name ', subject.name)
+                data.replace_comment(' {tour_name} ', tour_name)
+                data.replace_comment(' {subject_name} ', subject.name)
                 data.replace_comment(' {ref} ', ref)
                 data.replace_comment(' {page num} ', str(subject.id))
                 data.save_file(file_name)

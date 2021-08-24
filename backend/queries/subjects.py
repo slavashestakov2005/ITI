@@ -47,7 +47,7 @@ def max_score(path1, path2, path3):
     s7 = request.form['score_7'] if request.form['score_7'] else 0
     s8 = request.form['score_8'] if request.form['score_8'] else 0
     s9 = request.form['score_9'] if request.form['score_9'] else 0
-    YearsSubjectsTable.update(YearSubject([year, subject, s5, s6, s7, s8, s9]))
+    YearsSubjectsTable.update(YearSubject([year, subject, s5, s6, s7, s8, s9, 0, 0, '', '']))
     return render_template('add_result.html', **page_params(path1, path2, path3), error1='Обновлено')
 
 

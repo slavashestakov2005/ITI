@@ -1,6 +1,6 @@
 from backend.help.errors import forbidden_error
 from flask_login import current_user
-from functools import wraps
+from functools import wraps, cmp_to_key
 from glob import glob
 from backend.config import Config
 import re
@@ -36,6 +36,27 @@ def correct_slash(s: str):
 
 def split_class(class_):
     return int(class_[:-1]), class_[-1],
+
+
+def tr_format(*args):
+    return ''.join(['<tr>', *['<td>{{{0}}}</td>'.format(_) for _ in range(len(args))], '</tr>\n']).format(*args)
+
+
+def compare(*args, field=False):
+    def cmp(a, b):
+        n = len(args)
+        if not field:
+            for i in range(0, n, 2):
+                x, y = args[i](args[i + 1](a)), args[i](args[i + 1](b))
+                if x != y:
+                    return -1 if x < y else 1
+        else:
+            for arg in args:
+                x, y = arg(a), arg(b)
+                if x != y:
+                    return -1 if x < y else 1
+        return 0
+    return cmp_to_key(cmp)
 
 
 def parse_files():
