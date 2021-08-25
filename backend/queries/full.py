@@ -16,7 +16,7 @@ from ..config import Config
     /delete_subject         delete_subject()        Удаляет предмет.
     /global_settings        global_settings()       Сохраняет глобальные настройки (пароль от почты).
     /db                     db()                    Делает SQL запросы к базе данных.
-    /year_block             year_block()            Блокирует последующее редактирование года для всех.
+    /<year>/year_block      year_block()            Блокирует последующее редактирование года для всех.
 '''
 
 
