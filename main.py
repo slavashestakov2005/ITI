@@ -1,10 +1,13 @@
 from backend import app
+from backend.database import create_tables
 from backend.help import start_debug, init_mail_messages
 from backend.queries.help import parse_files
+from backend.config import Config
 
 
-if __name__ == '__main__':
-    parse_files()
-    start_debug()
-    # init_mail_messages()
+parse_files()
+start_debug()
+# init_mail_messages()
+create_tables()
+if not Config.HEROKU:
     app.run(host='0.0.0.0', port=8080)

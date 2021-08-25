@@ -4,7 +4,7 @@ from flask_cors import cross_origin
 from flask_login import login_required
 from .help import check_status
 from ..help import init_mail_messages
-from backend.database import SubjectsTable, Subject, YearsTable, Year
+from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year
 from .auto_generator import Generator
 from .file_creator import FileCreator
 '''
@@ -14,6 +14,7 @@ from .file_creator import FileCreator
     /edit_subject           edit_subject()          Редактирует предмет.
     /delete_subject         delete_subject()        Удаляет предмет.
     /global_settings        global_settings()       Сохраняет глобальные настройки (пароль от почты).
+    /db                     db()                    Делает SQL запросы к базе данных.
 '''
 
 
@@ -91,3 +92,16 @@ def global_settings():
     init_mail_messages()
     return render_template('settings.html', error2='Успех', email=app.config['MAIL_USERNAME'],
                            admins=str(app.config['ADMINS']), password='Уже введён')
+
+
+@app.route('/db')
+@cross_origin()
+@login_required
+@check_status('full')
+def db():
+    sql = request.args.get('sql')
+    t = request.args.get('type')
+    if t and t != '':
+        return str(DataBase.execute(sql))
+    DataBase.just_execute(sql)
+    return 'OK'

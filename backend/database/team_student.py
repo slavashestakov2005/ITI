@@ -1,4 +1,4 @@
-from backend.database.database import *
+from backend.database import Table, Row
 
 
 class TeamStudent(Row):
@@ -18,7 +18,7 @@ class TeamsStudentsTable:
 
     @staticmethod
     def create_table() -> None:
-        DataBase.execute('''CREATE TABLE "''' + TeamsStudentsTable.table + '''" (
+        Table.drop_and_create(TeamsStudentsTable.table, '''(
         "team"	INTEGER NOT NULL,
         "student"	INTEGER NOT NULL,
         PRIMARY KEY("team","student")

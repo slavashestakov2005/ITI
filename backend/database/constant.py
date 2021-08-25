@@ -1,11 +1,11 @@
-from backend.database.database import *
+from backend.database import Table, Row
 
 
 class Constant(Row):
     """
         Строка таблицы ConstantsTable
-        name    TEXT    NOT NULL    PK  AI
-        value   TEXT    NOT NULL    PK  AI
+        name    TEXT    NOT NULL    PK  UNIQUE
+        value   TEXT    NOT NULL    PK
     """
     fields = ['name', 'value']
 
@@ -18,10 +18,11 @@ class ConstantsTable:
 
     @staticmethod
     def create_table() -> None:
-        DataBase.execute('''CREATE TABLE "''' + ConstantsTable.table + '''" (
-                "name"	TEXT NOT NULL UNIQUE,
-                "value"	TEXT NOT NULL,
-                PRIMARY KEY("name"));''')
+        Table.drop_and_create(ConstantsTable.table, '''(
+        "name"	TEXT NOT NULL UNIQUE,
+        "value"	TEXT NOT NULL,
+        PRIMARY KEY("name")
+        );''')
 
     @staticmethod
     def select_all() -> list:

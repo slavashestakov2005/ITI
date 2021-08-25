@@ -1,4 +1,4 @@
-from backend.database import DataBase, Table, Row
+from backend.database import Table, Row
 
 
 class Subject(Row):
@@ -19,11 +19,11 @@ class SubjectsTable:
 
     @staticmethod
     def create_table() -> None:
-        DataBase.execute('''CREATE TABLE "''' + SubjectsTable.table + '''" (
-        "id"	INTEGER NOT NULL UNIQUE,
+        Table.drop_and_create(SubjectsTable.table, '''(
+        "id"	SERIAL NOT NULL UNIQUE,
         "name"	TEXT NOT NULL UNIQUE,
         "type"	TEXT NOT NULL,
-        PRIMARY KEY("id" AUTOINCREMENT)
+        PRIMARY KEY("id")
         );''')
 
     @staticmethod

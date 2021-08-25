@@ -11,3 +11,20 @@ from .student_code import *
 from .team_student import *
 from .group_result import *
 from .appeal import *
+from ..config import Config
+
+
+def create_tables():
+    if Config.DROP_DB:
+        SubjectsTable.create_table()
+        ConstantsTable.create_table()
+        UsersTable.create_table()
+        YearsTable.create_table()
+        YearsSubjectsTable.create_table()
+        ResultsTable.create_table()
+        StudentsTable.create_table()
+        TeamsTable.create_table()
+        StudentsCodesTable.create_table()
+        TeamsStudentsTable.create_table()
+        GroupResultsTable.create_table()
+        AppealsTable.create_table()

@@ -1,4 +1,4 @@
-from backend.database import DataBase, Table, Row
+from backend.database import Table, Row
 
 
 class Appeal(Row):
@@ -21,7 +21,7 @@ class AppealsTable:
 
     @staticmethod
     def create_table() -> None:
-        DataBase.execute('''CREATE TABLE "''' + AppealsTable.table + '''" (
+        Table.drop_and_create(AppealsTable.table, '''(
         "year"	INTEGER NOT NULL,
         "subjects"	INTEGER NOT NULL,
         "student"	INTEGER NOT NULL,

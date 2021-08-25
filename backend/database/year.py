@@ -1,4 +1,4 @@
-from backend.database import DataBase, Table, Row
+from backend.database import Table, Row
 
 
 class Year(Row):
@@ -17,7 +17,7 @@ class YearsTable:
 
     @staticmethod
     def create_table() -> None:
-        DataBase.execute('''CREATE TABLE "''' + YearsTable.table + '''" (
+        Table.drop_and_create(YearsTable.table, '''(
         "year"	INTEGER NOT NULL UNIQUE,
         PRIMARY KEY("year")
         );''')

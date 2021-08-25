@@ -66,4 +66,3 @@ def constants2():
 @cross_origin()
 def template_file():
     return render_template('page_random.html', number=str(random()))
-

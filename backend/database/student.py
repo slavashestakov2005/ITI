@@ -1,4 +1,4 @@
-from backend.database import DataBase, Table, Row
+from backend.database import Table, Row
 
 
 class Student(Row):
@@ -29,13 +29,13 @@ class StudentsTable:
 
     @staticmethod
     def create_table() -> None:
-        DataBase.execute('''CREATE TABLE "''' + StudentsTable.table + '''
-        "id"	INTEGER NOT NULL UNIQUE,
+        Table.drop_and_create(StudentsTable.table, '''(
+        "id"        SERIAL NOT NULL UNIQUE,
         "name_1"	TEXT NOT NULL,
         "name_2"	TEXT NOT NULL,
         "class_n"	INTEGER NOT NULL,
         "class_l"	TEXT NOT NULL,
-        PRIMARY KEY("id" AUTOINCREMENT)
+        PRIMARY KEY("id")
         );''')
 
     @staticmethod

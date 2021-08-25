@@ -1,4 +1,4 @@
-from backend.database import DataBase, Table, Row
+from backend.database import Table, Row
 
 
 class GroupResult(Row):
@@ -23,7 +23,7 @@ class GroupResultsTable:
 
     @staticmethod
     def create_table() -> None:
-        DataBase.execute('''CREATE TABLE "''' + GroupResultsTable.table + '''" (
+        Table.drop_and_create(GroupResultsTable.table, '''(
         "team"	INTEGER NOT NULL,
         "subject"	INTEGER NOT NULL,
         "result"	INTEGER NOT NULL,

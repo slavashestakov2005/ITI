@@ -1,3 +1,6 @@
+import os
+
+
 class Config:
     UPLOAD_FOLDER = 'backend/static'
     TEMPLATES_FOLDER = 'backend/templates'
@@ -6,13 +9,11 @@ class Config:
     ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'html', 'docx'])
     SECRET_KEY = 'you-will-never-guess'
 
-    '''
-    MAIL_SERVER = os.environ.get('MAIL_SERVER')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)
-    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS') is not None
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    ADMINS = ['your-email@example.com']'''
+    HEROKU = True if os.getenv('HEROKU') else False
+    DROP_DB = True if os.getenv('DROP_DB') else False
+    DB = os.getenv('DATABASE_URL') if HEROKU else 'backend/database.db'
+    DB_COLS_PREFIX = 'c_' if HEROKU else ''
+    DB_TABLE_PREFIX = 't_' if HEROKU else ''
 
     MAIL_SERVER = "smtp.googlemail.com"
     MAIL_PORT = 587

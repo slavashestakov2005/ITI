@@ -1,4 +1,4 @@
-from backend.database.database import *
+from backend.database import Table, Row
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
@@ -27,7 +27,7 @@ class User(Row, UserMixin):
         self.password = generate_password_hash(password)
 
     def set_status(self, status: list) -> None:
-        if -1 in status:# admin
+        if '-1' in status:
             self.status = -1
         else:
             self.status = 0
@@ -46,12 +46,15 @@ class UsersTable:
 
     @staticmethod
     def create_table() -> None:
-        DataBase.execute('''CREATE TABLE "''' + UsersTable.table + '''" (
-            "id"	INTEGER NOT NULL UNIQUE,
-            "login"	TEXT NOT NULL UNIQUE,
-            "password"	TEXT NOT NULL,
-            "status"	INTEGER,
-            PRIMARY KEY("id" AUTOINCREMENT));''')
+        Table.drop_and_create(UsersTable.table, '''(
+        "id"	SERIAL NOT NULL UNIQUE,
+        "login"	TEXT NOT NULL UNIQUE,
+        "password"	TEXT NOT NULL,
+        "status"	INTEGER,
+        PRIMARY KEY("id"));''')
+        u = User([None, 'slava', '', -2])
+        u.set_password('123')
+        UsersTable.insert(u)
 
     @staticmethod
     def select_all() -> list:

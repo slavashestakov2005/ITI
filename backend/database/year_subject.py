@@ -1,5 +1,5 @@
+from backend.database import Table, Row
 from datetime import datetime
-from backend.database import DataBase, Table, Row
 
 
 class YearSubject(Row):
@@ -42,7 +42,7 @@ class YearsSubjectsTable:
 
     @staticmethod
     def create_table() -> None:
-        DataBase.execute('''CREATE TABLE "''' + YearsSubjectsTable.table + '''" (
+        Table.drop_and_create(YearsSubjectsTable.table, '''(
         "year"	INTEGER NOT NULL,
         "subject"	INTEGER NOT NULL,
         "score_5"	INTEGER NOT NULL,

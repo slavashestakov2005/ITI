@@ -1,4 +1,4 @@
-from backend.database.database import *
+from backend.database import Table, Row
 
 
 class Team(Row):
@@ -24,12 +24,12 @@ class TeamsTable:
 
     @staticmethod
     def create_table() -> None:
-        DataBase.execute('''CREATE TABLE "''' + TeamsTable.table + '''" (
-        "id"	INTEGER NOT NULL UNIQUE,
+        Table.drop_and_create(TeamsTable.table, '''(
+        "id"	SERIAL NOT NULL UNIQUE,
         "name"	TEXT NOT NULL,
         "year"	INTEGER NOT NULL,
         "later"	TEXT NOT NULL,
-        PRIMARY KEY("id" AUTOINCREMENT)
+        PRIMARY KEY("id")
         );''')
 
     @staticmethod
