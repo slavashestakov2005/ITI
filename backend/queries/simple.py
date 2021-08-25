@@ -4,8 +4,9 @@ from flask_cors import cross_origin
 from random import random
 from backend.database import ConstantsTable
 from flask_login import current_user
-from ..help.errors import forbidden_error
+from ..help.errors import forbidden_error, not_found_error
 from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES
+from jinja2 import TemplateNotFound
 '''
     /           index()             Возвращает стартовую страницу.
     /<path>     static_file(path)   Возвращает статическую страницу, проверяя статус пользователя и доступ к файлу.
@@ -26,13 +27,16 @@ def static_file(path):
                                          or path in STATUS_REQUIRED_FILES
                                          and current_user.status not in STATUS_REQUIRED_FILES[path]):
         return forbidden_error()
-    if len(parts) >= 2 and parts[1] == 'html':
-        parts = path.split('/')
-        if parts[0].isdigit():
-            return render_template(path, year=parts[0])
-        else:
-            return render_template(path)
-    return app.send_static_file(path)
+    try:
+        if len(parts) >= 2 and parts[1] == 'html':
+            parts = path.split('/')
+            if parts[0].isdigit():
+                return render_template(path, year=parts[0])
+            else:
+                return render_template(path)
+        return app.send_static_file(path)
+    except TemplateNotFound:
+        return not_found_error()
 
 
 # [[maybe_unused]]

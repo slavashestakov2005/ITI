@@ -5,7 +5,7 @@ from ..database import ResultsTable, Result, SubjectsTable, YearsSubjectsTable, 
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
-from .help import check_status
+from .help import check_status, check_block_year, correct_new_line
 from .auto_generator import Generator
 import re
 '''
@@ -65,6 +65,7 @@ def group_page_params(path1, path2, path3):
 @app.route('/<path:path1>/<path:path2>/<path:path3>/add_result')
 @cross_origin()
 @login_required
+@check_block_year()
 def add_result(path1, path2, path3):
     subject = int(path3[:-5])
     if not current_user.can_do(subject):
@@ -78,6 +79,7 @@ def add_result(path1, path2, path3):
 @app.route('/<path:path1>/<path:path2>/<path:path3>/save_result', methods=['POST'])
 @cross_origin()
 @login_required
+@check_block_year()
 def save_result(path1, path2, path3):
     year = int(path1)
     subject = int(path3[:-5])
@@ -106,6 +108,7 @@ def save_result(path1, path2, path3):
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def share_results(path1, path2, path3):
     year = int(path1)
     subject = int(path3[:-5])
@@ -129,6 +132,7 @@ def share_results(path1, path2, path3):
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def ratings_update(year):
     year = int(year)
     Generator.gen_ratings(year)
@@ -138,6 +142,7 @@ def ratings_update(year):
 @app.route('/<path:path1>/<path:path2>/<path:path3>/save_group_results', methods=['POST'])
 @cross_origin()
 @login_required
+@check_block_year()
 def save_group_results(path1, path2, path3):
     year = int(path1)
     subject = int(path3[:-5])
@@ -158,6 +163,7 @@ def save_group_results(path1, path2, path3):
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def share_group_results(path1, path2, path3):
     year = int(path1)
     subject = int(path3[:-5])
@@ -169,6 +175,7 @@ def share_group_results(path1, path2, path3):
 @app.route('/<path:path1>/<path:path2>/<path:path3>/add_appeal', methods=['GET', 'POST'])
 @cross_origin()
 @login_required
+@check_block_year()
 def add_appeal(path1, path2, path3):
     params = appeal_page_params(path1, path2, path3)
     if request.method == 'POST':
@@ -176,7 +183,7 @@ def add_appeal(path1, path2, path3):
         subject = int(path3[:-5])
         code = int(request.form['code'])
         tasks = request.form['tasks']
-        description = request.form['description']
+        description = correct_new_line(request.form['description'])
         AppealsTable.insert(Appeal([year, subject, code, tasks, description]))
         params['error1'] = 'Апелляция подана'
     return render_template('add_appeal.html', **params)

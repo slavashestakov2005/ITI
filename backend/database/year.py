@@ -5,8 +5,10 @@ class Year(Row):
     """
         Строка таблицы YearsTable
         year    INT     NOT NULL    PK      UNIQUE
+        message TEXT    NOT NULL
+        block   INT     NOT NULL    (0 = 'free', 1 = 'block')
     """
-    fields = ['year']
+    fields = ['year', 'message', 'block']
 
     def __init__(self, row):
         Row.__init__(self, Year, row)
@@ -19,6 +21,8 @@ class YearsTable:
     def create_table() -> None:
         Table.drop_and_create(YearsTable.table, '''(
         "year"	INTEGER NOT NULL UNIQUE,
+        "message"	TEXT NOT NULL,
+        "block"	INTEGER NOT NULL,
         PRIMARY KEY("year")
         );''')
 
@@ -33,3 +37,7 @@ class YearsTable:
     @staticmethod
     def insert(year: Year) -> None:
         return Table.insert(YearsTable.table, year)
+
+    @staticmethod
+    def update(year: Year) -> None:
+        return Table.update(YearsTable.table, year, 'year')

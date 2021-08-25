@@ -20,6 +20,8 @@
 | SQL запросы к базе данных | full | full.py | 25.08.21 |
 | &nbsp; | | | |
 | Работа с новыми ИТИ и предметами | full | full.py, auto_generator.py, file_creator.py | 25.04.21 |
+| Блокировка прошедших ИТИ | full | full.py | 25.08.21 |
+| Редактирование годового объявления | admin | subjects.py | 25.08.21 |
 | Связь ИТИ и предметов, генерация страниц | admin | subjects.py, auto_generator.py, file_creator.py | 25.04.21 |
 | Генерация кодов для участников, таблица со всеми кодами | admin | students.py, auto_generator.py | 05.07.21 |
 | Добавление и удаление команд | admin | teams.py, auto_generator.py  | 26.07.21 |

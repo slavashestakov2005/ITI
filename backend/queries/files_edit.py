@@ -3,8 +3,8 @@ from flask import request, redirect, render_template, url_for
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend.config import Config
-from .help import check_status, SplitFile
-from ..help.errors import not_found_error, forbidden_error
+from .help import check_status, check_block_year, correct_new_line, SplitFile
+from ..help import not_found_error, forbidden_error, FileManager
 from ..database import SubjectsTable
 import os
 '''
@@ -49,6 +49,7 @@ def generate_filename_by_type(year: str, subject: int, types: list, classes: lis
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def upload():
     if request.method == 'POST':
         file = request.files['file']
@@ -56,7 +57,9 @@ def upload():
         new_name = request.form['new_name']
         filename = generate_filename(file.filename, new_path, new_name)
         if filename:
-            file.save(os.path.join(Config.UPLOAD_FOLDER, filename))
+            name = os.path.join(Config.UPLOAD_FOLDER, filename)
+            file.save(name)
+            FileManager.save(name)
             return redirect(filename)
     return render_template('upload.html')
 
@@ -64,6 +67,7 @@ def upload():
 @app.route('/<path:path1>/<path:path2>/<path:path3>/main_uploader', methods=['POST'])
 @cross_origin()
 @login_required
+@check_block_year()
 def main_uploader(path1, path2, path3):
     if not current_user.can_do(int(path3.rsplit('.', 1)[0])):
         return forbidden_error()
@@ -73,7 +77,9 @@ def main_uploader(path1, path2, path3):
     filename, just_filename = generate_filename_by_type(path1, int(path3.split('.')[0]), types, classes)
     filename = generate_filename(file.filename, path1 + '/' + path2 + '/' + path3.rsplit('.', 1)[0], filename)
     if filename:
-        file.save(os.path.join(Config.UPLOAD_FOLDER, filename))
+        name = os.path.join(Config.UPLOAD_FOLDER, filename)
+        file.save(name)
+        FileManager.save(name)
         data = SplitFile(Config.TEMPLATES_FOLDER + '/' + path1 + '/' + path2 + '/' + path3)
         txt = '<p><a href="/' + filename + '">' + just_filename + '</a></p>\n'
         data.insert_after_comment(' files ', txt, append=True)
@@ -86,6 +92,7 @@ def main_uploader(path1, path2, path3):
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def edit(path):
     return redirect(url_for('editor', file_name=path))
 
@@ -94,6 +101,7 @@ def edit(path):
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def editor():
     file_name = request.args.get('file_name')
     if file_name.count('/') == 0 and not current_user.can_do(-2):
@@ -110,14 +118,15 @@ def editor():
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def save_file():
     file_name = request.form['file_name']
-    file_text = request.form['file_text']
+    file_text = correct_new_line(request.form['file_text'])
     if file_name.count('/') == 0 and not current_user.can_do(-2):
         return forbidden_error()
-    file_text = file_text.replace('\r\n', '\n')
-    file_text = file_text.replace('\n\r', '\n')
-    with open(Config.TEMPLATES_FOLDER + '/' + file_name, 'w', encoding='UTF-8') as f:
+    name = Config.TEMPLATES_FOLDER + '/' + file_name
+    with open(name, 'w', encoding='UTF-8') as f:
         f.write(file_text)
+    FileManager.save(name)
     return render_template('file_edit.html', file_text=file_text, file_name=file_name, error="Файл сохранён")
 

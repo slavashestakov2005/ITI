@@ -3,7 +3,7 @@ from flask import render_template, request, redirect
 from flask_cors import cross_origin
 from flask_login import login_user, logout_user, current_user, login_required
 from backend.database import UsersTable, User
-from .help import check_status
+from .help import check_status, check_block_year
 
 '''
     /login          login()             Вход пользователя.
@@ -22,6 +22,7 @@ def load_user(id):
 
 @app.route("/login", methods=['GET', 'POST'])
 @cross_origin()
+@check_block_year()
 def login():
     if current_user.is_authenticated:
         return redirect('index.html')
@@ -40,6 +41,7 @@ def login():
 
 @app.route("/logout")
 @cross_origin()
+@check_block_year()
 def logout():
     logout_user()
     return render_template('index.html')
@@ -48,6 +50,7 @@ def logout():
 @app.route("/settings", methods=['GET', 'POST'])
 @cross_origin()
 @login_required
+@check_block_year()
 def settings():
     if request.method == 'POST':
         password_old = request.form['password_old']
@@ -73,6 +76,7 @@ def settings():
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def registration():
     if request.method == 'POST':
         user_login = request.form['login']
@@ -99,6 +103,7 @@ def registration():
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def edit_status():
     if request.method == 'POST':
         user_login = request.form['login']
@@ -117,6 +122,7 @@ def edit_status():
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def delete():
     if request.method == 'POST':
         user_login = request.form['login']

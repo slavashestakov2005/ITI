@@ -71,7 +71,6 @@
                 {% endif %}
                 <input type="submit" value="Удалить">
             </center></form>
-            <p><a href="#">Настройки команд</a></p>
         </center></td>
         <td width="20%" valign="top"><center>
             <h2>Участники команд:</h2>
@@ -97,8 +96,10 @@
             </center></form>
         </center></td>
     </tr>
+</table>
+<table width="100%">
     <tr>
-        <td valign="top"><center>
+        <td valign="top" width="40%"><center>
             <h2>Расписание:</h2>
             <form action="subject_description" method="post"><center>
                 <p>Предмет (номер): <input type="text" name="subject"></p>
@@ -110,6 +111,33 @@
                     Конец: <input type="time" name="end">
                 </p>
                 {% if error6 %} <p><font color="red">[ {{ error6 }} ]</font></p>
+                {% endif %}
+                <p><input type="submit" value="Сохранить"></p>
+            </center></form>
+            <br />
+            {% if not current_user.is_anonymous and current_user.can_do(-2) %}
+            <h2>Блокировка:</h2>
+            <form action="year_block" method="post"><center>
+                <!-- is_block -->
+                <p><input type="radio" name="is_block" value="0" checked>Разблокировано</p>
+                <p><input type="radio" name="is_block" value="1">Заблокировано</p>
+                <!-- end -->
+                {% if error8 %} <p><font color="red">[ {{ error8 }} ]</font></p>
+                {% endif %}
+                <p><input type="submit" value="Сохранить"></p>
+            </center></form>
+            {% endif %}
+        </center></td>
+        <td valign="top" width="60%"><center>
+            <h2>Объявления:</h2>
+            <form action="year_message" method="post"><center>
+                <p>
+                    <!-- message  -->
+                    <textarea name="file_text" id="file_text" oninput="textInput(document, 'file_text')" placeholder="Объявление пусто"></textarea>
+                    <!-- end -->
+                </p>
+                <script>textInput(document, 'file_text')</script>
+                {% if error7 %} <p><font color="red">[ {{ error7 }} ]</font></p>
                 {% endif %}
                 <p><input type="submit" value="Сохранить"></p>
             </center></form>

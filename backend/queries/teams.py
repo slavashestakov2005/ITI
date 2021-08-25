@@ -1,6 +1,6 @@
 from backend import app
 from ..database import TeamsTable, Team, StudentsTable, Student, TeamsStudentsTable, TeamStudent
-from .help import check_status, split_class
+from .help import check_status, check_block_year, split_class
 from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
@@ -17,6 +17,7 @@ from flask_login import login_required
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def add_team(year):
     year = int(year)
     name = request.form['name']
@@ -32,6 +33,7 @@ def add_team(year):
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def delete_team(year):
     year = int(year)
     id = request.form['id']
@@ -44,6 +46,7 @@ def delete_team(year):
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def add_student_team(year):
     year = int(year)
     team = request.form['team']
@@ -64,6 +67,7 @@ def add_student_team(year):
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def delete_student_team(year):
     year = int(year)
     team = request.form['team']

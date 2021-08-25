@@ -3,13 +3,15 @@ from flask_login import current_user
 from functools import wraps, cmp_to_key
 from glob import glob
 from backend.config import Config
+from ..help import FileManager, correct_slash
+from ..database import YearsTable, User
 import re
 import os
 '''
     LOGIN_REQUIRED_FILES = []       Файлы, доступные после входа на сайт.
     STATUS_REQUIRED_FILES = {}      Отображение файла и доступа к нему.
     all_templates()                 Список всех файлов-шаблонов из папки шаблонов.
-    correct_slash(str)              Заменяет все слэши на '/'.
+    correct_new_line(str)           Заменяет все переносы строк на '\n'.
     split_class(str)                Разбивает класс на букву и цифру.
     parse_files()                   Проходит все файлы, генерирует списки доступа.
     @check_status(status)           Проверяет открыт ли доступ для текущего пользователя.
@@ -30,8 +32,8 @@ def all_templates():
     return glob(Config.TEMPLATES_FOLDER + '/**/*.html', recursive=True)
 
 
-def correct_slash(s: str):
-    return s.replace(r'\\', '/').replace('\\', '/').replace(r'//', '/')
+def correct_new_line(s: str):
+    return re.sub(r'[\n\r]+', r'\n', s)
 
 
 def split_class(class_):
@@ -97,6 +99,26 @@ def check_status(status: str):
                 value = int(status)
             if not current_user.can_do(value):
                 return forbidden_error()
+            return function_to_decorate(*args, **kwargs)
+
+        return wrapped
+
+    return my_decorator
+
+
+def check_block_year():
+    def my_decorator(function_to_decorate):
+
+        @wraps(function_to_decorate)
+        def wrapped(*args, **kwargs):
+            if len(kwargs):
+                try:
+                    year = int(list(kwargs.values())[0])
+                except ValueError:
+                    return function_to_decorate(*args, **kwargs)
+                y = YearsTable.select_by_year(year)
+                if y.__is_none__ or y.block:
+                    return forbidden_error()
             return function_to_decorate(*args, **kwargs)
 
         return wrapped
@@ -172,4 +194,5 @@ class SplitFile:
                 os.makedirs(os.path.dirname(file_name))
             with open(file_name, 'w', encoding='UTF-8') as f:
                 f.write(self.writable())
+            FileManager.save(file_name)
         self.replace = {}

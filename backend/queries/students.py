@@ -1,6 +1,6 @@
 from backend import app
 from ..database import StudentsTable, Student, StudentsCodesTable, StudentCode
-from .help import check_status, split_class
+from .help import check_status, check_block_year, split_class
 from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
@@ -19,6 +19,7 @@ from random import shuffle
 @app.route('/registration_student', methods=['POST'])
 @cross_origin()
 @login_required
+@check_block_year()
 def registration_student():
     class_ = split_class(request.form['class'])
     student = Student([None, request.form['name1'], request.form['name2'], class_[0], class_[1]])
@@ -33,6 +34,7 @@ def registration_student():
 @app.route('/edit_student', methods=['POST'])
 @cross_origin()
 @login_required
+@check_block_year()
 def edit_student():
     class_old = split_class(request.form['o_class'])
     student_old = Student([None, request.form['o_name1'], request.form['o_name2'], class_old[0], class_old[1]])
@@ -60,6 +62,7 @@ def edit_student():
 @app.route('/delete_student', methods=['POST'])
 @cross_origin()
 @login_required
+@check_block_year()
 def delete_student():
     class_ = split_class(request.form['class'])
     student = Student([None, request.form['name1'], request.form['name2'], class_[0], class_[1]])
@@ -75,6 +78,7 @@ def delete_student():
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def create_codes(year):
     year = int(year)
     students = StudentsTable.select_all()
@@ -92,6 +96,7 @@ def create_codes(year):
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def print_codes(year):
     Generator.gen_codes(year)
     return render_template(year + '/codes.html', year=year, error='Таблица обновлена')
@@ -101,6 +106,7 @@ def print_codes(year):
 @cross_origin()
 @login_required
 @check_status('admin')
+@check_block_year()
 def create_students_lists():
     for i in range(5, 10):
         Generator.gen_students_list(i)

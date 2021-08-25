@@ -11,6 +11,7 @@ from .student_code import *
 from .team_student import *
 from .group_result import *
 from .appeal import *
+from .file import *
 from ..config import Config
 
 
@@ -28,3 +29,4 @@ def create_tables():
         TeamsStudentsTable.create_table()
         GroupResultsTable.create_table()
         AppealsTable.create_table()
+        FilesTable.create_table()
