@@ -40,7 +40,7 @@ def page_params(path1, path2, path3):
     )) for _ in appeals]
     return {'year': path1, 'subject': subject, 'h_type_1': path2, 'h_type_2': tour_type(path2),
              'h_sub_name': SubjectsTable.select_by_id(subject).name, 's5': sub.score_5, 's6': sub.score_6,
-            's7': sub.score_5, 's8': sub.score_8, 's9': sub.score_9, 'appeals': appeals}
+            's7': sub.score_7, 's8': sub.score_8, 's9': sub.score_9, 'appeals': appeals}
 
 
 def appeal_page_params(path1, path2, path3):

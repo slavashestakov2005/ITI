@@ -129,7 +129,8 @@ class Generator:
     def gen_codes(year: int):
         file_name = Config.TEMPLATES_FOLDER + "/" + str(year) + "/codes.html"
         students = Generator.get_codes(year)
-        students = sorted(students.items(), key=compare(Student.sort_by_class, lambda x: x[1]))
+        students = sorted(students.items(), key=compare(lambda x: Student.sort_by_class(x[1]), lambda x: x[1].name_1,
+                                                        lambda x: x[1].name_2, field=True))
         length = len(students)
         m1 = length - length * 2 // 3
         m2 = length - length // 3
@@ -184,13 +185,16 @@ class Generator:
                         <td width="10%">Балл</td>
                         <td width="10%">Балл в рейтинг</td>
                     </tr>\n'''
-        cnt = 1
+        cnt, last_pos, last_result = 1, 0, None
         for result in results:
             if result.result > maximum:
                 raise ValueError("Bad results are saved")
             people = codes[result.user]
             result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
-            text += tr_format(cnt, people.name_1, people.name_2, people.class_name(), result.result, result.net_score)
+            if last_result != result.result:
+                last_pos, last_result = cnt, result.result
+            text += tr_format(last_pos, people.name_1, people.name_2, people.class_name(), result.result,
+                              result.net_score, color=last_pos)
             ResultsTable.update(result)
             cnt += 1
         text += '</table>'
@@ -215,15 +219,18 @@ class Generator:
         txt += '''<td width="5%">Балл</td>
                         <td width="5%">Балл в рейтинг</td>
                     </tr>\n'''
+        last_pos, last_result = 0, None
         for i in range(ln):
             people = codes[results[i].user]
-            row = [i + 1, people.name_1, people.name_2, people.class_name()]
+            if last_result != results[i].result:
+                last_pos, last_result = i + 1, results[i].result
+            row = [last_pos, people.name_1, people.name_2, people.class_name()]
             for x in range(tasks_cnt):
                 if x < len(r_split[i]):
                     row.append(r_split[i][x])
                 else:
                     row.append('—')
-            txt += tr_format(*row, results[i].result, results[i].net_score)
+            txt += tr_format(*row, results[i].result, results[i].net_score, color=last_pos)
         txt += '</table>'
         data = SplitFile(Config.HTML_FOLDER + "/protocol.html")
         data.insert_after_comment(' results table ', txt)
@@ -253,7 +260,8 @@ class Generator:
         for r in results:
             sorted_results[codes[r.user].class_n - 5].append(r)
         for lst in sorted_results:
-            lst.sort(key=Result.sort_by_result)
+            lst.sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: codes[x.user].class_l,
+                                 lambda x: codes[x.user].name_1, lambda x: codes[x.user].name_2, field=True))
         pth = Config.TEMPLATES_FOLDER + '/' + str(year) + '/individual/' + str(subject) + '/protocol'
         params = {' {year} ': str(year), ' {subject_id} ': str(subject),
                   ' {subject} ': SubjectsTable.select_by_id(subject).name}
@@ -304,9 +312,11 @@ class Generator:
                         <td width="30%">Команда</td>
                         <td width="10%">Балл в рейтинг</td>
                     </tr>\n'''
-        i = 1
+        i, last_pos, last_result = 1, 1, None
         for result in results:
-            txt += tr_format(i, result[0].name, result[1].result)
+            if result[1].result != last_result:
+                last_pos, last_result = i, result[1].result
+            txt += tr_format(last_pos, result[0].name, result[1].result, color=last_pos)
             i += 1
         txt += '</table></center>'
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
@@ -316,11 +326,14 @@ class Generator:
     @staticmethod
     def gen_ratings_1(results: list, index: int, start: int):
         txt = '\n'
+        last_pos, last_result = 0, None
         for i in range(min(20, len(results) - index)):
             s = results[index + i][1]
             if s.class_n != start:
                 break
-            txt += tr_format(i + 1, s.class_name(), s.name_1, s.name_2, s.result)
+            if last_result != s.result:
+                last_result, last_pos = s.result, i
+            txt += tr_format(last_pos + 1, s.class_name(), s.name_1, s.name_2, s.result, color=last_pos + 1)
         while index < len(results) and results[index][1].class_n == start:
             index += 1
         return txt, index
@@ -328,9 +341,11 @@ class Generator:
     @staticmethod
     def gen_ratings_2(results: list):
         txt = '\n'
-        i = 0
+        i, last_pos, last_result = 0, 0, None
         for x in results:
-            txt += tr_format(i + 1, x[0], x[1])
+            if x[1] != last_result:
+                last_pos, last_result = i, x[1]
+            txt += tr_format(last_pos + 1, x[0], x[1], color=last_pos + 1)
             i += 1
             if i == 20:
                 break
@@ -345,7 +360,7 @@ class Generator:
         <table width="90%" border="1">
         <tr>
             <td width="5%">Место</td>
-            <td width="15%">Название</td>
+            <td width="15%">Команда</td>
             <td width="16%">День 1 + День 2</td>\n'''
         for x in YearsSubjectsTable.select_by_year(year):
             subject = SubjectsTable.select_by_id(x.subject)
@@ -369,10 +384,12 @@ class Generator:
                 summ += res.result
             row.append(summ)
             new_results.append([row, summ])
-        new_results.sort(key=lambda x: -x[1])
-        i = 1
+        new_results.sort(key=compare(lambda x: -x[1], lambda x: x[0][0], field=True))
+        i, last_pos, last_result = 1, 1, None
         for x in new_results:
-            txt += tr_format(i, *x[0])
+            if x[1] != last_result:
+                last_pos, last_result = i, x[1]
+            txt += tr_format(last_pos, *x[0], color=last_pos)
             i += 1
         return txt + '</table>'
 
@@ -396,9 +413,11 @@ class Generator:
                     <td width="40%">Имя</td>
                     <td width="10%">Сумма</td>
                 </tr>\n'''.format(str(class_n) + r)
-            position = 1
+            position, last_pos, last_result = 1, 1, None
             for x in class_results[r]:
-                txt += tr_format(position, x.name_1, x.name_2, x.result)
+                if x.result != last_result:
+                    last_pos, last_result = position, x.result
+                txt += tr_format(last_pos, x.name_1, x.name_2, x.result, color=last_pos)
                 position += 1
             txt += '</table></td>\n'
             cnt += 1
@@ -438,8 +457,9 @@ class Generator:
             for i in range(min(4, len(student_result[r]))):
                 cnt += student_result[r][i]
             codes[r].result = cnt
-        codes = sorted(codes.items(), key=compare(lambda x: -x[1].class_n, lambda x: -x[1].result, field=True))
-        class_results = sorted(class_results.items(), key=lambda x: -x[1])
+        codes = sorted(codes.items(), key=compare(lambda x: -x[1].class_n, lambda x: -x[1].result,
+                        lambda x: x[1].class_l, lambda x: x[1].name_1, lambda x: x[1].name_2, field=True))
+        class_results = sorted(class_results.items(), key=compare(lambda x: -x[1], lambda x: x[0], field=True))
         index = 0
         best_9, index = Generator.gen_ratings_1(codes, index, 9)
         best_8, index = Generator.gen_ratings_1(codes, index, 8)
@@ -492,7 +512,7 @@ class Generator:
         for team in teams:
             students = TeamsStudentsTable.select_by_team(team.id)
             students = [codes[_.student] for _ in students]
-            students.sort(key=Student.sort_by_class)
+            students.sort(key=compare(lambda x: x.class_name(), lambda x: x.name_1, lambda x: x.name_2, field=True))
             if len(students) == 0:
                 continue
             if cnt % 3 == 0:
