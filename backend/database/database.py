@@ -120,6 +120,13 @@ class Table:
         return [cls(_) for _ in DataBase.execute("SELECT * FROM " + table_name + x[0], x[1])]
 
     @staticmethod
+    def select_list_with_where(table_name: str, cls, field: str, start: int, end: int) -> list:
+        table_name = Table.correct_table_name(table_name)
+        field = Config.DB_COLS_PREFIX + field
+        return [cls(_) for _ in DataBase.execute("SELECT * FROM {0} WHERE {1} < {2} AND {2} < {3}"
+                                                 .format(table_name, start, field, end))]
+
+    @staticmethod
     def update(table_name: str, value, *args) -> None:
         table_name = Table.correct_table_name(table_name)
         if not args or not len(args):
@@ -131,6 +138,12 @@ class Table:
         value = value.update_string()
         x = Table.conditional_query(new_args)
         return DataBase.just_execute("UPDATE " + table_name + " SET " + value[0] + x[0], value[1] + x[1])
+
+    @staticmethod
+    def update_col(table_name: str, field: str, value: str, op: str = '+') -> None:
+        table_name = Table.correct_table_name(table_name)
+        sql = 'UPDATE {0} SET {1} = {1} {2} {3}'.format(table_name, Config.DB_COLS_PREFIX + field, op, value)
+        return DataBase.just_execute(sql)
 
     @staticmethod
     def insert_query(table_name: str, fields: list):

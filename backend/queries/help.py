@@ -15,7 +15,7 @@ import os
     split_class(str)                Разбивает класс на букву и цифру.
     parse_files()                   Проходит все файлы, генерирует списки доступа.
     @check_status(status)           Проверяет открыт ли доступ для текущего пользователя.
-	@check_block_year()             Проверяет открыто ли редактирование года.
+    @check_block_year()             Проверяет открыто ли редактирование года.
     class FilePart                  Один кусочек html-страницы (поля 'text' и 'is_comment').
     class SplitFile                 Связывает html-страницу и программное представление.
         __init__(file_name)                                 Парсит файл 'file_name'.
@@ -114,7 +114,7 @@ def check_block_year():
         def wrapped(*args, **kwargs):
             if len(kwargs):
                 try:
-                    year = int(list(kwargs.values())[0])
+                    year = int(list(kwargs.values())[0].split('/')[0])
                 except ValueError:
                     return function_to_decorate(*args, **kwargs)
                 y = YearsTable.select_by_year(year)

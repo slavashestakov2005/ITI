@@ -10,9 +10,10 @@ from random import shuffle
     /registration_student   registration_student()      Регистрирует участника.
     /edit_student           edit_student()              Редактирует ученика.
     /delete_student         delete_student()            Удаляет ученика.
-    /<year>/create_codes           create_codes()              Создаёт коды для участников (admin).
-    /<year>/print_codes            /print_codes()              Генерирует страницу с кодами всех участников (admin).
+    /<year>/create_codes    create_codes()              Создаёт коды для участников (admin).
+    /<year>/print_codes     print_codes()               Генерирует страницу с кодами всех участников (admin).
     /create_students_lists  create_students_lists()     Генериркет списки участников для всех классов (admin).
+    /update_all_class_n     update_all_class_n()        Переводит всех школьников в следующий класс (full).
 '''
 
 
@@ -111,3 +112,13 @@ def create_students_lists():
     for i in range(5, 10):
         Generator.gen_students_list(i)
     return render_template('student_edit.html', error4='Таблицы участников обновлены')
+
+
+@app.route('/update_all_class_n')
+@cross_origin()
+@login_required
+@check_status('full')
+@check_block_year()
+def update_all_class_n():
+    StudentsTable.add_class()
+    return render_template('student_edit.html', error4='Класс добавлен')

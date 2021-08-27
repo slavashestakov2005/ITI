@@ -73,6 +73,9 @@
 			{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 				<p><a href="create_students_lists">Сгенерировать списки участников</a></p>
 			{% endif %}
+			{% if not current_user.is_anonymous and current_user.can_do(-2) %}
+				<p><a href="update_all_class_n">Перевести всех в следующий класс</a></p>
+			{% endif %}
 			{% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
 			{% endif %}
 		</td>

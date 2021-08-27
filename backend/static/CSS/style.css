@@ -94,3 +94,19 @@ html, body {
     margin: 0 auto;
     resize: none;
 }
+
+.current_year{
+    color: blue;
+}
+
+.p1{
+    background: #ffd700;
+}
+
+.p2{
+    background: #c0c0c0;
+}
+
+.p3 {
+    background: #efa540;
+}

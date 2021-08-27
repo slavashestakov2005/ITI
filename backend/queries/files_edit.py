@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from backend.config import Config
 from .help import check_status, check_block_year, correct_new_line, SplitFile
 from ..help import not_found_error, forbidden_error, FileManager
-from ..database import SubjectsTable
+from ..database import SubjectsTable, YearsTable
 import os
 '''
     generate_filename()                 Генерирует имя для нового файла.
@@ -104,6 +104,10 @@ def edit(path):
 @check_block_year()
 def editor():
     file_name = request.args.get('file_name')
+    year = int(file_name.split('/')[0])
+    y = YearsTable.select_by_year(year)
+    if y.__is_none__ or y.block:
+        return forbidden_error()
     if file_name.count('/') == 0 and not current_user.can_do(-2):
         return forbidden_error()
     try:
