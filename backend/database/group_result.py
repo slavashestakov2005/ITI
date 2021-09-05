@@ -28,7 +28,7 @@ class GroupResultsTable:
         "subject"	INTEGER NOT NULL,
         "result"	INTEGER NOT NULL,
         PRIMARY KEY("team","subject")
-        );''')
+        )''')
 
     @staticmethod
     def select_all() -> list:

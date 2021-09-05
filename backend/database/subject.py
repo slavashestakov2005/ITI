@@ -24,7 +24,25 @@ class SubjectsTable:
         "name"	TEXT NOT NULL UNIQUE,
         "type"	TEXT NOT NULL,
         PRIMARY KEY("id")
-        );''')
+        )''')
+        SubjectsTable.insert(Subject([None, 'Командный тур', 'a']))
+        SubjectsTable.insert(Subject([None, 'История', 'i']))
+        SubjectsTable.insert(Subject([None, 'Английский язык', 'i']))
+        SubjectsTable.insert(Subject([None, 'Русский язык', 'i']))
+        SubjectsTable.insert(Subject([None, 'Информатика', 'i']))
+        SubjectsTable.insert(Subject([None, 'ИЦН', 'i']))
+        SubjectsTable.insert(Subject([None, 'Математика', 'i']))
+        SubjectsTable.insert(Subject([None, 'Обществознание', 'i']))
+        SubjectsTable.insert(Subject([None, 'Естествознание', 'i']))
+        SubjectsTable.insert(Subject([None, 'Литература', 'i']))
+        SubjectsTable.insert(Subject([None, 'Исскуство', 'i']))
+        SubjectsTable.insert(Subject([None, 'Карусель', 'g']))
+        SubjectsTable.insert(Subject([None, 'Естественно-научные бои', 'g']))
+        SubjectsTable.insert(Subject([None, 'Коммуникативные бои', 'g']))
+        SubjectsTable.insert(Subject([None, 'Литература (групповая)', 'g']))
+        SubjectsTable.insert(Subject([None, 'Английский язык (групповой)', 'g']))
+        SubjectsTable.insert(Subject([None, 'Театр', 'g']))
+        SubjectsTable.insert(Subject([None, 'Изобретательство', 'g']))
 
     @staticmethod
     def select_all() -> list:

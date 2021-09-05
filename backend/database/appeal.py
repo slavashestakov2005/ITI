@@ -27,7 +27,7 @@ class AppealsTable:
         "student"	INTEGER NOT NULL,
         "tasks"	TEXT NOT NULL,
         "description"	TEXT NOT NULL
-        );''')
+        )''')
 
     @staticmethod
     def select_all() -> list:

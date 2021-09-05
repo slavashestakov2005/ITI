@@ -63,10 +63,3 @@ def constants():
 @app.route('/constants2')
 def constants2():
     return str(ConstantsTable.select_by_name('name'))
-
-
-# [[maybe_unused]]
-@app.route('/random')
-@cross_origin()
-def template_file():
-    return render_template('page_random.html', number=str(random()))

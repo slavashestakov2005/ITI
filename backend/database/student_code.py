@@ -24,7 +24,7 @@ class StudentsCodesTable:
         "code"	INTEGER NOT NULL,
         "student"	INTEGER NOT NULL,
         PRIMARY KEY("code","year")
-        );''')
+        )''')
 
     @staticmethod
     def select_all() -> list:

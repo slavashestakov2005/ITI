@@ -36,7 +36,7 @@ class StudentsTable:
         "class_n"	INTEGER NOT NULL,
         "class_l"	TEXT NOT NULL,
         PRIMARY KEY("id")
-        );''')
+        )''')
 
     @staticmethod
     def select_all() -> list:

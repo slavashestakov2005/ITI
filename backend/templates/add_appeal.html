@@ -1,23 +1,17 @@
 <!-- login required -->
 {% extends "page4.html" %}
+
+{% block header %}
+<a href="../../main.html">ИТИ-{{year}}</a>
+/
+<a href="../../{{h_type_1}}_tours.html">{{h_type_2}}</a>
+/
+<a href="../{{subject}}.html">{{h_sub_name}}</a>
+/
+Апелляция
+{% endblock %}
+
 {% block content %}
-
-<table width="100%">
-	<tr>
-		<td>
-			<font size="3">
-				<a href="../../main.html">ИТИ-{{year}}</a>
-				/
-				<a href="../../{{h_type_1}}_tours.html">{{h_type_2}}</a>
-				/
-				<a href="../{{subject}}.html">{{h_sub_name}}</a>
-				/
-				Апелляция
-			</font>
-		</td>
-	</tr>
-</table>
-
 <center>
 	<h1>Подать апелляцию</h1>
 	<form action="add_appeal" method="post">

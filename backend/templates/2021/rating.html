@@ -1,17 +1,12 @@
 {% extends "rating_table.html" %}
 
+{% block header %}
+<a href="main.html">ИТИ-2021</a>
+/
+Рейтинг
+{% endblock %}
+
 {% block head %}
-<table width="100%">
-    <tr>
-        <td>
-            <font size="3">
-                <a href="main.html">ИТИ-2021</a>
-                /
-                Рейтинг
-            </font>
-        </td>
-    </tr>
-</table>
 <center>
     <h1>Рейтинг</h1>
     {% if not current_user.is_anonymous and current_user.can_do(-1) %}

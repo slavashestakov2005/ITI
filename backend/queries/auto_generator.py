@@ -28,16 +28,16 @@ class Generator:
         years = YearsTable.select_all()
         type1 = type2 = type3 = type4 = '\n'
         for year in years:
-            type1 += '<a href="{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-            type2 += '<a href="../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-            type3 += '<a href="../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-            type4 += '<a href="../../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+            type1 += '\t' * 7 + '<a class="dropdown-item" href="{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+            type2 += '\t' * 7 + '<a class="dropdown-item" href="../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+            type3 += '\t' * 7 + '<a class="dropdown-item" href="../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+            type4 += '\t' * 7 + '<a class="dropdown-item" href="../../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
         for file_name in all_templates():
             data = SplitFile(file_name)
-            data.insert_after_comment(' list of years (1) ', type1)
-            data.insert_after_comment(' list of years (2) ', type2)
-            data.insert_after_comment(' list of years (3) ', type3)
-            data.insert_after_comment(' list of years (4) ', type4)
+            data.insert_after_comment(' list of years (1) ', type1 + '\t' * 7)
+            data.insert_after_comment(' list of years (2) ', type2 + '\t' * 7)
+            data.insert_after_comment(' list of years (3) ', type3 + '\t' * 7)
+            data.insert_after_comment(' list of years (4) ', type4 + '\t' * 7)
             data.save_file()
 
     @staticmethod
@@ -80,7 +80,7 @@ class Generator:
                     text4 += '<p><a href="individual/{0}.html">{1}</a></p>\n'.format(subject.id, subject.name)
                 elif subject.type == 'g':
                     text5 += '<p><a href="group/{0}.html">{1}</a></p>\n'.format(subject.id, subject.name)
-            text = '<p><input type="checkbox" name="subject" value="{0}" {1}>[ {0} ] {2}</p>\n'.\
+            text = '<p><input type="checkbox" name="subject" value="{0}"{1}>[ {0} ] {2}</p>\n'.\
                 format(subject.id, checked, subject.name)
             if subject.type == 'i':
                 text1 += text
@@ -490,7 +490,7 @@ class Generator:
             row = [team.later, team.name]
             text1 += tr_format(team.id, *row)
             text2 += tr_format(*row)
-            text3 += '<p>{0}: <input type="text" name="score_{1}" value="{{ t{1} }}"></p>\n'.\
+            text3 += '<p>{0}: <input type="text" name="score_{1}" value="{{{{ t{1} }}}}"></p>\n'.\
                 format(team.name, team.id)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/subjects_for_year.html")
         data.insert_after_comment(' list of teams (full) ', text1)

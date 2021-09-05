@@ -24,7 +24,9 @@ class YearsTable:
         "message"	TEXT NOT NULL,
         "block"	INTEGER NOT NULL,
         PRIMARY KEY("year")
-        );''')
+        )''')
+        YearsTable.insert(Year([2019, '', 1]))
+        YearsTable.insert(Year([2020, '', 1]))
 
     @staticmethod
     def select_all() -> list:

@@ -1,23 +1,17 @@
 <!-- login required -->
 {% extends "page4.html" %}
+
+{% block header %}
+<a href="../../main.html">ИТИ-2021</a>
+/
+<a href="../../{{h_type_1}}_tours.html">{{h_type_2}}</a>
+/
+<a href="../{{subject}}.html">{{h_sub_name}}</a>
+/
+Результаты
+{% endblock %}
+
 {% block content %}
-
-<table width="100%">
-	<tr>
-		<td>
-			<font size="3">
-				<a href="../../main.html">ИТИ-2021</a>
-				/
-				<a href="../../{{h_type_1}}_tours.html">{{h_type_2}}</a>
-				/
-				<a href="../{{subject}}.html">{{h_sub_name}}</a>
-				/
-				Результаты
-			</font>
-		</td>
-	</tr>
-</table>
-
 <center><table width="80%">
 	<tr>
 		<td width="45%" />
@@ -28,8 +22,8 @@
 		<td valign="top"><center>
 			<h1>Сохранение результатов</h1>
 			<form action="save_group_results" method="post">
-				<!-- teams list for saving group results --><p>Апельсин: <input type="text" name="score_1" value="{{t1}}"></p>
-<p>Бобры: <input type="text" name="score_2" value="{{t2}}"></p>
+				<!-- teams list for saving group results --><p>Апельсин: <input type="text" name="score_1" value="{{ t1 }}"></p>
+<p>Бобры: <input type="text" name="score_2" value="{{ t2 }}"></p>
 <!-- end -->
 				<p>Если результат ещё не был сохранён, то в поле отображается 0.</p>
 				{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>

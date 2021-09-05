@@ -58,7 +58,10 @@ def add_student_team(year):
     student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1]]))
     if student.__is_none__:
         return render_template(str(year) + '/subjects_for_year.html', error4='Такого участника нет')
-    TeamsStudentsTable.insert(TeamStudent([team, student.id]))
+    team_student = TeamStudent([team, student.id])
+    if not TeamsStudentsTable.select(team_student).__is_none__:
+        return render_template(str(year) + '/subjects_for_year.html', error4='Этот участник уже в этой команде')
+    TeamsStudentsTable.insert(team_student)
     Generator.gen_teams_students(year)
     return render_template(str(year) + '/subjects_for_year.html', error4='Участник добавлен')
 

@@ -48,7 +48,10 @@ class FileManager:
 
     @staticmethod
     def restore_all() -> None:
-        files = FilesTable.select_all()
+        try:
+            files = FilesTable.select_all()
+        except Exception:
+            return
         for file in files:
             if not os.path.exists(os.path.dirname(file.name)):
                 os.makedirs(os.path.dirname(file.name))

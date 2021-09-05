@@ -30,7 +30,7 @@ class TeamsTable:
         "year"	INTEGER NOT NULL,
         "later"	TEXT NOT NULL,
         PRIMARY KEY("id")
-        );''')
+        )''')
 
     @staticmethod
     def select_all() -> list:

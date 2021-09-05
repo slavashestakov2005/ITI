@@ -2,20 +2,14 @@
 <!-- -1 -->
 
 {% extends "page2.html" %}
+
+{% block header %}
+<a href="main.html">ИТИ-2021</a>
+/
+Настройки ИТИ
+{% endblock %}
+
 {% block content %}
-
-<table width="100%">
-    <tr>
-        <td>
-            <font size="3">
-                <a href="main.html">ИТИ-2021</a>
-                /
-                Настройки ИТИ
-            </font>
-        </td>
-    </tr>
-</table>
-
 <center><h1>Настройки ИТИ</h1></center>
 
 <table width="100%">
@@ -70,7 +64,7 @@
                 <tr>
                     <td width="5%"><center>Номер</center></td>
                     <td width="5%"><center>Вертикаль</center></td>
-                    <td width="35%"><center>Название</center></td>
+                    <td width="30%"><center>Название</center></td>
                 </tr>
                 <!-- list of teams (full) --><tr><td>1</td><td>А</td><td>Апельсин</td></tr>
 <tr><td>2</td><td>Б</td><td>Бобры</td></tr>
@@ -139,9 +133,9 @@
             <h2>Блокировка:</h2>
             <form action="year_block" method="post"><center>
                 <!-- is_block -->
-<p><input type="radio" name="is_block" value="0" checked>Разблокировано</p>
-                <p><input type="radio" name="is_block" value="1" >Заблокировано</p>
-<!-- end -->
+                <p><input type="radio" name="is_block" value="0" checked>Разблокировано</p>
+                <p><input type="radio" name="is_block" value="1">Заблокировано</p>
+                <!-- end -->
                 {% if error8 %} <p><font color="red">[ {{ error8 }} ]</font></p>
                 {% endif %}
                 <p><input type="submit" value="Сохранить"></p>

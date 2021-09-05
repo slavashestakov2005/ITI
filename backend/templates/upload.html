@@ -1,8 +1,14 @@
 <!-- login required -->
 <!-- -1 -->
 {% extends "page1.html" %}
-{% block content %}
 
+{% block header %}
+<a href="index.html">ИТИ</a>
+/
+Загрузка файлов
+{% endblock %}
+
+{% block content %}
 <h1>Загрузка нового файла</h1>
 <form action="upload" method="post" enctype=multipart/form-data>
 	<input type="file" name="file">

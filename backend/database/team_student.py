@@ -22,7 +22,7 @@ class TeamsStudentsTable:
         "team"	INTEGER NOT NULL,
         "student"	INTEGER NOT NULL,
         PRIMARY KEY("team","student")
-        );''')
+        )''')
 
     @staticmethod
     def select_all() -> list:

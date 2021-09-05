@@ -20,9 +20,9 @@ class FilesTable:
     def create_table() -> None:
         Table.drop_and_create(FilesTable.table, '''(
         "name"	TEXT NOT NULL UNIQUE,
-        "data"	BYTES NOT NULL,
+        "data"	BYTEA NOT NULL,
         PRIMARY KEY("name")
-        );''')
+        )''')
 
     @staticmethod
     def select_all() -> list:

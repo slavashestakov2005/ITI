@@ -1,21 +1,16 @@
 {% extends "page4.html" %}
-{% block content %}
 
-<table width="100%">
-	<tr>
-		<td>
-			<font size="3">
-				<a href="../../main.html">ИТИ-<!-- {year} --></a>
-				/
-				<a href="../../individual_tours.html">Индивидуальный тур</a>
-				/
-				<a href="../<!-- {subject_id} -->.html"><!-- {subject} --></a>
-				/
-				Протокол <!-- {class} --> класс.
-			</font>
-		</td>
-	</tr>
-</table>
+{% block header %}
+<a href="../../main.html">ИТИ-<!-- {year} --></a>
+/
+<a href="../../individual_tours.html">Индивидуальный тур</a>
+/
+<a href="../<!-- {subject_id} -->.html"><!-- {subject} --></a>
+/
+Протокол <!-- {class} --> класс.
+{% endblock %}
+
+{% block content %}
 <center><h1><!-- {subject} -->. Протокол <!-- {class} --> класс.</h1></center>
 <!-- results table --><!-- end -->
 {% endblock %}

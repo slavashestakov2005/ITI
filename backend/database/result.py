@@ -34,7 +34,7 @@ class ResultsTable:
         "net_score"	INTEGER NOT NULL,
         "text_result"	TEXT NOT NULL,
         PRIMARY KEY("year","subject","user")
-        );''')
+        )''')
 
     @staticmethod
     def select_all() -> list:

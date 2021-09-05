@@ -60,5 +60,8 @@ class FileCreator:
                 os.remove(file_name)
                 FileManager.delete(file_name)
                 file_name = file_name[:-5].replace(Config.TEMPLATES_FOLDER, Config.UPLOAD_FOLDER) + '/'
-                shutil.rmtree(file_name)
+                try:
+                    shutil.rmtree(file_name)
+                except FileNotFoundError:
+                    pass
                 FileManager.delete_dir(file_name)

@@ -51,7 +51,7 @@ class UsersTable:
         "login"	TEXT NOT NULL UNIQUE,
         "password"	TEXT NOT NULL,
         "status"	INTEGER,
-        PRIMARY KEY("id"));''')
+        PRIMARY KEY("id"))''')
         u = User([None, 'slava', '', -2])
         u.set_password('123')
         UsersTable.insert(u)

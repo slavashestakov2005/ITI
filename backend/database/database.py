@@ -99,7 +99,7 @@ class Table:
         try:
             new_create = create.split('"')
             create = new_create[0]
-            for i in range(1, len(create), 2):
+            for i in range(1, len(new_create), 2):
                 create += '"' + Config.DB_COLS_PREFIX + new_create[i] + '"' + new_create[i + 1]
             DataBase.just_execute('CREATE TABLE "{0}" {1};'.format(table_name, create))
         except Exception as ex:

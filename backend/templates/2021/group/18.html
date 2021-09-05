@@ -2,29 +2,23 @@
 
 {% block page_num %}
 {% if not current_user.is_anonymous and current_user.can_do(18) %}
-<a href="#" onclick="addResult(window)">Результаты</a>
+<a class="dropdown-item" href="#" onclick="addResult(window)">Результаты</a>
 {% endif %}
 {% if 'group' == 'individual' and not current_user.is_anonymous %}
-<a href="#" onclick="addAppeal(window)">Апелляция</a>
+<a class="dropdown-item" href="#" onclick="addAppeal(window)">Апелляция</a>
 {% endif %}
 {% endblock %}
 
-{% block content %}
+{% block header %}
+<a href="../main.html">ИТИ-2021</a>
+/
+<a href="../group_tours.html">Групповой тур</a>
+/
+Изобретательство
+{% endblock %}
 
-<table width="100%">
-	<tr>
-		<td>
-			<font size="3">
-				<a href="../main.html"><!-- year -->ИТИ-2021<!-- end --></a>
-				/
-				<a href="../group_tours.html"><!-- tour_name -->Групповой тур<!-- end --></a>
-				/
-				<!-- subject_name -->Изобретательство<!-- end -->
-			</font>
-		</td>
-	</tr>
-</table>
-<center><h1><!-- subject_name -->Изобретательство<!-- end --></h1></center>
+{% block content %}
+<center><h1>Изобретательство</h1></center>
 <!-- results table --><center><h2>Результаты</h2>
 <table width="30%" border="1">
                     <tr>
@@ -35,4 +29,7 @@
 <tr class="p1"><td>1</td><td>Бобры</td><td>300</td></tr>
 <tr class="p2"><td>2</td><td>Апельсин</td><td>150</td></tr>
 </table></center><!-- end -->
+<center><h2>Файлы</h2></center>
+<!-- files -->
+<!-- end -->
 {% endblock %}

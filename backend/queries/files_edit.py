@@ -104,10 +104,13 @@ def edit(path):
 @check_block_year()
 def editor():
     file_name = request.args.get('file_name')
-    year = int(file_name.split('/')[0])
-    y = YearsTable.select_by_year(year)
-    if y.__is_none__ or y.block:
-        return forbidden_error()
+    try:
+        year = int(file_name.split('/')[0])
+        y = YearsTable.select_by_year(year)
+        if y.__is_none__ or y.block:
+            return forbidden_error()
+    except ValueError:
+        pass
     if file_name.count('/') == 0 and not current_user.can_do(-2):
         return forbidden_error()
     try:

@@ -2,20 +2,14 @@
 <!-- -1 -->
 
 {% extends "page2.html" %}
+
+{% block header %}
+<a href="main.html"><!-- {year} --></a>
+/
+Настройки ИТИ
+{% endblock %}
+
 {% block content %}
-
-<table width="100%">
-    <tr>
-        <td>
-            <font size="3">
-                <a href="main.html"><!-- {year} --></a>
-                /
-                Настройки ИТИ
-            </font>
-        </td>
-    </tr>
-</table>
-
 <center><h1>Настройки ИТИ</h1></center>
 
 <table width="100%">
@@ -132,7 +126,7 @@
             <h2>Объявления:</h2>
             <form action="year_message" method="post"><center>
                 <p>
-                    <!-- message  -->
+                    <!-- message -->
                     <textarea name="file_text" id="file_text" oninput="textInput(document, 'file_text')" placeholder="Объявление пусто"></textarea>
                     <!-- end -->
                 </p>

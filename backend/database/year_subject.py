@@ -55,7 +55,7 @@ class YearsSubjectsTable:
         "classes"	TEXT NOT NULL,
         "place"	TEXT NOT NULL,
         PRIMARY KEY("year","subject")
-        );''')
+        )''')
 
     @staticmethod
     def select_all() -> list:

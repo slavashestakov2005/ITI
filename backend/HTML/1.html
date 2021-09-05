@@ -2,28 +2,22 @@
 
 {% block page_num %}
 {% if not current_user.is_anonymous and current_user.can_do(<!-- {page num} -->) %}
-<a href="#" onclick="addResult(window)">Результаты</a>
+<a class="dropdown-item" href="#" onclick="addResult(window)">Результаты</a>
 {% endif %}
 {% if '<!-- {ref} -->' == 'individual' and not current_user.is_anonymous %}
-<a href="#" onclick="addAppeal(window)">Апелляция</a>
+<a class="dropdown-item" href="#" onclick="addAppeal(window)">Апелляция</a>
 {% endif %}
 {% endblock %}
 
-{% block content %}
+{% block header %}
+<a href="../main.html"><!-- {year} --></a>
+/
+<a href="../<!-- {ref} -->_tours.html"><!-- {tour_name} --></a>
+/
+<!-- {subject_name} -->
+{% endblock %}
 
-<table width="100%">
-	<tr>
-		<td>
-			<font size="3">
-				<a href="../main.html"><!-- {year} --></a>
-				/
-				<a href="../<!-- {ref} -->_tours.html"><!-- {tour_name} --></a>
-				/
-				<!-- {subject_name} -->
-			</font>
-		</td>
-	</tr>
-</table>
+{% block content %}
 <center><h1><!-- {subject_name} --></h1></center>
 <!-- results table --><!-- end -->
 <center><h2>Файлы</h2></center>

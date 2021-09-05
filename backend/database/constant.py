@@ -22,7 +22,7 @@ class ConstantsTable:
         "name"	TEXT NOT NULL UNIQUE,
         "value"	TEXT NOT NULL,
         PRIMARY KEY("name")
-        );''')
+        )''')
 
     @staticmethod
     def select_all() -> list:
