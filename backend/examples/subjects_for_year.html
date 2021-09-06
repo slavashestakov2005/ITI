@@ -12,131 +12,124 @@
 {% block content %}
 <center><h1>Настройки ИТИ</h1></center>
 
-<table width="100%">
-    <tr>
-        <td width="40%" valign="top">
-            <form action="subject_year" method="post"><center>
-                <h2>Предметы:</h2>
-                <table width="100%">
-                    <tr>
-                        <td width="50%" valign="top">
-                            <h3>Индивидуальные туры:</h3>
-                            <!-- list of year_individual tours -->
-                <!-- end -->
-                        </td>
-                        <td width="50%" valign="top">
-                            <h3>Групповые туры:</h3>
-                            <!-- list of year_group tours -->
-                <!-- end -->
-                            <h3>Другое:</h3>
-                            <!-- list of year_another tours -->
-                <!-- end -->
-                        </td>
-                    </tr>
-                </table>
-
-                {% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
-                {% endif %}
-                <input type="submit" value="Сохранить">
-            </center></form>
-        </td>
-        <td width="40%" valign="top"><center>
-            <h2>Команды:</h2>
-            <table width="85%" border="1">
+<div class="row col-12 justify-content-center">
+    <div class="col t-3">
+        <form action="subject_year" method="post"><center>
+            <h2>Предметы:</h2>
+            <table width="100%">
                 <tr>
-                    <td width="5%"><center>Номер</center></td>
-                    <td width="5%"><center>Вертикаль</center></td>
-                    <td width="30%"><center>Название</center></td>
+                    <td width="50%" valign="top">
+                        <h3>Индивидуальные туры:</h3>
+                        <!-- list of year_individual tours --><!-- end -->
+                    </td>
+                    <td width="50%" valign="top">
+                        <h3>Групповые туры:</h3>
+                        <!-- list of year_group tours --><!-- end -->
+                        <h3>Другое:</h3>
+                        <!-- list of year_another tours --><!-- end -->
+                    </td>
                 </tr>
-                <!-- list of teams (full) --><!-- end -->
             </table>
-            <form action="add_team" method="post"><center>
-                <h3>Новая команда:</h3>
-                <p>Название: <input type="text" name="name"></p>
-                <p>Вертикаль: <input type="text" name="later"></p>
-                {% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
-                {% endif %}
-                <input type="submit" value="Добавить">
-            </center></form>
-            <form action="delete_team" method="post"><center>
-                <h3>Удалить команду:</h3>
-                <p>Номер: <input type="text" name="id"></p>
-                {% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
-                {% endif %}
-                <input type="submit" value="Удалить">
-            </center></form>
-        </center></td>
-        <td width="20%" valign="top"><center>
-            <h2>Участники команд:</h2>
-            <form action="add_student_team" method="post"><center>
-                <h3>Новый участник:</h3>
-                <p>Команда (номер): <input type="text" name="team"></p>
-                <p>Имя: <input type="text" name="name2"></p>
-                <p>Фамилия: <input type="text" name="name1"></p>
-                <p>Класс: <input type="text" name="class"></p>
-                {% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
-                {% endif %}
-                <input type="submit" value="Добавить">
-            </center></form>
-            <form action="delete_student_team" method="post"><center>
-                <h3>Удалить участника:</h3>
-                <p>Команда (номер): <input type="text" name="team"></p>
-                <p>Имя: <input type="text" name="name2"></p>
-                <p>Фамилия: <input type="text" name="name1"></p>
-                <p>Класс: <input type="text" name="class"></p>
-                {% if error5 %} <p><font color="red">[ {{ error5 }} ]</font></p>
-                {% endif %}
-                <input type="submit" value="Удалить">
-            </center></form>
-        </center></td>
-    </tr>
-</table>
-<table width="100%">
-    <tr>
-        <td valign="top" width="40%"><center>
-            <h2>Расписание:</h2>
-            <form action="subject_description" method="post"><center>
-                <p>Предмет (номер): <input type="text" name="subject"></p>
-                <p>Классы: <input type="text" name="classes"></p>
-                <p>Кабинет: <input type="text" name="place" size="40"></p>
-                <p>
-                    День: <input type="date" name="date">
-                    Начало: <input type="time" name="start">
-                    Конец: <input type="time" name="end">
-                </p>
-                {% if error6 %} <p><font color="red">[ {{ error6 }} ]</font></p>
-                {% endif %}
-                <p><input type="submit" value="Сохранить"></p>
-            </center></form>
-            <br />
-            {% if not current_user.is_anonymous and current_user.can_do(-2) %}
-            <h2>Блокировка:</h2>
-            <form action="year_block" method="post"><center>
-                <!-- is_block -->
+            {% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+            {% endif %}
+            <input type="submit" value="Сохранить">
+        </center></form>
+    </div>
+    <div class="col t-3"><center>
+        <h2>Команды:</h2>
+        <table width="85%" border="1">
+            <tr>
+                <td width="5%"><center>Номер</center></td>
+                <td width="5%"><center>Вертикаль</center></td>
+                <td width="30%"><center>Название</center></td>
+            </tr>
+            <!-- list of teams (full) --><!-- end -->
+        </table>
+        <form action="add_team" method="post"><center>
+            <h3>Новая команда:</h3>
+            <p>Название: <input type="text" name="name"></p>
+            <p>Вертикаль: <input type="text" name="later"></p>
+            {% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
+            {% endif %}
+            <input type="submit" value="Добавить">
+        </center></form>
+        <form action="delete_team" method="post"><center>
+            <h3>Удалить команду:</h3>
+            <p>Номер: <input type="text" name="id"></p>
+            {% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
+            {% endif %}
+            <input type="submit" value="Удалить">
+        </center></form>
+    </center></div>
+    <div class="col t-3"><center>
+        <h2>Участники команд:</h2>
+        <form action="add_student_team" method="post"><center>
+            <h3>Новый участник:</h3>
+            <p>Команда (номер): <input type="text" name="team"></p>
+            <p>Имя: <input type="text" name="name2"></p>
+            <p>Фамилия: <input type="text" name="name1"></p>
+            <p>Класс: <input type="text" name="class"></p>
+            {% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
+            {% endif %}
+            <input type="submit" value="Добавить">
+        </center></form>
+        <form action="delete_student_team" method="post"><center>
+            <h3>Удалить участника:</h3>
+            <p>Команда (номер): <input type="text" name="team"></p>
+            <p>Имя: <input type="text" name="name2"></p>
+            <p>Фамилия: <input type="text" name="name1"></p>
+            <p>Класс: <input type="text" name="class"></p>
+            {% if error5 %} <p><font color="red">[ {{ error5 }} ]</font></p>
+            {% endif %}
+            <input type="submit" value="Удалить">
+        </center></form>
+    </center></div>
+</div>
+<br>
+<div class="row col-12 justify-content-center">
+    <div class="col t-3"><center>
+        <h2>Расписание:</h2>
+        <form action="subject_description" method="post"><center>
+            <p>Предмет (номер): <input type="text" name="subject"></p>
+            <p>Классы: <input type="text" name="classes"></p>
+            <p>Кабинет: <input type="text" name="place" size="40"></p>
+            <p>
+                День: <input type="date" name="date">
+                Начало: <input type="time" name="start">
+                Конец: <input type="time" name="end">
+            </p>
+            {% if error6 %} <p><font color="red">[ {{ error6 }} ]</font></p>
+            {% endif %}
+            <p><input type="submit" value="Сохранить"></p>
+        </center></form>
+        <br />
+        {% if not current_user.is_anonymous and current_user.can_do(-2) %}
+        <h2>Блокировка:</h2>
+        <form action="year_block" method="post"><center>
+            <!-- is_block -->
                 <p><input type="radio" name="is_block" value="0" checked>Разблокировано</p>
                 <p><input type="radio" name="is_block" value="1">Заблокировано</p>
-                <!-- end -->
-                {% if error8 %} <p><font color="red">[ {{ error8 }} ]</font></p>
-                {% endif %}
-                <p><input type="submit" value="Сохранить"></p>
-            </center></form>
+            <!-- end -->
+            {% if error8 %} <p><font color="red">[ {{ error8 }} ]</font></p>
             {% endif %}
-        </center></td>
-        <td valign="top" width="60%"><center>
-            <h2>Объявления:</h2>
-            <form action="year_message" method="post"><center>
-                <p>
-                    <!-- message -->
-                    <textarea name="file_text" id="file_text" oninput="textInput(document, 'file_text')" placeholder="Объявление пусто"></textarea>
-                    <!-- end -->
-                </p>
-                <script>textInput(document, 'file_text')</script>
-                {% if error7 %} <p><font color="red">[ {{ error7 }} ]</font></p>
-                {% endif %}
-                <p><input type="submit" value="Сохранить"></p>
-            </center></form>
-        </center></td>
-    </tr>
-</table>
+            <p><input type="submit" value="Сохранить"></p>
+        </center></form>
+        {% endif %}
+    </center></div>
+    <div class="col td-2"><center>
+        <h2>Объявления:</h2>
+        <form action="year_message" method="post"><center>
+            <p>
+                <!-- message -->
+                <textarea name="file_text" id="file_text" oninput="textInput(document, 'file_text')" placeholder="Объявление пусто"></textarea>
+                <!-- end -->
+            </p>
+            <script>textInput(document, 'file_text')</script>
+            {% if error7 %} <p><font color="red">[ {{ error7 }} ]</font></p>
+            {% endif %}
+            <p><input type="submit" value="Сохранить"></p>
+        </center></form>
+    </center></div>
+</div>
 
 {% endblock %}

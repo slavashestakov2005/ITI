@@ -92,3 +92,31 @@ h4{ font-size: 12pt; }
 .p1{ background: #ffd700; }
 .p2{ background: #c0c0c0; }
 .p3 { background: #efa540; }
+
+.td-1 {
+    min-width: 25%;
+    max-width: 850px;
+}
+
+.td-2 {
+    min-width: 850px;
+    max-width: 850px;
+}
+
+.t-3 {  /* r-3 */
+    min-width: 400px;
+    width: 400px;
+    max-width: 450px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+.t-4 { /* r-1 */
+    min-width: 350px;
+    width: 350px;
+    max-width: 400px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 20px;
+}

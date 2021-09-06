@@ -9,74 +9,72 @@
 {% endblock %}
 
 {% block content %}
-<table width="100%">
-	<tr>
-		<td width="33%" valign="top">
-			<h1>Добавить ИТИ</h1>
-			<form action="add_year" method="post">
-				<p>Год: <input type="text" name="name"></p>
-				{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
-				{% endif %}
-				<input type="submit" value="Добавить">
-			</form>
-		</td>
-		<td width="33%" valign="top">
-			<h1>Добавить предмет</h1>
-			<form action="add_subject" method="post">
-				<p>Название: <input type="text" name="name"></p>
-				<p>Тип (i / g / a): <input type="text" name="type"></p>
-				{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
-				{% endif %}
-				<input type="submit" value="Добавить">
-			</form>
-			<h1>Редактировать предмет</h1>
-			<form action="edit_subject" method="post">
-				<p>Номер: <input type="text" name="id"></p>
-				<p>Название: <input type="text" name="new_name"></p>
-				<p>Тип (i / g / a): <input type="text" name="new_type"></p>
-				{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
-				{% endif %}
-				<input type="submit" value="Сохранить">
-			</form>
-			<h1>Удалить предмет</h1>
-			<form action="delete_subject" method="post">
-				<p>Номер: <input type="text" name="id"></p>
-				{% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
-				{% endif %}
-				<input type="submit" value="Удалить">
-			</form>
-		</td>
-		<td width="33%" valign="top">
-			<h1>Список предметов</h1>
-			<h2>Индивидуальные</h2>
-			<!-- list of individual tours (2) -->
-<p>[ 2 ] История</p>
-<p>[ 3 ] Английский язык</p>
-<p>[ 4 ] Русский язык</p>
-<p>[ 5 ] Информатика</p>
-<p>[ 6 ] ИЦН</p>
-<p>[ 7 ] Математика</p>
-<p>[ 8 ] Обществознание</p>
-<p>[ 9 ] Естествознание</p>
-<p>[ 10 ] Литература</p>
-<p>[ 11 ] Исскуство</p>
-<!-- end -->
-			<h2>Групповые</h2>
-			<!-- list of group tours (2) -->
-<p>[ 12 ] Карусель</p>
-<p>[ 13 ] Естественно-научные бои</p>
-<p>[ 14 ] Коммуникативные бои</p>
-<p>[ 15 ] Литература (групповая)</p>
-<p>[ 16 ] Английский язык (групповой)</p>
-<p>[ 17 ] Театр</p>
-<p>[ 18 ] Изобретательство</p>
-<!-- end -->
-			<h2>Другие</h2>
-			<!-- list of another tours (2) -->
-<p>[ 1 ] Командный тур</p>
-<!-- end -->
-		</td>
-	</tr>
-</table>
+<div class="row col-12 justify-content-center">
+	<div class="col t-3">
+		<h1>Добавить ИТИ</h1>
+		<form action="add_year" method="post">
+			<p>Год: <input type="text" name="name"></p>
+			{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+			{% endif %}
+			<input type="submit" value="Добавить">
+		</form>
+	</div>
+	<div class="col t-3">
+		<h1>Добавить предмет</h1>
+		<form action="add_subject" method="post">
+			<p>Название: <input type="text" name="name"></p>
+			<p>Тип (i / g / a): <input type="text" name="type"></p>
+			{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
+			{% endif %}
+			<input type="submit" value="Добавить">
+		</form>
+		<h1>Редактировать предмет</h1>
+		<form action="edit_subject" method="post">
+			<p>Номер: <input type="text" name="id"></p>
+			<p>Название: <input type="text" name="new_name"></p>
+			<p>Тип (i / g / a): <input type="text" name="new_type"></p>
+			{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
+			{% endif %}
+			<input type="submit" value="Сохранить">
+		</form>
+		<h1>Удалить предмет</h1>
+		<form action="delete_subject" method="post">
+			<p>Номер: <input type="text" name="id"></p>
+			{% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
+			{% endif %}
+			<input type="submit" value="Удалить">
+		</form>
+	</div>
+	<div class="col t-3">
+		<h1>Список предметов</h1>
+		<h2>Индивидуальные</h2>
+		<!-- list of individual tours (2) -->
+            <p>[ 2 ] История</p>
+			<p>[ 3 ] Английский язык</p>
+			<p>[ 4 ] Русский язык</p>
+			<p>[ 5 ] Информатика</p>
+			<p>[ 6 ] ИЦН</p>
+			<p>[ 7 ] Математика</p>
+			<p>[ 8 ] Обществознание</p>
+			<p>[ 9 ] Естествознание</p>
+			<p>[ 10 ] Литература</p>
+			<p>[ 11 ] Исскуство</p>
+		<!-- end -->
+		<h2>Групповые</h2>
+		<!-- list of group tours (2) -->
+			<p>[ 12 ] Карусель</p>
+			<p>[ 13 ] Естественно-научные бои</p>
+			<p>[ 14 ] Коммуникативные бои</p>
+			<p>[ 15 ] Литература (групповая)</p>
+			<p>[ 16 ] Английский язык (групповой)</p>
+			<p>[ 17 ] Театр</p>
+			<p>[ 18 ] Изобретательство</p>
+		<!-- end -->
+		<h2>Другие</h2>
+		<!-- list of another tours (2) -->
+			<p>[ 1 ] Командный тур</p>
+		<!-- end -->
+	</div>
+</div>
 
 {% endblock %}

@@ -4,7 +4,7 @@ from functools import wraps, cmp_to_key
 from glob import glob
 from backend.config import Config
 from ..help import FileManager, correct_slash
-from ..database import YearsTable, User
+from ..database import YearsTable
 import re
 import os
 '''
@@ -41,8 +41,8 @@ def split_class(class_):
     return int(class_[:-1]), class_[-1],
 
 
-def tr_format(*args, color=None):
-    start = '<tr' + (' class="p{}"'.format(color) if color and color < 4 else '') + '>'
+def tr_format(*args, color=None, tabs=0):
+    start = ' ' * 4 * tabs + '<tr' + (' class="p{}"'.format(color) if color and color < 4 else '') + '>'
     return ''.join([start, *['<td>{{{0}}}</td>'.format(_) for _ in range(len(args))], '</tr>\n']).format(*args)
 
 

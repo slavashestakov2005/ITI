@@ -128,9 +128,10 @@ def year_block(year):
     year.block = is_block
     YearsTable.update(year)
     data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year.year) + '/subjects_for_year.html')
-    data.insert_after_comment(' is_block ', '''\n<p><input type="radio" name="is_block" value="0" {0}>Разблокировано</p>
-                <p><input type="radio" name="is_block" value="1" {1}>Заблокировано</p>\n'''
-                              .format('checked' if is_block == 0 else '', 'checked' if is_block == 1 else ''))
+    data.insert_after_comment(' is_block ', '''
+                <p><input type="radio" name="is_block" value="0" {0}>Разблокировано</p>
+                <p><input type="radio" name="is_block" value="1" {1}>Заблокировано</p>
+            '''.format('checked' if is_block == 0 else '', 'checked' if is_block == 1 else ''))
     data.save_file()
     return render_template(str(year.year) + '/subjects_for_year.html', error8='Сохранено.', year=year.year)
 

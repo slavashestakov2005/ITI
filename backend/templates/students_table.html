@@ -5,42 +5,37 @@
 
 <center><h1>{% block head %}{% endblock %}</h1></center>
 
-<table width="100%">
-    <tr>
-        <td width="30%" valign="top">
-            <table width="100%" border="1">
-                <tr>
-                    <td width="10%">Фамилия</td>
-                    <td width="10%">Имя</td>
-                    <td width="10%">Класс</td>
-                </tr>
-                {% block table1 %}{% endblock %}
-            </table>
-        </td>
-        <td width="5%"></td>
-        <td width="30%" valign="top">
-            <table width="100%" border="1">
-                <tr>
-                    <td width="10%">Фамилия</td>
-                    <td width="10%">Имя</td>
-                    <td width="10%">Класс</td>
-                </tr>
-                {% block table2 %}{% endblock %}
-            </table>
-        </td>
-        <td width="5%"></td>
-        <td width="30%" valign="top">
-            <table width="100%" border="1">
-                <tr>
-                    <td width="10%">Фамилия</td>
-                    <td width="10%">Имя</td>
-                    <td width="10%">Класс</td>
-                </tr>
-                {% block table3 %}{% endblock %}
-            </table>
-        </td>
-        <td width="5%"></td>
-    </tr>
-</table>
+<div class="row col-12 justify-content-center">
+    <div class="col t-3">
+        <table width="100%" border="1">
+            <tr>
+                <td width="10%">Фамилия</td>
+                <td width="10%">Имя</td>
+                <td width="10%">Класс</td>
+            </tr>
+            {% block table1 %}{% endblock %}
+        </table>
+    </div>
+    <div class="col t-3">
+        <table width="100%" border="1">
+            <tr>
+                <td width="10%">Фамилия</td>
+                <td width="10%">Имя</td>
+                <td width="10%">Класс</td>
+            </tr>
+            {% block table2 %}{% endblock %}
+        </table>
+    </div>
+    <div class="col t-3">
+        <table width="100%" border="1">
+            <tr>
+                <td width="10%">Фамилия</td>
+                <td width="10%">Имя</td>
+                <td width="10%">Класс</td>
+            </tr>
+            {% block table3 %}{% endblock %}
+        </table>
+    </div>
+</div>
 
 {% endblock %}

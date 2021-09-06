@@ -8,72 +8,66 @@
 {% endblock %}
 
 {% block content %}
-<table width="99%">
-	<tr>
-		<td width="33%" valign="top">
-			<h1>Новый участник</h1>
-			<form action="registration_student" method="post">
-				<p>Имя: <input type="text" name="name2"></p>
-				<p>Фамилия: <input type="text" name="name1"></p>
-				<p>Класс (номер и буква): <input type="text" name="class"></p>
-				{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
-				{% endif %}
-				<input type="submit" value="Создать">
-			</form>
-		</td>
-		<td width="33%" valign="top">
-			<h1>Изменить участника</h1>
-			<form action="edit_student" method="post">
-				<h2>Старые данные</h2>
-				<p>Имя: <input type="text" name="o_name2"></p>
-				<p>Фамилия: <input type="text" name="o_name1"></p>
-				<p>Класс (номер и буква): <input type="text" name="o_class"></p>
-				<h2>Новые данные</h2>
-				<p>Имя: <input type="text" name="n_name2"></p>
-				<p>Фамилия: <input type="text" name="n_name1"></p>
-				<p>Класс (номер и буква): <input type="text" name="n_class"></p>
-				{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
-				{% endif %}
-				<input type="submit" value="Изменить">
-				<p>Если поля новых данных оставить пустыми, то информация не изменится.</p>
-			</form>
-		</td>
-		<td width="33%" valign="top">
-			<h1>Удалить участника</h1>
-			<form action="delete_student" method="post">
-				<p>Имя: <input type="text" name="name2"></p>
-				<p>Фамилия: <input type="text" name="name1"></p>
-				<p>Класс (номер и буква): <input type="text" name="class"></p>
-				{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
-				{% endif %}
-				<input type="submit" value="Удалить">
-			</form>
-		</td>
-	</tr>
-</table>
-<br>
-<table width="100%">
-	<tr>
-		<td width="50%" valign="top">
-			<p>Для просмотра списка всех участников перейдите по ссылкам:</p>
-			<p><a href="students_5.html">5 класс</a></p>
-			<p><a href="students_6.html">6 класс</a></p>
-			<p><a href="students_7.html">7 класс</a></p>
-			<p><a href="students_8.html">8 класс</a></p>
-			<p><a href="students_9.html">9 класс</a></p>
-		</td>
-		<td width="50%" valign="top">
-			<h1>Опции</h1>
-			{% if not current_user.is_anonymous and current_user.can_do(-1) %}
-				<p><a href="create_students_lists">Сгенерировать списки участников</a></p>
+<div class="row col-12 justify-content-center">
+	<div class="col t-3">
+		<h1>Новый участник</h1>
+		<form action="registration_student" method="post">
+			<p>Имя: <input type="text" name="name2"></p>
+			<p>Фамилия: <input type="text" name="name1"></p>
+			<p>Класс (номер и буква): <input type="text" name="class"></p>
+			{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
 			{% endif %}
-			{% if not current_user.is_anonymous and current_user.can_do(-2) %}
-				<p><a href="update_all_class_n">Перевести всех в следующий класс</a></p>
+			<input type="submit" value="Создать">
+		</form>
+	</div>
+	<div class="col t-3">
+		<h1>Изменить участника</h1>
+		<form action="edit_student" method="post">
+			<h2>Старые данные</h2>
+			<p>Имя: <input type="text" name="o_name2"></p>
+			<p>Фамилия: <input type="text" name="o_name1"></p>
+			<p>Класс (номер и буква): <input type="text" name="o_class"></p>
+			<h2>Новые данные</h2>
+			<p>Имя: <input type="text" name="n_name2"></p>
+			<p>Фамилия: <input type="text" name="n_name1"></p>
+			<p>Класс (номер и буква): <input type="text" name="n_class"></p>
+			{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
 			{% endif %}
-			{% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
+			<input type="submit" value="Изменить">
+			<p>Если поля новых данных оставить пустыми, то информация не изменится.</p>
+		</form>
+	</div>
+	<div class="col t-3">
+		<h1>Удалить участника</h1>
+		<form action="delete_student" method="post">
+			<p>Имя: <input type="text" name="name2"></p>
+			<p>Фамилия: <input type="text" name="name1"></p>
+			<p>Класс (номер и буква): <input type="text" name="class"></p>
+			{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
 			{% endif %}
-		</td>
-	</tr>
-</table>
+			<input type="submit" value="Удалить">
+		</form>
+	</div>
+	<div class="col t-3">
+		<h1>Списки участников</h1>
+		<p>Для просмотра списка всех участников перейдите по ссылкам:</p>
+		<p><a href="students_5.html">5 класс</a></p>
+		<p><a href="students_6.html">6 класс</a></p>
+		<p><a href="students_7.html">7 класс</a></p>
+		<p><a href="students_8.html">8 класс</a></p>
+		<p><a href="students_9.html">9 класс</a></p>
+	</div>
+	<div class="col t-3">
+		<h1>Опции</h1>
+		{% if not current_user.is_anonymous and current_user.can_do(-1) %}
+		<p><a href="create_students_lists">Сгенерировать списки участников</a></p>
+		{% endif %}
+		{% if not current_user.is_anonymous and current_user.can_do(-2) %}
+		<p><a href="update_all_class_n">Перевести всех в следующий класс</a></p>
+		{% endif %}
+		{% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
+		{% endif %}
+	</div>
+</div>
 
 {% endblock %}

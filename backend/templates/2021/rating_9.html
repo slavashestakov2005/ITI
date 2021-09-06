@@ -11,16 +11,10 @@
 {% block content %}
 <center><h1>Рейтинг 9 класс</h1></center>
 
-<table width="100%">
-    <tr>
-        <td width="30%" />
-        <td width="5%" />
-        <td width="30%" />
-        <td width="5%" />
-        <td width="30%" />
-    </tr>
-    <!-- results --><tr>
-<td><center><h3>9А</h3></center>
+<div class="row col-12 justify-content-center">
+    <!-- results -->
+        <div class="col t-3">
+            <center><h3>9А</h3></center>
             <table width="100%" border="1">
                 <tr>
                     <td width="10%">Место</td>
@@ -28,9 +22,11 @@
                     <td width="40%">Имя</td>
                     <td width="10%">Сумма</td>
                 </tr>
-<tr class="p1"><td>1</td><td>Место 1</td><td>Имя</td><td>107</td></tr>
-</table></td>
-<td /><td><center><h3>9В</h3></center>
+                <tr class="p1"><td>1</td><td>Место 1</td><td>Имя</td><td>107</td></tr>
+            </table>
+        </div>
+        <div class="col t-3">
+            <center><h3>9В</h3></center>
             <table width="100%" border="1">
                 <tr>
                     <td width="10%">Место</td>
@@ -38,9 +34,11 @@
                     <td width="40%">Имя</td>
                     <td width="10%">Сумма</td>
                 </tr>
-<tr class="p1"><td>1</td><td>Место 3</td><td>Имя</td><td>100</td></tr>
-</table></td>
-<td /><td><center><h3>9Б</h3></center>
+                <tr class="p1"><td>1</td><td>Место 3</td><td>Имя</td><td>100</td></tr>
+            </table>
+        </div>
+        <div class="col t-3">
+            <center><h3>9Б</h3></center>
             <table width="100%" border="1">
                 <tr>
                     <td width="10%">Место</td>
@@ -48,11 +46,10 @@
                     <td width="40%">Имя</td>
                     <td width="10%">Сумма</td>
                 </tr>
-<tr class="p1"><td>1</td><td>Место 2</td><td>Имя</td><td>80</td></tr>
-</table></td>
-</tr><tr>
-</tr>
-<!-- end -->
-</table>
+                <tr class="p1"><td>1</td><td>Место 2</td><td>Имя</td><td>80</td></tr>
+            </table>
+        </div>
+    <!-- end -->
+</div>
 
 {% endblock %}
