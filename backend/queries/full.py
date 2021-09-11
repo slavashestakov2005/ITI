@@ -26,7 +26,11 @@ from ..config import Config
 @check_status('full')
 @check_block_year()
 def add_year():
-    name = int(request.form['name'])
+    try:
+        name = int(request.form['name'])
+    except ValueError:
+        return render_template('subjects_and_years.html', error1='Некорректный год')
+
     year = YearsTable.select_by_year(name)
     if not year.__is_none__:
         return render_template('subjects_and_years.html', error1='Год уже существует')
@@ -44,8 +48,12 @@ def add_year():
 @check_status('full')
 @check_block_year()
 def add_subject():
-    name = request.form['name']
-    subject_type = request.form['type']
+    try:
+        name = request.form['name']
+        subject_type = request.form['type']
+    except Exception:
+        return render_template('subjects_and_years.html', error2='Некорректные данные')
+
     subject = SubjectsTable.select_by_name(name)
     if not subject.__is_none__:
         return render_template('subjects_and_years.html', error2='Предмет уже существует')
@@ -61,9 +69,13 @@ def add_subject():
 @check_status('full')
 @check_block_year()
 def edit_subject():
-    id = int(request.form['id'])
-    new_name = request.form['new_name']
-    subject_type = request.form['new_type']
+    try:
+        id = int(request.form['id'])
+        new_name = request.form['new_name']
+        subject_type = request.form['new_type']
+    except Exception:
+        return render_template('subjects_and_years.html',  error3='Некорректные данные')
+
     subject = SubjectsTable.select_by_id(id)
     if subject.__is_none__:
         return render_template('subjects_and_years.html',  error3='Предмета не существует')
@@ -80,7 +92,11 @@ def edit_subject():
 @check_status('full')
 @check_block_year()
 def delete_subject():
-    id = int(request.form['id'])
+    try:
+        id = int(request.form['id'])
+    except ValueError:
+        return render_template('subjects_and_years.html',  error4='Некорректный id')
+
     subject = SubjectsTable.select_by_id(id)
     if subject.__is_none__:
         return render_template('subjects_and_years.html', error4='Предмета не существует')
@@ -115,13 +131,16 @@ def db():
     return 'OK'
 
 
-@app.route('/<path:year>/year_block', methods=['POST'])
+@app.route('/<int:year>/year_block', methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('full')
-def year_block(year):
-    year = int(year)
-    is_block = int(request.form['is_block'])
+def year_block(year: int):
+    try:
+        is_block = int(request.form['is_block'])
+    except ValueError:
+        return render_template(str(year.year) + '/subjects_for_year.html', error8='Некорректный ввод', year=year.year)
+
     year = YearsTable.select_by_year(year)
     if year.__is_none__:
         return render_template(str(year.year) + '/subjects_for_year.html', error8='Этого года нет.', year=year.year)
@@ -134,4 +153,3 @@ def year_block(year):
             '''.format('checked' if is_block == 0 else '', 'checked' if is_block == 1 else ''))
     data.save_file()
     return render_template(str(year.year) + '/subjects_for_year.html', error8='Сохранено.', year=year.year)
-

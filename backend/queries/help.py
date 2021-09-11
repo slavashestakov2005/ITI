@@ -13,6 +13,8 @@ import os
     all_templates()                 Список всех файлов-шаблонов из папки шаблонов.
     correct_new_line(str)           Заменяет все переносы строк на '\n'.
     split_class(str)                Разбивает класс на букву и цифру.
+    tr_format(*args)                Генерирует строку для HTML-таблицы.
+    path_to_subject(path)           Извлекает id предмета из имени файла.
     parse_files()                   Проходит все файлы, генерирует списки доступа.
     @check_status(status)           Проверяет открыт ли доступ для текущего пользователя.
     @check_block_year()             Проверяет открыто ли редактирование года.
@@ -44,6 +46,10 @@ def split_class(class_):
 def tr_format(*args, color=None, tabs=0):
     start = ' ' * 4 * tabs + '<tr' + (' class="p{}"'.format(color) if color and color < 4 else '') + '>'
     return ''.join([start, *['<td>{{{0}}}</td>'.format(_) for _ in range(len(args))], '</tr>\n']).format(*args)
+
+
+def path_to_subject(path: str) -> int:
+    return int(path.rsplit('.', 1)[0])
 
 
 def compare(*args, field=False):
@@ -116,7 +122,7 @@ def check_block_year():
             if len(kwargs):
                 try:
                     year = int(list(kwargs.values())[0].split('/')[0])
-                except ValueError:
+                except Exception:
                     return function_to_decorate(*args, **kwargs)
                 y = YearsTable.select_by_year(year)
                 if y.__is_none__ or y.block:

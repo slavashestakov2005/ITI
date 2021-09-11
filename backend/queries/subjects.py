@@ -1,6 +1,6 @@
 from backend import app
 from backend.help.errors import forbidden_error
-from .help import check_status, check_block_year, correct_new_line, SplitFile
+from .help import check_status, check_block_year, correct_new_line, path_to_subject, SplitFile
 from ..database import YearSubject, YearsSubjectsTable, YearsTable
 from .results import page_params
 from .auto_generator import Generator
@@ -18,14 +18,19 @@ from datetime import datetime
 '''
 
 
-@app.route("/<path:year>/subject_year", methods=['POST'])
+@app.route("/<int:year>/subject_year", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def subject_year(year):
-    year = int(year)
-    subjects = request.form.getlist('subject')
+def subject_year(year: int):
+    try:
+        subjects = request.form.getlist('subject')
+    except Exception:
+        return render_template(str(year) + '/subjects_for_year.html', error1='Некорректные данные', year=year)
+
+    if YearsTable.select_by_year(year).__is_none__:
+        return render_template(str(year) + '/subjects_for_year.html', error1='Этого года нет.', year=year)
     YearsSubjectsTable.delete_by_year(year)
     for subject in subjects:
         YearsSubjectsTable.insert(YearSubject([year, int(subject), 0, 0, 0, 0, 0, 0, 0, '', '']))
@@ -34,40 +39,52 @@ def subject_year(year):
     return render_template(str(year) + '/subjects_for_year.html', error1='Сохранено', year=year)
 
 
-@app.route('/<path:path1>/<path:path2>/<path:path3>/max_score', methods=['POST'])
+@app.route('/<int:year>/<path:path2>/<path:path3>/max_score', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
-def max_score(path1, path2, path3):
-    subject = int(path3[:-5])
-    year = int(path1)
+def max_score(year: int, path2, path3):
+    global params
+    try:
+        subject = path_to_subject(path3)
+        params = page_params(year, path2, path3)
+    except Exception:
+        return render_template('add_result.html', **params, error1='Некорректные данные')
+
     if not current_user.can_do(subject):
         return forbidden_error()
     if YearsSubjectsTable.select(year, subject).__is_none__:
-        return render_template('add_result.html', **page_params(path1, path2, path3),
-                               error0='Такого предмета в этом году нет')
-    s5 = request.form['score_5'] if request.form['score_5'] else 0
-    s6 = request.form['score_6'] if request.form['score_6'] else 0
-    s7 = request.form['score_7'] if request.form['score_7'] else 0
-    s8 = request.form['score_8'] if request.form['score_8'] else 0
-    s9 = request.form['score_9'] if request.form['score_9'] else 0
+        return render_template('add_result.html', **params, error1='Такого предмета в этом году нет')
+
+    try:
+        s5 = request.form['score_5'] if request.form['score_5'] else 0
+        s6 = request.form['score_6'] if request.form['score_6'] else 0
+        s7 = request.form['score_7'] if request.form['score_7'] else 0
+        s8 = request.form['score_8'] if request.form['score_8'] else 0
+        s9 = request.form['score_9'] if request.form['score_9'] else 0
+    except Exception:
+        return render_template('add_result.html', **params, error1='Некорректные данные')
+
     YearsSubjectsTable.update(YearSubject([year, subject, s5, s6, s7, s8, s9, 0, 0, '', '']))
-    return render_template('add_result.html', **page_params(path1, path2, path3), error1='Обновлено')
+    return render_template('add_result.html', **params, error1='Обновлено')
 
 
-@app.route('/<path:year>/subject_description', methods=['POST'])
+@app.route('/<int:year>/subject_description', methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def subject_description(year):
-    year = int(year)
-    subject = int(request.form['subject'])
-    classes = request.form['classes']
-    place = request.form['place']
-    date = [int(_) for _ in request.form['date'].split('-')]
-    start = [int(_) for _ in request.form['start'].split(':')]
-    end = [int(_) for _ in request.form['end'].split(':')]
+def subject_description(year: int):
+    try:
+        subject = int(request.form['subject'])
+        classes = request.form['classes']
+        place = request.form['place']
+        date = [int(_) for _ in request.form['date'].split('-')]
+        start = [int(_) for _ in request.form['start'].split(':')]
+        end = [int(_) for _ in request.form['end'].split(':')]
+    except Exception:
+        return render_template(str(year) + '/subjects_for_year.html', error6='Некорректные данные')
+
     start = int(datetime(*date, *start).timestamp())
     end = int(datetime(*date, *end).timestamp())
     year_subject = YearsSubjectsTable.select(year, subject)
@@ -82,14 +99,17 @@ def subject_description(year):
     return render_template(str(year) + '/subjects_for_year.html', error6='Сохранено.')
 
 
-@app.route('/<path:year>/year_message', methods=['POST'])
+@app.route('/<int:year>/year_message', methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def year_message(year):
-    year = int(year)
-    message = correct_new_line(request.form['file_text'])
+def year_message(year: int):
+    try:
+        message = correct_new_line(request.form['file_text'])
+    except Exception:
+        return render_template(str(year.year) + '/subjects_for_year.html', error7='Некорректные данные', year=year.year)
+
     year = YearsTable.select_by_year(year)
     if year.__is_none__:
         return render_template(str(year.year) + '/subjects_for_year.html', error7='Этого года нет.', year=year.year)

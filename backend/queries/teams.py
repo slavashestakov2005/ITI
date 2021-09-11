@@ -13,15 +13,18 @@ from flask_login import login_required
 '''
 
 
-@app.route("/<path:year>/add_team", methods=['POST'])
+@app.route("/<int:year>/add_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def add_team(year):
-    year = int(year)
-    name = request.form['name']
-    later = request.form['later']
+def add_team(year: int):
+    try:
+        name = request.form['name']
+        later = request.form['later']
+    except Exception:
+        return render_template(str(year) + '/subjects_for_year.html', error2='Некорректные данные')
+
     if not TeamsTable.select_by_year_and_later(year, later).__is_none__:
         return render_template(str(year) + '/subjects_for_year.html', error2='Команда от этой вертикали уже есть')
     TeamsTable.insert(Team([None, name, year, later]))
@@ -29,30 +32,36 @@ def add_team(year):
     return render_template(str(year) + '/subjects_for_year.html', error2='Команда добавлена')
 
 
-@app.route("/<path:year>/delete_team", methods=['POST'])
+@app.route("/<int:year>/delete_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def delete_team(year):
-    year = int(year)
-    id = request.form['id']
+def delete_team(year: int):
+    try:
+        id = request.form['id']
+    except Exception:
+        return render_template(str(year) + '/subjects_for_year.html', error3='Некорректные данные')
+
     TeamsTable.delete(Team([id, '', year, '']))
     Generator.gen_teams(year)
     return render_template(str(year) + '/subjects_for_year.html', error3='Команда удалена')
 
 
-@app.route("/<path:year>/add_student_team", methods=['POST'])
+@app.route("/<int:year>/add_student_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def add_student_team(year):
-    year = int(year)
-    team = request.form['team']
-    name1 = request.form['name1']
-    name2 = request.form['name2']
-    class_ = split_class(request.form['class'])
+def add_student_team(year: int):
+    try:
+        team = request.form['team']
+        name1 = request.form['name1']
+        name2 = request.form['name2']
+        class_ = split_class(request.form['class'])
+    except Exception:
+        return render_template(str(year) + '/subjects_for_year.html', error4='Некорректные данные')
+
     if TeamsTable.select_by_id(team).__is_none__:
         return render_template(str(year) + '/subjects_for_year.html', error4='Такой команды нет')
     student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1]]))
@@ -66,17 +75,20 @@ def add_student_team(year):
     return render_template(str(year) + '/subjects_for_year.html', error4='Участник добавлен')
 
 
-@app.route("/<path:year>/delete_student_team", methods=['POST'])
+@app.route("/<int:year>/delete_student_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def delete_student_team(year):
-    year = int(year)
-    team = request.form['team']
-    name1 = request.form['name1']
-    name2 = request.form['name2']
-    class_ = split_class(request.form['class'])
+def delete_student_team(year: int):
+    try:
+        team = request.form['team']
+        name1 = request.form['name1']
+        name2 = request.form['name2']
+        class_ = split_class(request.form['class'])
+    except Exception:
+        return render_template(str(year) + '/subjects_for_year.html', error5='Некорректные данные')
+
     if TeamsTable.select_by_id(team).__is_none__:
         return render_template(str(year) + '/subjects_for_year.html', error5='Такой команды нет')
     student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1]]))

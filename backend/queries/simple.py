@@ -1,8 +1,6 @@
 from backend import app
 from flask import render_template
 from flask_cors import cross_origin
-from random import random
-from backend.database import ConstantsTable
 from flask_login import current_user
 from ..help.errors import forbidden_error, not_found_error
 from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES
@@ -40,26 +38,7 @@ def static_file(path):
 
 
 # [[maybe_unused]]
-@app.route('/hello')
-@cross_origin()
-def hello():
-    return 'Hello'
-
-
-# [[maybe_unused]]
 @app.route('/bie')
 @cross_origin()
 def bie():
     raise ValueError("Goodbye!")
-
-
-# [[maybe_unused]]
-@app.route('/constants')
-def constants():
-    return str(ConstantsTable.select_all())
-
-
-# [[maybe_unused]]
-@app.route('/constants2')
-def constants2():
-    return str(ConstantsTable.select_by_name('name'))

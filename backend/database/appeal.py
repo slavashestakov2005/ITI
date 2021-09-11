@@ -23,7 +23,7 @@ class AppealsTable:
     def create_table() -> None:
         Table.drop_and_create(AppealsTable.table, '''(
         "year"	INTEGER NOT NULL,
-        "subjects"	INTEGER NOT NULL,
+        "subject"	INTEGER NOT NULL,
         "student"	INTEGER NOT NULL,
         "tasks"	TEXT NOT NULL,
         "description"	TEXT NOT NULL

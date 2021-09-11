@@ -1,6 +1,5 @@
 from .database import *
 from .subject import *
-from .constant import *
 from .user import *
 from .year import *
 from .year_subject import *
@@ -18,7 +17,6 @@ from ..config import Config
 def create_tables():
     if Config.DROP_DB:
         SubjectsTable.create_table()
-        ConstantsTable.create_table()
         UsersTable.create_table()
         YearsTable.create_table()
         YearsSubjectsTable.create_table()

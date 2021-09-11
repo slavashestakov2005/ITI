@@ -3,9 +3,9 @@ from flask import request, redirect, render_template, url_for
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend.config import Config
-from .help import check_status, check_block_year, correct_new_line, SplitFile
+from .help import check_status, check_block_year, correct_new_line, path_to_subject, SplitFile
 from ..help import not_found_error, forbidden_error, FileManager
-from ..database import SubjectsTable, YearsTable
+from ..database import SubjectsTable, YearsTable, YearsSubjectsTable
 import os
 '''
     generate_filename()                 Генерирует имя для нового файла.
@@ -26,8 +26,8 @@ def generate_filename(last_name, new_path, new_name):
     return new_path + '/' + new_name + '.' + parts[1]
 
 
-def generate_filename_by_type(year: str, subject: int, types: list, classes: list):
-    filename = 'ИТИ ' + year + '. '
+def generate_filename_by_type(year: int, subject: int, types: list, classes: list):
+    filename = 'ИТИ ' + str(year) + '. '
     subject = SubjectsTable.select_by_id(subject)
     if subject.__is_none__ or not types or not classes or not len(types) or not len(classes):
         return None
@@ -52,9 +52,13 @@ def generate_filename_by_type(year: str, subject: int, types: list, classes: lis
 @check_block_year()
 def upload():
     if request.method == 'POST':
-        file = request.files['file']
-        new_path = request.form['new_path']
-        new_name = request.form['new_name']
+        try:
+            file = request.files['file']
+            new_path = request.form['new_path']
+            new_name = request.form['new_name']
+        except Exception:
+            return forbidden_error()
+
         filename = generate_filename(file.filename, new_path, new_name)
         if filename:
             name = os.path.join(Config.UPLOAD_FOLDER, filename)
@@ -64,23 +68,28 @@ def upload():
     return render_template('upload.html')
 
 
-@app.route('/<path:path1>/<path:path2>/<path:path3>/main_uploader', methods=['POST'])
+@app.route('/<int:year>/<path:path2>/<path:path3>/main_uploader', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
-def main_uploader(path1, path2, path3):
-    if not current_user.can_do(int(path3.rsplit('.', 1)[0])):
+def main_uploader(year: int, path2, path3):
+    try:
+        subject = path_to_subject(path3)
+        file = request.files['file']
+        types = request.form.getlist('type')
+        classes = request.form.getlist('class_n')
+    except Exception:
         return forbidden_error()
-    file = request.files['file']
-    types = request.form.getlist('type')
-    classes = request.form.getlist('class_n')
-    filename, just_filename = generate_filename_by_type(path1, int(path3.split('.')[0]), types, classes)
-    filename = generate_filename(file.filename, path1 + '/' + path2 + '/' + path3.rsplit('.', 1)[0], filename)
+
+    if not current_user.can_do(subject) or YearsSubjectsTable.select(year, subject).__is_none__:
+        return forbidden_error()
+    filename, just_filename = generate_filename_by_type(year, subject, types, classes)
+    filename = generate_filename(file.filename, str(year) + '/' + path2 + '/' + str(subject), filename)
     if filename:
         name = os.path.join(Config.UPLOAD_FOLDER, filename)
         file.save(name)
         FileManager.save(name)
-        data = SplitFile(Config.TEMPLATES_FOLDER + '/' + path1 + '/' + path2 + '/' + path3)
+        data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year) + '/' + path2 + '/' + path3)
         txt = '<p><a href="/' + filename + '">' + just_filename + '</a></p>\n'
         data.insert_after_comment(' files ', txt, append=True)
         data.save_file()
@@ -103,20 +112,23 @@ def edit(path):
 @check_status('admin')
 @check_block_year()
 def editor():
-    file_name = request.args.get('file_name')
     try:
+        file_name = request.args.get('file_name')
         year = int(file_name.split('/')[0])
         y = YearsTable.select_by_year(year)
         if y.__is_none__ or y.block:
             return forbidden_error()
     except ValueError:
         pass
+    except Exception:
+        return forbidden_error()
+
     if file_name.count('/') == 0 and not current_user.can_do(-2):
         return forbidden_error()
     try:
         with open(Config.TEMPLATES_FOLDER + '/' + file_name, 'r', encoding='UTF-8') as f:
             file_text = f.read()
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         return not_found_error()
     return render_template('file_edit.html', file_text=file_text, file_name=file_name)
 
@@ -127,8 +139,12 @@ def editor():
 @check_status('admin')
 @check_block_year()
 def save_file():
-    file_name = request.form['file_name']
-    file_text = correct_new_line(request.form['file_text'])
+    try:
+        file_name = request.form['file_name']
+        file_text = correct_new_line(request.form['file_text'])
+    except Exception:
+        return render_template('file_edit.html', file_text=file_text, file_name=file_name, error="Некорректные данные")
+
     if file_name.count('/') == 0 and not current_user.can_do(-2):
         return forbidden_error()
     name = Config.TEMPLATES_FOLDER + '/' + file_name

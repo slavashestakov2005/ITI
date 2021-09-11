@@ -1,5 +1,5 @@
 from backend import app
-from ..database import StudentsTable, Student, StudentsCodesTable, StudentCode
+from ..database import StudentsTable, Student, StudentsCodesTable, StudentCode, YearsTable
 from .help import check_status, check_block_year, split_class
 from .auto_generator import Generator
 from flask import render_template, request
@@ -22,8 +22,12 @@ from random import shuffle
 @login_required
 @check_block_year()
 def registration_student():
-    class_ = split_class(request.form['class'])
-    student = Student([None, request.form['name1'], request.form['name2'], class_[0], class_[1]])
+    try:
+        class_ = split_class(request.form['class'])
+        student = Student([None, request.form['name1'], request.form['name2'], class_[0], class_[1]])
+    except Exception:
+        return render_template('student_edit.html', error1='Некорректные данные')
+
     s = StudentsTable.select_by_student(student)
     if not s.__is_none__:
         return render_template('student_edit.html', error1='Такой участник уже есть')
@@ -37,22 +41,31 @@ def registration_student():
 @login_required
 @check_block_year()
 def edit_student():
-    class_old = split_class(request.form['o_class'])
-    student_old = Student([None, request.form['o_name1'], request.form['o_name2'], class_old[0], class_old[1]])
+    try:
+        class_old = split_class(request.form['o_class'])
+        student_old = Student([None, request.form['o_name1'], request.form['o_name2'], class_old[0], class_old[1]])
+    except Exception:
+        return render_template('student_edit.html', error2='Некорректные данные')
+
     student_old = StudentsTable.select_by_student(student_old)
     rows = []
     if student_old.__is_none__:
         return render_template('student_edit.html', error2='Такого участника нет')
     rows.append(student_old.id)
-    rows.append(request.form['n_name1'] if request.form['n_name1'] else student_old.name_1)
-    rows.append(request.form['n_name2'] if request.form['n_name2'] else student_old.name_2)
-    if request.form['n_class']:
-        class_ = split_class(request.form['n_class'])
-        rows.append(class_[0])
-        rows.append(class_[1])
-    else:
-        rows.append(student_old.class_n)
-        rows.append(student_old.class_l)
+
+    try:
+        rows.append(request.form['n_name1'] if request.form['n_name1'] else student_old.name_1)
+        rows.append(request.form['n_name2'] if request.form['n_name2'] else student_old.name_2)
+        if request.form['n_class']:
+            class_ = split_class(request.form['n_class'])
+            rows.append(class_[0])
+            rows.append(class_[1])
+        else:
+            rows.append(student_old.class_n)
+            rows.append(student_old.class_l)
+    except Exception:
+        return render_template('student_edit.html', error2='Некорректные данные')
+
     s = Student(rows)
     StudentsTable.update(s)
     Generator.gen_students_list(student_old.class_n)
@@ -65,8 +78,12 @@ def edit_student():
 @login_required
 @check_block_year()
 def delete_student():
-    class_ = split_class(request.form['class'])
-    student = Student([None, request.form['name1'], request.form['name2'], class_[0], class_[1]])
+    try:
+        class_ = split_class(request.form['class'])
+        student = Student([None, request.form['name1'], request.form['name2'], class_[0], class_[1]])
+    except Exception:
+        return render_template('student_edit.html', error3='Некорректные данные')
+
     student = StudentsTable.select_by_student(student)
     if student.__is_none__:
         return render_template('student_edit.html', error3='Такого участника нет')
@@ -75,13 +92,14 @@ def delete_student():
     return render_template('student_edit.html', error3='Участник удалён')
 
 
-@app.route("/<path:year>/create_codes")
+@app.route("/<int:year>/create_codes")
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def create_codes(year):
-    year = int(year)
+def create_codes(year: int):
+    if YearsTable.select_by_year(year).__is_none__:
+        return render_template(str(year) + '/codes.html', year=year, error='Этого года нет.')
     students = StudentsTable.select_all()
     length = len(students)
     codes = [_ for _ in range(9999, 9999 - length, -1)]
@@ -93,14 +111,16 @@ def create_codes(year):
     return render_template(str(year) + '/codes.html', year=year, error='Коды сгенерированы')
 
 
-@app.route("/<path:year>/print_codes")
+@app.route("/<int:year>/print_codes")
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def print_codes(year):
+def print_codes(year: int):
+    if YearsTable.select_by_year(year).__is_none__:
+        return render_template(str(year) + '/codes.html', year=year, error='Этого года нет.')
     Generator.gen_codes(year)
-    return render_template(year + '/codes.html', year=year, error='Таблица обновлена')
+    return render_template(str(year) + '/codes.html', year=year, error='Таблица обновлена')
 
 
 @app.route("/create_students_lists")
