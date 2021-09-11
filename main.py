@@ -9,6 +9,6 @@ parse_files()
 start_debug()
 # init_mail_messages()
 create_tables()
-# FileManager.restore_all()
+FileManager.restore_all()
 if not Config.HEROKU:
     app.run(host='0.0.0.0', port=8080)
