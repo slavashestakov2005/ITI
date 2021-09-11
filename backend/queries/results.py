@@ -32,33 +32,44 @@ def tour_type(name: str) -> str:
 
 
 def page_params(year: int, path2, path3):
-    subject = path_to_subject(path3)
-    sub = YearsSubjectsTable.select(year, subject)
-    appeals = AppealsTable.select_by_year_and_subject(year, subject)
-    appeals = [(_, StudentsTable.select(
-        StudentsCodesTable.select_by_code(year, _.student).student
-    )) for _ in appeals]
-    return {'year': year, 'subject': subject, 'h_type_1': path2, 'h_type_2': tour_type(path2),
-            'h_sub_name': SubjectsTable.select_by_id(subject).name, 's5': sub.score_5, 's6': sub.score_6,
+    params = {'year': year, 'h_type_1': path2, 'h_type_2': tour_type(path2)}
+    try:
+        params['subject'] = subject = path_to_subject(path3)
+        sub = YearsSubjectsTable.select(year, subject)
+        appeals = AppealsTable.select_by_year_and_subject(year, subject)
+        appeals = [(_, StudentsTable.select(
+            StudentsCodesTable.select_by_code(year, _.student).student
+        )) for _ in appeals]
+        params += {'h_sub_name': SubjectsTable.select_by_id(subject).name, 's5': sub.score_5, 's6': sub.score_6,
             's7': sub.score_7, 's8': sub.score_8, 's9': sub.score_9, 'appeals': appeals}
+    except Exception:
+        pass
+    return params
 
 
 def appeal_page_params(year: int, path2, path3):
-    subject = path_to_subject(path3)
-    return {'year': year, 'subject': subject, 'h_type_1': path2, 'h_type_2': tour_type(path2),
-            'h_sub_name': SubjectsTable.select_by_id(subject).name}
+    params = {'year': year, 'h_type_1': path2, 'h_type_2': tour_type(path2)}
+    try:
+        params['subject'] = subject = path_to_subject(path3)
+        params['h_sub_name'] = SubjectsTable.select_by_id(subject).name
+    except Exception:
+        pass
+    return params
 
 
 def group_page_params(year: int, path2, path3):
-    subject = path_to_subject(path3)
-    res = {'year': year, 'subject': subject, 'h_type_1': path2, 'h_type_2': tour_type(path2),
-           'h_sub_name': SubjectsTable.select_by_id(subject).name}
-    teams = TeamsTable.select_by_year(year)
-    for team in teams:
-        gr = GroupResultsTable.select_by_team_and_subject(team.id, subject)
-        if gr.__is_none__:
-            gr.result = 0
-        res['t' + str(team.id)] = gr.result
+    res = {'year': year, 'h_type_1': path2, 'h_type_2': tour_type(path2)}
+    try:
+        res['subject'] = subject = path_to_subject(path3)
+        res['h_sub_name'] = SubjectsTable.select_by_id(subject).name
+        teams = TeamsTable.select_by_year(year)
+        for team in teams:
+            gr = GroupResultsTable.select_by_team_and_subject(team.id, subject)
+            if gr.__is_none__:
+                gr.result = 0
+            res['t' + str(team.id)] = gr.result
+    except Exception:
+        pass
     return res
 
 
@@ -67,11 +78,10 @@ def group_page_params(year: int, path2, path3):
 @login_required
 @check_block_year()
 def add_result(year: int, path2, path3):
-    global params
+    params = group_page_params(year, path2, path3) if path2 == 'group' or path2 == 'team' else page_params(year, path2,
+                                                                                                           path3)
     try:
         subject = path_to_subject(path3)
-        params = group_page_params(year, path2, path3) if path2 == 'group' or path2 == 'team' else page_params(year,
-                                                                                                        path2, path3)
     except Exception:
         return forbidden_error()
 
@@ -87,13 +97,12 @@ def add_result(year: int, path2, path3):
 @login_required
 @check_block_year()
 def save_result(year: int, path2, path3):
-    global params
+    params = page_params(year, path2, path3)
     try:
         subject = path_to_subject(path3)
         user_id = int(request.form['code'])
         result_sum = sum(map(int, re.split(r'\D+', request.form['result'])))
         text_result = re.sub('[XxХх]', 'X', ' '.join(re.split(r'[^\dXxХх]+', request.form['result'])))
-        params = page_params(year, path2, path3)
     except Exception:
         return render_template('add_result.html', **params, error2='Некорректные данные')
 
@@ -123,10 +132,9 @@ def save_result(year: int, path2, path3):
 @check_status('admin')
 @check_block_year()
 def share_results(year: int, path2, path3):
-    global params
+    params = page_params(year, path2, path3)
     try:
         subject = path_to_subject(path3)
-        params = page_params(year, path2, path3)
     except Exception:
         return render_template('add_result.html', **params, error3='Некорректные данные')
 
@@ -165,10 +173,9 @@ def ratings_update(year: int):
 @login_required
 @check_block_year()
 def save_group_results(year: int, path2, path3):
-    global params
+    params = group_page_params(year, path2, path3)
     try:
         subject = path_to_subject(path3)
-        params = group_page_params(year, path2, path3)
     except Exception:
         return render_template('/add_result.html', **params, error1='Некорректные данные')
 
@@ -196,10 +203,9 @@ def save_group_results(year: int, path2, path3):
 @check_status('admin')
 @check_block_year()
 def share_group_results(year: int, path2, path3):
-    global params
+    params = group_page_params(year, path2, path3)
     try:
         subject = path_to_subject(path3)
-        params = group_page_params(year, path2, path3)
     except Exception:
         return render_template('/add_result.html', **params, error2='Некорректные данные')
 
@@ -214,9 +220,8 @@ def share_group_results(year: int, path2, path3):
 @login_required
 @check_block_year()
 def add_appeal(year: int, path2, path3):
-    global params
+    params = appeal_page_params(year, path2, path3)
     try:
-        params = appeal_page_params(year, path2, path3)
         subject = path_to_subject(path3)
     except Exception:
         return render_template('add_appeal.html', **params, error1='Некорректные данные')

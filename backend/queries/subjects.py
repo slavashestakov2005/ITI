@@ -44,10 +44,9 @@ def subject_year(year: int):
 @login_required
 @check_block_year()
 def max_score(year: int, path2, path3):
-    global params
+    params = page_params(year, path2, path3)
     try:
         subject = path_to_subject(path3)
-        params = page_params(year, path2, path3)
     except Exception:
         return render_template('add_result.html', **params, error1='Некорректные данные')
 
