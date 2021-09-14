@@ -1,6 +1,6 @@
 from .help import SplitFile, all_templates, tr_format, compare
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
-    TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject
+    TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable
 from backend.config import Config
 import glob
 '''
@@ -10,7 +10,7 @@ import glob
         gen_years_subjects_list(year)       Изменяет списки предметов для одного года.
         gen_students_list(class_n)          Изменяет таблицу учеников класса class_n.
         gen_codes(year)                     Генерирует страницу с кодами участников.
-        get_net_score(...)                  Генерирует балл в рейтинг [нужно уточнить!].
+        get_net_score(...)                  Генерирует балл в рейтинг.
         get_codes(...)                      Отображает код участника в участника.
         get_student_team(...)               Отображает участника в команду.
         gen_results(year, sub, file)        Генерирует таблицу результатов по предмету sub.
@@ -19,6 +19,7 @@ import glob
         gen_teams(year)                     Генерирует списки команд года year.
         gen_teams_students(year)            Генерирует списки участников команд года year.
         gen_timetable(year)                 Генерирует расписание предметов года year.
+        gen_files_list(year, sub, path)     Генерирует список предметных файлов.
 '''
 
 
@@ -151,7 +152,7 @@ class Generator:
     def get_net_score(maximum: int, best_score: int, score: int) -> int:
         if 2 * best_score >= maximum:
             return int(0.5 + score * 100 / best_score)
-        return int(0.5 + score * 100 / maximum)
+        return int(0.5 + score * 200 / maximum)
 
     @staticmethod
     def get_codes(year):
@@ -539,4 +540,14 @@ class Generator:
                              subject.start_str(), subject.end_str(), subject.place, tabs=3)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/timetable.html")
         data.insert_after_comment(' timetable ', txt + ' ' * 8)
+        data.save_file()
+
+    @staticmethod
+    def gen_files_list(year: int, subject: int, path: str):
+        data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year) + '/' + path)
+        files = SubjectsFilesTable.select_by_subject(year, subject)
+        txt = '\n    <center><h2>Файлы</h2></center>\n' if len(files) != 0 else '\n'
+        for file in files:
+            txt += '    <p><a href="/' + file.file + '">' + file.just_filename() + '</a></p>\n'
+        data.insert_after_comment(' files ', txt)
         data.save_file()

@@ -3,16 +3,20 @@ from flask import request, redirect, render_template, url_for
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend.config import Config
-from .help import check_status, check_block_year, correct_new_line, path_to_subject, SplitFile
+from .help import check_status, check_block_year, correct_new_line, path_to_subject
 from ..help import not_found_error, forbidden_error, FileManager
-from ..database import SubjectsTable, YearsTable, YearsSubjectsTable
+from ..database import SubjectsTable, YearsTable, YearsSubjectsTable, SubjectsFilesTable, SubjectFile
+from .results import chose_params
+from .auto_generator import Generator
 import os
 '''
-    generate_filename()                 Генерирует имя для нового файла.
-    /upload         upload()            Загружает файлы (admin).
-    /<path>/edit    edit(path)          redirect на страницу с редактированием (admin).
-    /editor         editor()            Возвращает html-код редактируемойстраницы (admin | full).
-    /save_file      save_file()         Сохраняет изменения html-страницы (admin | full).
+    generate_filename()                     Генерирует имя для нового файла.
+    /upload         upload()                Загружает файлы (admin).
+    /<path1>/<path2>/<path3>/main_uploader  Загружает файлы по предмету (предметник).
+    /<path1>/<path2>/<path3>/main_deleter   Удаляет файлы по предмету (предметник).
+    /<path>/edit    edit(path)              redirect на страницу с редактированием (admin).
+    /editor         editor()                Возвращает html-код редактируемойстраницы (admin | full).
+    /save_file      save_file()             Сохраняет изменения html-страницы (admin | full).
 '''
 
 
@@ -34,15 +38,15 @@ def generate_filename_by_type(year: int, subject: int, types: list, classes: lis
     filename += subject.name + '. '
     types_translate = {'task': 'задания', 'solution': 'решения', 'criteria': 'критерии'}
     types = [types_translate[_] for _ in types]
-    just_filename = types[0].title()
+    filename += types[0].title()
     for i in range(1, len(types)):
-        just_filename += ' и ' if i == len(types) - 1 else ', '
-        just_filename += types[i]
-    just_filename += ' ' + classes[0]
+        filename += ' и ' if i == len(types) - 1 else ', '
+        filename += types[i]
+    filename += ' ' + classes[0]
     for i in range(1, len(classes)):
-        just_filename += ', ' + classes[i]
-    just_filename += ' классы' if len(classes) > 1 else ' класс'
-    return filename + just_filename, just_filename
+        filename += ', ' + classes[i]
+    filename += ' классы' if len(classes) > 1 else ' класс'
+    return filename
 
 
 @app.route("/upload", methods=['GET', 'POST'])
@@ -83,18 +87,45 @@ def main_uploader(year: int, path2, path3):
 
     if not current_user.can_do(subject) or YearsSubjectsTable.select(year, subject).__is_none__:
         return forbidden_error()
-    filename, just_filename = generate_filename_by_type(year, subject, types, classes)
+    filename = generate_filename_by_type(year, subject, types, classes)
     filename = generate_filename(file.filename, str(year) + '/' + path2 + '/' + str(subject), filename)
     if filename:
         name = os.path.join(Config.UPLOAD_FOLDER, filename)
         file.save(name)
         FileManager.save(name)
-        data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year) + '/' + path2 + '/' + path3)
-        txt = '<p><a href="/' + filename + '">' + just_filename + '</a></p>\n'
-        data.insert_after_comment(' files ', txt, append=True)
-        data.save_file()
+        info = SubjectFile([year, subject, filename])
+        if SubjectsFilesTable.select(info).__is_none__:
+            SubjectsFilesTable.insert(info)
+        Generator.gen_files_list(year, subject, path2 + '/' + path3)
         return redirect('/' + filename)
     return forbidden_error()
+
+
+@app.route('/<int:year>/<path:path2>/<path:path3>/main_deleter', methods=['POST'])
+@cross_origin()
+@login_required
+@check_block_year()
+def main_deleter(year: int, path2, path3):
+    params = chose_params(year, path2, path3)
+    try:
+        subject = path_to_subject(path3)
+        types = request.form.getlist('type')
+        classes = request.form.getlist('class_n')
+        extension = request.form['extension']
+    except Exception:
+        return forbidden_error()
+
+    file = generate_filename_by_type(year, subject, types, classes)
+    file = str(year) + '/' + path2 + '/' + str(subject) + '/' + file + '.' + extension
+    info = SubjectFile([year, subject, file])
+    file = Config.UPLOAD_FOLDER + '/' + file
+    if SubjectsFilesTable.select(info).__is_none__:
+        return render_template('add_result.html', **params, error4='Файла не существует')
+    os.remove(file)
+    SubjectsFilesTable.delete(info)
+    FileManager.delete(file)
+    Generator.gen_files_list(year, subject, path2 + '/' + path3)
+    return render_template('add_result.html', **params, error4='Файл удалён')
 
 
 @app.route('/<path:path>/edit')

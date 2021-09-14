@@ -40,8 +40,8 @@ def page_params(year: int, path2, path3):
         appeals = [(_, StudentsTable.select(
             StudentsCodesTable.select_by_code(year, _.student).student
         )) for _ in appeals]
-        params += {'h_sub_name': SubjectsTable.select_by_id(subject).name, 's5': sub.score_5, 's6': sub.score_6,
-            's7': sub.score_7, 's8': sub.score_8, 's9': sub.score_9, 'appeals': appeals}
+        params.update({'h_sub_name': SubjectsTable.select_by_id(subject).name, 's5': sub.score_5, 's6': sub.score_6,
+            's7': sub.score_7, 's8': sub.score_8, 's9': sub.score_9, 'appeals': appeals})
     except Exception:
         pass
     return params
@@ -73,13 +73,16 @@ def group_page_params(year: int, path2, path3):
     return res
 
 
+def chose_params(p1: int, p2: str, p3: str):
+    return group_page_params(p1, p2, p3) if p2 == 'group' or p2 == 'team' else page_params(p1, p2, p3)
+
+
 @app.route('/<int:year>/<path:path2>/<path:path3>/add_result')
 @cross_origin()
 @login_required
 @check_block_year()
 def add_result(year: int, path2, path3):
-    params = group_page_params(year, path2, path3) if path2 == 'group' or path2 == 'team' else page_params(year, path2,
-                                                                                                           path3)
+    params = chose_params(year, path2, path3)
     try:
         subject = path_to_subject(path3)
     except Exception:
@@ -101,8 +104,9 @@ def save_result(year: int, path2, path3):
     try:
         subject = path_to_subject(path3)
         user_id = int(request.form['code'])
-        result_sum = sum(map(int, re.split(r'\D+', request.form['result'])))
-        text_result = re.sub('[XxХх]', 'X', ' '.join(re.split(r'[^\dXxХх]+', request.form['result'])))
+        res = request.form['result'].replace(',', '.')
+        result_sum = sum(map(float, re.split(r'[^\d\.]+', res)))
+        text_result = re.sub('[XxХх]', 'X', ' '.join(re.split(r'[^\dXxХх\.]+', res)))
     except Exception:
         return render_template('add_result.html', **params, error2='Некорректные данные')
 

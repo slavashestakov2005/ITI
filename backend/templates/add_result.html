@@ -34,20 +34,22 @@
 			<p>Результат: <input type="text" name="result"></p>
 			{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
 			{% endif %}
-			<p>Введите баллы за все задачи. Разделитель может быть любым. Симолы 'х', 'Х', 'x', 'X' распознаются как
-				задачи, к которым участник не писал решение.</p>
+			<p>Введите баллы за все задачи. Разделитель между числами может быть любым; десятичный разделитель — ',' или '.'.
+				Симолы 'х', 'Х', 'x', 'X' распознаются как задачи, к которым участник не писал решение.</p>
 			<input type="submit" value="Сохранить">
 		</form>
 	</center></div>
+
+	{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 	<div class="col t-3"><center>
-		{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 		<h1><a href="share_results">Публикация результатов</a></h1>
 		<p>После публикаяии результатов они станут доступны для просмотра всем.</p>
 		<p>Не рекомендуется публиковать результаты до проверки всех работ по данному предмету.</p>
 		{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
 		{% endif %}
-		{% endif %}
 	</center></div>
+	{% endif %}
+
 	<div class="col t-3"><center>
 		<h1>Загрузка файлов</h1>
 		<form action="main_uploader" method="post" enctype=multipart/form-data>
@@ -66,6 +68,26 @@
 			</p>
 			<input type="submit" value="Загрузить">
 		</form>
+		<br>
+		<h1>Удаление файлов:</h1>
+		<form action="main_deleter" method="post">
+			<p>Тип:
+				<input type="checkbox" name="type" value="task">Задания
+				<input type="checkbox" name="type" value="solution">Решения
+				<input type="checkbox" name="type" value="criteria">Критерии
+			</p>
+			<p>Класс:
+				<input type="checkbox" name="class_n" value="5">5
+				<input type="checkbox" name="class_n" value="6">6
+				<input type="checkbox" name="class_n" value="7">7
+				<input type="checkbox" name="class_n" value="8">8
+				<input type="checkbox" name="class_n" value="9">9
+			</p>
+			<p>Расширение файла: <input type="text" name="extension"></p>
+			<input type="submit" value="Удалить">
+		</form>
+		{% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
+		{% endif %}
 	</center></div>
 	<div class="col td-2"><center>
 		<h1>Список апеллирующих</h1>

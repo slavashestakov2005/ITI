@@ -7,7 +7,7 @@ class Result(Row):
         year        INT     NOT NULL    PK
         subject     INT     NOT NULL    PK
         user        INT     NOT NULL    PK
-        result      INT     NOT NULL
+        result      REAL    NOT NULL
         net_score   INT     NOT NULL
         text_result TEXT    NOT NULL
     """
@@ -30,7 +30,7 @@ class ResultsTable:
         "year"	INTEGER NOT NULL,
         "subject"	INTEGER NOT NULL,
         "user"	INTEGER NOT NULL,
-        "result"	INTEGER NOT NULL,
+        "result"	REAL NOT NULL,
         "net_score"	INTEGER NOT NULL,
         "text_result"	TEXT NOT NULL,
         PRIMARY KEY("year","subject","user")
