@@ -44,6 +44,11 @@ def split_class(class_):
 
 
 def tr_format(*args, color=None, tabs=0):
+    if type(color) == list:
+        start = ' ' * 4 * tabs + '<tr>'
+        for i in range(len(args)):
+            start += '<td' + (' class="p{}"'.format(color[i]) if color[i] < 4 else '') + '>{}</td>'
+        return start.format(*args) + '\n'
     start = ' ' * 4 * tabs + '<tr' + (' class="p{}"'.format(color) if color and color < 4 else '') + '>'
     return ''.join([start, *['<td>{{{0}}}</td>'.format(_) for _ in range(len(args))], '</tr>\n']).format(*args)
 

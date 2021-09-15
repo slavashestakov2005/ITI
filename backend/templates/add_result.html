@@ -113,5 +113,95 @@
 		</table>
 	</center></div>
 </div>
+<br>
+<center><h1>Лучшие результаты</h1></center>
+<br>
+<div class="row col-12 justify-content-center">
+	<div class="col t-4"><center>
+		<h2>5 класс</h2>
+		<table width="100%" border="1">
+			<tr>
+				<td width="10%">Место</td>
+				<td width="10%">ID</td>
+				<td width="10%">Балл</td>
+			</tr>
+			{% for x in top[0] %}
+			<tr class="p{{ x[0] }}">
+				<td>{{ x[0] }}</td>
+				<td>{{ x[1] }}</td>
+				<td>{{ x[2] }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</center></div>
+	<div class="col t-4"><center>
+		<h2>6 класс</h2>
+		<table width="100%" border="1">
+			<tr>
+				<td width="10%">Место</td>
+				<td width="10%">ID</td>
+				<td width="10%">Балл</td>
+			</tr>
+			{% for x in top[1] %}
+			<tr class="p{{ x[0] }}">
+				<td>{{ x[0] }}</td>
+				<td>{{ x[1] }}</td>
+				<td>{{ x[2] }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</center></div>
+	<div class="col t-4"><center>
+		<h2>7 класс</h2>
+		<table width="100%" border="1">
+			<tr>
+				<td width="10%">Место</td>
+				<td width="10%">ID</td>
+				<td width="10%">Балл</td>
+			</tr>
+			{% for x in top[2] %}
+			<tr class="p{{ x[0] }}">
+				<td>{{ x[0] }}</td>
+				<td>{{ x[1] }}</td>
+				<td>{{ x[2] }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</center></div>
+	<div class="col t-4"><center>
+		<h2>8 класс</h2>
+		<table width="100%" border="1">
+			<tr>
+				<td width="10%">Место</td>
+				<td width="10%">ID</td>
+				<td width="10%">Балл</td>
+			</tr>
+			{% for x in top[3] %}
+			<tr class="p{{ x[0] }}">
+				<td>{{ x[0] }}</td>
+				<td>{{ x[1] }}</td>
+				<td>{{ x[2] }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</center></div>
+	<div class="col t-4"><center>
+		<h2>9 класс</h2>
+		<table width="100%" border="1">
+			<tr>
+				<td width="10%">Место</td>
+				<td width="10%">ID</td>
+				<td width="10%">Балл</td>
+			</tr>
+			{% for x in top[4] %}
+			<tr class="p{{ x[0] }}">
+				<td>{{ x[0] }}</td>
+				<td>{{ x[1] }}</td>
+				<td>{{ x[2] }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</center></div>
+</div>
 
 {% endblock %}

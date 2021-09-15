@@ -1,6 +1,7 @@
 from .help import SplitFile, all_templates, tr_format, compare
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
-    TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable
+    TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable,\
+    GroupResult
 from backend.config import Config
 import glob
 '''
@@ -373,28 +374,39 @@ class Generator:
             subjects.append(team)
             txt += ' ' * 12 + '<td width="8%">Командный</td>\n'
         txt += ' ' * 12 + '<td width="8%">Сумма</td>\n' + ' ' * 8 + '</tr>\n'
+        subject_ids = [_.id for _ in subjects]
+        cols_result = [[] for i in range(len(subject_ids) + 2)]
         for x in results:
             summ = results[x]
-            row = [TeamsTable.select_by_id(x).name, results[x]]
-            for subject in subjects:
-                res = GroupResultsTable.select_by_team_and_subject(x, subject.id)
-                if res.__is_none__:
-                    res.result = 0
-                row.append(res.result)
-                summ += res.result
+            team_info = TeamsTable.select_by_id(x)
+            row = [team_info.name, results[x]]
+            cols_result[0].append(results[x])
+            res = GroupResultsTable.select_by_team(team_info.id)
+            res = {_.subject: _.result for _ in res} if res else {}
+            pos = 1
+            for subject in subject_ids:
+                r = res[subject] if subject in res else 0
+                row.append(r)
+                summ += r
+                cols_result[pos].append(r)
+                pos += 1
             row.append(summ)
             new_results.append([row, summ])
+            cols_result[-1].append(summ)
         new_results.sort(key=compare(lambda x: -x[1], lambda x: x[0][0], field=True))
+        cols_result = [sorted(_, reverse=True) for _ in cols_result]
         i, last_pos, last_result = 1, 1, None
         for x in new_results:
             if x[1] != last_result:
                 last_pos, last_result = i, x[1]
-            txt += tr_format(last_pos, *x[0], color=last_pos, tabs=2)
+            colors = [4, 4]
+            colors.extend([cols_result[i-1].index(x[0][i]) + 1 for i in range(1, len(x[0]))])
+            txt += tr_format(last_pos, *x[0], tabs=2, color=colors)
             i += 1
         return txt + ' ' * 4 + '</table>\n'
 
     @staticmethod
-    def gen_ratings_4(codes: map, class_n: int, filename: str):
+    def gen_ratings_4(codes: map, class_n: int, filename: str, year: int, results: list):
         class_results = {}
         for x in codes:
             student = x[1]
@@ -403,23 +415,34 @@ class Generator:
                     class_results[student.class_l].append(student)
                 else:
                     class_results[student.class_l] = [student]
-        txt = ''
-        for r in class_results:
-            txt += '''
-        <div class="col t-3">
+        subjects, txt = [], ''
+        template = '''
+        <div class="col t-2">
             <center><h3>{0}</h3></center>
             <table width="100%" border="1">
                 <tr>
                     <td width="10%">Место</td>
                     <td width="40%">Фамилия</td>
-                    <td width="40%">Имя</td>
-                    <td width="10%">Сумма</td>
-                </tr>\n'''.format(str(class_n) + r)
+                    <td width="40%">Имя</td>\n'''
+        for x in YearsSubjectsTable.select_by_year(year):
+            subject = SubjectsTable.select_by_id(x.subject)
+            if subject.type == 'i':
+                subjects.append(subject)
+                template += ' ' * 20 + '<td width="5%">{}</td>\n'.format(subject.name)
+        template += ' ' * 20 + '<td width="10%">Сумма</td>\n' + ' ' * 16 + '</tr>\n'
+        for r in class_results:
+            txt += template.format(str(class_n) + r)
             position, last_pos, last_result = 1, 1, None
             for x in class_results[r]:
                 if x.result != last_result:
                     last_pos, last_result = position, x.result
-                txt += tr_format(last_pos, x.name_1, x.name_2, x.result, color=last_pos, tabs=4)
+                row = [last_pos, x.name_1, x.name_2]
+                for subject in subjects:
+                    if x.id in results and subject.id in results[x.id]:
+                        row.append(results[x.id][subject.id])
+                    else:
+                        row.append('—')
+                txt += tr_format(*row, x.result, color=last_pos, tabs=4)
                 position += 1
             txt += ' ' * 12 + '</table>\n' + ' ' * 8 + '</div>'
         txt += '\n    '
@@ -432,20 +455,20 @@ class Generator:
         results = ResultsTable.select_by_year(year)
         codes = Generator.get_codes(year)
         student_team = Generator.get_student_team(year)
-        class_results = {}
-        student_result = {}
+        class_results, student_result, all_student_result = {}, {}, {}
         team_result = {_.id: 0 for _ in TeamsTable.select_by_year(year)}
         for r in results:
             student = codes[r.user]
             class_name = student.class_name()
-            if class_name in class_results:
-                class_results[class_name] += r.net_score
-            else:
-                class_results[class_name] = r.net_score
-            if r.user in student_result:
-                student_result[r.user].append(r.net_score)
-            else:
-                student_result[r.user] = [r.net_score]
+            if class_name not in class_results:
+                class_results[class_name] = 0
+            class_results[class_name] += r.net_score
+            if r.user not in student_result:
+                student_result[r.user] = []
+            student_result[r.user].append(r.net_score)
+            if student.id not in all_student_result:
+                all_student_result[student.id] = {}
+            all_student_result[student.id][r.subject] = r.net_score
             if student.id in student_team:
                 team_result[student_team[student.id]] += r.net_score
         for r in student_result:
@@ -476,7 +499,7 @@ class Generator:
         data.save_file()
         for i in range(5, 10):
             filename = Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating_' + str(i) + '.html'
-            Generator.gen_ratings_4(codes, i, filename)
+            Generator.gen_ratings_4(codes, i, filename, year, all_student_result)
         # лучшие результаты в первый / второй дни :(
 
     @staticmethod

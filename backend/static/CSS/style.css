@@ -103,7 +103,16 @@ h4{ font-size: 12pt; }
     max-width: 850px;
 }
 
-.t-3 {  /* r-3 */
+.t-2 {
+    min-width: 500px;
+    width: 500px;
+    max-width: 550px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+.t-3 {
     min-width: 400px;
     width: 400px;
     max-width: 450px;
@@ -112,7 +121,7 @@ h4{ font-size: 12pt; }
     margin-bottom: 20px;
 }
 
-.t-4 { /* r-1 */
+.t-4 {
     min-width: 350px;
     width: 350px;
     max-width: 400px;

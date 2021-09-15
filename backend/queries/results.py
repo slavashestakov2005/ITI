@@ -5,7 +5,7 @@ from ..database import ResultsTable, Result, SubjectsTable, YearsSubjectsTable, 
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
-from .help import check_status, check_block_year, correct_new_line, path_to_subject
+from .help import check_status, check_block_year, correct_new_line, path_to_subject, compare
 from .auto_generator import Generator
 import re
 '''
@@ -42,6 +42,24 @@ def page_params(year: int, path2, path3):
         )) for _ in appeals]
         params.update({'h_sub_name': SubjectsTable.select_by_id(subject).name, 's5': sub.score_5, 's6': sub.score_6,
             's7': sub.score_7, 's8': sub.score_8, 's9': sub.score_9, 'appeals': appeals})
+        results = ResultsTable.select_by_year_and_subject(year, subject)
+        codes = Generator.get_codes(year)
+        sorted_results = [[] for _ in range(5)]
+        top = []
+        for r in results:
+            sorted_results[codes[r.user].class_n - 5].append(r)
+        for lst in sorted_results:
+            lst.sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: codes[x.user].class_l,
+                             lambda x: codes[x.user].name_1, lambda x: codes[x.user].name_2, field=True))
+            t, last_pos, last_result = [], 0, None
+            for i in range(len(lst)):
+                if last_result != lst[i].result:
+                    last_pos, last_result = i + 1, lst[i].result
+                if last_pos > 3:
+                    break
+                t.append([last_pos, lst[i].user, lst[i].result])
+            top.append(t)
+        params['top'] = top
     except Exception:
         pass
     return params
@@ -127,6 +145,7 @@ def save_result(year: int, path2, path3):
             ResultsTable.update(r)
     else:
         ResultsTable.insert(r)
+    params = page_params(year, path2, path3)
     return render_template('add_result.html', **params, error2='Результат участника {0} сохранён'.format(user_id))
 
 
