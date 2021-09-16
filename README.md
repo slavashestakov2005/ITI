@@ -27,14 +27,15 @@
 | Связь ИТИ и предметов, генерация страниц | admin | subjects.py, auto_generator.py, file_creator.py | 25.04.21 |
 | Генерация кодов для участников, таблица со всеми кодами | admin | students.py, auto_generator.py | 05.07.21 |
 | Добавление и удаление команд | admin | teams.py, auto_generator.py  | 26.07.21 |
-| Добавление и удаление участников команд | admin | teams.py, auto_generator.py | 26.07.21 |
+| Добавление и удаление участников и руководителей команд | admin | teams.py, auto_generator.py | 16.09.21 |
+| Запись участника на групповой тур | Руководитель | teams.py, auto_generator.py | 16.09.21 |
 | &nbsp; | | | |
 | Классы, время и место проведения туров | admin | subjects.py | 21.08.21 |
 | Максимальный балл предмета | Предметник | subjects.py | 19.07.21 |
 | Сохранение и предпросмотр результатов | Предметник | results.py | 15.09.21 |
 | Добавление и удаление предметных файлов | Предметник | files_edit.py | 14.09.21 |
 | Публикация результатов и протокола | admin | results.py, auto_generator.py | 19.08.21 |
-| Публикация рейтинга | admin | results.py, auto_generator.py | 23.08.21 |
+| Публикация рейтинга | admin | results.py, auto_generator.py | 16.09.21 |
 | &nbsp; | | | |
 | Форма подачи апелляций | Любая | results.py | 23.08.21 |
 | Форма обратной связи | — | Google Forms | 02.08.21 |

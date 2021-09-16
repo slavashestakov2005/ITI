@@ -98,7 +98,7 @@ def registration():
         u = UsersTable.select_by_login(user_login)
         if u.__is_none__:
             if user_password == user_password2:
-                u = User([None, user_login, '', -100])
+                u = User([None, user_login, '', -100, ''])
                 u.set_password(user_password)
                 u.set_status(user_status)
                 UsersTable.insert(u)

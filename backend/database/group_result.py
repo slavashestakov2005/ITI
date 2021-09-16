@@ -39,6 +39,10 @@ class GroupResultsTable:
         return Table.select_list(GroupResultsTable.table, GroupResult, 'team', team)
 
     @staticmethod
+    def select_by_subject(subject: int) -> list:
+        return Table.select_list(GroupResultsTable.table, GroupResult, 'subject', subject)
+
+    @staticmethod
     def select_by_team_and_subject(team: int, subject: int) -> GroupResult:
         return Table.select_one(GroupResultsTable.table, GroupResult, 'team', team, 'subject', subject)
 

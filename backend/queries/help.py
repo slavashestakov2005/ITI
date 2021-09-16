@@ -43,14 +43,15 @@ def split_class(class_):
     return int(class_[:-1]), class_[-1],
 
 
-def tr_format(*args, color=None, tabs=0):
+def tr_format(*args, color=None, tabs=0, tr=True):
+    tr1, tr2, b = ('<tr', '</tr>\n', '>') if tr else ('', '', '')
     if type(color) == list:
-        start = ' ' * 4 * tabs + '<tr>'
+        start = ' ' * 4 * tabs + tr1 + b
         for i in range(len(args)):
             start += '<td' + (' class="p{}"'.format(color[i]) if color[i] < 4 else '') + '>{}</td>'
-        return start.format(*args) + '\n'
-    start = ' ' * 4 * tabs + '<tr' + (' class="p{}"'.format(color) if color and color < 4 else '') + '>'
-    return ''.join([start, *['<td>{{{0}}}</td>'.format(_) for _ in range(len(args))], '</tr>\n']).format(*args)
+        return start.format(*args) + tr2
+    start = ' ' * 4 * tabs + tr1 + (' class="p{}"'.format(color) if color and color < 4 else '') + b
+    return ''.join([start, *['<td>{{{0}}}</td>'.format(_) for _ in range(len(args))], tr2]).format(*args)
 
 
 def path_to_subject(path: str) -> int:

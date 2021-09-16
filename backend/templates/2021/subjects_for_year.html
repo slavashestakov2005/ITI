@@ -57,61 +57,6 @@
         </center></form>
     </div>
     <div class="col t-3"><center>
-        <h2>Команды:</h2>
-        <table width="85%" border="1">
-            <tr>
-                <td width="5%"><center>Номер</center></td>
-                <td width="5%"><center>Вертикаль</center></td>
-                <td width="30%"><center>Название</center></td>
-            </tr>
-            <!-- list of teams (full) -->
-                <tr><td>1</td><td>А</td><td>Апельсин</td></tr>
-                <tr><td>2</td><td>Б</td><td>Бобры</td></tr>
-            <!-- end -->
-        </table>
-        <form action="add_team" method="post"><center>
-            <h3>Новая команда:</h3>
-            <p>Название: <input type="text" name="name"></p>
-            <p>Вертикаль: <input type="text" name="later"></p>
-            {% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
-            {% endif %}
-            <input type="submit" value="Добавить">
-        </center></form>
-        <form action="delete_team" method="post"><center>
-            <h3>Удалить команду:</h3>
-            <p>Номер: <input type="text" name="id"></p>
-            {% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
-            {% endif %}
-            <input type="submit" value="Удалить">
-        </center></form>
-    </center></div>
-    <div class="col t-3"><center>
-        <h2>Участники команд:</h2>
-        <form action="add_student_team" method="post"><center>
-            <h3>Новый участник:</h3>
-            <p>Команда (номер): <input type="text" name="team"></p>
-            <p>Имя: <input type="text" name="name2"></p>
-            <p>Фамилия: <input type="text" name="name1"></p>
-            <p>Класс: <input type="text" name="class"></p>
-            {% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
-            {% endif %}
-            <input type="submit" value="Добавить">
-        </center></form>
-        <form action="delete_student_team" method="post"><center>
-            <h3>Удалить участника:</h3>
-            <p>Команда (номер): <input type="text" name="team"></p>
-            <p>Имя: <input type="text" name="name2"></p>
-            <p>Фамилия: <input type="text" name="name1"></p>
-            <p>Класс: <input type="text" name="class"></p>
-            {% if error5 %} <p><font color="red">[ {{ error5 }} ]</font></p>
-            {% endif %}
-            <input type="submit" value="Удалить">
-        </center></form>
-    </center></div>
-</div>
-<br>
-<div class="row col-12 justify-content-center">
-    <div class="col t-3"><center>
         <h2>Расписание:</h2>
         <form action="subject_description" method="post"><center>
             <p>Предмет (номер): <input type="text" name="subject"></p>

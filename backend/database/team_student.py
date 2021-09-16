@@ -33,6 +33,10 @@ class TeamsStudentsTable:
         return Table.select_list(TeamsStudentsTable.table, TeamStudent, 'team', team)
 
     @staticmethod
+    def select_by_student(student: int) -> list:
+        return Table.select_list(TeamsStudentsTable.table, TeamStudent, 'student', student)
+
+    @staticmethod
     def select(team_student: TeamStudent) -> TeamStudent:
         return Table.select_one(TeamsStudentsTable.table, TeamStudent, 'team', team_student.team, 'student',
                                 team_student.student)

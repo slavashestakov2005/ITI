@@ -17,9 +17,10 @@
 		<h1>Сохранение результатов</h1>
 		<form action="save_group_results" method="post">
 			<!-- teams list for saving group results -->
-				<p>Апельсин: <input type="text" name="score_1" value="{{ t1 }}"></p>
-				<p>Бобры: <input type="text" name="score_2" value="{{ t2 }}"></p>
-			<!-- end -->
+                <p>Апельсин: <input type="text" name="score_1" value="{{ t1 }}"></p>
+                <p>Бобры: <input type="text" name="score_2" value="{{ t2 }}"></p>
+                <p>Вдохновенье: <input type="text" name="score_7" value="{{ t7 }}"></p>
+            <!-- end -->
 			<p>Если результат ещё не был сохранён, то в поле отображается 0.</p>
 			{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
 			{% endif %}

@@ -51,6 +51,7 @@
 							<a class="dropdown-item" href="../user_edit.html">Пользователи</a>
 							<a class="dropdown-item" href="subjects_for_year.html">Настройки ИТИ</a>
 							{% endif %}
+							<a class="dropdown-item" href="team_edit">Настройки команд</a>
 
 							{% if not current_user.is_anonymous and current_user.can_do(-1) %}
 							<a class="dropdown-item" href="#" onclick="edit(document)">Редактировать</a>

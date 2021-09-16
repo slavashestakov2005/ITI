@@ -1,4 +1,5 @@
 from backend.database import Table, Row
+from backend.database.team import TeamsTable
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
@@ -9,9 +10,10 @@ class User(Row, UserMixin):
         id          INT     NOT NULL    PK  AI  UNIQUE
         login       TEXT    NOT NULL            UNIQUE
         password    TEXT    NOT NULL
-        status      INT     -2 = 'full', -1 = 'admin', x = ...100100... (subjects)
+        status      INT     NOT NULL    -2 = 'full', -1 = 'admin', x = ...100100... (subjects)
+        teams       TEXT    NOT NULL
     """
-    fields = ['id', 'login', 'password', 'status']
+    fields = ['id', 'login', 'password', 'status', 'teams']
 
     def __init__(self, row):
         Row.__init__(self, User, row)
@@ -40,6 +42,22 @@ class User(Row, UserMixin):
                self.status == -1 and status != -2 or \
                status > 0 and (self.status >> status) % 2
 
+    def teams_list(self, year: int):
+        can = set(map(int, self.teams.split()))
+        now = set([_.id for _ in TeamsTable.select_by_year(year)])
+        if self.can_do(-1):
+            return now
+        return list(can.intersection(now))
+
+    def add_team(self, team: int):
+        self.teams = ' '.join([str(team), *self.teams.split()])
+
+    def delete_team(self, team: int):
+        self.teams = ' '.join(set(self.teams.split()).symmetric_difference([str(team)]))
+
+    def is_exists_team(self, team: int):
+        return str(team) in self.teams.split()
+
 
 class UsersTable:
     table = "user"
@@ -50,9 +68,10 @@ class UsersTable:
         "id"	SERIAL NOT NULL UNIQUE,
         "login"	TEXT NOT NULL UNIQUE,
         "password"	TEXT NOT NULL,
-        "status"	INTEGER,
+        "status"	INTEGER NOT NULL,
+        "teams"	TEXT NOT NULL,
         PRIMARY KEY("id"))''')
-        u = User([None, 'slava', '', -2])
+        u = User([None, 'slava', '', -2, ''])
         u.set_password('123')
         UsersTable.insert(u)
 

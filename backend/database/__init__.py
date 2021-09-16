@@ -12,6 +12,7 @@ from .group_result import *
 from .appeal import *
 from .file import *
 from .subject_file import *
+from .subject_student import *
 from ..config import Config
 
 
@@ -30,3 +31,4 @@ def create_tables():
         AppealsTable.create_table()
         FilesTable.create_table()
         SubjectsFilesTable.create_table()
+        SubjectsStudentsTable.create_table()

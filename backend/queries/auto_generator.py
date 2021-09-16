@@ -1,7 +1,7 @@
 from .help import SplitFile, all_templates, tr_format, compare
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable,\
-    GroupResult
+    GroupResult, SubjectsStudentsTable
 from backend.config import Config
 import glob
 '''
@@ -296,28 +296,47 @@ class Generator:
 
     @staticmethod
     def gen_group_results(year: int, subject: int, file_name: str):
+        is_team = (SubjectsTable.select_by_id(subject).type == 'a')
         teams = TeamsTable.select_by_year(year)
+        teams_set = set([_.id for _ in teams])
         if len(teams) == 0:
             return None
         results = {_: GroupResultsTable.select_by_team_and_subject(_.id, subject) for _ in teams}
-        results = sorted(results.items(), key=compare(Result.sort_by_result, lambda x: x[1],
+        results = sorted(results.items(), key=compare(GroupResult.sort_by_result, lambda x: x[1],
                                                       Team.sort_by_later, lambda x: x[0]))
+        students = [_.student for _ in SubjectsStudentsTable.select_by_subject(year, subject)]
+        teams_student, students_count = {}, 0
+        for now in students:
+            ts = list(set([_.team for _ in TeamsStudentsTable.select_by_student(now)]).intersection(teams_set))
+            if len(ts) != 1:
+                raise ValueError
+            if ts[0] not in teams_student:
+                teams_student[ts[0]] = []
+            teams_student[ts[0]].append(StudentsTable.select(now))
+        for x in teams_student:
+            students_count = max(students_count, len(teams_student[x]))
+            teams_student[x].sort(key=compare(Student.sort_by_class, lambda x: x.name_1, lambda x: x.name_2, field=True))
         txt = '''
     <center>
         <h2>Результаты</h2>
         <div class="row col-12 justify-content-center">
-            <div class="col t-3">
+            <div class="col {0}">
                 <table border="1">
                     <tr>
-                        <td width="10%">Место</td>
-                        <td width="30%">Команда</td>
-                        <td width="10%">Балл в рейтинг</td>
-                    </tr>\n'''
+                        <td width="5%">Место</td>
+                        <td width="15%">Команда</td>
+                        <td width="10%">Балл в рейтинг</td>'''.format('td-1' if not is_team else 't-3')
+        txt += '\n' + ' ' * 20 + '<td width="60%" colspan="{0}"><center>Участники</center></td>'.format(students_count)\
+            if not is_team else ''
+        txt += '''
+                    </tr>\n'''.format(students_count)
         i, last_pos, last_result = 1, 1, None
         for result in results:
             if result[1].result != last_result:
                 last_pos, last_result = i, result[1].result
-            txt += tr_format(last_pos, result[0].name, result[1].result, color=last_pos, tabs=5)
+            txt += tr_format(last_pos, result[0].name, result[1].result,
+                             *([_.name_1 + ' ' + _.name_2 + ' ' + _.class_name() for _ in teams_student[result[0].id]]
+                             if not is_team and result[0].id in teams_student else []), color=last_pos, tabs=5)
             i += 1
         txt += ' ' * 16 + '</table>\n' + ' ' * 12 + '</div>\n' + ' ' * 8 + '</div>\n' + ' ' * 4 + '</center>\n'
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
@@ -429,8 +448,9 @@ class Generator:
             if subject.type == 'i':
                 subjects.append(subject)
                 template += ' ' * 20 + '<td width="5%">{}</td>\n'.format(subject.name)
-        template += ' ' * 20 + '<td width="10%">Сумма</td>\n' + ' ' * 16 + '</tr>\n'
+        template += ' ' * 20 + '<td width="5%">Сумма</td>\n' + ' ' * 16 + '</tr>\n'
         for r in class_results:
+            sub_sums = {_.id: 0 for _ in subjects}
             txt += template.format(str(class_n) + r)
             position, last_pos, last_result = 1, 1, None
             for x in class_results[r]:
@@ -440,10 +460,14 @@ class Generator:
                 for subject in subjects:
                     if x.id in results and subject.id in results[x.id]:
                         row.append(results[x.id][subject.id])
+                        sub_sums[subject.id] += row[-1]
                     else:
                         row.append('—')
                 txt += tr_format(*row, x.result, color=last_pos, tabs=4)
                 position += 1
+            sub_sums = sub_sums.values()
+            txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, sum(sub_sums),
+                                                                                            tr=False) + '</tr>\n'
             txt += ' ' * 12 + '</table>\n' + ' ' * 8 + '</div>'
         txt += '\n    '
         data = SplitFile(filename)
@@ -451,12 +475,98 @@ class Generator:
         data.save_file()
 
     @staticmethod
+    def gen_ratings_5_i(year: int, subject: int, codes: map, sp: map):
+        r = ResultsTable.select_by_year_and_subject(year, subject)
+        r.sort(key=compare(
+            lambda x: codes[x.user].class_n, lambda x: Result.sort_by_result(x), field=True))
+        last_result, last_pos, last_class, i = None, 0, 0, 1
+        for x in r:
+            user = codes[x.user]
+            if last_class != user.class_n:
+                last_result, last_pos, last_class, i = None, 0, user.class_n, 1
+            if last_result != x.result:
+                last_result, last_pos = x.result, i
+            if last_pos < 4:
+                if user.id not in sp:
+                    sp[user.id] = [0, 0, 0]
+                sp[user.id][last_pos - 1] += 1
+            i += 1
+        return sp
+
+    @staticmethod
+    def gen_ratings_5_g(year: int, subject: int, teams: map, sp: map):
+        ts = set(teams.keys())
+        peoples = set([_.student for _ in SubjectsStudentsTable.select_by_subject(year, subject)])
+        r = [_ for _ in GroupResultsTable.select_by_subject(subject) if _.team in ts]
+        r.sort(key=GroupResult.sort_by_result)
+        last_result, last_pos, i = None, 0, 1
+        for x in r:
+            if last_result != x.result:
+                last_result, last_pos = x.result, i
+            if last_pos > 3:
+                break
+            for user in peoples.intersection(set([_.student for _ in TeamsStudentsTable.select_by_team(x.team)])):
+                if user not in sp:
+                    sp[user] = [0, 0, 0]
+                sp[user][last_pos - 1] += 1
+            i += 1
+        return sp
+
+    @staticmethod
+    def gen_ratings_5_a(subject: int, teams: map, sp: map):
+        ts = set(teams.keys())
+        r = [_ for _ in GroupResultsTable.select_by_subject(subject) if _.team in ts]
+        r.sort(key=GroupResult.sort_by_result)
+        last_result, last_pos, i = None, 0, 1
+        for x in r:
+            if last_result != x.result:
+                last_result, last_pos = x.result, i
+            if last_pos > 3:
+                break
+            for user in TeamsStudentsTable.select_by_team(x.team):
+                if user.student not in sp:
+                    sp[user.student] = [0, 0, 0]
+                sp[user.student][last_pos - 1] += 1
+            i += 1
+        return sp
+
+    @staticmethod
+    def gen_ratings_5(year: int, codes: map, teams: map):
+        codes = {_[0]: _[1] for _ in codes}
+        subjects = YearsSubjectsTable.select_by_year(year)
+        res = {}
+        for subject in subjects:
+            subject = SubjectsTable.select_by_id(subject.subject)
+            if subject.type == 'i':
+                res = Generator.gen_ratings_5_i(year, subject.id, codes, res)
+            elif subject.type == 'g':
+                res = Generator.gen_ratings_5_g(year, subject.id, teams, res)
+            else:
+                res = Generator.gen_ratings_5_a(subject.id, teams, res)
+        codes = {_.id: _ for _ in codes.values()}
+        res = sorted(res.items(), key=compare(lambda x: -x[1][0], lambda x: -x[1][1], lambda x: -x[1][2],
+                                              lambda x: Student.sort_by_class(codes[x[0]]),
+                                              lambda x: codes[x[0]].name_1, lambda x: codes[x[0]].name_2, field=True))
+        txt, last_result, last_pos, i = '\n', None, 0, 1
+        for r in res:
+            user = codes[r[0]]
+            if last_result != r[1]:
+                last_result, last_pos = r[1], i
+            txt += tr_format(last_pos, user.class_name(), user.name_1, user.name_2, *r[1], color=last_pos)
+            if i == 20:
+                break
+            i += 1
+        return txt
+
+    @staticmethod
     def gen_ratings(year: int):
+        Generator.gen_teams_students(year)
         results = ResultsTable.select_by_year(year)
         codes = Generator.get_codes(year)
         student_team = Generator.get_student_team(year)
         class_results, student_result, all_student_result = {}, {}, {}
-        team_result = {_.id: 0 for _ in TeamsTable.select_by_year(year)}
+        teams = {_.id: _ for _ in TeamsTable.select_by_year(year)}
+        team_result = {_: 0 for _ in teams}
         for r in results:
             student = codes[r.user]
             class_name = student.class_name()
@@ -488,9 +598,11 @@ class Generator:
         best_5, index = Generator.gen_ratings_1(codes, index, 5)
         best_class = Generator.gen_ratings_2(class_results)
         best_team = Generator.gen_ratings_3(year, team_result)
+        best_student = Generator.gen_ratings_5(year, codes, teams)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating.html')
         data.insert_after_comment(' rating_teams ', best_team)
         data.insert_after_comment(' rating_class ', best_class)
+        data.insert_after_comment(' rating_student ', best_student)
         data.insert_after_comment(' rating_parallel_5 ', best_5)
         data.insert_after_comment(' rating_parallel_6 ', best_6)
         data.insert_after_comment(' rating_parallel_7 ', best_7)
@@ -512,10 +624,10 @@ class Generator:
             text2 += tr_format(*row, tabs=3)
             text3 += ' ' * 16 + '<p>{0}: <input type="text" name="score_{1}" value="{{{{ t{1} }}}}"></p>\n'.\
                 format(team.name, team.id)
-        text1 += ' ' * 16
+        text1 += ' ' * 12
         text2 += ' ' * 8
         text3 += ' ' * 12
-        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/subjects_for_year.html")
+        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams_for_year.html")
         data.insert_after_comment(' list of teams (full) ', text1)
         data.save_file()
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams.html")
@@ -528,25 +640,54 @@ class Generator:
     @staticmethod
     def gen_teams_students(year: int):
         codes = {_.id: _ for _ in StudentsTable.select_all()}
+        decode = Generator.get_codes(year)
+        result = ResultsTable.select_by_year(year)
+        subjects0, subjects = YearsSubjectsTable.select_by_year(year), []
+        for x in subjects0:
+            subject = SubjectsTable.select_by_id(x.subject)
+            if subject.type == 'i':
+                subjects.append(subject)
+        student_result = {}
+        for r in result:
+            student = decode[r.user]
+            if student.id not in student_result:
+                student_result[student.id] = {}
+            student_result[student.id][r.subject] = r.net_score
         teams = TeamsTable.select_by_year(year)
         teams.sort(key=Team.sort_by_later)
+        template = '''
+        <div class="t-2"><center><h2>{0}</h2></center>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="10%">Класс</td>
+                    <td width="45%">Фамилия</td>
+                    <td width="45%">Имя</td>\n'''
+        for subject in subjects:
+            template += ' ' * 20 + '<td width="5%">{0}</td>\n'.format(subject.name)
+        template += ' ' * 20 + '<td width="5%">Сумма</td>\n' + ' ' * 16 + '</tr>\n'
         txt = ''
         for team in teams:
             students = TeamsStudentsTable.select_by_team(team.id)
             students = [codes[_.student] for _ in students]
             students.sort(key=compare(lambda x: x.class_name(), lambda x: x.name_1, lambda x: x.name_2, field=True))
+            sub_sums = {_.id: 0 for _ in subjects}
             if len(students) == 0:
                 continue
-            txt += '''
-        <div class="t-3"><center><h2>{0}</h2></center>
-            <table width="100%" border="1">
-                <tr>
-                    <td width="10%">Класс</td>
-                    <td width="45%">Фамилия</td>
-                    <td width="45%">Имя</td>
-                </tr>\n'''.format(team.name)
+            txt += template.format(team.name)
             for student in students:
-                txt += tr_format(student.class_name(), student.name_1, student.name_2, tabs=4)
+                row = [student.class_name(), student.name_1, student.name_2]
+                summ = 0
+                for subject in subjects:
+                    if student.id in student_result and subject.id in student_result[student.id]:
+                        row.append(student_result[student.id][subject.id])
+                        sub_sums[subject.id] += row[-1]
+                        summ += row[-1]
+                    else:
+                        row.append('—')
+                txt += tr_format(*row, summ, tabs=4)
+            sub_sums = sub_sums.values()
+            txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, sum(sub_sums),
+                                                                                            tr=False) + '</tr>\n'
             txt += ' ' * 12 + '</table>\n' + ' ' * 8 + '</div>\n'
         txt += ' ' * 4
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams.html")
