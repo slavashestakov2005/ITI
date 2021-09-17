@@ -53,3 +53,7 @@ class GroupResultsTable:
     @staticmethod
     def insert(group_result: GroupResult) -> None:
         return Table.insert(GroupResultsTable.table, group_result)
+
+    @staticmethod
+    def delete_by_team(team: int) -> None:
+        return Table.delete(GroupResultsTable.table, 'team', team)

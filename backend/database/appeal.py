@@ -40,3 +40,7 @@ class AppealsTable:
     @staticmethod
     def insert(appeal: Appeal) -> None:
         return Table.insert(AppealsTable.table, appeal)
+
+    @staticmethod
+    def delete_by_year(year: int) -> None:
+        return Table.delete(AppealsTable.table, 'year', year)

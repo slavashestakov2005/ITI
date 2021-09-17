@@ -50,3 +50,7 @@ class SubjectsFilesTable:
     def delete(subject_file: SubjectFile) -> None:
         return Table.delete(SubjectsFilesTable.table, 'year', subject_file.year, 'subject', subject_file.subject,
                             'file', subject_file.file)
+
+    @staticmethod
+    def delete_by_year(year: int) -> None:
+        return Table.delete(SubjectsFilesTable.table, 'year', year)

@@ -40,6 +40,9 @@ def correct_new_line(s: str):
 
 
 def split_class(class_):
+    class_ = str(class_)
+    if len(class_) == 1:
+        return int(class_), ''
     return int(class_[:-1]), class_[-1],
 
 

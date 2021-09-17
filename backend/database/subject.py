@@ -13,6 +13,13 @@ class Subject(Row):
     def __init__(self, row):
         Row.__init__(self, Subject, row)
 
+    def type_str(self):
+        if self.type == 'i':
+            return 'individual'
+        elif self.type == 'g':
+            return 'group'
+        return 'team'
+
 
 class SubjectsTable:
     table = "subject"

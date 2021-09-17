@@ -56,3 +56,7 @@ class TeamsTable:
     def delete(team: Team) -> None:
         return Table.delete(TeamsTable.table, team)
 
+    @staticmethod
+    def delete_by_year(year: int) -> None:
+        return Table.delete(TeamsTable.table, 'year', year)
+

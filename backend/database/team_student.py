@@ -48,3 +48,8 @@ class TeamsStudentsTable:
     @staticmethod
     def delete(team_student: TeamStudent) -> None:
         return Table.delete(TeamsStudentsTable.table, 'team', team_student.team, 'student', team_student.student)
+
+    @staticmethod
+    def delete_by_team(team: int) -> None:
+        return Table.delete(TeamsStudentsTable.table, 'team', team)
+

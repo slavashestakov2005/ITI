@@ -436,7 +436,7 @@ class Generator:
                     class_results[student.class_l] = [student]
         subjects, txt = [], ''
         template = '''
-        <div class="col t-2">
+        <div class="col t-1">
             <center><h3>{0}</h3></center>
             <table width="100%" border="1">
                 <tr>
@@ -656,7 +656,7 @@ class Generator:
         teams = TeamsTable.select_by_year(year)
         teams.sort(key=Team.sort_by_later)
         template = '''
-        <div class="t-2"><center><h2>{0}</h2></center>
+        <div class="t-1"><center><h2>{0}</h2></center>
             <table width="100%" border="1">
                 <tr>
                     <td width="10%">Класс</td>

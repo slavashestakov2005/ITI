@@ -43,3 +43,7 @@ class YearsTable:
     @staticmethod
     def update(year: Year) -> None:
         return Table.update(YearsTable.table, year, 'year')
+
+    @staticmethod
+    def delete(year: int) -> None:
+        return Table.delete(YearsTable.table, 'year', year)

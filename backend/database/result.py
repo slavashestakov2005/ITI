@@ -60,3 +60,7 @@ class ResultsTable:
     @staticmethod
     def insert(result: Result) -> None:
         return Table.insert(ResultsTable.table, result)
+
+    @staticmethod
+    def delete_by_year(year: int) -> None:
+        return Table.delete(ResultsTable.table, 'year', year)

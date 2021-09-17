@@ -46,3 +46,7 @@ class SubjectsStudentsTable:
     def delete(subject_student: SubjectStudent) -> None:
         return Table.delete(SubjectsStudentsTable.table, 'year', subject_student.year, 'subject',
                             subject_student.subject, 'student', subject_student.student)
+
+    @staticmethod
+    def delete_by_year(year: int) -> None:
+        return Table.delete(SubjectsStudentsTable.table, 'year', year)
