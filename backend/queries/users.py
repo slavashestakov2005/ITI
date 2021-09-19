@@ -4,6 +4,7 @@ from flask_cors import cross_origin
 from flask_login import login_user, logout_user, current_user, login_required
 from backend.database import UsersTable, User
 from .help import check_status, check_block_year
+from .auto_generator import Generator
 
 '''
     /login          login()             Вход пользователя.
@@ -102,6 +103,7 @@ def registration():
                 u.set_password(user_password)
                 u.set_status(user_status)
                 UsersTable.insert(u)
+                Generator.gen_users_list()
                 return render_template('user_edit.html', error1='Пользователь {0} зарегистрирован'.format(user_login))
             else:
                 return render_template('user_edit.html', error1='Пароли {0} и {1} не совпадают'.
@@ -128,6 +130,7 @@ def edit_status():
         if not u.__is_none__:
             u.set_status(user_status)
             UsersTable.update_by_login(u)
+            Generator.gen_users_list()
             return render_template('user_edit.html', error2='Статус пользователя {0} обнавлён'.format(user_login))
         else:
             return render_template('user_edit.html', error2='Пользователя {0} не существует'.format(user_login))
@@ -149,6 +152,7 @@ def delete():
         u = UsersTable.select_by_login(user_login)
         if not u.__is_none__:
             UsersTable.delete(u)
+            Generator.gen_users_list()
             return render_template('user_edit.html', error3='Пользователь {0} удалён'.format(user_login))
         else:
             return render_template('user_edit.html', error3='Пользователя {0} не существует'.format(user_login))

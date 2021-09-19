@@ -130,7 +130,7 @@ def check_block_year():
         def wrapped(*args, **kwargs):
             if len(kwargs):
                 try:
-                    year = int(list(kwargs.values())[0].split('/')[0])
+                    year = int(str(list(kwargs.values())[0]).split('/')[0])
                 except Exception:
                     return function_to_decorate(*args, **kwargs)
                 y = YearsTable.select_by_year(year)

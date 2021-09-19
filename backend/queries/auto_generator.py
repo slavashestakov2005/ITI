@@ -1,7 +1,7 @@
 from .help import SplitFile, all_templates, tr_format, compare
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable,\
-    GroupResult, SubjectsStudentsTable
+    GroupResult, SubjectsStudentsTable, UsersTable
 from backend.config import Config
 import glob
 '''
@@ -21,6 +21,7 @@ import glob
         gen_teams_students(year)            Генерирует списки участников команд года year.
         gen_timetable(year)                 Генерирует расписание предметов года year.
         gen_files_list(year, sub, path)     Генерирует список предметных файлов.
+        gen_users_list()                    Генерирует список пользователей.
 '''
 
 
@@ -386,7 +387,7 @@ class Generator:
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'g':
                 subjects.append(subject)
-                txt += ' ' * 12 + '<td width="8%">{0}</td>\n'.format(subject.name)
+                txt += ' ' * 12 + '<td width="8%">{0}</td>\n'.format(subject.short_name)
             elif subject.type == 'a':
                 team = subject
         if team:
@@ -436,7 +437,7 @@ class Generator:
                     class_results[student.class_l] = [student]
         subjects, txt = [], ''
         template = '''
-        <div class="col t-1">
+        <div class="col t-2">
             <center><h3>{0}</h3></center>
             <table width="100%" border="1">
                 <tr>
@@ -447,7 +448,7 @@ class Generator:
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'i':
                 subjects.append(subject)
-                template += ' ' * 20 + '<td width="5%">{}</td>\n'.format(subject.name)
+                template += ' ' * 20 + '<td width="5%">{}</td>\n'.format(subject.short_name)
         template += ' ' * 20 + '<td width="5%">Сумма</td>\n' + ' ' * 16 + '</tr>\n'
         for r in class_results:
             sub_sums = {_.id: 0 for _ in subjects}
@@ -656,14 +657,14 @@ class Generator:
         teams = TeamsTable.select_by_year(year)
         teams.sort(key=Team.sort_by_later)
         template = '''
-        <div class="t-1"><center><h2>{0}</h2></center>
+        <div class="col t-2"><center><h2>{0}</h2></center>
             <table width="100%" border="1">
                 <tr>
                     <td width="10%">Класс</td>
                     <td width="45%">Фамилия</td>
                     <td width="45%">Имя</td>\n'''
         for subject in subjects:
-            template += ' ' * 20 + '<td width="5%">{0}</td>\n'.format(subject.name)
+            template += ' ' * 20 + '<td width="5%">{0}</td>\n'.format(subject.short_name)
         template += ' ' * 20 + '<td width="5%">Сумма</td>\n' + ' ' * 16 + '</tr>\n'
         txt = ''
         for team in teams:
@@ -714,4 +715,16 @@ class Generator:
         for file in files:
             txt += '    <p><a href="/' + file.file + '">' + file.just_filename() + '</a></p>\n'
         data.insert_after_comment(' files ', txt)
+        data.save_file()
+
+    @staticmethod
+    def gen_users_list():
+        txt, users = '\n', UsersTable.select_all()
+        subjects = {_.id: _.short_name for _ in SubjectsTable.select_all()}
+        for user in users:
+            if user.can_do(-2):
+                continue
+            txt += tr_format(user.id, user.login, user.subjects_str(subjects), tabs=4)
+        data = SplitFile(Config.TEMPLATES_FOLDER + '/user_edit.html')
+        data.insert_after_comment(' list of users ', txt + ' ' * 9)
         data.save_file()

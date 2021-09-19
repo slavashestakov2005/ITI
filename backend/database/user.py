@@ -58,6 +58,15 @@ class User(Row, UserMixin):
     def is_exists_team(self, team: int):
         return str(team) in self.teams.split()
 
+    def subjects_str(self, subjects):
+        if self.status < 0:
+            return 'admin'
+        t = ''
+        for subject in subjects:
+            if (self.status >> subject) % 2 == 1:
+                t += subjects[subject] + '; '
+        return t[:-2] or '—'
+
 
 class UsersTable:
     table = "user"
