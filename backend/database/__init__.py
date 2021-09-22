@@ -13,6 +13,7 @@ from .appeal import *
 from .file import *
 from .subject_file import *
 from .subject_student import *
+from .history import *
 from ..config import Config
 
 
@@ -32,3 +33,4 @@ def create_tables():
         FilesTable.create_table()
         SubjectsFilesTable.create_table()
         SubjectsStudentsTable.create_table()
+        HistoriesTable.create_table()

@@ -47,6 +47,14 @@
 		<p>Не рекомендуется публиковать результаты до проверки всех работ по данному предмету.</p>
 		{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
 		{% endif %}
+		<br>
+		<h1>Удаление результатов</h1>
+		<form action="delete_result" method="post">
+			<p>Код участника: <input type="text" name="code"></p>
+			<input type="submit" value="Удалить">
+			{% if error5 %} <p><font color="red">[ {{ error5 }} ]</font></p>
+			{% endif %}
+		</form>
 	</center></div>
 	{% endif %}
 
@@ -114,6 +122,7 @@
 	</center></div>
 </div>
 <br>
+{% if top %}
 <center><h1>Лучшие результаты</h1></center>
 <br>
 <div class="row col-12 justify-content-center">
@@ -203,5 +212,6 @@
 		</table>
 	</center></div>
 </div>
+{% endif %}
 
 {% endblock %}

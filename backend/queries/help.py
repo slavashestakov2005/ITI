@@ -7,6 +7,7 @@ from ..help import FileManager, correct_slash
 from ..database import YearsTable
 import re
 import os
+from datetime import datetime
 '''
     LOGIN_REQUIRED_FILES = []       Файлы, доступные после входа на сайт.
     STATUS_REQUIRED_FILES = {}      Отображение файла и доступа к нему.
@@ -16,6 +17,7 @@ import os
     tr_format(*args)                Генерирует строку для HTML-таблицы.
     path_to_subject(path)           Извлекает id предмета из имени файла.
     parse_files()                   Проходит все файлы, генерирует списки доступа.
+    current_year()                  Возвращает актуальный учебный год.
     @check_status(status)           Проверяет открыт ли доступ для текущего пользователя.
     @check_block_year()             Проверяет открыто ли редактирование года.
     class FilePart                  Один кусочек html-страницы (поля 'text' и 'is_comment').
@@ -101,6 +103,11 @@ def parse_files():
                     STATUS_REQUIRED_FILES[correct_slash(file_name[length:])] = {-2}
     print("Login required files: " + str(LOGIN_REQUIRED_FILES))
     print("Status: " + str(STATUS_REQUIRED_FILES))
+
+
+def current_year():
+    d = datetime.now()
+    return d.year + (-1 if d.month < 9 else 0)
 
 
 def check_status(status: str):

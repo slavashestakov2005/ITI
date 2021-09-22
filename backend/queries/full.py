@@ -9,7 +9,7 @@ from .help import check_status, check_block_year, SplitFile
 from ..help import init_mail_messages, ExcelReader, FileManager
 from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
     TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
-    SubjectsStudentsTable
+    SubjectsStudentsTable, HistoriesTable
 from .auto_generator import Generator
 from .file_creator import FileCreator
 from ..config import Config
@@ -30,6 +30,7 @@ from ..config import Config
 
 def _delete_year(year: int):
     AppealsTable.delete_by_year(year)
+    HistoriesTable.delete_by_year(year)
     ResultsTable.delete_by_year(year)
     StudentsCodesTable.delete_by_year(year)
     SubjectsFilesTable.delete_by_year(year)

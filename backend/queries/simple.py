@@ -1,10 +1,12 @@
 from backend import app
-from flask import render_template
+from flask import render_template, redirect
 from flask_cors import cross_origin
 from flask_login import current_user
 from ..help.errors import forbidden_error, not_found_error
-from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES
+from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES, current_year
 from jinja2 import TemplateNotFound
+import os
+from ..config import Config
 '''
     /           index()             Возвращает стартовую страницу.
     /<path>     static_file(path)   Возвращает статическую страницу, проверяя статус пользователя и доступ к файлу.
@@ -14,7 +16,11 @@ from jinja2 import TemplateNotFound
 @app.route('/')
 @cross_origin()
 def index():
-    return render_template('index.html')
+    y = current_year()
+    if os.path.exists(Config.TEMPLATES_FOLDER + '/' + str(y) + '/main.html'):
+        return redirect(str(y) + '/main.html')
+    else:
+        return render_template('index.html')
 
 
 @app.route('/<path:path>')

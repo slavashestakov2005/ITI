@@ -64,3 +64,7 @@ class ResultsTable:
     @staticmethod
     def delete_by_year(year: int) -> None:
         return Table.delete(ResultsTable.table, 'year', year)
+
+    @staticmethod
+    def delete_by_people(result: Result) -> None:
+        return Table.delete(ResultsTable.table, 'year', result.year, 'subject', result.subject, 'user', result.user)

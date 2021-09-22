@@ -1,20 +1,25 @@
 from backend import app
-from backend.help.errors import forbidden_error
+from ..help import forbidden_error, Logger, SplitFile
 from ..database import ResultsTable, Result, SubjectsTable, YearsSubjectsTable, TeamsTable,\
-    GroupResultsTable, GroupResult, AppealsTable, Appeal, StudentsCodesTable, StudentsTable, YearsTable
-from flask import render_template, request
+    GroupResultsTable, GroupResult, AppealsTable, Appeal, StudentsCodesTable, StudentsTable, YearsTable, HistoriesTable
+from flask import render_template, request, redirect
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from .help import check_status, check_block_year, correct_new_line, path_to_subject, compare
 from .auto_generator import Generator
-import re
+from ..config import Config
+from .results_raw import save_result_, delete_result_
 '''
     tour_type(name)                                             Преобразует названия туров.
     page_params(path1, path2, path3)                            Возвращает параметры для страницы 'add_result.html'.
     appeal_page_params(path1, path2, path3)                     Возвращает пераметры для страницы 'add_appeal.html'
     group_page_params(path1, path2, path3)                      Возвращает параметры для '<year>/add_result.html'.
+    chose_params(path1, path2, path3)                           Выбирает между page_params() и group_page_params().
+    /<year>/history                                             Обновляет историю опраций и делает redirect (admin).
+    /<year>/revert                                              Отменяет операцию из истории (admin).
     /<path1>/<path2>/<path3>/add_result     add_result(...)     redirect на страницу редактирования (для предметников).
     /<path1>/<path2>/<path3>/save_result    save_result(...)    Сохранение результатов (для предметников).
+    /<path1>/<path2>/<path3>/delete_result  delete_result(...)  Удаляет один результат (admin).
     /<path1>/<path2>/<path3>/share_results  share_results(...)  Генерирует таблицу с результатами (admin).
     /<year>/ratings_update                  ratings_update(...) Обновляет рейтинги (admin).
     /<path1>/<path2>/<path3>/save_group_results      <...>      Сохранение групповых результатов (для предметников).
@@ -95,6 +100,36 @@ def chose_params(p1: int, p2: str, p3: str):
     return group_page_params(p1, p2, p3) if p2 == 'group' or p2 == 'team' else page_params(p1, p2, p3)
 
 
+@app.route('/<int:year>/history')
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def history(year: int):
+    data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year) + '/history.html')
+    data.insert_after_comment(' list of actions ', Logger.print())
+    data.save_file()
+    return redirect('history.html')
+
+
+@app.route('/<int:year>/revert')
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def revert(year: int):
+    try:
+        history_id = request.args.get('i')
+    except Exception:
+        return render_template('history.html')
+
+    history = HistoriesTable.select(history_id)
+    if history.__is_none__:
+        return render_template('history.html')
+    Logger.revert(history, current_user)
+    return redirect('history')
+
+
 @app.route('/<int:year>/<path:path2>/<path:path3>/add_result')
 @cross_origin()
 @login_required
@@ -122,31 +157,50 @@ def save_result(year: int, path2, path3):
     try:
         subject = path_to_subject(path3)
         user_id = int(request.form['code'])
-        res = request.form['result'].replace(',', '.')
-        result_sum = sum(map(float, re.split(r'[^\d\.]+', res)))
-        text_result = re.sub('[XxХх]', 'X', ' '.join(re.split(r'[^\dXxХх\.]+', res)))
+        res = request.form['result']
     except Exception:
         return render_template('add_result.html', **params, error2='Некорректные данные')
 
-    if not current_user.can_do(subject):
+    code = save_result_(current_user, year, subject, user_id, res)
+    if code == -1:
         return forbidden_error()
-    r = Result([year, subject, user_id, result_sum, 0, text_result])
-    if user_id == "" or request.form['result'] == "":
+    elif code == 1:
         return render_template('add_result.html', **params, error2='Поля не заполнены')
-    if StudentsCodesTable.select_by_code(year, user_id).__is_none__:
+    elif code == 2:
         return render_template('add_result.html', **params, error2='Такого кода нет')
-    if YearsSubjectsTable.select(year, subject).__is_none__:
+    elif code == 3:
         return render_template('add_result.html', **params, error2='Такого предмета нет в этом году.')
-    if not ResultsTable.select_for_people(r).__is_none__:
-        if not current_user.can_do(-1):
-            return render_template('add_result.html', **params, error2='Результат участника {0} уже сохранён. Для '
+    elif code == 4:
+        return render_template('add_result.html', **params, error2='Результат участника {0} уже сохранён. Для '
                                         'изменения необходимы права администратора'.format(user_id))
-        else:
-            ResultsTable.update(r)
-    else:
-        ResultsTable.insert(r)
+    elif code == 5:
+        return render_template('add_result.html', **params, error2='Некорректные данные')
+    elif code == 0:
+        params = page_params(year, path2, path3)
+        return render_template('add_result.html', **params, error2='Результат участника {0} сохранён'.format(user_id))
+
+
+@app.route('/<int:year>/<path:path2>/<path:path3>/delete_result', methods=['POST'])
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def delete_result(year: int, path2, path3):
     params = page_params(year, path2, path3)
-    return render_template('add_result.html', **params, error2='Результат участника {0} сохранён'.format(user_id))
+    try:
+        subject = path_to_subject(path3)
+        user_id = int(request.form['code'])
+    except Exception:
+        return render_template('add_result.html', **params, error5='Некорректные данные')
+
+    code = delete_result_(current_user, year, subject, user_id)
+    if code == -1:
+        return forbidden_error
+    elif code == 1:
+        return render_template('add_result.html', **params, error5='Для данных предмета и участника не сохранён ' +
+                                                                   'результат')
+    elif code == 0:
+        return render_template('add_result.html', **page_params(year, path2, path3), error5='Удалено')
 
 
 @app.route('/<int:year>/<path:path2>/<path:path3>/share_results')
