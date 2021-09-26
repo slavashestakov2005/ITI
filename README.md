@@ -22,7 +22,8 @@
 | Изменение глобальных настроек (пароль от почты) | full | full.py | 02.08.21 |
 | SQL запросы к базе данных | full | full.py | 25.08.21 |
 | Перевод участников в следующий класс | full | students.py | 27.08.21 |
-| Загрузка ИТИ из Excel файла | full | full.py | 17.09.21 |
+| Загрузка ИТИ из Excel файла | full | full.py, excel_reader.py | 17.09.21 |
+| Выгрузка ИТИ в Excel файл | admin | full.py, excel_reader.py | 26.09.21 |
 | &nbsp; | | | |
 | Работа с новыми ИТИ и предметами | full | full.py, auto_generator.py, file_creator.py | 25.04.21 |
 | Блокировка и удаление прошедших ИТИ | full | full.py | 17.09.21 |

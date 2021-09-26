@@ -31,6 +31,10 @@ class SubjectsStudentsTable:
         return Table.select_list(SubjectsStudentsTable.table, SubjectStudent)
 
     @staticmethod
+    def select_by_year(year: int) -> list:
+        return Table.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year)
+
+    @staticmethod
     def select_by_student(year: int, student: int) -> list:
         return Table.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year, 'student', student)
 

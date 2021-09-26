@@ -26,7 +26,7 @@ def load_user(id):
 @check_block_year()
 def login():
     if current_user.is_authenticated:
-        return redirect('index.html')
+        return redirect('/')
     if request.method == 'POST':
         try:
             user_login = request.form['login']
@@ -37,7 +37,7 @@ def login():
         u = UsersTable.select_by_login(user_login)
         if not u.__is_none__ and u.check_password(user_password):
             login_user(u)
-            return redirect('index.html')
+            return redirect('/')
         else:
             return render_template('login.html', error='Пользователя с логином {0} и паролем {1} не существует'
                                    .format(user_login, user_password))

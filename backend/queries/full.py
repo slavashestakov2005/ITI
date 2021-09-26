@@ -1,12 +1,12 @@
 from backend import app
-from flask import render_template, request
+from flask import render_template, request, send_file
 from flask_cors import cross_origin
 from flask_login import login_required
 import shutil
 import glob
 import os
 from .help import check_status, check_block_year, SplitFile
-from ..help import init_mail_messages, ExcelReader, FileManager
+from ..help import init_mail_messages, ExcelReader, ExcelWriter, FileManager
 from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
     TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
     SubjectsStudentsTable, HistoriesTable
@@ -25,6 +25,7 @@ from ..config import Config
     /db                     db()                    Делает SQL запросы к базе данных.
     /<year>/year_block      year_block()            Блокирует последующее редактирование года для всех.
     /load_data_from_excel   load_data_from_excel()  Загружает данные из Excel таблицы.
+    /<year>/download_excel  download_excel()        Выгружает данные в Excel.
 '''
 
 
@@ -46,8 +47,11 @@ def _delete_year(year: int):
 
     Generator.gen_years_lists()
     dir1, dir2 = Config.UPLOAD_FOLDER + '/' + str(year), Config.TEMPLATES_FOLDER + '/' + str(year)
-    dir3 = Config.DATA_FOLDER + '/sheet_' + str(year)
+    dir3, dir4 = Config.DATA_FOLDER + '/sheet_' + str(year), Config.DATA_FOLDER + '/data_' + str(year)
     for file in glob.glob(dir3 + '.*'):
+        FileManager.delete(file)
+        os.remove(file)
+    for file in glob.glob(dir4 + '.*'):
         FileManager.delete(file)
         os.remove(file)
     FileManager.delete_dir(dir1)
@@ -238,3 +242,13 @@ def load_data_from_excel():
     ExcelReader(filename, year).read()
 
     return render_template('subjects_and_years.html',  error5='Сохранено')
+
+
+@app.route('/<int:year>/download_excel', methods=['GET'])
+@cross_origin()
+@login_required
+@check_status('admin')
+def download_excel(year: int):
+    ExcelWriter(year).write(Config.DATA_FOLDER + '/data_{}.xlsx'.format(year))
+    filename = './data/data_{}.xlsx'.format(year)
+    return send_file(filename, as_attachment=True, attachment_filename='Данныe ИТИ {}.xlsx'.format(year))

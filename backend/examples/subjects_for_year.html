@@ -79,5 +79,9 @@
         </center></form>
     </center></div>
 </div>
+<br>
+{% if not current_user.is_anonymous and current_user.can_do(-1) %}
+<a href="download_excel">Скачать все данные за год в формате Excel.</a>
+{% endif %}
 
 {% endblock %}

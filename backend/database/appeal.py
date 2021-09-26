@@ -34,6 +34,10 @@ class AppealsTable:
         return Table.select_list(AppealsTable.table, Appeal)
 
     @staticmethod
+    def select_by_year(year: int) -> list:
+        return Table.select_list(AppealsTable.table, Appeal, 'year', year)
+
+    @staticmethod
     def select_by_year_and_subject(year: int, subject: int) -> list:
         return Table.select_list(AppealsTable.table, Appeal, 'year', year, 'subject', subject)
 
