@@ -103,7 +103,7 @@ class ExcelReader:
     def __gen_results__(self):
         for i, row in self.result.iterrows():
             if row[0] in self.subjects and int(row[1]) in self.students_codes and str(row[2]) != 'nan':
-                r = Result([self.year, self.subjects[row[0]], int(row[1]), row[2], 0, str(row[2])])
+                r = Result([self.year, self.subjects[row[0]], int(row[1]), row[2], 0, str(row[2]), 0])
                 ex = False
                 try:
                     ResultsTable.insert(r)

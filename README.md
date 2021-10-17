@@ -14,6 +14,7 @@
 | Регистрация, редактирование и удаление новых пользователей | admin | users.py | 23.04.21 |
 | Просмотр списка пользователей | admin | users.py, auto_generator.py | 19.09.21 |
 | Регистрация, редактирование и удаление участников ИТИ | Любая | students.py | 27.04.21 |
+| Поиск результатов участника | — | simple.py | 17.10.21 |
 | &nbsp; | | | |
 | История и отмена операций | admin | results.py | 22.09.21 |
 | Загрузка файлов | admin | files_edit.py | 23.04.21 |
@@ -51,3 +52,13 @@
 + [Таблица](https://drive.google.com/file/d/1v1KRGQv0LXIG6qS9Tl2b0p9_R18J4shq/view?usp=sharing) с результатами ИТИ 2019 и 2020.
 + [Форма](https://docs.google.com/forms/d/e/1FAIpQLSd7FopqmHoR5Ugcg_-ZAs-guy8NHS5PSvvDsx_rYetaPMKxjw/viewform?usp=sf_link) обратной связи.
 + [Сайт](https://test-python-slava-shestakov.herokuapp.com/) ИТИ на Heroku.
+
+## Установка и запуск
+1. Скачайте `Python` [отсюда](https://www.python.org/downloads/).
+2. Скачайте код сайт из репозитория (Code > Download ZIP).
+3. Распакуйте архив в какую-либо дирректорию и зайдите в неё из `cmd`.
+4. Выполните `pip install -r requirements.txt` для установки необходимых библиотек.
+5. Запустите файл `python main.py`.
+6. Откройте сервер по адресу [`localhost:8080/`](http://localhost:8080/).
+7. Сервер работает только при открытой `cmd`, для его остановки можно в `cmd` ввести `Ctrl+C`.
+8. При обновлении кода сервера из репозитория, шаг 4 почти всегда можно пропускать.

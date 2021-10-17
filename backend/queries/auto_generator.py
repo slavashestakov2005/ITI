@@ -197,7 +197,8 @@ class Generator:
             result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
             if last_result != result.result:
                 last_pos, last_result = cnt, result.result
-            text += tr_format(last_pos, people.name_1, people.name_2, people.class_name(), result.result,
+            result.position = last_pos
+            text += tr_format(result.position, people.name_1, people.name_2, people.class_name(), result.result,
                               result.net_score, color=last_pos, tabs=3)
             ResultsTable.update(result)
             cnt += 1

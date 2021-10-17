@@ -24,7 +24,7 @@ def save_result_(user: User, year: int, subject: int, user_id: int, res: str):
     res, result_sum, text_result = prepare_results(res)
     if res is None:
         return 5
-    r = Result([year, subject, user_id, result_sum, 0, text_result])
+    r = Result([year, subject, user_id, result_sum, 0, text_result, 0])
     if user_id == "" or res == "":
         return 1
     if StudentsCodesTable.select_by_code(year, user_id).__is_none__:
@@ -47,7 +47,7 @@ def save_result_(user: User, year: int, subject: int, user_id: int, res: str):
 def delete_result_(user: User, year: int, subject: int, user_id: int):
     if not user.can_do(-1):
         return -1
-    r = Result([year, subject, user_id, 0, 0, ''])
+    r = Result([year, subject, user_id, 0, 0, '', 0])
     old_r = ResultsTable.select_for_people(r)
     if old_r.__is_none__:
         return 1

@@ -39,6 +39,10 @@ class StudentsCodesTable:
         return Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code', code)
 
     @staticmethod
+    def select_by_student(year: int, student: int) -> StudentCode:
+        return Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'student', student)
+
+    @staticmethod
     def insert(student_code: StudentCode) -> None:
         return Table.insert(StudentsCodesTable.table, student_code)
 
