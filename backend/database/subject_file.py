@@ -23,10 +23,10 @@ class SubjectsFilesTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(SubjectsFilesTable.table, '''(
-        "year"	INTEGER NOT NULL,
-        "subject"	INTEGER NOT NULL,
-        "file"	TEXT NOT NULL,
-        PRIMARY KEY("subject","file","year")
+        year	INT NOT NULL,
+        subject	INT NOT NULL,
+        file	VARCHAR(256) NOT NULL,
+        PRIMARY KEY(subject,file,year)
         )''')
 
     @staticmethod

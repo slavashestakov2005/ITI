@@ -43,18 +43,18 @@ class YearsSubjectsTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(YearsSubjectsTable.table, '''(
-        "year"	INTEGER NOT NULL,
-        "subject"	INTEGER NOT NULL,
-        "score_5"	INTEGER NOT NULL,
-        "score_6"	INTEGER NOT NULL,
-        "score_7"	INTEGER NOT NULL,
-        "score_8"	INTEGER NOT NULL,
-        "score_9"	INTEGER NOT NULL,
-        "start"	INTEGER NOT NULL,
-        "end"	INTEGER NOT NULL,
-        "classes"	TEXT NOT NULL,
-        "place"	TEXT NOT NULL,
-        PRIMARY KEY("year","subject")
+        year	INT NOT NULL,
+        subject	INT NOT NULL,
+        score_5	INT NOT NULL,
+        score_6	INT NOT NULL,
+        score_7	INT NOT NULL,
+        score_8	INT NOT NULL,
+        score_9	INT NOT NULL,
+        start	INT NOT NULL,
+        end	INT NOT NULL,
+        classes	TEXT NOT NULL,
+        place	TEXT NOT NULL,
+        PRIMARY KEY(year,subject)
         )''')
 
     @staticmethod

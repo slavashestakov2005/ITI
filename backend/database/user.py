@@ -74,12 +74,13 @@ class UsersTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(UsersTable.table, '''(
-        "id"	SERIAL NOT NULL UNIQUE,
-        "login"	TEXT NOT NULL UNIQUE,
-        "password"	TEXT NOT NULL,
-        "status"	INTEGER NOT NULL,
-        "teams"	TEXT NOT NULL,
-        PRIMARY KEY("id"))''')
+        id	        INT NOT NULL UNIQUE KEY AUTO_INCREMENT,
+        login	    VARCHAR(30) NOT NULL UNIQUE,
+        password	TEXT NOT NULL,
+        status	    INT NOT NULL,
+        teams	    TEXT NOT NULL,
+        PRIMARY KEY(id)
+        )''')
         u = User([None, 'slava', '', -2, ''])
         u.set_password('123')
         UsersTable.insert(u)

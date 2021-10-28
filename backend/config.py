@@ -9,6 +9,13 @@ class Config:
     DATA_FOLDER = 'backend/data'
     ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'html', 'docx'])
     SECRET_KEY = 'you-will-never-guess'
+    TEMPLATES_AUTO_RELOAD = True
+
+    PA = True if os.getenv('PA') else False
+    PA_DB_USER = 'slavashestakov20'
+    PA_DB_PASSWORD = 'fd3hg2fd64tre54gafsd/kl'
+    PA_DB_HOST = 'slavashestakov2005.mysql.pythonanywhere-services.com'
+    PA_DB = 'slavashestakov20$iti'
 
     HEROKU = True if os.getenv('HEROKU') else False
     DROP_DB = True if os.getenv('DROP_DB') else False

@@ -25,11 +25,11 @@ class TeamsTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(TeamsTable.table, '''(
-        "id"	SERIAL NOT NULL UNIQUE,
-        "name"	TEXT NOT NULL,
-        "year"	INTEGER NOT NULL,
-        "later"	TEXT NOT NULL,
-        PRIMARY KEY("id")
+        id      INT NOT NULL UNIQUE KEY AUTO_INCREMENT,
+        name	TEXT NOT NULL,
+        year	INT NOT NULL,
+        later	TEXT NOT NULL,
+        PRIMARY KEY(id)
         )''')
 
     @staticmethod

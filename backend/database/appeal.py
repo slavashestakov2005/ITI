@@ -22,11 +22,11 @@ class AppealsTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(AppealsTable.table, '''(
-        "year"	INTEGER NOT NULL,
-        "subject"	INTEGER NOT NULL,
-        "student"	INTEGER NOT NULL,
-        "tasks"	TEXT NOT NULL,
-        "description"	TEXT NOT NULL
+        year	    INT     NOT NULL,
+        subject	    INT     NOT NULL,
+        student	    INT     NOT NULL,
+        tasks	    TEXT    NOT NULL,
+        description	TEXT    NOT NULL
         )''')
 
     @staticmethod

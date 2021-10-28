@@ -24,10 +24,10 @@ class GroupResultsTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(GroupResultsTable.table, '''(
-        "team"	INTEGER NOT NULL,
-        "subject"	INTEGER NOT NULL,
-        "result"	INTEGER NOT NULL,
-        PRIMARY KEY("team","subject")
+        team	INT NOT NULL,
+        subject	INT NOT NULL,
+        result	INT NOT NULL,
+        PRIMARY KEY(team,subject)
         )''')
 
     @staticmethod

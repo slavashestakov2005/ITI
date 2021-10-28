@@ -19,9 +19,9 @@ class TeamsStudentsTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(TeamsStudentsTable.table, '''(
-        "team"	INTEGER NOT NULL,
-        "student"	INTEGER NOT NULL,
-        PRIMARY KEY("team","student")
+        team	INT NOT NULL,
+        student	INT NOT NULL,
+        PRIMARY KEY(team,student)
         )''')
 
     @staticmethod

@@ -32,14 +32,14 @@ class HistoriesTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(HistoriesTable.table, '''(
-        "id"	SERIAL NOT NULL UNIQUE,
-        "year"	INTEGER NOT NULL,
-        "time"	INTEGER NOT NULL,
-        "user"	INTEGER NOT NULL,
-        "type"	INTEGER NOT NULL,
-        "description"	TEXT NOT NULL,
-        "revert"	INTEGER NOT NULL,
-        PRIMARY KEY("id")
+        id      INT NOT NULL UNIQUE KEY AUTO_INCREMENT,
+        year	INT NOT NULL,
+        time	INT NOT NULL,
+        user	INT NOT NULL,
+        type	INT NOT NULL,
+        description	TEXT NOT NULL,
+        revert	INT NOT NULL,
+        PRIMARY KEY(id)
         )''')
 
     @staticmethod

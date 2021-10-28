@@ -126,7 +126,7 @@ class ExcelReader:
         data.save_file()
 
     def read(self):
-        self.sheet = pd.ExcelFile(self.file)
+        self.sheet = pd.ExcelFile(self.file, engine="openpyxl")
         self.__frames__()
         self.__get_codes_cols__()
         self.__get_result_cols__()

@@ -19,9 +19,9 @@ class FilesTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(FilesTable.table, '''(
-        "name"	TEXT NOT NULL UNIQUE,
-        "data"	BYTEA NOT NULL,
-        PRIMARY KEY("name")
+        name    VARCHAR(256) NOT NULL UNIQUE,
+        data	BLOB NOT NULL,
+        PRIMARY KEY(name)
         )''')
 
     @staticmethod

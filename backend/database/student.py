@@ -30,12 +30,12 @@ class StudentsTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(StudentsTable.table, '''(
-        "id"        SERIAL NOT NULL UNIQUE,
-        "name_1"	TEXT NOT NULL,
-        "name_2"	TEXT NOT NULL,
-        "class_n"	INTEGER NOT NULL,
-        "class_l"	TEXT NOT NULL,
-        PRIMARY KEY("id")
+        id      INT     NOT NULL UNIQUE KEY AUTO_INCREMENT,
+        name_1	TEXT    NOT NULL,
+        name_2	TEXT    NOT NULL,
+        class_n	INT     NOT NULL,
+        class_l	TEXT NOT NULL,
+        PRIMARY KEY(id)
         )''')
 
     @staticmethod

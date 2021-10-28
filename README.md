@@ -51,7 +51,8 @@
 + [Документ](https://docs.google.com/document/d/1-kQDHJF7G2VTbGUDE-pVWSsK-hd90rPEaE97XZG1YqY/edit?usp=sharing) с предложениями по организации.
 + [Таблица](https://drive.google.com/file/d/1v1KRGQv0LXIG6qS9Tl2b0p9_R18J4shq/view?usp=sharing) с результатами ИТИ 2019 и 2020.
 + [Форма](https://docs.google.com/forms/d/e/1FAIpQLSd7FopqmHoR5Ugcg_-ZAs-guy8NHS5PSvvDsx_rYetaPMKxjw/viewform?usp=sf_link) обратной связи.
-+ [Сайт](https://test-python-slava-shestakov.herokuapp.com/) ИТИ на Heroku.
++ [Сайт](https://test-python-slava-shestakov.herokuapp.com/) ИТИ на `Heroku`.
++ [Сайт](https://slavashestakov2005.pythonanywhere.com/) ИТИ на `PythonAnywhere`.
 
 ## Установка и запуск
 1. Скачайте `Python` [отсюда](https://www.python.org/downloads/).

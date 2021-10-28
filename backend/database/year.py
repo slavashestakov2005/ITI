@@ -20,10 +20,10 @@ class YearsTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(YearsTable.table, '''(
-        "year"	INTEGER NOT NULL UNIQUE,
-        "message"	TEXT NOT NULL,
-        "block"	INTEGER NOT NULL,
-        PRIMARY KEY("year")
+        year	INT NOT NULL UNIQUE,
+        message	TEXT NOT NULL,
+        block	INT NOT NULL,
+        PRIMARY KEY(year)
         )''')
         YearsTable.insert(Year([2019, '', 1]))
         YearsTable.insert(Year([2020, '', 1]))

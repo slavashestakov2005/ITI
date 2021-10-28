@@ -28,11 +28,11 @@ class SubjectsTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(SubjectsTable.table, '''(
-        "id"	SERIAL NOT NULL UNIQUE,
-        "name"	TEXT NOT NULL UNIQUE,
-        "short_name"	TEXT NOT NULL,
-        "type"	TEXT NOT NULL,
-        PRIMARY KEY("id")
+        id          INT         NOT NULL UNIQUE KEY AUTO_INCREMENT,
+        name	    VARCHAR(30) NOT NULL UNIQUE,
+        short_name	TEXT        NOT NULL,
+        type	    TEXT        NOT NULL,
+        PRIMARY KEY(id)
         )''')
         SubjectsTable.insert(Subject([None, 'Командный тур', 'Команд.', 'a']))
         SubjectsTable.insert(Subject([None, 'История', 'Ист.', 'i']))
@@ -44,12 +44,12 @@ class SubjectsTable:
         SubjectsTable.insert(Subject([None, 'Обществознание', 'Общ.', 'i']))
         SubjectsTable.insert(Subject([None, 'Естествознание', 'Ест.', 'i']))
         SubjectsTable.insert(Subject([None, 'Литература', 'Лит.', 'i']))
-        SubjectsTable.insert(Subject([None, 'Исскуство', 'Иск.', 'i']))
+        SubjectsTable.insert(Subject([None, 'Искусство', 'Иск.', 'i']))
         SubjectsTable.insert(Subject([None, 'Карусель', 'Карус.', 'g']))
         SubjectsTable.insert(Subject([None, 'Естественно-научные бои', 'Е-н. бои', 'g']))
         SubjectsTable.insert(Subject([None, 'Коммуникативные бои', 'Ком. бои', 'g']))
-        SubjectsTable.insert(Subject([None, 'Литература (групповая)', 'Пар. лит', 'g']))
-        SubjectsTable.insert(Subject([None, 'Английский язык (групповой)', 'Пар. анг.', 'g']))
+        SubjectsTable.insert(Subject([None, ' Литература', 'Пар. лит', 'g']))
+        SubjectsTable.insert(Subject([None, ' Английский язык', 'Пар. анг.', 'g']))
         SubjectsTable.insert(Subject([None, 'Театр', 'Театр', 'g']))
         SubjectsTable.insert(Subject([None, 'Изобретательство', 'Изобр.', 'g']))
 

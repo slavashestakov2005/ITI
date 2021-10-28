@@ -28,14 +28,14 @@ class ResultsTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(ResultsTable.table, '''(
-        "year"	INTEGER NOT NULL,
-        "subject"	INTEGER NOT NULL,
-        "user"	INTEGER NOT NULL,
-        "result"	REAL NOT NULL,
-        "net_score"	INTEGER NOT NULL,
-        "text_result"	TEXT NOT NULL,
-        "position"	INTEGER NOT NULL,
-        PRIMARY KEY("year","subject","user")
+        year	    INT NOT NULL,
+        subject	    INT NOT NULL,
+        user	    INT NOT NULL,
+        result	    REAL NOT NULL,
+        net_score	INT NOT NULL,
+        text_result	TEXT NOT NULL,
+        position	INT NOT NULL,
+        PRIMARY KEY(year,subject,user)
         )''')
 
     @staticmethod

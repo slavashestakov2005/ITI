@@ -454,7 +454,7 @@ class Generator:
         for r in class_results:
             sub_sums = {_.id: 0 for _ in subjects}
             txt += template.format(str(class_n) + r)
-            position, last_pos, last_result = 1, 1, None
+            position, last_pos, last_result, sum_of_sums = 1, 1, None, 0
             for x in class_results[r]:
                 if x.result != last_result:
                     last_pos, last_result = position, x.result
@@ -467,8 +467,9 @@ class Generator:
                         row.append('—')
                 txt += tr_format(*row, x.result, color=last_pos, tabs=4)
                 position += 1
+                sum_of_sums += x.result
             sub_sums = sub_sums.values()
-            txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, sum(sub_sums),
+            txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, sum_of_sums,
                                                                                             tr=False) + '</tr>\n'
             txt += ' ' * 12 + '</table>\n' + ' ' * 8 + '</div>'
         txt += '\n    '
@@ -574,21 +575,22 @@ class Generator:
             class_name = student.class_name()
             if class_name not in class_results:
                 class_results[class_name] = 0
-            class_results[class_name] += r.net_score
             if r.user not in student_result:
                 student_result[r.user] = []
             student_result[r.user].append(r.net_score)
             if student.id not in all_student_result:
                 all_student_result[student.id] = {}
             all_student_result[student.id][r.subject] = r.net_score
-            if student.id in student_team:
-                team_result[student_team[student.id]] += r.net_score
         for r in student_result:
             student_result[r].sort(reverse=True)
             cnt = 0
             for i in range(min(4, len(student_result[r]))):
                 cnt += student_result[r][i]
             codes[r].result = cnt
+            student = codes[r]
+            class_results[student.class_name()] += cnt
+            if student.id in student_team:
+                team_result[student_team[student.id]] += cnt
         codes = sorted(codes.items(), key=compare(lambda x: -x[1].class_n, lambda x: -x[1].result,
                         lambda x: x[1].class_l, lambda x: x[1].name_1, lambda x: x[1].name_2, field=True))
         class_results = sorted(class_results.items(), key=compare(lambda x: -x[1], lambda x: x[0], field=True))
@@ -673,22 +675,25 @@ class Generator:
             students = [codes[_.student] for _ in students]
             students.sort(key=compare(lambda x: x.class_name(), lambda x: x.name_1, lambda x: x.name_2, field=True))
             sub_sums = {_.id: 0 for _ in subjects}
+            sum_of_sums = 0
             if len(students) == 0:
                 continue
             txt += template.format(team.name)
             for student in students:
                 row = [student.class_name(), student.name_1, student.name_2]
-                summ = 0
+                summ = []
                 for subject in subjects:
                     if student.id in student_result and subject.id in student_result[student.id]:
                         row.append(student_result[student.id][subject.id])
                         sub_sums[subject.id] += row[-1]
-                        summ += row[-1]
+                        summ.append(row[-1])
                     else:
                         row.append('—')
+                summ = sum(sorted(summ)[-4:])
                 txt += tr_format(*row, summ, tabs=4)
+                sum_of_sums += summ
             sub_sums = sub_sums.values()
-            txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, sum(sub_sums),
+            txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, sum_of_sums,
                                                                                             tr=False) + '</tr>\n'
             txt += ' ' * 12 + '</table>\n' + ' ' * 8 + '</div>\n'
         txt += ' ' * 4

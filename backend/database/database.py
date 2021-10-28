@@ -2,20 +2,29 @@ from typing import Tuple
 from ..config import Config
 if Config.HEROKU:
     import psycopg2 as db
+elif Config.PA:
+    import MySQLdb as db
 else:
     import sqlite3 as db
 
 
 class DataBase:
     @staticmethod
+    def connect():
+        if Config.PA:
+            return db.connect(user=Config.PA_DB_USER, passwd=Config.PA_DB_PASSWORD, host=Config.PA_DB_HOST,
+                              db=Config.PA_DB)
+        return db.connect(Config.DB)
+
+    @staticmethod
     def prepare_sql(sql: str, params=()) -> str:
         print("SQL : " + sql + ", params = " + str(params))
-        return sql if not Config.HEROKU else sql.replace('?', '%s')
+        return sql if not Config.HEROKU and not Config.PA else sql.replace('?', '%s')
 
     @staticmethod
     def just_execute(sql: str, params=()) -> None:
         sql = DataBase.prepare_sql(sql, params)
-        connection = db.connect(Config.DB)
+        connection = DataBase.connect()
         cursor = connection.cursor()
         cursor.execute(sql, params)
         connection.commit()
@@ -24,7 +33,7 @@ class DataBase:
     @staticmethod
     def execute(sql: str, params=()) -> list:
         sql = DataBase.prepare_sql(sql, params)
-        connection = db.connect(Config.DB)
+        connection = DataBase.connect()
         cursor = connection.cursor()
         cursor.execute(sql, params)
         result = cursor.fetchall()
@@ -101,7 +110,8 @@ class Table:
             create = new_create[0]
             for i in range(1, len(new_create), 2):
                 create += '"' + Config.DB_COLS_PREFIX + new_create[i] + '"' + new_create[i + 1]
-            DataBase.just_execute('CREATE TABLE "{0}" {1};'.format(table_name, create))
+            template = 'CREATE TABLE "{0}" {1};' if not Config.PA else 'CREATE TABLE {0} {1};'
+            DataBase.just_execute(template.format(table_name, create))
         except Exception as ex:
             print('Exception: ', ex)
 

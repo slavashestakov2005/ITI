@@ -20,10 +20,10 @@ class StudentsCodesTable:
     @staticmethod
     def create_table() -> None:
         Table.drop_and_create(StudentsCodesTable.table, '''(
-        "year"	INTEGER NOT NULL,
-        "code"	INTEGER NOT NULL,
-        "student"	INTEGER NOT NULL,
-        PRIMARY KEY("code","year")
+        year	INT NOT NULL,
+        code	INT NOT NULL,
+        student	INT NOT NULL,
+        PRIMARY KEY(code,year)
         )''')
 
     @staticmethod
