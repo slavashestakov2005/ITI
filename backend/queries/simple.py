@@ -37,11 +37,12 @@ def static_file(path):
         return forbidden_error()
     try:
         if len(parts) >= 2 and parts[1] == 'html':
-            parts = path.split('/')
+            parts, params = path.split('/'), {}
             if parts[0].isdigit():
-                return render_template(path, year=parts[0])
-            else:
-                return render_template(path)
+                params['year'] = parts[0]
+            if parts[0] == 'Info' or parts[0] == '2019' or parts[0] == '2020':
+                params['is_info'] = True
+            return render_template(path, **params)
         return app.send_static_file(path)
     except TemplateNotFound:
         return not_found_error()

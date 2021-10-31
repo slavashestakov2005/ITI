@@ -3,7 +3,7 @@ from flask import render_template, request, redirect
 from flask_cors import cross_origin
 from flask_login import login_user, logout_user, current_user, login_required
 from backend.database import UsersTable, User
-from .help import check_status, check_block_year
+from .help import check_status, check_block_year, empty_checker
 from .auto_generator import Generator
 
 '''
@@ -31,6 +31,7 @@ def login():
         try:
             user_login = request.form['login']
             user_password = request.form['password']
+            empty_checker(user_login, user_password)
         except Exception:
             return render_template('login.html', error='Некорректные данные')
 
@@ -62,6 +63,7 @@ def settings():
             password_old = request.form['password_old']
             password = request.form['password']
             password2 = request.form['password2']
+            empty_checker(password_old, password, password2)
         except Exception:
             return render_template('settings.html', error='Некорректные данные')
 
@@ -93,6 +95,7 @@ def registration():
             user_password = request.form['password']
             user_password2 = request.form['password2']
             user_status = request.form.getlist('status')
+            empty_checker(user_login, user_password, user_password2)
         except Exception:
             return render_template('user_edit.html', error1='Некорректные данные')
 
@@ -123,6 +126,7 @@ def edit_status():
         try:
             user_login = request.form['login']
             user_status = request.form.getlist('status')
+            empty_checker(user_login)
         except Exception:
             return render_template('user_edit.html', error2='Некорректные данные')
 
@@ -146,6 +150,7 @@ def delete():
     if request.method == 'POST':
         try:
             user_login = request.form['login']
+            empty_checker(user_login)
         except Exception:
             return render_template('user_edit.html', error3='Некорректные данные')
 

@@ -1,11 +1,11 @@
 from backend import app
 from ..database import StudentsTable, Student, StudentsCodesTable, StudentCode, YearsTable
-from .help import check_status, check_block_year, split_class
+from .help import check_status, check_block_year, split_class, empty_checker
 from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required
-from random import shuffle
+from random import sample
 '''
     /registration_student   registration_student()      Регистрирует участника.
     /edit_student           edit_student()              Редактирует ученика.
@@ -24,7 +24,9 @@ from random import shuffle
 def registration_student():
     try:
         class_ = split_class(request.form['class'])
-        student = Student([None, request.form['name1'], request.form['name2'], class_[0], class_[1]])
+        name1, name2 = request.form['name1'].capitalize(), request.form['name2'].capitalize()
+        empty_checker(name1, name2)
+        student = Student([None, name1, name2, class_[0], class_[1].capitalize()])
     except Exception:
         return render_template('student_edit.html', error1='Некорректные данные')
 
@@ -43,7 +45,9 @@ def registration_student():
 def edit_student():
     try:
         class_old = split_class(request.form['o_class'])
-        student_old = Student([None, request.form['o_name1'], request.form['o_name2'], class_old[0], class_old[1]])
+        o_name1, o_name2 = request.form['o_name1'].capitalize(), request.form['o_name2'].capitalize()
+        empty_checker(o_name1, o_name2)
+        student_old = Student([None, o_name1, o_name2, class_old[0], class_old[1].capitalize()])
     except Exception:
         return render_template('student_edit.html', error2='Некорректные данные')
 
@@ -54,15 +58,16 @@ def edit_student():
     rows.append(student_old.id)
 
     try:
-        rows.append(request.form['n_name1'] if request.form['n_name1'] else student_old.name_1)
-        rows.append(request.form['n_name2'] if request.form['n_name2'] else student_old.name_2)
+        rows.append(request.form['n_name1'].capitalize() if request.form['n_name1'] else student_old.name_1)
+        rows.append(request.form['n_name2'].capitalize() if request.form['n_name2'] else student_old.name_2)
         if request.form['n_class']:
             class_ = split_class(request.form['n_class'])
             rows.append(class_[0])
-            rows.append(class_[1])
+            rows.append(class_[1].capitalize())
         else:
             rows.append(student_old.class_n)
             rows.append(student_old.class_l)
+        empty_checker(rows[1], rows[2])
     except Exception:
         return render_template('student_edit.html', error2='Некорректные данные')
 
@@ -80,7 +85,9 @@ def edit_student():
 def delete_student():
     try:
         class_ = split_class(request.form['class'])
-        student = Student([None, request.form['name1'], request.form['name2'], class_[0], class_[1]])
+        name1, name2 = request.form['name1'].capitalize(), request.form['name2'].capitalize()
+        empty_checker(name1, name2)
+        student = Student([None, name1, name2, class_[0], class_[1].capitalize()])
     except Exception:
         return render_template('student_edit.html', error3='Некорректные данные')
 
@@ -102,8 +109,7 @@ def create_codes(year: int):
         return render_template(str(year) + '/codes.html', year=year, error='Этого года нет.')
     students = StudentsTable.select_all()
     length = len(students)
-    codes = [_ for _ in range(9999, 9999 - length, -1)]
-    shuffle(codes)
+    codes = sample(range(1000, 10000), length)
     StudentsCodesTable.delete_by_year(year)
     for i in range(length):
         codes[i] = StudentCode([year, codes[i], students[i].id])

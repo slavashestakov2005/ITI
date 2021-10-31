@@ -5,7 +5,7 @@ from flask_login import login_required
 import shutil
 import glob
 import os
-from .help import check_status, check_block_year, SplitFile
+from .help import check_status, check_block_year, SplitFile, empty_checker
 from ..help import init_mail_messages, ExcelReader, ExcelWriter, FileManager
 from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
     TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
@@ -74,6 +74,8 @@ def _delete_year(year: int):
 def add_year():
     try:
         name = int(request.form['name'])
+        if name <= 2000 or name >= 2100:
+            raise ValueError
     except ValueError:
         return render_template('subjects_and_years.html', error1='Некорректный год')
 
@@ -98,6 +100,9 @@ def delete_year():
         year = int(request.form['year'])
     except ValueError:
         return render_template('subjects_and_years.html', error6='Некорректный год')
+
+    if YearsTable.select_by_year(year).__is_none__:
+        return render_template('subjects_and_years.html', error6='Года не существует')
     _delete_year(year)
     return render_template('subjects_and_years.html', error6='Год удалён')
 
@@ -111,6 +116,9 @@ def add_subject():
     try:
         name = request.form['name']
         subject_type = request.form['type']
+        empty_checker(name)
+        if subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
+            raise ValueError
     except Exception:
         return render_template('subjects_and_years.html', error2='Некорректные данные')
 
@@ -133,6 +141,9 @@ def edit_subject():
         id = int(request.form['id'])
         new_name = request.form['new_name']
         subject_type = request.form['new_type']
+        empty_checker(new_name)
+        if subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
+            raise ValueError
     except Exception:
         return render_template('subjects_and_years.html',  error3='Некорректные данные')
 
@@ -225,7 +236,7 @@ def load_data_from_excel():
         year = int(request.form['year'])
         file = request.files['file']
         parts = [x.lower() for x in file.filename.rsplit('.', 1)]
-        if len(parts) < 2:
+        if len(parts) < 2 or year <= 2000 or year >= 2100:
             raise ValueError
         filename = Config.DATA_FOLDER + '/sheet_' + str(year) + '.' + parts[1]
     except Exception:

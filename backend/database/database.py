@@ -18,7 +18,6 @@ class DataBase:
 
     @staticmethod
     def prepare_sql(sql: str, params=()) -> str:
-        print("SQL : " + sql + ", params = " + str(params))
         return sql if not Config.HEROKU and not Config.PA else sql.replace('?', '%s')
 
     @staticmethod

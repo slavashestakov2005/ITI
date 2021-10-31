@@ -5,7 +5,7 @@ from ..database import ResultsTable, Result, SubjectsTable, YearsSubjectsTable, 
 from flask import render_template, request, redirect
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
-from .help import check_status, check_block_year, correct_new_line, path_to_subject, compare
+from .help import check_status, check_block_year, correct_new_line, path_to_subject, compare, empty_checker
 from .auto_generator import Generator
 from ..config import Config
 from .results_raw import save_result_, delete_result_
@@ -310,6 +310,7 @@ def add_appeal(year: int, path2, path3):
             code = int(request.form['code'])
             tasks = request.form['tasks']
             description = correct_new_line(request.form['description'])
+            empty_checker(tasks, description)
         except Exception:
             params['error1'] = 'Некорректные данные'
         else:

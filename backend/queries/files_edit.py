@@ -3,7 +3,7 @@ from flask import request, redirect, render_template, url_for
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend.config import Config
-from .help import check_status, check_block_year, correct_new_line, path_to_subject
+from .help import check_status, check_block_year, correct_new_line, path_to_subject, empty_checker
 from ..help import not_found_error, forbidden_error, FileManager
 from ..database import SubjectsTable, YearsTable, YearsSubjectsTable, SubjectsFilesTable, SubjectFile
 from .results import chose_params
@@ -60,6 +60,7 @@ def upload():
             file = request.files['file']
             new_path = request.form['new_path']
             new_name = request.form['new_name']
+            empty_checker(new_name)
         except Exception:
             return forbidden_error()
 

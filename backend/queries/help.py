@@ -14,6 +14,7 @@ from datetime import datetime
     all_templates()                 Список всех файлов-шаблонов из папки шаблонов.
     correct_new_line(str)           Заменяет все переносы строк на '\n'.
     split_class(str)                Разбивает класс на букву и цифру.
+    empty_checker(*args)            Проверяет аргументы на пустую строку и выбрасывает ValueError.
     tr_format(*args)                Генерирует строку для HTML-таблицы.
     path_to_subject(path)           Извлекает id предмета из имени файла.
     parse_files()                   Проходит все файлы, генерирует списки доступа.
@@ -46,6 +47,12 @@ def split_class(class_):
     if len(class_) == 1:
         return int(class_), ''
     return int(class_[:-1]), class_[-1],
+
+
+def empty_checker(*args):
+    for x in args:
+        if not x or not len(x):
+            raise ValueError
 
 
 def tr_format(*args, color=None, tabs=0, tr=True):

@@ -1,7 +1,7 @@
 from backend import app
 from ..database import TeamsTable, Team, StudentsTable, Student, TeamsStudentsTable, TeamStudent, User,\
     YearsSubjectsTable, SubjectsTable, SubjectsStudentsTable, SubjectStudent, UsersTable
-from .help import check_status, check_block_year, split_class, forbidden_error
+from .help import check_status, check_block_year, split_class, empty_checker
 from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
@@ -51,7 +51,8 @@ def add_team(year: int):
     args = teams_page_params(current_user, year)
     try:
         name = request.form['name']
-        later = request.form['later']
+        later = request.form['later'].capitalize()
+        empty_checker(name, later)
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error1='Некорректные данные')
 
@@ -69,7 +70,7 @@ def add_team(year: int):
 @check_block_year()
 def delete_team(year: int):
     try:
-        id = request.form['id']
+        id = int(request.form['id'])
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
                                error2='Некорректные данные')
@@ -88,10 +89,12 @@ def delete_team(year: int):
 def add_student_team(year: int):
     args = teams_page_params(current_user, year)
     try:
-        team = request.form['team']
-        name1 = request.form['name1']
-        name2 = request.form['name2']
+        team = int(request.form['team'])
+        name1 = request.form['name1'].capitalize()
+        name2 = request.form['name2'].capitalize()
         class_ = split_class(request.form['class'])
+        class_[1].capitalize()
+        empty_checker(name1, name2)
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error3='Некорректные данные')
 
@@ -117,10 +120,12 @@ def add_student_team(year: int):
 def delete_student_team(year: int):
     args = teams_page_params(current_user, year)
     try:
-        team = request.form['team']
-        name1 = request.form['name1']
-        name2 = request.form['name2']
+        team = int(request.form['team'])
+        name1 = request.form['name1'].capitalize()
+        name2 = request.form['name2'].capitalize()
         class_ = split_class(request.form['class'])
+        class_[1].capitalize()
+        empty_checker(name1, name2)
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error4='Некорректные данные')
 
@@ -175,6 +180,7 @@ def add_user_team(year: int):
     try:
         login = request.form['login']
         team = int(request.form['team'])
+        empty_checker(login)
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error6='Некорректные данные')
 
@@ -199,6 +205,7 @@ def delete_user_team(year: int):
     try:
         login = request.form['login']
         team = int(request.form['team'])
+        empty_checker(login)
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error7='Некорректные данные')
 
