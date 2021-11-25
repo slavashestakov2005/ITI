@@ -14,7 +14,7 @@ class SubjectFile(Row):
         Row.__init__(self, SubjectFile, row)
 
     def just_filename(self):
-        return self.file.rsplit('.', 2)[1][1:]
+        return '.'.join(self.file.split('.')[2:-1])[1:]
 
 
 class SubjectsFilesTable:

@@ -15,3 +15,23 @@ function addResult(window) {
 function addAppeal(window) {
     document.location.replace(window.location + '/add_appeal');
 }
+
+function file_type() {
+    if (document.getElementById('is_sol').checked) {
+        document.getElementById('form_2').style.display = 'block';
+        document.getElementById('form_1').style.display = 'none';
+    } else {
+        document.getElementById('form_1').style.display = 'block';
+        document.getElementById('form_2').style.display = 'none';
+    }
+}
+
+function file_type2() {
+    if (document.getElementById('is_sol2').checked) {
+        document.getElementById('form_4').style.display = 'block';
+        document.getElementById('form_3').style.display = 'none';
+    } else {
+        document.getElementById('form_3').style.display = 'block';
+        document.getElementById('form_4').style.display = 'none';
+    }
+}

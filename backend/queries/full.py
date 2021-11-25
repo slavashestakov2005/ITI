@@ -6,7 +6,7 @@ import shutil
 import glob
 import os
 from .help import check_status, check_block_year, SplitFile, empty_checker
-from ..help import init_mail_messages, ExcelReader, ExcelWriter, FileManager
+from ..help import init_mail_messages, ExcelWriter, FileManager, AsyncWorker
 from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
     TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
     SubjectsStudentsTable, HistoriesTable
@@ -115,6 +115,7 @@ def delete_year():
 def add_subject():
     try:
         name = request.form['name']
+        short_name = request.form['short_name']
         subject_type = request.form['type']
         empty_checker(name)
         if subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
@@ -125,9 +126,12 @@ def add_subject():
     subject = SubjectsTable.select_by_name(name)
     if not subject.__is_none__:
         return render_template('subjects_and_years.html', error2='Предмет уже существует')
-    subject = Subject([None, name, subject_type])
+    subject = Subject([None, name, short_name, subject_type])
     SubjectsTable.insert(subject)
+    subject = SubjectsTable.select_by_name(subject.name)
     Generator.gen_subjects_lists()
+    if subject_type == 'g':
+        Generator.gen_rules(subject)
     return render_template('subjects_and_years.html', error2='Предмет добавлен')
 
 
@@ -140,6 +144,7 @@ def edit_subject():
     try:
         id = int(request.form['id'])
         new_name = request.form['new_name']
+        short_name = request.form['new_short_name']
         subject_type = request.form['new_type']
         empty_checker(new_name)
         if subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
@@ -151,6 +156,7 @@ def edit_subject():
     if subject.__is_none__:
         return render_template('subjects_and_years.html',  error3='Предмета не существует')
     subject.name = new_name
+    subject.short_name = short_name
     subject.type = subject_type
     SubjectsTable.update_by_id(subject)
     Generator.gen_subjects_lists()
@@ -226,12 +232,16 @@ def year_block(year: int):
     return render_template(str(year.year) + '/subjects_for_year.html', error8='Сохранено.', year=year.year)
 
 
-@app.route('/load_data_from_excel', methods=['POST'])
+@app.route('/load_data_from_excel', methods=['POST', 'GET'])
 @cross_origin()
 @login_required
 @check_status('full')
 @check_block_year()
 def load_data_from_excel():
+    if request.method == 'GET':
+        if AsyncWorker.is_alive():
+            return render_template('subjects_and_years.html',  error5='Сохраняется: {}'.format(AsyncWorker.cur_time()))
+        return render_template('subjects_and_years.html')
     try:
         year = int(request.form['year'])
         file = request.files['file']
@@ -241,6 +251,8 @@ def load_data_from_excel():
         filename = Config.DATA_FOLDER + '/sheet_' + str(year) + '.' + parts[1]
     except Exception:
         return render_template('subjects_and_years.html',  error5='Некорректные данные')
+    if AsyncWorker.is_alive():
+        return render_template('subjects_and_years.html',  error5='Один процесс уже запущен')
 
     _delete_year(year)
     YearsTable.insert(Year([year, '', 1]))
@@ -250,9 +262,9 @@ def load_data_from_excel():
 
     file.save(filename)
     FileManager.save(filename)
-    ExcelReader(filename, year).read()
+    AsyncWorker.call(filename, year)
 
-    return render_template('subjects_and_years.html',  error5='Сохранено')
+    return render_template('subjects_and_years.html',  error5='Сохранение...')
 
 
 @app.route('/<int:year>/download_excel', methods=['GET'])

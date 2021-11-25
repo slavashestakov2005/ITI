@@ -5,12 +5,13 @@ from flask_login import login_required, current_user
 from backend.config import Config
 from .help import check_status, check_block_year, correct_new_line, path_to_subject, empty_checker
 from ..help import not_found_error, forbidden_error, FileManager
-from ..database import SubjectsTable, YearsTable, YearsSubjectsTable, SubjectsFilesTable, SubjectFile
+from ..database import SubjectsTable, YearsTable, YearsSubjectsTable, SubjectsFilesTable, SubjectFile, StudentsTable,\
+    StudentsCodesTable, Student
 from .results import chose_params
 from .auto_generator import Generator
 import os
 '''
-    generate_filename()                     Генерирует имя для нового файла.
+    generate_filename...(...)               Генерирует имя для нового файла.
     /upload         upload()                Загружает файлы (admin).
     /<path1>/<path2>/<path3>/main_uploader  Загружает файлы по предмету (предметник).
     /<path1>/<path2>/<path3>/main_deleter   Удаляет файлы по предмету (предметник).
@@ -49,6 +50,21 @@ def generate_filename_by_type(year: int, subject: int, types: list, classes: lis
     return filename
 
 
+def generate_filename_by_student(year: int, subject: int, code: int, desc: str):
+    student = StudentsCodesTable.select_by_code(year, code)
+    if student.__is_none__:
+        return None
+    student = StudentsTable.select(student.student)
+    if student.__is_none__:
+        return None
+    filename = 'ИТИ ' + str(year) + '. '
+    subject = SubjectsTable.select_by_id(subject)
+    if subject.__is_none__:
+        return None
+    filename += subject.name + '. {} {} {}. '.format(student.name_1, student.name_2, student.class_name()) + desc
+    return filename
+
+
 @app.route("/upload", methods=['GET', 'POST'])
 @cross_origin()
 @login_required
@@ -81,14 +97,20 @@ def main_uploader(year: int, path2, path3):
     try:
         subject = path_to_subject(path3)
         file = request.files['file']
-        types = request.form.getlist('type')
-        classes = request.form.getlist('class_n')
+        form_2 = request.form.get('is_sol') is not None
+        if form_2:
+            code = int(request.form['code'])
+            description = request.form['description']
+        else:
+            types = request.form.getlist('type')
+            classes = request.form.getlist('class_n')
     except Exception:
         return forbidden_error()
 
     if not current_user.can_do(subject) or YearsSubjectsTable.select(year, subject).__is_none__:
         return forbidden_error()
-    filename = generate_filename_by_type(year, subject, types, classes)
+    filename = generate_filename_by_student(year, subject, code, description) if form_2 \
+                else generate_filename_by_type(year, subject, types, classes)
     filename = generate_filename(file.filename, str(year) + '/' + path2 + '/' + str(subject), filename)
     if filename:
         name = os.path.join(Config.UPLOAD_FOLDER, filename)
@@ -110,13 +132,21 @@ def main_deleter(year: int, path2, path3):
     params = chose_params(year, path2, path3)
     try:
         subject = path_to_subject(path3)
-        types = request.form.getlist('type')
-        classes = request.form.getlist('class_n')
+        form_2 = request.form.get('is_sol2') is not None
+        if form_2:
+            code = int(request.form['code'])
+            description = request.form['description']
+        else:
+            types = request.form.getlist('type')
+            classes = request.form.getlist('class_n')
         extension = request.form['extension']
     except Exception:
         return forbidden_error()
 
-    file = generate_filename_by_type(year, subject, types, classes)
+    if not current_user.can_do(subject) or YearsSubjectsTable.select(year, subject).__is_none__:
+        return forbidden_error()
+    file = generate_filename_by_student(year, subject, code, description) if form_2 \
+        else generate_filename_by_type(year, subject, types, classes)
     file = str(year) + '/' + path2 + '/' + str(subject) + '/' + file + '.' + extension
     info = SubjectFile([year, subject, file])
     file = Config.UPLOAD_FOLDER + '/' + file

@@ -64,6 +64,14 @@ class ResultsTable:
         return Table.insert(ResultsTable.table, result)
 
     @staticmethod
+    def replace(results: list) -> None:
+        i = 0
+        while i < len(results):
+            j = min(i + 125, len(results))
+            Table.replace(ResultsTable.table, results[i:j])
+            i = j
+
+    @staticmethod
     def delete_by_year(year: int) -> None:
         return Table.delete(ResultsTable.table, 'year', year)
 

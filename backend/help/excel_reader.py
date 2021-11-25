@@ -101,16 +101,11 @@ class ExcelReader:
         self.students_codes = set(self.students_codes)
 
     def __gen_results__(self):
+        result = []
         for i, row in self.result.iterrows():
             if row[0] in self.subjects and int(row[1]) in self.students_codes and str(row[2]) != 'nan':
-                r = Result([self.year, self.subjects[row[0]], int(row[1]), row[2], 0, str(row[2]), 0])
-                ex = False
-                try:
-                    ResultsTable.insert(r)
-                except Exception:
-                    ex = True
-                if ex:
-                    ResultsTable.update(r)
+                result.append(Result([self.year, self.subjects[row[0]], int(row[1]), row[2], 0, str(row[2]), 0]))
+        ResultsTable.replace(result)
         for subject in self.subjects.values():
             t = self.all_subjects[subject].type_str()
             Generator.gen_results(self.year, subject, str(self.year) + '/' + t + '/' + str(subject) + '.html')
@@ -135,6 +130,8 @@ class ExcelReader:
         self.__gen_students__()
         self.__gen_results__()
         self.__gen_pages__()
+        self.sheet.close()
+        self.sheet.handles = None
 
 
 def add_row(worksheet, idx, *args):

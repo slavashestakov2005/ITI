@@ -22,6 +22,7 @@ import glob
         gen_timetable(year)                 Генерирует расписание предметов года year.
         gen_files_list(year, sub, path)     Генерирует список предметных файлов.
         gen_users_list()                    Генерирует список пользователей.
+        gen_rules()                         Генерирует страницу для правил группового тура.
 '''
 
 
@@ -49,7 +50,7 @@ class Generator:
         type1 = type2 = type3 = type4 = type5 = type6 = '\n'
         for subject in subjects:
             text1 = ' ' * 16 + '<p><input type="checkbox" name="status" value="{0}">{1}</p>\n'.format(subject.id, subject.name)
-            text2 = ' ' * 12 + '<p>[ {0} ] {1}</p>\n'.format(subject.id, subject.name)
+            text2 = ' ' * 12 + '<p>[ {0} ] {1} ({2})</p>\n'.format(subject.id, subject.name, subject.short_name)
             if subject.type == 'i':
                 type1 += text1
                 type4 += text2
@@ -190,7 +191,7 @@ class Generator:
                 <td width="10%">Балл в рейтинг</td>
             </tr>\n'''
         cnt, last_pos, last_result = 1, 0, None
-        for result in results:
+        for result in results[:20]:
             if result.result > maximum:
                 raise ValueError("Bad results are saved")
             people = codes[result.user]
@@ -383,7 +384,7 @@ class Generator:
         <tr>
             <td width="5%">Место</td>
             <td width="15%">Команда</td>
-            <td width="8%">День 1 + День 2</td>\n'''
+            <td width="8%">Инд. тур</td>\n'''
         for x in YearsSubjectsTable.select_by_year(year):
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'g':
@@ -393,7 +394,7 @@ class Generator:
                 team = subject
         if team:
             subjects.append(team)
-            txt += ' ' * 12 + '<td width="8%">Командный</td>\n'
+            txt += ' ' * 12 + '<td width="8%">{}</td>\n'.format(team.short_name)
         txt += ' ' * 12 + '<td width="8%">Сумма</td>\n' + ' ' * 8 + '</tr>\n'
         subject_ids = [_.id for _ in subjects]
         cols_result = [[] for i in range(len(subject_ids) + 2)]
@@ -734,3 +735,13 @@ class Generator:
         data = SplitFile(Config.TEMPLATES_FOLDER + '/user_edit.html')
         data.insert_after_comment(' list of users ', txt + ' ' * 9)
         data.save_file()
+
+    @staticmethod
+    def gen_rules(subject):
+        href = '<li><p><a href="{0}.html">{1}</a></p></li>\n'.format(subject.id, subject.name) + ' ' * 12
+        data = SplitFile(Config.TEMPLATES_FOLDER + '/Info/rules.html')
+        data.insert_after_comment(' tours rules ', href, append=True)
+        data.save_file()
+        data = SplitFile(Config.HTML_FOLDER + '/rules.html')
+        data.replace_comment(' {name} ', subject.name)
+        data.save_file(Config.TEMPLATES_FOLDER + '/Info/{}.html'.format(subject.id))

@@ -84,6 +84,12 @@ class UsersTable:
         u = User([None, 'slava', '', -2, ''])
         u.set_password('123')
         UsersTable.insert(u)
+        u = User([None, 'савокина', '', -1, ''])
+        u.set_password('1')
+        UsersTable.insert(u)
+        u = User([None, 'проходский', '', -1, ''])
+        u.set_password('1')
+        UsersTable.insert(u)
 
     @staticmethod
     def select_all() -> list:

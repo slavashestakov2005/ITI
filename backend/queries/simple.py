@@ -59,6 +59,8 @@ def bie():
 @cross_origin()
 def search(year: int):
     params, q = {}, request.args.get('q')
+    if year == 2019 or year == 2020:
+        params['is_info'] = True
     if q and q != '':
         q, data = q.split(), []
         res_per = q

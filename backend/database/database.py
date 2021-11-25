@@ -200,3 +200,21 @@ class Table:
             args = ['id', args[0].id]
         x = Table.conditional_query(args)
         return DataBase.just_execute("DELETE FROM " + table_name + x[0], x[1])
+
+    @staticmethod
+    def replace(table_name: str, rows) -> None:
+        table_name = Table.correct_table_name(table_name)
+        if issubclass(type(rows), Row):
+            rows = [rows]
+        if rows is None or len(rows) == 0:
+            raise ValueError("Replace empty list of rows")
+        fields = rows[0].cls.fields
+        text = Table.insert_query(table_name, fields).replace('INSERT', 'REPLACE')
+        params = []
+        for row in rows:
+            if row is None or row.__is_none__:
+                raise ValueError("Replace row is {None}")
+            t, p = Table.insert_value(row, fields)
+            text += t + ', '
+            params.extend(p)
+        return DataBase.just_execute(text[:-2], params)

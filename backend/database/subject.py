@@ -48,7 +48,7 @@ class SubjectsTable:
         SubjectsTable.insert(Subject([None, 'Карусель', 'Карус.', 'g']))
         SubjectsTable.insert(Subject([None, 'Естественно-научные бои', 'Е-н. бои', 'g']))
         SubjectsTable.insert(Subject([None, 'Коммуникативные бои', 'Ком. бои', 'g']))
-        SubjectsTable.insert(Subject([None, ' Литература', 'Пар. лит', 'g']))
+        SubjectsTable.insert(Subject([None, ' Литература', 'Пар. лит.', 'g']))
         SubjectsTable.insert(Subject([None, ' Английский язык', 'Пар. анг.', 'g']))
         SubjectsTable.insert(Subject([None, 'Театр', 'Театр', 'g']))
         SubjectsTable.insert(Subject([None, 'Изобретательство', 'Изобр.', 'g']))
