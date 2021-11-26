@@ -1,11 +1,11 @@
 from backend import app
-from flask import render_template, request, send_file
+from flask import render_template, request, send_file, redirect
 from flask_cors import cross_origin
 from flask_login import login_required
 import shutil
 import glob
 import os
-from .help import check_status, check_block_year, SplitFile, empty_checker
+from .help import check_status, check_block_year, SplitFile, empty_checker, path_to_subject
 from ..help import init_mail_messages, ExcelWriter, FileManager, AsyncWorker
 from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
     TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
@@ -15,17 +15,18 @@ from .file_creator import FileCreator
 from ..config import Config
 '''
     Функции ниже доступны только full, если не указано иного.
-    _delete_year()                                  Функция для удаления года ИТИ.
-    /add_year               add_year()              Создаёт новый год ИТИ.
-    /delete_year            delete_year()           Удаляет год ИТИ.
-    /add_subject            add_subject()           Создаёт новый предмет.
-    /edit_subject           edit_subject()          Редактирует предмет.
-    /delete_subject         delete_subject()        Удаляет предмет.
-    /global_settings        global_settings()       Сохраняет глобальные настройки (пароль от почты).
-    /db                     db()                    Делает SQL запросы к базе данных.
-    /<year>/year_block      year_block()            Блокирует последующее редактирование года для всех.
-    /load_data_from_excel   load_data_from_excel()  Загружает данные из Excel таблицы.
-    /<year>/download_excel  download_excel()        Выгружает данные в Excel.
+    _delete_year()                                          Функция для удаления года ИТИ.
+    /add_year                       add_year()              Создаёт новый год ИТИ.
+    /delete_year                    delete_year()           Удаляет год ИТИ.
+    /add_subject                    add_subject()           Создаёт новый предмет.
+    /edit_subject                   edit_subject()          Редактирует предмет.
+    /delete_subject                 delete_subject()        Удаляет предмет.
+    /global_settings                global_settings()       Сохраняет глобальные настройки (пароль от почты).
+    /db                             db()                    Делает SQL запросы к базе данных.
+    /<year>/year_block              year_block()            Блокирует последующее редактирование года для всех.
+    /load_data_from_excel           load_data_from_excel()  Загружает данные из Excel таблицы.
+    /<year>/download_excel          download_excel()        Выгружает данные в Excel.
+    /<year>/<subject>/download_excel   download_excel2()    Выгружает один предмет в Excel.
 '''
 
 
@@ -52,6 +53,9 @@ def _delete_year(year: int):
         FileManager.delete(file)
         os.remove(file)
     for file in glob.glob(dir4 + '.*'):
+        FileManager.delete(file)
+        os.remove(file)
+    for file in glob.glob(dir4 + '_*.*'):
         FileManager.delete(file)
         os.remove(file)
     FileManager.delete_dir(dir1)
@@ -275,3 +279,17 @@ def download_excel(year: int):
     ExcelWriter(year).write(Config.DATA_FOLDER + '/data_{}.xlsx'.format(year))
     filename = './data/data_{}.xlsx'.format(year)
     return send_file(filename, as_attachment=True, attachment_filename='Данныe ИТИ {}.xlsx'.format(year))
+
+
+@app.route('/<int:year>/individual/<path:subject>/download_excel', methods=['GET'])
+@cross_origin()
+@login_required
+@check_status('admin')
+def download_excel2(year: int, subject: str):
+    try:
+        subject = path_to_subject(subject)
+    except Exception:
+        return redirect('add_result')
+    filename = 'data/data_{}_{}.xlsx'.format(year, subject)
+    name = SubjectsTable.select_by_id(subject).name
+    return send_file(filename, as_attachment=True, attachment_filename='ИТИ {}. {}.xlsx'.format(year, name))

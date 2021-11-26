@@ -1,4 +1,5 @@
 from .help import SplitFile, all_templates, tr_format, compare
+from ..help.excel_subject_writer import ExcelSubjectWriter
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable,\
     GroupResult, SubjectsStudentsTable, UsersTable
@@ -208,6 +209,7 @@ class Generator:
 
     @staticmethod
     def gen_results_protocol(results: list, codes: map, file_name: str, args: map):
+        arr = []
         txt = '''
         <table border="1" class="td-1">
             <tr>
@@ -239,16 +241,18 @@ class Generator:
                 else:
                     row.append('—')
             txt += tr_format(*row, results[i].result, results[i].net_score, color=last_pos, tabs=3)
+            arr.append([last_pos, people.name_1, people.name_2, people.class_name(), results[i].result, results[i].net_score])
         txt += ' ' * 8 + '</table>\n' + ' ' * 4
         data = SplitFile(Config.HTML_FOLDER + "/protocol.html")
         data.insert_after_comment(' results table ', txt)
         for arg in args:
             data.replace_comment(arg, args[arg])
         data.save_file(file_name)
+        return arr
 
     @staticmethod
     def gen_results_2(results: list, codes: map, class_n: int, maximum: int, file_name: str, args: map):
-        txt = Generator.gen_results_1(results, codes, maximum)
+        txt, arr = Generator.gen_results_1(results, codes, maximum), None
         if txt:
             txt = '''    <div class="col t-3">
         <center>
@@ -257,8 +261,8 @@ class Generator:
         </center>{2}
     </div>\n'''.format(class_n, maximum, txt)
             args[' {class} '] = str(class_n)
-            Generator.gen_results_protocol(results, codes, file_name, args)
-        return txt
+            arr = Generator.gen_results_protocol(results, codes, file_name, args)
+        return txt, arr
 
     @staticmethod
     def gen_results(year: int, subject: int, file_name: str):
@@ -274,11 +278,11 @@ class Generator:
         pth = Config.TEMPLATES_FOLDER + '/' + str(year) + '/individual/' + str(subject) + '/protocol'
         params = {' {year} ': str(year), ' {subject_id} ': str(subject),
                   ' {subject} ': SubjectsTable.select_by_id(subject).name}
-        txt5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5, pth + '_5.html', params)
-        txt6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6, pth + '_6.html', params)
-        txt7 = Generator.gen_results_2(sorted_results[2], codes, 7, year_subject.score_7, pth + '_7.html', params)
-        txt8 = Generator.gen_results_2(sorted_results[3], codes, 8, year_subject.score_8, pth + '_8.html', params)
-        txt9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9, pth + '_9.html', params)
+        txt5, arr5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5, pth + '_5.html', params)
+        txt6, arr6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6, pth + '_6.html', params)
+        txt7, arr7 = Generator.gen_results_2(sorted_results[2], codes, 7, year_subject.score_7, pth + '_7.html', params)
+        txt8, arr8 = Generator.gen_results_2(sorted_results[3], codes, 8, year_subject.score_8, pth + '_8.html', params)
+        txt9, arr9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9, pth + '_9.html', params)
         txt = '\n<center><h2>Результаты</h2></center>\n<div class="row col-12 justify-content-center">\n'
         protocols = '<center><h2>Протоколы</h2></center>\n'
         prot_start = '<p><a href="{0}/protocol_'.format(subject)
@@ -296,6 +300,8 @@ class Generator:
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
         data.insert_after_comment(' results table ', txt)
         data.save_file()
+        ExcelSubjectWriter().write(Config.DATA_FOLDER + '/data_{}_{}.xlsx'.format(year, subject),
+                                   [arr5, arr6, arr7, arr8, arr9])
 
     @staticmethod
     def gen_group_results(year: int, subject: int, file_name: str):
