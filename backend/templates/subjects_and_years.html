@@ -31,6 +31,8 @@
 		<form action="load_data_from_excel" method="post" enctype=multipart/form-data>
 			<p>Год: <input type="text" name="year"></p>
 			<p>Таблица: <input type="file" name="file"></p>
+			<p><input type="radio" name="type" value="1" checked>Всё</p>
+			<p><input type="radio" name="type" value="2">Список школьников</p>
 			{% if error5 %} <p><font color="red">[ {{ error5 }} ]</font></p>
 			{% endif %}
 			<input type="submit" value="Загрузить">

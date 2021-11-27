@@ -247,10 +247,11 @@ def load_data_from_excel():
             return render_template('subjects_and_years.html',  error5='Сохраняется: {}'.format(AsyncWorker.cur_time()))
         return render_template('subjects_and_years.html')
     try:
-        year = int(request.form['year'])
+        year = int(request.form['year']) if request.form['year'] else 0
         file = request.files['file']
         parts = [x.lower() for x in file.filename.rsplit('.', 1)]
-        if len(parts) < 2 or year <= 2000 or year >= 2100:
+        qtype = int(request.form['type'])
+        if len(parts) < 2 or (qtype == 1 and (year <= 2000 or year >= 2100)):
             raise ValueError
         filename = Config.DATA_FOLDER + '/sheet_' + str(year) + '.' + parts[1]
     except Exception:
@@ -258,16 +259,20 @@ def load_data_from_excel():
     if AsyncWorker.is_alive():
         return render_template('subjects_and_years.html',  error5='Один процесс уже запущен')
 
-    _delete_year(year)
-    YearsTable.insert(Year([year, '', 1]))
-    FileCreator.create_year(year)
-    Generator.gen_years_lists()
-    Generator.gen_years_subjects_list(year)
+    if qtype == 1:
+        _delete_year(year)
+        YearsTable.insert(Year([year, '', 1]))
+        FileCreator.create_year(year)
+        Generator.gen_years_lists()
+        Generator.gen_years_subjects_list(year)
 
     file.save(filename)
     FileManager.save(filename)
-    AsyncWorker.call(filename, year)
+    AsyncWorker.call(filename, year, qtype)
 
+    if qtype == 2:
+        os.remove(filename)
+        FileManager.delete(filename)
     return render_template('subjects_and_years.html',  error5='Сохранение...')
 
 

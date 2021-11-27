@@ -23,15 +23,18 @@ def find(titles, exists, not_exists=None):
 class ExcelReader:
     RES = ['subject', 'code', 'result']
     CODES = ['name', 'cls', 'code', 'team']
+    STUDENTS = ['name', 'cls']
 
-    def __init__(self, file: str, year: int):
+    def __init__(self, file: str, year: int, qtype: int):
         self.file = file
         self.year = year
+        self.qtype = qtype
 
     def __frames__(self):
-        sheet_name = self.sheet.sheet_names
+        sheet_name = list(self.sheet.keys())
+        self.sheet = list(self.sheet.values())
         ans, codes = find(sheet_name, 'ответы'), find(sheet_name, 'код')
-        self.result, self.code = list(self.sheet.parse([sheet_name[ans], sheet_name[codes]]).values())
+        self.result, self.code = self.sheet[ans], self.sheet[codes]
 
     def __get_result_cols__(self):
         columns = self.result.columns
@@ -48,6 +51,13 @@ class ExcelReader:
         frame = pd.DataFrame(self.code, columns=[name, cls, code, team])
         frame.columns = self.CODES
         self.code = frame[frame[self.CODES[0]].notna() & frame[self.CODES[1]].notna() & frame[self.CODES[2]].notna()]
+
+    def __get_students_cols__(self):
+        columns = self.code.columns
+        name, cls = columns[find(columns, 'имя')], columns[find(columns, 'класс')]
+        frame = pd.DataFrame(self.code, columns=[name, cls])
+        frame.columns = self.STUDENTS
+        self.student = frame[frame[self.STUDENTS[0]].notna() & frame[self.STUDENTS[1]].notna()]
 
     def __gen_subject__(self):
         subjects = self.result[self.RES[0]].unique().tolist()
@@ -120,18 +130,31 @@ class ExcelReader:
                 ''')
         data.save_file()
 
+    def __gen_only_students__(self):
+        for i, row in self.student.iterrows():
+            names = row[0].split()
+            class_ = split_class(row[1])
+            student = Student([None, names[0], names[1], class_[0], class_[1]])
+            st = StudentsTable.select_by_student(student)
+            if st.__is_none__:
+                StudentsTable.insert(student)
+            else:
+                StudentsTable.update(student)
+
     def read(self):
-        self.sheet = pd.ExcelFile(self.file, engine="openpyxl")
+        self.sheet = pd.read_excel(self.file, sheet_name=None, engine="openpyxl")
         self.__frames__()
-        self.__get_codes_cols__()
-        self.__get_result_cols__()
-        self.__gen_subject__()
-        self.__gen_teams__()
-        self.__gen_students__()
-        self.__gen_results__()
-        self.__gen_pages__()
-        self.sheet.close()
-        self.sheet.handles = None
+        if self.qtype == 2:
+            self.__get_students_cols__()
+            self.__gen_only_students__()
+        else:
+            self.__get_codes_cols__()
+            self.__get_result_cols__()
+            self.__gen_subject__()
+            self.__gen_teams__()
+            self.__gen_students__()
+            self.__gen_results__()
+            self.__gen_pages__()
 
 
 def add_row(worksheet, idx, *args):

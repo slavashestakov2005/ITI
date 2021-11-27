@@ -6,6 +6,7 @@ from .excel_reader import ExcelReader
 class AsyncWorker:
     __worker__ = None
     timer = None
+    qtype = 1
 
     @staticmethod
     def is_alive():
@@ -18,8 +19,11 @@ class AsyncWorker:
         return False
 
     @staticmethod
-    def call(filename, year):
-        er = ExcelReader(filename, year)
+    def call(filename, year, qtype):
+        er = ExcelReader(filename, year, qtype)
+        if qtype == 2:
+            er.read()
+            return
         AsyncWorker.__worker__ = threading.Thread(target=er.read)
         AsyncWorker.__worker__.start()
         AsyncWorker.timer = time.time()
