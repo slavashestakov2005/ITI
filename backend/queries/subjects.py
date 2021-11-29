@@ -31,9 +31,14 @@ def subject_year(year: int):
 
     if YearsTable.select_by_year(year).__is_none__:
         return render_template(str(year) + '/subjects_for_year.html', error1='Этого года нет.', year=year)
-    YearsSubjectsTable.delete_by_year(year)
-    for subject in subjects:
-        YearsSubjectsTable.insert(YearSubject([year, int(subject), 30, 30, 30, 30, 30, 0, 0, '', '']))
+    old_sub = [x.subject for x in YearsSubjectsTable.select_by_year(year)]
+    subjects = [int(_) for _ in subjects]
+    for x in old_sub:
+        if x not in subjects:
+            YearsSubjectsTable.delete(year, x)
+    for x in subjects:
+        if x not in old_sub:
+            YearsSubjectsTable.insert(YearSubject([year, x, 30, 30, 30, 30, 30, 0, 0, '', '', 0]))
     FileCreator.create_subjects(year, subjects)
     Generator.gen_years_subjects_list(year)
     return render_template(str(year) + '/subjects_for_year.html', error1='Сохранено', year=year)
@@ -52,7 +57,8 @@ def max_score(year: int, path2, path3):
 
     if not current_user.can_do(subject):
         return forbidden_error()
-    if YearsSubjectsTable.select(year, subject).__is_none__:
+    ys = YearsSubjectsTable.select(year, subject)
+    if ys.__is_none__:
         return render_template('add_result.html', **params, error1='Такого предмета в этом году нет')
 
     try:
@@ -64,7 +70,7 @@ def max_score(year: int, path2, path3):
     except Exception:
         return render_template('add_result.html', **params, error1='Некорректные данные')
 
-    YearsSubjectsTable.update(YearSubject([year, subject, s5, s6, s7, s8, s9, 0, 0, '', '']))
+    YearsSubjectsTable.update(YearSubject([year, subject, s5, s6, s7, s8, s9, ys.start, ys.end, ys.classes, ys.place, ys.n_d]))
     return render_template('add_result.html', **params, error1='Обновлено')
 
 
@@ -81,6 +87,7 @@ def subject_description(year: int):
         date = [int(_) for _ in request.form['date'].split('-')]
         start = [int(_) for _ in request.form['start'].split(':')]
         end = [int(_) for _ in request.form['end'].split(':')]
+        n_d = int(request.form['n_d'])
     except Exception:
         return render_template(str(year) + '/subjects_for_year.html', error6='Некорректные данные')
 
@@ -93,8 +100,10 @@ def subject_description(year: int):
     year_subject.end = end
     year_subject.classes = classes
     year_subject.place = place
+    year_subject.n_d = n_d
     YearsSubjectsTable.update(year_subject)
     Generator.gen_timetable(year)
+    Generator.gen_years_subjects_list(year)
     return render_template(str(year) + '/subjects_for_year.html', error6='Сохранено.')
 
 

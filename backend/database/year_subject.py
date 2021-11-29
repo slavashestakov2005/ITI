@@ -16,9 +16,10 @@ class YearSubject(Row):
         end         INT     NOT NULL
         classes     TEXT    NOT NULL
         place       TEXT    NOT NULL
+        n_d         INT     NOT NULL
     """
     fields = ['year', 'subject', 'score_5', 'score_6', 'score_7', 'score_8', 'score_9', 'start', 'end', 'classes',
-              'place']
+              'place', 'n_d']
 
     def __init__(self, row):
         Row.__init__(self, YearSubject, row)
@@ -54,6 +55,7 @@ class YearsSubjectsTable:
         end	INT NOT NULL,
         classes	TEXT NOT NULL,
         place	TEXT NOT NULL,
+        n_d	INT NOT NULL,
         PRIMARY KEY(year,subject)
         )''')
 
@@ -80,3 +82,7 @@ class YearsSubjectsTable:
     @staticmethod
     def delete_by_year(year: int) -> None:
         return Table.delete(YearsSubjectsTable.table, 'year', year)
+
+    @staticmethod
+    def delete(year: int, subject: int) -> None:
+        return Table.delete(YearsSubjectsTable.table, 'year', year, 'subject', subject)

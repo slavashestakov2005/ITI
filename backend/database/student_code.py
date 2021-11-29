@@ -48,7 +48,11 @@ class StudentsCodesTable:
 
     @staticmethod
     def insert_all(codes: list) -> None:
-        return Table.insert(StudentsCodesTable.table, codes)
+        i = 0
+        while i < len(codes):
+            j = min(i + 125, len(codes))
+            Table.insert(StudentsCodesTable.table, codes[i:j])
+            i = j
 
     @staticmethod
     def delete_by_year(year: int) -> None:

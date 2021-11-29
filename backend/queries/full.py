@@ -49,6 +49,7 @@ def _delete_year(year: int):
     Generator.gen_years_lists()
     dir1, dir2 = Config.UPLOAD_FOLDER + '/' + str(year), Config.TEMPLATES_FOLDER + '/' + str(year)
     dir3, dir4 = Config.DATA_FOLDER + '/sheet_' + str(year), Config.DATA_FOLDER + '/data_' + str(year)
+    dir5 = Config.DATA_FOLDER + '/codes_' + str(year)
     for file in glob.glob(dir3 + '.*'):
         FileManager.delete(file)
         os.remove(file)
@@ -56,6 +57,9 @@ def _delete_year(year: int):
         FileManager.delete(file)
         os.remove(file)
     for file in glob.glob(dir4 + '_*.*'):
+        FileManager.delete(file)
+        os.remove(file)
+    for file in glob.glob(dir5 + '.*'):
         FileManager.delete(file)
         os.remove(file)
     FileManager.delete_dir(dir1)

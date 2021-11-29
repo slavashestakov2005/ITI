@@ -36,7 +36,7 @@
                 <td width="10%">Место</td>
                 <td width="10%">Баллы</td>
                 <td width="10%">Сумма</td>
-                <td width="10%">Балл в рейтинг*</td>
+                <td width="10%">Балл в рейтинг</td>
             </tr>
             {% for data in searched_data %}
             <tr>
@@ -45,9 +45,13 @@
                 {% endfor %}
             </tr>
             {% endfor %}
+            <tr>
+                <td colspan="4"><center>Сумма*</center></td>
+                <td>{{ summ }}</td>
+            </tr>
         </table>
         <br>
-        <p>* В итоговый рейтинг идёт только 4 лучших результата (2+2?).</p>
+        <p>* В итоговый рейтинг идёт только 2 лучших результата за каждый день.</p>
     </div>
     {% endif %}
 </center>

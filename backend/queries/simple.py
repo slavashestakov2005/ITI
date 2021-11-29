@@ -62,7 +62,7 @@ def search(year: int):
     if year == 2019 or year == 2020:
         params['is_info'] = True
     if q and q != '':
-        q, data = q.split(), []
+        q, data, days, summ = q.split(), [], {}, 0
         res_per = q
         if len(q) == 3:
             res_student = None
@@ -86,9 +86,15 @@ def search(year: int):
                         if not r.__is_none__ and r.position > 0:
                             data.append([SubjectsTable.select_by_id(subject.subject).name, r.position, r.text_result,
                                         r.result, r.net_score])
+                            if subject.n_d not in days:
+                                days[subject.n_d] = []
+                            days[subject.n_d].append(r.net_score)
+                for x in days.values():
+                    summ += sum(sorted(x, reverse=True)[:2])
         params['search'] = ' '.join(res_per)
         params['searched_data'] = data
         params['empty'] = not bool(len(data))
+        params['summ'] = summ
     try:
         return render_template(str(year) + '/individual_tours.html', **params)
     except TemplateNotFound:

@@ -1,5 +1,5 @@
 from .help import SplitFile, all_templates, tr_format, compare
-from ..help.excel_subject_writer import ExcelSubjectWriter
+from ..help.excel_subject_writer import ExcelSubjectWriter, ExcelCodesWriter
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable,\
     GroupResult, SubjectsStudentsTable, UsersTable
@@ -73,16 +73,19 @@ class Generator:
 
     @staticmethod
     def gen_years_subjects_list(year: int):
-        years_subjects = YearsSubjectsTable.select_by_year(year)
-        years_subjects = set([x.subject for x in years_subjects])
+        years_subjects_0 = YearsSubjectsTable.select_by_year(year)
+        years_subjects = set([x.subject for x in years_subjects_0])
+        subject_n_d = {_.subject: _.n_d for _ in years_subjects_0}
         subjects = SubjectsTable.select_all()
         text1 = text2 = text3 = text4 = text5 = '\n'
+        t4 = []
         for subject in subjects:
             checked = ''
             if subject.id in years_subjects:
                 checked = ' checked'
                 if subject.type == 'i':
-                    text4 += '<p><a href="individual/{0}.html">{1}</a></p>\n'.format(subject.id, subject.name)
+                    t4.append(['<p><a href="individual/{0}.html">{1}</a></p>\n'.format(subject.id, subject.name),
+                               subject_n_d[subject.id]])
                 elif subject.type == 'g':
                     text5 += '<p><a href="group/{0}.html">{1}</a></p>\n'.format(subject.id, subject.name)
             text = '<p><input type="checkbox" name="subject" value="{0}"{1}>[ {0} ] {2}</p>\n'.\
@@ -93,6 +96,13 @@ class Generator:
                 text2 += text
             else:
                 text3 += text
+        t4 = sorted(t4, key=compare(lambda x: x[1], field=True))
+        ld = None
+        for x in t4:
+            if x[1] != ld:
+                text4 += '<h3>День {}</h3>\n'.format(x[1])
+                ld = x[1]
+            text4 += ' ' * 4 + x[0]
         for file_name in glob.glob(Config.TEMPLATES_FOLDER + '/' + str(year) + '/**/*.html', recursive=True):
             data = SplitFile(file_name)
             data.insert_after_comment(' list of year_individual tours ', text1 + ' ' * 24)
@@ -110,9 +120,11 @@ class Generator:
     def gen_students_list(class_n: int):
         file_name = Config.TEMPLATES_FOLDER + '/students_' + str(class_n) + '.html'
         students = StudentsTable.select_by_class_n(class_n)
+        students = sorted(students, key=compare(lambda x: Student.sort_by_class(x), lambda x: x.name_1,
+                                                lambda x: x.name_2, field=True))
         length = len(students)
-        m1 = length // 3
-        m2 = length * 2 // 3
+        m1 = length - length * 2 // 3
+        m2 = length - length // 3
         text1 = text2 = text3 = '\n'
         for i in range(0, m1):
             text1 += Generator.gen_students_list_1(students[i])
@@ -121,14 +133,14 @@ class Generator:
         for i in range(m2, length):
             text3 += Generator.gen_students_list_1(students[i])
         data = SplitFile(file_name)
-        data.insert_after_comment(' students_table 1 ', text3)
+        data.insert_after_comment(' students_table 1 ', text1)
         data.insert_after_comment(' students_table 2 ', text2)
-        data.insert_after_comment(' students_table 3 ', text1)
+        data.insert_after_comment(' students_table 3 ', text3)
         data.save_file()
 
     @staticmethod
-    def gen_codes_1(student):
-        return tr_format(student[1].class_name(), student[1].name_1, student[1].name_2, student[0])
+    def gen_codes_1(s):
+        return tr_format(s[1].class_name(), s[1].name_1, s[1].name_2, s[0]), [s[1].name_1, s[1].name_2, s[1].class_name(), s[0]]
 
     @staticmethod
     def gen_codes(year: int):
@@ -140,17 +152,25 @@ class Generator:
         m1 = length - length * 2 // 3
         m2 = length - length // 3
         text1 = text2 = text3 = '\n'
+        arr = []
         for i in range(0, m1):
-            text1 += Generator.gen_codes_1(students[i])
+            t, a = Generator.gen_codes_1(students[i])
+            text1 += t
+            arr.append(a)
         for i in range(m1, m2):
-            text2 += Generator.gen_codes_1(students[i])
+            t, a = Generator.gen_codes_1(students[i])
+            text2 += t
+            arr.append(a)
         for i in range(m2, length):
-            text3 += Generator.gen_codes_1(students[i])
+            t, a = Generator.gen_codes_1(students[i])
+            text3 += t
+            arr.append(a)
         data = SplitFile(file_name)
         data.insert_after_comment(' codes_table 1 ', text1)
         data.insert_after_comment(' codes_table 2 ', text2)
         data.insert_after_comment(' codes_table 3 ', text3)
         data.save_file()
+        ExcelCodesWriter().write(Config.DATA_FOLDER + '/codes_{}.xlsx'.format(year), arr)
 
     @staticmethod
     def get_net_score(maximum: int, best_score: int, score: int) -> int:
@@ -356,7 +376,7 @@ class Generator:
     def gen_ratings_1(results: list, index: int, start: int):
         txt = '\n'
         last_pos, last_result = 0, None
-        for i in range(min(20, len(results) - index)):
+        for i in range(min(30, len(results) - index)):
             s = results[index + i][1]
             if s.class_n != start:
                 break
@@ -577,22 +597,25 @@ class Generator:
         class_results, student_result, all_student_result = {}, {}, {}
         teams = {_.id: _ for _ in TeamsTable.select_by_year(year)}
         team_result = {_: 0 for _ in teams}
+        ys = {_.subject: _.n_d for _ in YearsSubjectsTable.select_by_year(year)}
         for r in results:
             student = codes[r.user]
             class_name = student.class_name()
             if class_name not in class_results:
                 class_results[class_name] = 0
             if r.user not in student_result:
-                student_result[r.user] = []
-            student_result[r.user].append(r.net_score)
+                student_result[r.user] = {}
+            if ys[r.subject] not in student_result[r.user]:
+                student_result[r.user][ys[r.subject]] = []
+            student_result[r.user][ys[r.subject]].append(r.net_score)
             if student.id not in all_student_result:
                 all_student_result[student.id] = {}
             all_student_result[student.id][r.subject] = r.net_score
         for r in student_result:
-            student_result[r].sort(reverse=True)
             cnt = 0
-            for i in range(min(4, len(student_result[r]))):
-                cnt += student_result[r][i]
+            for i in student_result[r]:
+                student_result[r][i].sort(reverse=True)
+                cnt += sum(student_result[r][i][:2])
             codes[r].result = cnt
             student = codes[r]
             class_results[student.class_name()] += cnt
@@ -623,7 +646,6 @@ class Generator:
         for i in range(5, 10):
             filename = Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating_' + str(i) + '.html'
             Generator.gen_ratings_4(codes, i, filename, year, all_student_result)
-        # лучшие результаты в первый / второй дни :(
 
     @staticmethod
     def gen_teams(year: int):
@@ -714,8 +736,8 @@ class Generator:
         subjects.sort(key=YearSubject.sort_by_start)
         txt = '\n'
         for subject in subjects:
-            txt += tr_format(subject.date_str(), SubjectsTable.select_by_id(subject.subject).name, subject.classes,
-                             subject.start_str(), subject.end_str(), subject.place, tabs=3)
+            txt += tr_format(subject.n_d, subject.date_str(), SubjectsTable.select_by_id(subject.subject).name,
+                             subject.classes, subject.start_str(), subject.end_str(), subject.place, tabs=3)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/timetable.html")
         data.insert_after_comment(' timetable ', txt + ' ' * 8)
         data.save_file()

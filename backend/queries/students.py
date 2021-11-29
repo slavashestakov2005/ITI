@@ -2,7 +2,7 @@ from backend import app
 from ..database import StudentsTable, Student, StudentsCodesTable, StudentCode, YearsTable
 from .help import check_status, check_block_year, split_class, empty_checker
 from .auto_generator import Generator
-from flask import render_template, request
+from flask import render_template, request, send_file
 from flask_cors import cross_origin
 from flask_login import login_required
 from random import sample
@@ -12,6 +12,7 @@ from random import sample
     /delete_student         delete_student()            Удаляет ученика.
     /<year>/create_codes    create_codes()              Создаёт коды для участников (admin).
     /<year>/print_codes     print_codes()               Генерирует страницу с кодами всех участников (admin).
+    /<year>/get_codes       get_codes()                 Возвращает Excel таблицу с годовой кодировкой (admin).
     /create_students_lists  create_students_lists()     Генериркет списки участников для всех классов (admin).
     /update_all_class_n     update_all_class_n()        Переводит всех школьников в следующий класс (full).
 '''
@@ -127,6 +128,18 @@ def print_codes(year: int):
         return render_template(str(year) + '/codes.html', year=year, error='Этого года нет.')
     Generator.gen_codes(year)
     return render_template(str(year) + '/codes.html', year=year, error='Таблица обновлена')
+
+
+@app.route("/<int:year>/get_codes")
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def get_codes(year: int):
+    if YearsTable.select_by_year(year).__is_none__:
+        return render_template(str(year) + '/codes.html', year=year, error='Этого года нет.')
+    filename = './data/codes_{}.xlsx'.format(year)
+    return send_file(filename, as_attachment=True, attachment_filename='Кодировка ИТИ {}.xlsx'.format(year))
 
 
 @app.route("/create_students_lists")

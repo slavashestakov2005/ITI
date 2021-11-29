@@ -72,7 +72,7 @@ class ExcelReader:
             self.subjects[subject] = all_map[all_names[f]]
 
         for subject in self.subjects:
-            ys = YearSubject([self.year, self.subjects[subject], 30, 30, 30, 30, 30, 0, 0, '', ''])
+            ys = YearSubject([self.year, self.subjects[subject], 30, 30, 30, 30, 30, 0, 0, '', '', 0])
             YearsSubjectsTable.insert(ys)
         FileCreator.create_subjects(self.year, list(self.subjects.values()))
         Generator.gen_years_subjects_list(self.year)
