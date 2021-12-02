@@ -53,6 +53,10 @@ class TeamsTable:
         return Table.insert(TeamsTable.table, team)
 
     @staticmethod
+    def update(team: Team) -> None:
+        return Table.update(TeamsTable.table, team)
+
+    @staticmethod
     def delete(team: Team) -> None:
         return Table.delete(TeamsTable.table, team)
 

@@ -9,6 +9,7 @@ from flask_login import login_required, current_user
 '''
     teams_page_params(user, year)                               Параметры для страницы 'teams_for_year.html'
     /<year>/add_team                add_team()                  Добавляет команду.
+    /<year>/edit_team               edit_team()                 Редактирует команду.
     /<year>/delete_team             delete_team()               Удаляет команду.
     /<year>/add_student_team        add_student_team()          Добавляет участника в команду.
     /<year>/delete_student_team     delete_student_team()       Удаляет участника из команды.
@@ -16,6 +17,9 @@ from flask_login import login_required, current_user
     /<year>/team_edit               team_edit()                 redirect с параметрами на страницу редактирования.
     /<year>/add_user_team           add_user_team()             Добавляет руководителя команды.
     /<year>/delete_user_team        delete_user_team()          Удаляет руководителя команды.
+    /<year>/automatic_division      automatic_division()        Генерирует автоматическое распределение школьников.
+    /<year>/rejection               rejection()                 Участник отказывается играть в команде.
+    /<year>/unrejection             unrejection()               Участник соглашается играть в команде.
 '''
 
 
@@ -27,7 +31,10 @@ def teams_page_params(user: User, year: int):
             if subject.type == 'g':
                 subjects.append(subject)
         for now in teams:
-            team, t = TeamsTable.select_by_id(now), []
+            if now < 0:
+                team, t = Team([-year, 'Отказ', None, None]), []
+            else:
+                team, t = TeamsTable.select_by_id(now), []
             peoples = TeamsStudentsTable.select_by_team(team.id)
             for x in peoples:
                 people = StudentsTable.select(x.student)
@@ -61,6 +68,35 @@ def add_team(year: int):
     TeamsTable.insert(Team([None, name, year, later]))
     Generator.gen_teams(year)
     return render_template(str(year) + '/teams_for_year.html', **args, error1='Команда добавлена')
+
+
+@app.route("/<int:year>/edit_team", methods=['POST'])
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def edit_team(year: int):
+    args = teams_page_params(current_user, year)
+    try:
+        team_id = int(request.form['id'])
+        name = request.form['name']
+        later = request.form['later'].capitalize()
+    except Exception:
+        return render_template(str(year) + '/teams_for_year.html', **args, error8='Некорректные данные')
+
+    team = TeamsTable.select_by_id(team_id)
+    if team.__is_none__:
+        return render_template(str(year) + '/teams_for_year.html', **args, error8='Такой команды нет')
+    if not TeamsTable.select_by_year_and_later(year, later).__is_none__:
+        return render_template(str(year) + '/teams_for_year.html', **args, error8='Команда от этой вертикали уже есть')
+    if name and len(name):
+        team.name = name
+    if later and len(later):
+        team.later = later
+    TeamsTable.update(team)
+    Generator.gen_teams(year)
+    Generator.gen_teams_students(year)
+    return render_template(str(year) + '/teams_for_year.html', **args, error8='Данные обновлены')
 
 
 @app.route("/<int:year>/delete_team", methods=['POST'])
@@ -218,3 +254,71 @@ def delete_user_team(year: int):
     user.delete_team(team)
     UsersTable.update_by_login(user)
     return render_template(str(year) + '/teams_for_year.html', **args, error7='Руководитель удалён')
+
+
+@app.route("/<int:year>/automatic_division", methods=['GET'])
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def automatic_division(year: int):
+    args = teams_page_params(current_user, year)
+    Generator.gen_automatic_division(year)
+    Generator.gen_teams(year)
+    Generator.gen_teams_students(year)
+    return render_template(str(year) + '/teams_for_year.html', **args, error9='Участники распределены')
+
+
+@app.route("/<int:year>/rejection", methods=['POST'])
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def rejection(year: int):
+    args = teams_page_params(current_user, year)
+    try:
+        team = int(request.form['team']) if request.form['team'] else 0
+        name1 = request.form['name1'].capitalize()
+        name2 = request.form['name2'].capitalize()
+        class_ = split_class(request.form['class'])
+        class_[1].capitalize()
+        empty_checker(name1, name2)
+    except Exception:
+        return render_template(str(year) + '/teams_for_year.html', **args, error10='Некорректные данные')
+
+    if team and TeamsTable.select_by_id(team).__is_none__:
+        return render_template(str(year) + '/teams_for_year.html', **args, error10='Такой команды нет')
+    student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1]]))
+    if student.__is_none__:
+        return render_template(str(year) + '/teams_for_year.html', **args, error10='Такого участника нет')
+    if team:
+        TeamsStudentsTable.delete(TeamStudent([team, student.id]))
+    TeamsStudentsTable.insert(TeamStudent([-year, student.id]))
+    Generator.gen_teams_students(year)
+    return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
+                           error10='Отказ записан')
+
+
+@app.route("/<int:year>/unrejection", methods=['POST'])
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def unrejection(year: int):
+    args = teams_page_params(current_user, year)
+    try:
+        name1 = request.form['name1'].capitalize()
+        name2 = request.form['name2'].capitalize()
+        class_ = split_class(request.form['class'])
+        class_[1].capitalize()
+        empty_checker(name1, name2)
+    except Exception:
+        return render_template(str(year) + '/teams_for_year.html', **args, error11='Некорректные данные')
+
+    student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1]]))
+    if student.__is_none__:
+        return render_template(str(year) + '/teams_for_year.html', **args, error11='Такого участника нет')
+    TeamsStudentsTable.delete(TeamStudent([-year, student.id]))
+    Generator.gen_teams_students(year)
+    return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
+                           error11='Передумывание записано')

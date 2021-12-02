@@ -9,7 +9,15 @@
 {% endblock %}
 
 {% block content %}
-<center><h1>Настройки команд</h1></center>
+<center>
+    <h1>Настройки команд</h1>
+    {% if not current_user.is_anonymous and current_user.can_do(-1) %}
+        <br>
+        <h3><a href="automatic_division">Автоматическое распределение</a></h3>
+        {% if error9 %} <p><font color="red">[ {{ error9 }} ]</font></p> {% endif %}
+    {% endif %}
+</center>
+<br>
 
 <div class="row col-12 justify-content-center">
     {% if not current_user.is_anonymous and current_user.can_do(-1) %}
@@ -32,6 +40,15 @@
             {% endif %}
             <input type="submit" value="Добавить">
             <p>Первая буква вертикали автоматически переводится в верхний регистр.</p>
+        </center></form>
+        <form action="edit_team" method="post"><center>
+            <h3>Изменить команду:</h3>
+            <p>Номер: <input type="text" name="id"></p>
+            <p>Новое название: <input type="text" name="name"></p>
+            <p>Новая вертикаль: <input type="text" name="later"></p>
+            {% if error8 %} <p><font color="red">[ {{ error8 }} ]</font></p>
+            {% endif %}
+            <input type="submit" value="Обновить">
         </center></form>
         <form action="delete_team" method="post"><center>
             <h3>Удалить команду:</h3>
@@ -82,6 +99,25 @@
             {% endif %}
             <input type="submit" value="Удалить">
         </center></form>
+        <form action="rejection" method="post"><center>
+            <h3>Отказ участвовать:</h3>
+            <p>Команда (номер): <input type="text" name="team"></p>
+            <p>Имя: <input type="text" name="name2"></p>
+            <p>Фамилия: <input type="text" name="name1"></p>
+            <p>Класс: <input type="text" name="class"></p>
+            {% if error10 %} <p><font color="red">[ {{ error10 }} ]</font></p>
+            {% endif %}
+            <input type="submit" value="Отказаться">
+        </center></form>
+        <form action="unrejection" method="post"><center>
+            <h3>Передумать отказываться:</h3>
+            <p>Имя: <input type="text" name="name2"></p>
+            <p>Фамилия: <input type="text" name="name1"></p>
+            <p>Класс: <input type="text" name="class"></p>
+            {% if error11 %} <p><font color="red">[ {{ error11 }} ]</font></p>
+            {% endif %}
+            <input type="submit" value="Передумать">
+        </center></form>
     </center></div>
     {% endif %}
     <div class="col t-2"><center>
@@ -94,13 +130,15 @@
                         <td width="10%">Класс</td>
                         <td width="45%">Фамилия</td>
                         <td width="45%">Имя</td>
-                        {% for subject in subjects %}
-                            <td width="5%">{{subject}}</td>
-                        {% endfor %}
+                        {% if team[0] != 'Отказ' %}
+                            {% for subject in subjects %}
+                                <td width="5%">{{subject}}</td>
+                            {% endfor %}
+                        {% endif %}
                     </tr>
                     {% for x in team[1] %}
                         <tr>
-                            {% for y in x %}<td>
+                            {% for y in x %}{% if team[0] != 'Отказ' or not y[0] %}<td>
                                 {% if not y[0] %} {{ y[1] }}
                                 {% elif y[2] %}
                                     <input type="checkbox" name="subject" value="{{ y[0] }}_{{ y[1] }}" checked>
@@ -109,7 +147,7 @@
                                     <input type="checkbox" name="subject" value="{{ y[0] }}_{{ y[1] }}">
                                     <input type="checkbox" name="old_subject" value="{{ y[0] }}_{{ y[1] }}" hidden>
                                 {% endif %}
-                            </td>{% endfor %}
+                            </td>{% endif %}{% endfor %}
                         </tr>
                     {% endfor %}
                 </table>

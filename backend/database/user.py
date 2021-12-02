@@ -45,6 +45,7 @@ class User(Row, UserMixin):
     def teams_list(self, year: int):
         can = set(map(int, self.teams.split()))
         now = set([_.id for _ in TeamsTable.select_by_year(year)])
+        now.add(-year)
         if self.can_do(-1):
             return now
         return list(can.intersection(now))

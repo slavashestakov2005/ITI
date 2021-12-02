@@ -2,7 +2,7 @@ from .help import SplitFile, all_templates, tr_format, compare
 from ..help.excel_subject_writer import ExcelSubjectWriter, ExcelCodesWriter
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable,\
-    GroupResult, SubjectsStudentsTable, UsersTable
+    GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent
 from backend.config import Config
 import glob
 '''
@@ -24,6 +24,7 @@ import glob
         gen_files_list(year, sub, path)     Генерирует список предметных файлов.
         gen_users_list()                    Генерирует список пользователей.
         gen_rules()                         Генерирует страницу для правил группового тура.
+        gen_automatic_division()            Генерирует автоматическое распределение по командам.
 '''
 
 
@@ -212,16 +213,17 @@ class Generator:
                 <td width="10%">Балл в рейтинг</td>
             </tr>\n'''
         cnt, last_pos, last_result = 1, 0, None
-        for result in results[:20]:
+        for result in results:
             if result.result > maximum:
                 raise ValueError("Bad results are saved")
             people = codes[result.user]
             result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
-            if last_result != result.result:
-                last_pos, last_result = cnt, result.result
-            result.position = last_pos
-            text += tr_format(result.position, people.name_1, people.name_2, people.class_name(), result.result,
-                              result.net_score, color=last_pos, tabs=3)
+            if cnt < 20:
+                if last_result != result.result:
+                    last_pos, last_result = cnt, result.result
+                result.position = last_pos
+                text += tr_format(result.position, people.name_1, people.name_2, people.class_name(), result.result,
+                                  result.net_score, color=last_pos, tabs=3)
             ResultsTable.update(result)
             cnt += 1
         text += ' ' * 8 + '</table>'
@@ -773,3 +775,55 @@ class Generator:
         data = SplitFile(Config.HTML_FOLDER + '/rules.html')
         data.replace_comment(' {name} ', subject.name)
         data.save_file(Config.TEMPLATES_FOLDER + '/Info/{}.html'.format(subject.id))
+
+    @staticmethod
+    def gen_automatic_division_1(codes: map, pos: int, teams: list, ts: set, cls: int):
+        ln, t = len(codes), list(teams)
+        while pos < ln and codes[pos][1].class_n == cls and len(t):
+            if codes[pos][1].id not in ts:
+                TeamsStudentsTable.insert(TeamStudent([t[-1], codes[pos][1].id]))
+                t.pop()
+            pos += 1
+        while pos < ln and codes[pos][1].class_n == cls:
+            pos += 1
+        return pos
+
+    @staticmethod
+    def gen_automatic_division(year: int):
+        teams = TeamsTable.select_by_year(year)
+        for team in teams:
+            TeamsStudentsTable.delete_by_team(team.id)
+        TeamsTable.delete_by_year(year)
+        for i in range(1, 7):
+            TeamsTable.insert(Team([None, 'Команда {}'.format(i), year, '{}'.format(i)]))
+
+        results = ResultsTable.select_by_year(year)
+        codes = Generator.get_codes(year)
+        student_result = {}
+        t0 = [_.id for _ in TeamsTable.select_by_year(year)]
+        ys = {_.subject: _.n_d for _ in YearsSubjectsTable.select_by_year(year)}
+        ts = set((_.student for _ in TeamsStudentsTable.select_by_team(-year)))
+        for r in results:
+            if r.user not in student_result:
+                student_result[r.user] = {}
+            if ys[r.subject] not in student_result[r.user]:
+                student_result[r.user][ys[r.subject]] = []
+            student_result[r.user][ys[r.subject]].append(r.net_score)
+        for r in student_result:
+            cnt = 0
+            for i in student_result[r]:
+                student_result[r][i].sort(reverse=True)
+                cnt += sum(student_result[r][i][:2])
+            codes[r].result = cnt
+        codes = sorted(codes.items(), key=compare(lambda x: -x[1].class_n, lambda x: -x[1].result,
+                                                  lambda x: x[1].class_l, lambda x: x[1].name_1, lambda x: x[1].name_2, field=True))
+        teams = list(t0)
+        teams.extend(reversed(t0))
+        teams.extend(t0)
+        teams.extend(reversed(t0))
+        pos = 0
+        pos = Generator.gen_automatic_division_1(codes, pos, teams, ts, 9)
+        pos = Generator.gen_automatic_division_1(codes, pos, teams, ts, 8)
+        pos = Generator.gen_automatic_division_1(codes, pos, teams, ts, 7)
+        pos = Generator.gen_automatic_division_1(codes, pos, teams, ts, 6)
+        pos = Generator.gen_automatic_division_1(codes, pos, teams, ts, 5)

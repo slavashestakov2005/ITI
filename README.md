@@ -35,8 +35,10 @@
 | Редактирование годового объявления | admin | subjects.py | 25.08.21 |
 | Связь ИТИ и предметов, генерация страниц | admin | subjects.py, auto_generator.py, file_creator.py | 25.04.21 |
 | Генерация кодов для участников, таблица со всеми кодами | admin | students.py, auto_generator.py | 05.07.21 |
-| Добавление и удаление команд | admin | teams.py, auto_generator.py  | 26.07.21 |
+| Добавление, редактирование и удаление команд | admin | teams.py, auto_generator.py  | 02.12.21 |
 | Добавление и удаление участников и руководителей команд | admin | teams.py, auto_generator.py | 16.09.21 |
+| Отказ / передумывание участника играть в команде | admin | teams.py, auto_generator.py | 02.12.21 |
+| Автоматическое расределение на команды | admin | teams.py, auto_generator.py | 02.12.21 |
 | Запись участника на групповой тур | Руководитель | teams.py, auto_generator.py | 16.09.21 |
 | &nbsp; | | | |
 | Классы, время, номер дня и место проведения туров | admin | subjects.py | 29.11.21 |
@@ -57,6 +59,7 @@
 + [Форма](https://docs.google.com/forms/d/e/1FAIpQLSd7FopqmHoR5Ugcg_-ZAs-guy8NHS5PSvvDsx_rYetaPMKxjw/viewform?usp=sf_link) обратной связи.
 + [Сайт](https://test-python-slava-shestakov.herokuapp.com/) ИТИ на `Heroku`.
 + [Сайт](https://slavashestakov2005.pythonanywhere.com/) ИТИ на `PythonAnywhere`.
++ [Чистовик](https://iti106.pythonanywhere.com/) сайта.
 
 ## Поддержка Excel
 ### Загрузка ИТИ из таблицы
