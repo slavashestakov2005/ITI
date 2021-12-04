@@ -13,13 +13,12 @@ from flask_login import login_required, current_user
     /<year>/delete_team             delete_team()               Удаляет команду.
     /<year>/add_student_team        add_student_team()          Добавляет участника в команду.
     /<year>/delete_student_team     delete_student_team()       Удаляет участника из команды.
+    /<year>/save_teams              save_teams()                Список согласных / несогласных играть у команде.
     /<year>/student_subject         student_subject()           Добавляет командного участника на групповой тур.
     /<year>/team_edit               team_edit()                 redirect с параметрами на страницу редактирования.
     /<year>/add_user_team           add_user_team()             Добавляет руководителя команды.
     /<year>/delete_user_team        delete_user_team()          Удаляет руководителя команды.
     /<year>/automatic_division      automatic_division()        Генерирует автоматическое распределение школьников.
-    /<year>/rejection               rejection()                 Участник отказывается играть в команде.
-    /<year>/unrejection             unrejection()               Участник соглашается играть в команде.
 '''
 
 
@@ -179,6 +178,35 @@ def delete_student_team(year: int):
                            error4='Участник удалён')
 
 
+@app.route("/<int:year>/save_teams", methods=['POST'])
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def save_teams(year: int):
+    t = set(request.form.getlist('t'))
+    ot = set(request.form.getlist('ot'))
+    cl = request.form['cl']
+    different = set(_[:-2] for _ in t.symmetric_difference(ot))
+    for x in different:
+        cnt = (x + '_0' in t) + (x + '_1' in t) + (x + '_2' in t)
+        if cnt != 1:
+            return render_template(str(year) + '/rating.html', **teams_page_params(current_user, year), error='Некорректные данные')
+    for x in different:
+        st = int(x)
+        if x + '_0' in ot:
+            TeamsStudentsTable.delete(TeamStudent([-year, st]))
+        if x + '_2' in ot:
+            TeamsStudentsTable.delete(TeamStudent([-year * 10, st]))
+        if x + '_0' in t:
+            TeamsStudentsTable.insert(TeamStudent([-year, st]))
+        if x + '_2' in t:
+            TeamsStudentsTable.insert(TeamStudent([-year * 10, st]))
+    kw = {'error' + cl: 'Сохранено'}
+    Generator.gen_ratings(year)
+    return render_template(str(year) + '/rating.html', **teams_page_params(current_user, year), **kw)
+
+
 @app.route("/<int:year>/student_subject", methods=['POST'])
 @cross_origin()
 @login_required
@@ -263,62 +291,10 @@ def delete_user_team(year: int):
 @check_block_year()
 def automatic_division(year: int):
     args = teams_page_params(current_user, year)
-    Generator.gen_automatic_division(year)
+    good = Generator.gen_automatic_division(year)
     Generator.gen_teams(year)
     Generator.gen_teams_students(year)
+    if not good:
+        return render_template(str(year) + '/teams_for_year.html', **args, error9='Осталиь свободные места')
     return render_template(str(year) + '/teams_for_year.html', **args, error9='Участники распределены')
 
-
-@app.route("/<int:year>/rejection", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_year()
-def rejection(year: int):
-    args = teams_page_params(current_user, year)
-    try:
-        team = int(request.form['team']) if request.form['team'] else 0
-        name1 = request.form['name1'].capitalize()
-        name2 = request.form['name2'].capitalize()
-        class_ = split_class(request.form['class'])
-        class_[1].capitalize()
-        empty_checker(name1, name2)
-    except Exception:
-        return render_template(str(year) + '/teams_for_year.html', **args, error10='Некорректные данные')
-
-    if team and TeamsTable.select_by_id(team).__is_none__:
-        return render_template(str(year) + '/teams_for_year.html', **args, error10='Такой команды нет')
-    student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1]]))
-    if student.__is_none__:
-        return render_template(str(year) + '/teams_for_year.html', **args, error10='Такого участника нет')
-    if team:
-        TeamsStudentsTable.delete(TeamStudent([team, student.id]))
-    TeamsStudentsTable.insert(TeamStudent([-year, student.id]))
-    Generator.gen_teams_students(year)
-    return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
-                           error10='Отказ записан')
-
-
-@app.route("/<int:year>/unrejection", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_year()
-def unrejection(year: int):
-    args = teams_page_params(current_user, year)
-    try:
-        name1 = request.form['name1'].capitalize()
-        name2 = request.form['name2'].capitalize()
-        class_ = split_class(request.form['class'])
-        class_[1].capitalize()
-        empty_checker(name1, name2)
-    except Exception:
-        return render_template(str(year) + '/teams_for_year.html', **args, error11='Некорректные данные')
-
-    student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1]]))
-    if student.__is_none__:
-        return render_template(str(year) + '/teams_for_year.html', **args, error11='Такого участника нет')
-    TeamsStudentsTable.delete(TeamStudent([-year, student.id]))
-    Generator.gen_teams_students(year)
-    return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
-                           error11='Передумывание записано')

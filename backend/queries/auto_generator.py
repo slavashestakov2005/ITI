@@ -375,7 +375,13 @@ class Generator:
         data.save_file()
 
     @staticmethod
-    def gen_ratings_1(results: list, index: int, start: int):
+    def gen_ratings_1(results: list, index: int, start: int, tpl: set, tmn: set):
+        radio = '''
+    {{% if not current_user.is_anonymous and current_user.can_do(-1) %}}
+        <input type="checkbox" name="t" value="{3}_0" id="{3}_0" {0}>-<input type="checkbox" name="ot" value="{3}_0" {0} hidden>
+        <input type="checkbox" name="t" value="{3}_1" id="{3}_1" {1}>?<input type="checkbox" name="ot" value="{3}_1" {1} hidden>
+        <input type="checkbox" name="t" value="{3}_2" id="{3}_2" {2}>+<input type="checkbox" name="ot" value="{3}_2" {2} hidden>
+    {{% endif %}}'''
         txt = '\n'
         last_pos, last_result = 0, None
         for i in range(min(30, len(results) - index)):
@@ -384,7 +390,10 @@ class Generator:
                 break
             if last_result != s.result:
                 last_result, last_pos = s.result, i
-            txt += tr_format(last_pos + 1, s.class_name(), s.name_1, s.name_2, s.result, color=last_pos + 1)
+            rad = radio.format('checked' if s.id in tmn else '',
+                               'checked' if s.id not in tmn and s.id not in tpl else '',
+                               'checked' if s.id in tpl else '', s.id)
+            txt += tr_format(last_pos + 1, s.class_name(), s.name_1, s.name_2, s.result, rad, color=last_pos + 1)
         while index < len(results) and results[index][1].class_n == start:
             index += 1
         return txt, index
@@ -627,11 +636,13 @@ class Generator:
                         lambda x: x[1].class_l, lambda x: x[1].name_1, lambda x: x[1].name_2, field=True))
         class_results = sorted(class_results.items(), key=compare(lambda x: -x[1], lambda x: x[0], field=True))
         index = 0
-        best_9, index = Generator.gen_ratings_1(codes, index, 9)
-        best_8, index = Generator.gen_ratings_1(codes, index, 8)
-        best_7, index = Generator.gen_ratings_1(codes, index, 7)
-        best_6, index = Generator.gen_ratings_1(codes, index, 6)
-        best_5, index = Generator.gen_ratings_1(codes, index, 5)
+        tpl = set(_.student for _ in TeamsStudentsTable.select_by_team(-year * 10))
+        tmn = set(_.student for _ in TeamsStudentsTable.select_by_team(-year))
+        best_9, index = Generator.gen_ratings_1(codes, index, 9, tpl, tmn)
+        best_8, index = Generator.gen_ratings_1(codes, index, 8, tpl, tmn)
+        best_7, index = Generator.gen_ratings_1(codes, index, 7, tpl, tmn)
+        best_6, index = Generator.gen_ratings_1(codes, index, 6, tpl, tmn)
+        best_5, index = Generator.gen_ratings_1(codes, index, 5, tpl, tmn)
         best_class = Generator.gen_ratings_2(class_results)
         best_team = Generator.gen_ratings_3(year, team_result)
         best_student = Generator.gen_ratings_5(year, codes, teams)
@@ -677,17 +688,20 @@ class Generator:
         codes = {_.id: _ for _ in StudentsTable.select_all()}
         decode = Generator.get_codes(year)
         result = ResultsTable.select_by_year(year)
-        subjects0, subjects = YearsSubjectsTable.select_by_year(year), []
+        subjects0, subjects, ys = YearsSubjectsTable.select_by_year(year), [], {}
         for x in subjects0:
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'i':
                 subjects.append(subject)
+                ys[subject.id] = x.n_d
         student_result = {}
         for r in result:
             student = decode[r.user]
             if student.id not in student_result:
                 student_result[student.id] = {}
-            student_result[student.id][r.subject] = r.net_score
+            if ys[r.subject] not in student_result[student.id]:
+                student_result[student.id][ys[r.subject]] = {}
+            student_result[student.id][ys[r.subject]][r.subject] = r.net_score
         teams = TeamsTable.select_by_year(year)
         teams.sort(key=Team.sort_by_later)
         template = '''
@@ -712,15 +726,15 @@ class Generator:
             txt += template.format(team.name)
             for student in students:
                 row = [student.class_name(), student.name_1, student.name_2]
-                summ = []
                 for subject in subjects:
-                    if student.id in student_result and subject.id in student_result[student.id]:
-                        row.append(student_result[student.id][subject.id])
+                    if student.id in student_result and subject.id in student_result[student.id][ys[subject.id]]:
+                        row.append(student_result[student.id][ys[subject.id]][subject.id])
                         sub_sums[subject.id] += row[-1]
-                        summ.append(row[-1])
                     else:
                         row.append('—')
-                summ = sum(sorted(summ)[-4:])
+                summ = 0
+                for day in student_result[student.id]:
+                    summ += sum(sorted(student_result[student.id][day].values(), reverse=True)[:2])
                 txt += tr_format(*row, summ, tabs=4)
                 sum_of_sums += summ
             sub_sums = sub_sums.values()
@@ -780,13 +794,13 @@ class Generator:
     def gen_automatic_division_1(codes: map, pos: int, teams: list, ts: set, cls: int):
         ln, t = len(codes), list(teams)
         while pos < ln and codes[pos][1].class_n == cls and len(t):
-            if codes[pos][1].id not in ts:
+            if codes[pos][1].id in ts:
                 TeamsStudentsTable.insert(TeamStudent([t[-1], codes[pos][1].id]))
                 t.pop()
             pos += 1
         while pos < ln and codes[pos][1].class_n == cls:
             pos += 1
-        return pos
+        return pos, len(t) == 0
 
     @staticmethod
     def gen_automatic_division(year: int):
@@ -802,7 +816,7 @@ class Generator:
         student_result = {}
         t0 = [_.id for _ in TeamsTable.select_by_year(year)]
         ys = {_.subject: _.n_d for _ in YearsSubjectsTable.select_by_year(year)}
-        ts = set((_.student for _ in TeamsStudentsTable.select_by_team(-year)))
+        ts = set((_.student for _ in TeamsStudentsTable.select_by_team(-year * 10)))
         for r in results:
             if r.user not in student_result:
                 student_result[r.user] = {}
@@ -821,9 +835,15 @@ class Generator:
         teams.extend(reversed(t0))
         teams.extend(t0)
         teams.extend(reversed(t0))
-        pos = 0
-        pos = Generator.gen_automatic_division_1(codes, pos, teams, ts, 9)
-        pos = Generator.gen_automatic_division_1(codes, pos, teams, ts, 8)
-        pos = Generator.gen_automatic_division_1(codes, pos, teams, ts, 7)
-        pos = Generator.gen_automatic_division_1(codes, pos, teams, ts, 6)
-        pos = Generator.gen_automatic_division_1(codes, pos, teams, ts, 5)
+        pos, good = 0, True
+        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 9)
+        good = good and g
+        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 8)
+        good = good and g
+        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 7)
+        good = good and g
+        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 6)
+        good = good and g
+        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 5)
+        good = good and g
+        return good

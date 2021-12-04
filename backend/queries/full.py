@@ -45,6 +45,7 @@ def _delete_year(year: int):
         GroupResultsTable.delete_by_team(team.id)
         TeamsStudentsTable.delete_by_team(team.id)
     TeamsStudentsTable.delete_by_team(-year)
+    TeamsStudentsTable.delete_by_team(-year * 10)
     TeamsTable.delete_by_year(year)
 
     Generator.gen_years_lists()

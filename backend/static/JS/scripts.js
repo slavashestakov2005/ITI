@@ -35,3 +35,26 @@ function file_type2() {
         document.getElementById('form_4').style.display = 'none';
     }
 }
+
+function change_checkbox(element) {
+    let box = element.srcElement;
+    let s = box.id.substr(0, box.id.length - 1), t = box.id.substr(-1);
+    let box0 = document.getElementById(s + '0');
+    let box1 = document.getElementById(s + '1');
+    let box2 = document.getElementById(s + '2');
+    if (!box.checked){
+        box1.checked = true;
+    } else{
+        box0.checked = false;
+        box1.checked = false;
+        box2.checked = false;
+        box.checked = true;
+    }
+}
+
+function find_checkboxes() {
+    let elements = document.getElementsByTagName('input');
+    for (let pos in elements){
+        if (elements[pos].type == 'checkbox') elements[pos].addEventListener('click', change_checkbox);
+    }
+}

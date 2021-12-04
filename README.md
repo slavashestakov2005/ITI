@@ -37,7 +37,7 @@
 | Генерация кодов для участников, таблица со всеми кодами | admin | students.py, auto_generator.py | 05.07.21 |
 | Добавление, редактирование и удаление команд | admin | teams.py, auto_generator.py  | 02.12.21 |
 | Добавление и удаление участников и руководителей команд | admin | teams.py, auto_generator.py | 16.09.21 |
-| Отказ / передумывание участника играть в команде | admin | teams.py, auto_generator.py | 02.12.21 |
+| Отказ / передумывание участника играть в команде | admin | teams.py, auto_generator.py | 04.12.21 |
 | Автоматическое расределение на команды | admin | teams.py, auto_generator.py | 02.12.21 |
 | Запись участника на групповой тур | Руководитель | teams.py, auto_generator.py | 16.09.21 |
 | &nbsp; | | | |

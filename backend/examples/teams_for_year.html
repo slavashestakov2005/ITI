@@ -99,25 +99,6 @@
             {% endif %}
             <input type="submit" value="Удалить">
         </center></form>
-        <form action="rejection" method="post"><center>
-            <h3>Отказ участвовать:</h3>
-            <p>Команда (номер): <input type="text" name="team"></p>
-            <p>Имя: <input type="text" name="name2"></p>
-            <p>Фамилия: <input type="text" name="name1"></p>
-            <p>Класс: <input type="text" name="class"></p>
-            {% if error10 %} <p><font color="red">[ {{ error10 }} ]</font></p>
-            {% endif %}
-            <input type="submit" value="Отказаться">
-        </center></form>
-        <form action="unrejection" method="post"><center>
-            <h3>Передумать отказываться:</h3>
-            <p>Имя: <input type="text" name="name2"></p>
-            <p>Фамилия: <input type="text" name="name1"></p>
-            <p>Класс: <input type="text" name="class"></p>
-            {% if error11 %} <p><font color="red">[ {{ error11 }} ]</font></p>
-            {% endif %}
-            <input type="submit" value="Передумать">
-        </center></form>
     </center></div>
     {% endif %}
     <div class="col t-2"><center>
