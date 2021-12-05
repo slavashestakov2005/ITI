@@ -11,7 +11,7 @@
 {% block content %}
 <center>
     <h1>Настройки команд</h1>
-    {% if not current_user.is_anonymous and current_user.can_do(-1) %}
+    {% if adm %}
         <br>
         <h3><a href="automatic_division">Автоматическое распределение</a></h3>
         {% if error9 %} <p><font color="red">[ {{ error9 }} ]</font></p> {% endif %}
@@ -20,7 +20,7 @@
 <br>
 
 <div class="row col-12 justify-content-center">
-    {% if not current_user.is_anonymous and current_user.can_do(-1) %}
+    {% if adm %}
     <div class="col t-3"><center>
         <h2>Команды:</h2>
         <table width="85%" border="1">

@@ -55,7 +55,7 @@ def empty_checker(*args):
             raise ValueError
 
 
-def tr_format(*args, color=None, tabs=0, tr=True):
+def tr_format(*args, color=None, tabs=0, tr=True, skip_end=False):
     tr1, tr2, b = ('<tr', '</tr>\n', '>') if tr else ('', '', '')
     if type(color) == list:
         start = ' ' * 4 * tabs + tr1 + b
@@ -63,7 +63,10 @@ def tr_format(*args, color=None, tabs=0, tr=True):
             start += '<td' + (' class="p{}"'.format(color[i]) if color[i] < 4 else '') + '>{}</td>'
         return start.format(*args) + tr2
     start = ' ' * 4 * tabs + tr1 + (' class="p{}"'.format(color) if color and color < 4 else '') + b
-    return ''.join([start, *['<td>{{{0}}}</td>'.format(_) for _ in range(len(args))], tr2]).format(*args)
+    arr = ['<td>{{{0}}}</td>'.format(_) for _ in range(len(args))]
+    if skip_end:
+        arr[-1] = arr[-1][4:-5]
+    return ''.join([start, *arr, tr2]).format(*args)
 
 
 def path_to_subject(path: str) -> int:

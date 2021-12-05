@@ -54,7 +54,7 @@
             <p><input type="submit" value="Сохранить"></p>
         </center></form>
         <br />
-        {% if not current_user.is_anonymous and current_user.can_do(-2) %}
+        {% if full %}
         <h2>Блокировка:</h2>
         <form action="year_block" method="post"><center>
             <!-- is_block -->
@@ -83,7 +83,7 @@
     </center></div>
 </div>
 <br>
-{% if not current_user.is_anonymous and current_user.can_do(-1) %}
+{% if adm %}
 <a href="download_excel">Скачать все данные за год в формате Excel.</a>
 {% endif %}
 

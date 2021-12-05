@@ -9,7 +9,7 @@
 {% block head %}
 <center>
     <h1>Рейтинг</h1>
-    {% if not current_user.is_anonymous and current_user.can_do(-1) %}
+    {% if adm %}
     <p><a href="ratings_update">Обновить рейтинг</a></p>
     {% if error %} <p><font color="red">[ {{ error }} ]</font></p>{% endif %}
     {% endif %}

@@ -40,7 +40,7 @@
 		</form>
 	</center></div>
 
-	{% if not current_user.is_anonymous and current_user.can_do(-1) %}
+	{% if adm %}
 	<div class="col t-3"><center>
 		<h1><a href="share_results">Публикация результатов</a></h1>
 		<p>После публикаяии результатов они станут доступны для просмотра всем.</p>

@@ -5,8 +5,6 @@
 
 {% block head %}{% endblock %}
 
-{% if not current_user.is_anonymous and current_user.can_do(-1) %} {% set adm = True %} {% else %} {% set adm = False %} {% endif %}
-
 <center>
     <h2>Командный зачёт</h2>
     {% block rating_teams %}{% endblock %}

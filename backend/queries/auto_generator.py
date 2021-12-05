@@ -377,11 +377,11 @@ class Generator:
     @staticmethod
     def gen_ratings_1(results: list, index: int, start: int, tpl: set, tmn: set):
         radio = '''
-    {{% if not current_user.is_anonymous and current_user.can_do(-1) %}}
+    {{% if adm %}}<td>
         <input type="checkbox" name="t" value="{3}_0" id="{3}_0" {0}>-<input type="checkbox" name="ot" value="{3}_0" {0} hidden>
         <input type="checkbox" name="t" value="{3}_1" id="{3}_1" {1}>?<input type="checkbox" name="ot" value="{3}_1" {1} hidden>
         <input type="checkbox" name="t" value="{3}_2" id="{3}_2" {2}>+<input type="checkbox" name="ot" value="{3}_2" {2} hidden>
-    {{% endif %}}'''
+    </td>{{% endif %}}'''
         txt = '\n'
         last_pos, last_result = 0, None
         for i in range(min(30, len(results) - index)):
@@ -393,7 +393,7 @@ class Generator:
             rad = radio.format('checked' if s.id in tmn else '',
                                'checked' if s.id not in tmn and s.id not in tpl else '',
                                'checked' if s.id in tpl else '', s.id)
-            txt += tr_format(last_pos + 1, s.class_name(), s.name_1, s.name_2, s.result, rad, color=last_pos + 1)
+            txt += tr_format(last_pos + 1, s.class_name(), s.name_1, s.name_2, s.result, rad, color=last_pos + 1, skip_end=True)
         while index < len(results) and results[index][1].class_n == start:
             index += 1
         return txt, index
@@ -466,14 +466,15 @@ class Generator:
 
     @staticmethod
     def gen_ratings_4(codes: map, class_n: int, filename: str, year: int, results: list):
-        class_results = {}
+        class_results, class_sums = {}, {}
         for x in codes:
             student = x[1]
             if student.class_n == class_n:
-                if student.class_l in class_results:
-                    class_results[student.class_l].append(student)
-                else:
-                    class_results[student.class_l] = [student]
+                if student.class_l not in class_results:
+                    class_results[student.class_l] = []
+                    class_sums[student.class_l] = 0
+                class_results[student.class_l].append(student)
+                class_sums[student.class_l] += student.result
         subjects, txt = [], ''
         template = '''
         <div class="col t-2">
@@ -489,11 +490,12 @@ class Generator:
                 subjects.append(subject)
                 template += ' ' * 20 + '<td width="5%">{}</td>\n'.format(subject.short_name)
         template += ' ' * 20 + '<td width="5%">Сумма</td>\n' + ' ' * 16 + '</tr>\n'
-        for r in class_results:
+        class_sums = sorted(class_sums.items(), key=lambda x: -x[1])
+        for r in class_sums:
             sub_sums = {_.id: 0 for _ in subjects}
-            txt += template.format(str(class_n) + r)
-            position, last_pos, last_result, sum_of_sums = 1, 1, None, 0
-            for x in class_results[r]:
+            txt += template.format(str(class_n) + r[0])
+            position, last_pos, last_result = 1, 1, None
+            for x in class_results[r[0]]:
                 if x.result != last_result:
                     last_pos, last_result = position, x.result
                 row = [last_pos, x.name_1, x.name_2]
@@ -505,9 +507,8 @@ class Generator:
                         row.append('—')
                 txt += tr_format(*row, x.result, color=last_pos, tabs=4)
                 position += 1
-                sum_of_sums += x.result
             sub_sums = sub_sums.values()
-            txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, sum_of_sums,
+            txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, r[1],
                                                                                             tr=False) + '</tr>\n'
             txt += ' ' * 12 + '</table>\n' + ' ' * 8 + '</div>'
         txt += '\n    '

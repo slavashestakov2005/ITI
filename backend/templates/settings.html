@@ -22,7 +22,7 @@
 		</form>
 	</div>
 	<div class="col t-3">
-		{% if not current_user.is_anonymous and current_user.can_do(-2) %}
+		{% if full %}
 		<form action="global_settings" method="post">
 			<p>Почта: {{ email }} (неизменяема)</p>
 			<p>Пароль: <input type="text" name="password" placeholder="{{password}}"></p>

@@ -24,7 +24,7 @@
 		</form>
 	</center></div>
 	<div class="col t-3"><center>
-		{% if not current_user.is_anonymous and current_user.can_do(-1) %}
+		{% if adm %}
 		<h1><a href="share_group_results">Публикация результатов</a></h1>
 		<p>После публикаяии результатов они станут доступны для просмотра всем.</p>
 		{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>{% endif %}
