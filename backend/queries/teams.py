@@ -43,7 +43,7 @@ def teams_page_params(user: User, year: int):
                     p.append([subject.id, people.id, subject.id in subjects_for_people])
                 t.append(p)
             res.append([team.name, t])
-        return {'teams': res, 'subjects': [_.name for _ in subjects]}
+        return {'teams': res, 'subjects': [_.short_name for _ in subjects]}
     except Exception:
         return {}
 

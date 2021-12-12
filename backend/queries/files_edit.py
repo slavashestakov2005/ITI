@@ -203,9 +203,12 @@ def editor():
 def save_file():
     try:
         file_name = request.form['file_name']
+    except Exception:
+        return render_template('file_edit.html', file_text='', file_name='', error="Некорректное имя файла")
+    try:
         file_text = correct_new_line(request.form['file_text'])
     except Exception:
-        return render_template('file_edit.html', file_text=file_text, file_name=file_name, error="Некорректные данные")
+        return render_template('file_edit.html', file_text='', file_name=file_name, error="Некорректное содержимое")
 
     if file_name.count('/') == 0 and not current_user.can_do(-2):
         return forbidden_error()

@@ -58,3 +58,7 @@ function find_checkboxes() {
         if (elements[pos].type == 'checkbox') elements[pos].addEventListener('click', change_checkbox);
     }
 }
+
+function cursor(){
+    document.getElementById("results_for_focus").focus();
+}

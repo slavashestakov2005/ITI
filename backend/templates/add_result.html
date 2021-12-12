@@ -30,7 +30,7 @@
 	<div class="col t-3"><center>
 		<h1>Сохранение результатов</h1>
 		<form action="save_result" method="post">
-			<p>Код участника: <input type="text" name="code"></p>
+			<p>Код участника: <input id="results_for_focus" type="text" name="code"></p>
 			<p>Результат: <input type="text" name="result"></p>
 			{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
 			{% endif %}
@@ -43,7 +43,7 @@
 	{% if adm %}
 	<div class="col t-3"><center>
 		<h1><a href="share_results">Публикация результатов</a></h1>
-		<p>После публикаяии результатов они станут доступны для просмотра всем.</p>
+		<p>После публикации результатов они станут доступны для просмотра всем.</p>
 		<p>Не рекомендуется публиковать результаты до проверки всех работ по данному предмету.</p>
 		{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
 		{% endif %}
@@ -142,6 +142,7 @@
 <center><h1>Лучшие результаты</h1></center>
 <br>
 <div class="row col-12 justify-content-center">
+	{% if top[0].__len__() %}
 	<div class="col t-4"><center>
 		<h2>5 класс</h2>
 		<table width="100%" border="1">
@@ -158,7 +159,11 @@
 			</tr>
 			{% endfor %}
 		</table>
+		Итого: {{ top[0].__len__() }} работ.
 	</center></div>
+	{% endif %}
+
+	{% if top[1].__len__() %}
 	<div class="col t-4"><center>
 		<h2>6 класс</h2>
 		<table width="100%" border="1">
@@ -175,7 +180,11 @@
 			</tr>
 			{% endfor %}
 		</table>
+		Итого: {{ top[1].__len__() }} работ.
 	</center></div>
+	{% endif %}
+
+	{% if top[2].__len__() %}
 	<div class="col t-4"><center>
 		<h2>7 класс</h2>
 		<table width="100%" border="1">
@@ -192,7 +201,11 @@
 			</tr>
 			{% endfor %}
 		</table>
+		Итого: {{ top[2].__len__() }} работ.
 	</center></div>
+	{% endif %}
+
+	{% if top[3].__len__() %}
 	<div class="col t-4"><center>
 		<h2>8 класс</h2>
 		<table width="100%" border="1">
@@ -209,7 +222,11 @@
 			</tr>
 			{% endfor %}
 		</table>
+		Итого: {{ top[3].__len__() }} работ.
 	</center></div>
+	{% endif %}
+
+	{% if top[4].__len__() %}
 	<div class="col t-4"><center>
 		<h2>9 класс</h2>
 		<table width="100%" border="1">
@@ -226,7 +243,9 @@
 			</tr>
 			{% endfor %}
 		</table>
+		Итого: {{ top[4].__len__() }} работ.
 	</center></div>
+	{% endif %}
 </div>
 {% endif %}
 <script>file_type();file_type2();</script>

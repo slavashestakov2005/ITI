@@ -21,7 +21,7 @@ class AsyncWorker:
     @staticmethod
     def call(filename, year, qtype):
         er = ExcelReader(filename, year, qtype)
-        if qtype == 2:
+        if True:    # на сайте параллельные процессы блокируются
             er.read()
             return
         AsyncWorker.__worker__ = threading.Thread(target=er.read)

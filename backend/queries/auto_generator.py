@@ -1,5 +1,5 @@
 from .help import SplitFile, all_templates, tr_format, compare
-from ..help.excel_subject_writer import ExcelSubjectWriter, ExcelCodesWriter
+from ..help.excel_subject_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable,\
     GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent
@@ -218,11 +218,11 @@ class Generator:
                 raise ValueError("Bad results are saved")
             people = codes[result.user]
             result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
-            if cnt < 20:
-                if last_result != result.result:
-                    last_pos, last_result = cnt, result.result
-                result.position = last_pos
-                text += tr_format(result.position, people.name_1, people.name_2, people.class_name(), result.result,
+            # if cnt < 20: # на сайте захотели все результаты
+            if last_result != result.result:
+                last_pos, last_result = cnt, result.result
+            result.position = last_pos
+            text += tr_format(result.position, people.name_1, people.name_2, people.class_name(), result.result,
                                   result.net_score, color=last_pos, tabs=3)
             ResultsTable.update(result)
             cnt += 1
@@ -322,7 +322,7 @@ class Generator:
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
         data.insert_after_comment(' results table ', txt)
         data.save_file()
-        ExcelSubjectWriter().write(Config.DATA_FOLDER + '/data_{}_{}.xlsx'.format(year, subject),
+        ExcelSubjectWriter(SubjectsTable.select_by_id(subject).name).write(Config.DATA_FOLDER + '/data_{}_{}.xlsx'.format(year, subject),
                                    [arr5, arr6, arr7, arr8, arr9])
 
     @staticmethod
@@ -411,6 +411,7 @@ class Generator:
                 break
         return txt
 
+    # Индивидуальные туры не захотели учитывать
     @staticmethod
     def gen_ratings_3(year: int, results: map):
         subjects = []
@@ -420,8 +421,8 @@ class Generator:
     <table width="90%" border="1">
         <tr>
             <td width="5%">Место</td>
-            <td width="15%">Команда</td>
-            <td width="8%">Инд. тур</td>\n'''
+            <td width="15%">Команда</td>\n'''
+            # <td width="8%">Инд. тур</td>\n'''
         for x in YearsSubjectsTable.select_by_year(year):
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'g':
@@ -434,15 +435,15 @@ class Generator:
             txt += ' ' * 12 + '<td width="8%">{}</td>\n'.format(team.short_name)
         txt += ' ' * 12 + '<td width="8%">Сумма</td>\n' + ' ' * 8 + '</tr>\n'
         subject_ids = [_.id for _ in subjects]
-        cols_result = [[] for i in range(len(subject_ids) + 2)]
+        cols_result = [[] for _ in range(len(subject_ids) + 1)]
         for x in results:
-            summ = results[x]
+            summ = 0    # results[x]
             team_info = TeamsTable.select_by_id(x)
-            row = [team_info.name, results[x]]
-            cols_result[0].append(results[x])
+            row = [team_info.name]
+            # cols_result[0].append(results[x])
             res = GroupResultsTable.select_by_team(team_info.id)
             res = {_.subject: _.result for _ in res} if res else {}
-            pos = 1
+            pos = 0
             for subject in subject_ids:
                 r = res[subject] if subject in res else 0
                 row.append(r)
@@ -464,6 +465,7 @@ class Generator:
             i += 1
         return txt + ' ' * 4 + '</table>\n'
 
+    # Добавили результаты по классам
     @staticmethod
     def gen_ratings_4(codes: map, class_n: int, filename: str, year: int, results: list):
         class_results, class_sums = {}, {}
@@ -491,10 +493,25 @@ class Generator:
                 template += ' ' * 20 + '<td width="5%">{}</td>\n'.format(subject.short_name)
         template += ' ' * 20 + '<td width="5%">Сумма</td>\n' + ' ' * 16 + '</tr>\n'
         class_sums = sorted(class_sums.items(), key=lambda x: -x[1])
+        classes_text = '''
+        <div class="col t-4">
+            <center><h3>Классы</h3></center>
+            <table width="100%" border="1">
+                <tr>
+                    <td width="10%">Место</td>
+                    <td width="40%">Класс</td>
+                    <td width="40%">Сумма</td>
+                    <td width="10%">Не 0</td>
+                </tr>\n'''
+        all_pos, all_res, gun_zero, gsum = 0, None, 0, 0
+        ret_data = []
         for r in class_sums:
+            if all_res != r[1]:
+                all_pos += 1
+                all_res = r[1]
             sub_sums = {_.id: 0 for _ in subjects}
             txt += template.format(str(class_n) + r[0])
-            position, last_pos, last_result = 1, 1, None
+            position, last_pos, last_result, un_zero = 1, 1, None, 0
             for x in class_results[r[0]]:
                 if x.result != last_result:
                     last_pos, last_result = position, x.result
@@ -506,15 +523,25 @@ class Generator:
                     else:
                         row.append('—')
                 txt += tr_format(*row, x.result, color=last_pos, tabs=4)
+                if x.result > 0:
+                    un_zero += 1
                 position += 1
+            ret_data.append([all_pos, str(class_n) + r[0], r[1], un_zero])
+            classes_text += tr_format(all_pos, str(class_n) + r[0], r[1], un_zero, color=all_pos, tabs=4)
             sub_sums = sub_sums.values()
             txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, r[1],
                                                                                             tr=False) + '</tr>\n'
             txt += ' ' * 12 + '</table>\n' + ' ' * 8 + '</div>'
+            gun_zero += un_zero
+            gsum += r[1]
         txt += '\n    '
+        classes_text += ' ' * 16 + '<tr><td colspan="2"><center>Итого</center></td>' + tr_format(gsum, gun_zero, tr=False) + '</tr>\n'
+        classes_text += ' ' * 12 + '</table>\n' + ' ' * 8 + '</div>\n' + ' ' * 4
         data = SplitFile(filename)
         data.insert_after_comment(' results ', txt)
+        data.insert_after_comment(' classes ', classes_text)
         data.save_file()
+        return ret_data
 
     @staticmethod
     def gen_ratings_5_i(year: int, subject: int, codes: map, sp: map):
@@ -657,9 +684,20 @@ class Generator:
         data.insert_after_comment(' rating_parallel_8 ', best_8)
         data.insert_after_comment(' rating_parallel_9 ', best_9)
         data.save_file()
+        arr, arr_a = [], []
         for i in range(5, 10):
             filename = Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating_' + str(i) + '.html'
-            Generator.gen_ratings_4(codes, i, filename, year, all_student_result)
+            now = Generator.gen_ratings_4(codes, i, filename, year, all_student_result)
+            arr.append([[y for y in x] for x in now])
+            arr_a.extend(now)
+        arr_a.sort(key=lambda x: -x[2])
+        arr_a[0][0] = 1
+        for i in range(1, len(arr_a)):
+            if arr_a[i][2] == arr_a[i - 1][2]:
+                arr_a[i][0] = arr_a[i - 1][0]
+            else:
+                arr_a[i][0] = i + 1
+        ExcelClassesWriter().write(Config.DATA_FOLDER + '/classes_{}.xlsx'.format(year), arr, arr_a)
 
     @staticmethod
     def gen_teams(year: int):
@@ -728,7 +766,8 @@ class Generator:
             for student in students:
                 row = [student.class_name(), student.name_1, student.name_2]
                 for subject in subjects:
-                    if student.id in student_result and subject.id in student_result[student.id][ys[subject.id]]:
+                    if student.id in student_result and ys[subject.id] in student_result[student.id] \
+                            and subject.id in student_result[student.id][ys[subject.id]]:
                         row.append(student_result[student.id][ys[subject.id]][subject.id])
                         sub_sums[subject.id] += row[-1]
                     else:
@@ -778,7 +817,7 @@ class Generator:
                 continue
             txt += tr_format(user.id, user.login, user.subjects_str(subjects), tabs=4)
         data = SplitFile(Config.TEMPLATES_FOLDER + '/user_edit.html')
-        data.insert_after_comment(' list of users ', txt + ' ' * 9)
+        data.insert_after_comment(' list of users ', txt + ' ' * 12)
         data.save_file()
 
     @staticmethod
@@ -794,6 +833,7 @@ class Generator:
     @staticmethod
     def gen_automatic_division_1(codes: map, pos: int, teams: list, ts: set, cls: int):
         ln, t = len(codes), list(teams)
+        t.reverse()
         while pos < ln and codes[pos][1].class_n == cls and len(t):
             if codes[pos][1].id in ts:
                 TeamsStudentsTable.insert(TeamStudent([t[-1], codes[pos][1].id]))
@@ -803,6 +843,7 @@ class Generator:
             pos += 1
         return pos, len(t) == 0
 
+    # Изменили распределение по командам
     @staticmethod
     def gen_automatic_division(year: int):
         teams = TeamsTable.select_by_year(year)
@@ -830,21 +871,41 @@ class Generator:
                 student_result[r][i].sort(reverse=True)
                 cnt += sum(student_result[r][i][:2])
             codes[r].result = cnt
-        codes = sorted(codes.items(), key=compare(lambda x: -x[1].class_n, lambda x: -x[1].result,
+        codes = sorted(codes.items(), key=compare(lambda x: x[1].class_n, lambda x: -x[1].result,
                                                   lambda x: x[1].class_l, lambda x: x[1].name_1, lambda x: x[1].name_2, field=True))
-        teams = list(t0)
-        teams.extend(reversed(t0))
-        teams.extend(t0)
-        teams.extend(reversed(t0))
+        teams, now = [], 0
+        for i in range(24):
+            teams.append(t0[now])
+            now = (now + 5) % 6
         pos, good = 0, True
-        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 9)
+        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 5)
         good = good and g
-        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 8)
-        good = good and g
-        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 7)
-        good = good and g
+
+        teams, now = [], 1
+        for i in range(24):
+            teams.append(t0[now])
+            now = (now + 5) % 6
         pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 6)
         good = good and g
-        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 5)
+
+        teams, now = [], 2
+        for i in range(24):
+            teams.append(t0[now])
+            now = (now + 5) % 6
+        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 7)
+        good = good and g
+
+        teams, now = [], 3
+        for i in range(24):
+            teams.append(t0[now])
+            now = (now + 5) % 6
+        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 8)
+        good = good and g
+
+        teams, now = [], 4
+        for i in range(24):
+            teams.append(t0[now])
+            now = (now + 5) % 6
+        pos, g = Generator.gen_automatic_division_1(codes, pos, teams, ts, 9)
         good = good and g
         return good

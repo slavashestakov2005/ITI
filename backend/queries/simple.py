@@ -58,7 +58,7 @@ def bie():
 @app.route('/<int:year>/individual_tours.html')
 @cross_origin()
 def search(year: int):
-    params, q = {}, request.args.get('q')
+    params, q = {'year': year}, request.args.get('q')
     if year == 2019 or year == 2020:
         params['is_info'] = True
     if q and q != '':
@@ -91,6 +91,23 @@ def search(year: int):
                             days[subject.n_d].append(r.net_score)
                 for x in days.values():
                     summ += sum(sorted(x, reverse=True)[:2])
+        elif len(q) == 1:
+            try:
+                student_code = int(q[0])
+                user = StudentsCodesTable.select_by_code(year, student_code)
+                if not user.__is_none__:
+                    for subject in YearsSubjectsTable.select_by_year(year):
+                        r = ResultsTable.select_for_people(Result([year, subject.subject, user.code, 0, 0, '', 0]))
+                        if not r.__is_none__ and r.position > 0:
+                            data.append([SubjectsTable.select_by_id(subject.subject).name, r.position, r.text_result,
+                                        r.result, r.net_score])
+                            if subject.n_d not in days:
+                                days[subject.n_d] = []
+                            days[subject.n_d].append(r.net_score)
+                for x in days.values():
+                    summ += sum(sorted(x, reverse=True)[:2])
+            except Exception:
+                pass
         params['search'] = ' '.join(res_per)
         params['searched_data'] = data
         params['empty'] = not bool(len(data))

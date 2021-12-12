@@ -60,8 +60,9 @@ def page_params(year: int, path2, path3):
             for i in range(len(lst)):
                 if last_result != lst[i].result:
                     last_pos, last_result = i + 1, lst[i].result
-                if last_pos > 3:
-                    break
+                # if last_pos > 3:
+                #    break
+                # на сайте захотели все результаты
                 t.append([last_pos, lst[i].user, lst[i].result])
             top.append(t)
         params['top'] = top

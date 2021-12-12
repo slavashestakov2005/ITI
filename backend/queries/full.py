@@ -26,6 +26,7 @@ from ..config import Config
     /<year>/year_block              year_block()            Блокирует последующее редактирование года для всех.
     /load_data_from_excel           load_data_from_excel()  Загружает данные из Excel таблицы.
     /<year>/download_excel          download_excel()        Выгружает данные в Excel.
+    /<year>/download_classes        download_classes()      Выгружает результаты по классам в Excel.
     /<year>/<subject>/download_excel   download_excel2()    Выгружает один предмет в Excel.
 '''
 
@@ -290,6 +291,15 @@ def download_excel(year: int):
     ExcelWriter(year).write(Config.DATA_FOLDER + '/data_{}.xlsx'.format(year))
     filename = './data/data_{}.xlsx'.format(year)
     return send_file(filename, as_attachment=True, attachment_filename='Данныe ИТИ {}.xlsx'.format(year))
+
+
+@app.route('/<int:year>/download_classes', methods=['GET'])
+@cross_origin()
+@login_required
+@check_status('admin')
+def download_classes(year: int):
+    filename = './data/classes_{}.xlsx'.format(year)
+    return send_file(filename, as_attachment=True, attachment_filename='Данныe классов ИТИ {}.xlsx'.format(year))
 
 
 @app.route('/<int:year>/individual/<path:subject>/download_excel', methods=['GET'])
