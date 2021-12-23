@@ -1,6 +1,6 @@
 import re
 from ..database import User, Result, StudentsCodesTable, YearsSubjectsTable, ResultsTable
-from ..help import Log
+from ..help.log import Log
 '''
     prepare_results(res: str)       Получает данные из введённой строки результатов
     save_result_(...)               Возвращает код попытки сохранения или обновление результата.
@@ -11,7 +11,7 @@ from ..help import Log
 def prepare_results(res: str):
     try:
         res = res.replace(',', '.')
-        result_sum = sum(map(float, re.split(r'[^\d\.]+', res)))
+        result_sum = sum(map(float, [_ for _ in re.split(r'[^\d\.]+', res) if _]))
         text_result = re.sub('[XxХх]', 'X', ' '.join(re.split(r'[^\dXxХх\.]+', res)))
         return res, result_sum, text_result
     except Exception:

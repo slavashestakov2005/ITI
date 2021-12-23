@@ -6,7 +6,7 @@ import shutil
 import glob
 import os
 from .help import check_status, check_block_year, SplitFile, empty_checker, path_to_subject
-from ..help import init_mail_messages, ExcelWriter, FileManager, AsyncWorker
+from ..help import init_mail_messages, ExcelFullWriter, FileManager, AsyncWorker
 from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
     TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
     SubjectsStudentsTable, HistoriesTable
@@ -51,20 +51,16 @@ def _delete_year(year: int):
 
     Generator.gen_years_lists()
     dir1, dir2 = Config.UPLOAD_FOLDER + '/' + str(year), Config.TEMPLATES_FOLDER + '/' + str(year)
-    dir3, dir4 = Config.DATA_FOLDER + '/sheet_' + str(year), Config.DATA_FOLDER + '/data_' + str(year)
-    dir5 = Config.DATA_FOLDER + '/codes_' + str(year)
-    for file in glob.glob(dir3 + '.*'):
-        FileManager.delete(file)
-        os.remove(file)
-    for file in glob.glob(dir4 + '.*'):
-        FileManager.delete(file)
-        os.remove(file)
-    for file in glob.glob(dir4 + '_*.*'):
-        FileManager.delete(file)
-        os.remove(file)
-    for file in glob.glob(dir5 + '.*'):
-        FileManager.delete(file)
-        os.remove(file)
+    simple_dirs = ['/sheet_', '/data_', '/codes_', '/classes_']
+    hard_dirs = ['/data_', '/load_']
+    for d in simple_dirs:
+        for file in glob.glob(Config.DATA_FOLDER + d + str(year) + '.*'):
+            FileManager.delete(file)
+            os.remove(file)
+    for d in hard_dirs:
+        for file in glob.glob(Config.DATA_FOLDER + d + str(year) + '_*.*'):
+            FileManager.delete(file)
+            os.remove(file)
     FileManager.delete_dir(dir1)
     FileManager.delete_dir(dir2)
     try:
@@ -288,7 +284,7 @@ def load_data_from_excel():
 @login_required
 @check_status('admin')
 def download_excel(year: int):
-    ExcelWriter(year).write(Config.DATA_FOLDER + '/data_{}.xlsx'.format(year))
+    ExcelFullWriter(year).write(Config.DATA_FOLDER + '/data_{}.xlsx'.format(year))
     filename = './data/data_{}.xlsx'.format(year)
     return send_file(filename, as_attachment=True, attachment_filename='Данныe ИТИ {}.xlsx'.format(year))
 

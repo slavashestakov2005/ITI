@@ -38,6 +38,17 @@
 				Симолы 'х', 'Х', 'x', 'X' распознаются как задачи, к которым участник не писал решение.</p>
 			<input type="submit" value="Сохранить">
 		</form>
+		<br>
+		<h2>Загрузка из Excel</h2>
+		<form action="load_result" method="post" enctype=multipart/form-data>
+			<p>Файл: <input type="file" name="file"></p>
+			{% if error6 %}
+				{% for e in error6 %}
+					<p><font color="red">{{ e }}</font></p>
+				{% endfor %}
+			{% endif %}
+			<input type="submit" value="Сохранить">
+		</form>
 	</center></div>
 
 	{% if adm %}

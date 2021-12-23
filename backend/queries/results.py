@@ -1,5 +1,6 @@
 from backend import app
-from ..help import forbidden_error, Logger, SplitFile
+from ..help import forbidden_error, Logger, SplitFile, FileManager
+from ..help.excel_results_reader import ExcelResultsReader
 from ..database import ResultsTable, Result, SubjectsTable, YearsSubjectsTable, TeamsTable,\
     GroupResultsTable, GroupResult, AppealsTable, Appeal, StudentsCodesTable, StudentsTable, YearsTable, HistoriesTable
 from flask import render_template, request, redirect
@@ -19,6 +20,7 @@ from .results_raw import save_result_, delete_result_
     /<year>/revert                                              Отменяет операцию из истории (admin).
     /<path1>/<path2>/<path3>/add_result     add_result(...)     redirect на страницу редактирования (для предметников).
     /<path1>/<path2>/<path3>/save_result    save_result(...)    Сохранение результатов (для предметников).
+    /<path1>/<path2>/<path3>/load_result    load_result(...)    Загружает результаты (для предметников).
     /<path1>/<path2>/<path3>/delete_result  delete_result(...)  Удаляет один результат (admin).
     /<path1>/<path2>/<path3>/share_results  share_results(...)  Генерирует таблицу с результатами (admin).
     /<year>/ratings_update                  ratings_update(...) Обновляет рейтинги (admin).
@@ -179,6 +181,29 @@ def save_result(year: int, path2, path3):
     elif code == 0:
         params = page_params(year, path2, path3)
         return render_template('add_result.html', **params, error2='Результат участника {0} сохранён'.format(user_id))
+
+
+@app.route('/<int:year>/<path:path2>/<path:path3>/load_result', methods=['POST'])
+@cross_origin()
+@login_required
+@check_block_year()
+def load_result(year: int, path2, path3):
+    try:
+        subject = path_to_subject(path3)
+        file = request.files['file']
+        parts = [x.lower() for x in file.filename.rsplit('.', 1)]
+        filename = Config.DATA_FOLDER + '/load_' + str(year) + '_' + str(subject) + '.' + parts[1]
+    except Exception:
+        params = page_params(year, path2, path3)
+        return render_template('add_result.html', **params, error6=['[ Некорректные данные ]'])
+
+    file.save(filename)
+    FileManager.save(filename)
+    txt = ExcelResultsReader(filename, year, subject).read(current_user)
+    params = page_params(year, path2, path3)
+    if txt:
+        return render_template('add_result.html', **params, error6=txt)
+    return render_template('add_result.html', **params, error6=['[ Сохранено ]'])
 
 
 @app.route('/<int:year>/<path:path2>/<path:path3>/delete_result', methods=['POST'])

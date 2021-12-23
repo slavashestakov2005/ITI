@@ -3,11 +3,8 @@ from ..queries.file_creator import FileCreator, SplitFile
 from ..queries.auto_generator import Generator
 from ..queries.help import split_class
 from ..database import SubjectsTable, YearSubject, YearsSubjectsTable, Team, TeamsTable, Student, StudentsTable, \
-    StudentCode, StudentsCodesTable, Result, ResultsTable, TeamStudent, TeamsStudentsTable, HistoriesTable, UsersTable, \
-    GroupResultsTable, AppealsTable, SubjectsStudentsTable
+    StudentCode, StudentsCodesTable, Result, ResultsTable, TeamStudent, TeamsStudentsTable
 from ..config import Config
-from .log import Log
-import xlsxwriter
 
 
 def find(titles, exists, not_exists=None):
@@ -20,7 +17,7 @@ def find(titles, exists, not_exists=None):
     return -1
 
 
-class ExcelReader:
+class ExcelFullReader:
     RES = ['subject', 'code', 'result']
     CODES = ['name', 'cls', 'code', 'team']
     STUDENTS = ['name', 'cls']
@@ -155,121 +152,3 @@ class ExcelReader:
             self.__gen_students__()
             self.__gen_results__()
             self.__gen_pages__()
-
-
-def add_row(worksheet, idx, *args):
-    i = 0
-    for arg in args:
-        worksheet.write(idx, i, arg)
-        i += 1
-
-
-class ExcelWriter:
-    def __init__(self, year: int):
-        self.year = year
-
-    def __head__(self, worksheet, *cols, widths=None):
-        worksheet.freeze_panes(1, 0)
-        idx = 0
-        for col in cols:
-            worksheet.write(0, idx, col, self.bold_style)
-            if widths:
-                worksheet.set_column(idx, idx, widths[idx])
-            idx += 1
-        if not widths:
-            worksheet.set_column(0, idx-1, 15)
-
-    def __gen_codes__(self, worksheet):
-        self.__head__(worksheet, 'Код', 'Фамилия', 'Имя', 'Класс', 'Команда')
-        row_idx = 1
-        for code in StudentsCodesTable.select_by_year(self.year):
-            x = self.students[code.student]
-            add_row(worksheet, row_idx, code.code, x[0], x[1], x[2],
-                    '' if code.student not in self.student_team else self.later_teams[self.student_team[code.student]])
-            row_idx += 1
-        worksheet.autofilter(0, 0, row_idx-1, 4)
-
-    def __gen_teams__(self, worksheet):
-        self.__head__(worksheet, 'Вертикаль', 'Название')
-        row_idx = 1
-        for team in self.full_teams:
-            add_row(worksheet, row_idx, team.later, team.name)
-            row_idx += 1
-        worksheet.autofilter(0, 0, row_idx-1, 1)
-
-    def __gen_history__(self, worksheet):
-        self.__head__(worksheet, 'Время', 'Пользователь', 'Тип', 'Описание', 'Отмена', widths=[20, 15, 20, 25, 20])
-        users = {_.id: _.login for _ in UsersTable.select_all()}
-        row_idx = 1
-        for history in HistoriesTable.select_all():
-            if history.description[:1] == '@':
-                sp = history.description.split('; ', 1)
-                sp[0] = self.subjects[int(sp[0][1:])]
-                history.description = '; '.join(sp)
-            revert = '' if not history.revert else 'Отменено ' + users[int(history.revert)]
-            add_row(worksheet, row_idx, history.time_str(), users[history.user], Log.actions[history.type],
-                    history.description, revert)
-            row_idx += 1
-        worksheet.autofilter(0, 0, row_idx-1, 4)
-
-    def __gen_results__(self, worksheet):
-        self.__head__(worksheet, 'Предмет', 'Код', 'Балл', 'Сумма', 'Чист. балл')
-        row_idx = 1
-        for result in ResultsTable.select_by_year(self.year):
-            add_row(worksheet, row_idx, self.subjects[result.subject], result.user, result.text_result, result.result,
-                    result.net_score)
-            row_idx += 1
-        worksheet.autofilter(0, 0, row_idx-1, 4)
-
-    def __gen_group_results(self, worksheet):
-        self.__head__(worksheet, 'Команда', 'Предмет', 'Результат')
-        row_idx = 1
-        max_len = 0
-        for team in self.teams:
-            for result in GroupResultsTable.select_by_team(team):
-                students = []
-                if result.subject in self.student_subject and team in self.student_subject[result.subject]:
-                    students = [' '.join(self.students[_]) for _ in self.student_subject[result.subject][team]]
-                    max_len = max(max_len, len(students))
-                add_row(worksheet, row_idx, self.teams[team], self.subjects[result.subject], result.result, *students)
-        worksheet.autofilter(0, 0, row_idx-1, 2)
-        if max_len == 1:
-            worksheet.set_column(3, 3, 35)
-            worksheet.write(0, 3, 'Участники', self.center_style)
-        elif max_len > 1:
-            worksheet.set_column(3, max_len+2, 45)
-            worksheet.merge_range(0, 3, 0, max_len+2, 'Участники', self.center_style)
-
-    def __gen_appeals__(self, worksheet):
-        self.__head__(worksheet, 'Предмет', 'Код', 'Задания', 'Описание')
-        row_idx = 1
-        for appeal in AppealsTable.select_by_year(self.year):
-            add_row(worksheet, row_idx, self.subjects[appeal.subject], appeal.student, appeal.tasks, appeal.description)
-        worksheet.autofilter(0, 0, row_idx-1, 3)
-
-    def write(self, filename: str):
-        self.students = {_.id: [_.name_1, _.name_2, _.class_name()] for _ in StudentsTable.select_all()}
-        self.subjects = {_.id: _.name for _ in SubjectsTable.select_all()}
-        self.full_teams = TeamsTable.select_all()
-        self.later_teams = {_.id: _.later for _ in self.full_teams}
-        self.teams = {_.id: _.name for _ in self.full_teams}
-        self.student_team = {y.student: y.team for x in self.teams for y in TeamsStudentsTable.select_by_team(x)}
-        self.student_subject = {}
-        for student in SubjectsStudentsTable.select_by_year(self.year):
-            sub, stud, team = student.subject, student.student, self.student_team[student.student]
-            if sub not in self.student_subject:
-                self.student_subject[sub] = {}
-            if team not in self.student_subject[sub]:
-                self.student_subject[sub][team] = []
-            self.student_subject[sub][team].append(stud)
-
-        workbook = xlsxwriter.Workbook(filename)
-        self.bold_style = workbook.add_format({'bold': True})
-        self.center_style = workbook.add_format({'bold': True, 'align': 'center'})
-        self.__gen_codes__(workbook.add_worksheet('Коды'))
-        self.__gen_teams__(workbook.add_worksheet('Команды'))
-        self.__gen_history__(workbook.add_worksheet('История'))
-        self.__gen_results__(workbook.add_worksheet('Результаты'))
-        self.__gen_group_results(workbook.add_worksheet('Групповые результаты'))
-        self.__gen_appeals__(workbook.add_worksheet('Апелляции'))
-        workbook.close()

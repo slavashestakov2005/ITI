@@ -1,5 +1,5 @@
 from .help import SplitFile, all_templates, tr_format, compare
-from ..help.excel_subject_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter
+from ..help.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable,\
     GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent
@@ -773,8 +773,9 @@ class Generator:
                     else:
                         row.append('—')
                 summ = 0
-                for day in student_result[student.id]:
-                    summ += sum(sorted(student_result[student.id][day].values(), reverse=True)[:2])
+                if student.id in student_result:
+                    for day in student_result[student.id]:
+                        summ += sum(sorted(student_result[student.id][day].values(), reverse=True)[:2])
                 txt += tr_format(*row, summ, tabs=4)
                 sum_of_sums += summ
             sub_sums = sub_sums.values()

@@ -1,6 +1,6 @@
 import threading
 import time
-from .excel_reader import ExcelReader
+from .excel_reader import ExcelFullReader
 
 
 class AsyncWorker:
@@ -20,7 +20,7 @@ class AsyncWorker:
 
     @staticmethod
     def call(filename, year, qtype):
-        er = ExcelReader(filename, year, qtype)
+        er = ExcelFullReader(filename, year, qtype)
         if True:    # на сайте параллельные процессы блокируются
             er.read()
             return
