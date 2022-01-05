@@ -43,6 +43,10 @@ class StudentsTable:
         return Table.select_list_with_where(StudentsTable.table, Student, 'class_n', 4, 10)
 
     @staticmethod
+    def select_all_small() -> list:
+        return Table.select_list_with_where(StudentsTable.table, Student, 'class_n', 1, 5)
+
+    @staticmethod
     def select(id: int) -> Student:
         return Table.select_one(StudentsTable.table, Student, 'id', id)
 

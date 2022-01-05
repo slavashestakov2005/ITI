@@ -1,12 +1,12 @@
 from backend import app
-from ..help import forbidden_error, Logger, SplitFile, FileManager
-from ..help.excel_results_reader import ExcelResultsReader
+from ..help import forbidden_error, Logger, SplitFile, FileManager, ExcelResultsReader
 from ..database import ResultsTable, Result, SubjectsTable, YearsSubjectsTable, TeamsTable,\
     GroupResultsTable, GroupResult, AppealsTable, Appeal, StudentsCodesTable, StudentsTable, YearsTable, HistoriesTable
 from flask import render_template, request, redirect
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
-from .help import check_status, check_block_year, correct_new_line, path_to_subject, compare, empty_checker
+from .help import check_status, check_block_year, correct_new_line, path_to_subject, compare, empty_checker, pref_year,\
+    class_min, class_cnt
 from .auto_generator import Generator
 from ..config import Config
 from .results_raw import save_result_, delete_result_
@@ -39,7 +39,7 @@ def tour_type(name: str) -> str:
 
 
 def page_params(year: int, path2, path3):
-    params = {'year': year, 'h_type_1': path2, 'h_type_2': tour_type(path2)}
+    params = {'year': abs(year), 'h_type_1': path2, 'h_type_2': tour_type(path2)}
     try:
         params['subject'] = subject = path_to_subject(path3)
         sub = YearsSubjectsTable.select(year, subject)
@@ -47,14 +47,15 @@ def page_params(year: int, path2, path3):
         appeals = [(_, StudentsTable.select(
             StudentsCodesTable.select_by_code(year, _.student).student
         )) for _ in appeals]
-        params.update({'h_sub_name': SubjectsTable.select_by_id(subject).name, 's5': sub.score_5, 's6': sub.score_6,
-            's7': sub.score_7, 's8': sub.score_8, 's9': sub.score_9, 'appeals': appeals})
+        params.update({'h_sub_name': SubjectsTable.select_by_id(subject).name, 's2': sub.score_5, 's3': sub.score_6,
+                       's4': sub.score_7, 's5': sub.score_5, 's6': sub.score_6, 's7': sub.score_7, 's8': sub.score_8,
+                       's9': sub.score_9, 'appeals': appeals})
         results = ResultsTable.select_by_year_and_subject(year, subject)
         codes = Generator.get_codes(year)
-        sorted_results = [[] for _ in range(5)]
+        sorted_results = [[] for _ in range(class_cnt(year))]
         top = []
         for r in results:
-            sorted_results[codes[r.user].class_n - 5].append(r)
+            sorted_results[codes[r.user].class_n - class_min(year)].append(r)
         for lst in sorted_results:
             lst.sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: codes[x.user].class_l,
                              lambda x: codes[x.user].name_1, lambda x: codes[x.user].name_2, field=True))
@@ -74,7 +75,7 @@ def page_params(year: int, path2, path3):
 
 
 def appeal_page_params(year: int, path2, path3):
-    params = {'year': year, 'h_type_1': path2, 'h_type_2': tour_type(path2)}
+    params = {'year': abs(year), 'h_type_1': path2, 'h_type_2': tour_type(path2)}
     try:
         params['subject'] = subject = path_to_subject(path3)
         params['h_sub_name'] = SubjectsTable.select_by_id(subject).name
@@ -84,7 +85,7 @@ def appeal_page_params(year: int, path2, path3):
 
 
 def group_page_params(year: int, path2, path3):
-    res = {'year': year, 'h_type_1': path2, 'h_type_2': tour_type(path2)}
+    res = {'year': abs(year), 'h_type_1': path2, 'h_type_2': tour_type(path2)}
     try:
         res['subject'] = subject = path_to_subject(path3)
         res['h_sub_name'] = SubjectsTable.select_by_id(subject).name
@@ -103,7 +104,7 @@ def chose_params(p1: int, p2: str, p3: str):
     return group_page_params(p1, p2, p3) if p2 == 'group' or p2 == 'team' else page_params(p1, p2, p3)
 
 
-@app.route('/<int:year>/history')
+@app.route('/<year:year>/history')
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -115,7 +116,7 @@ def history(year: int):
     return redirect('history.html')
 
 
-@app.route('/<int:year>/revert')
+@app.route('/<year:year>/revert')
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -133,7 +134,7 @@ def revert(year: int):
     return redirect('history')
 
 
-@app.route('/<int:year>/<path:path2>/<path:path3>/add_result')
+@app.route('/<year:year>/<path:path2>/<path:path3>/add_result')
 @cross_origin()
 @login_required
 @check_block_year()
@@ -148,46 +149,48 @@ def add_result(year: int, path2, path3):
         return forbidden_error()
     if path2 == 'group' or path2 == 'team':
         return render_template(str(year) + '/add_result.html', **params)
-    return render_template('add_result.html', **params)
+    return render_template(pref_year(year) + 'add_result.html', **params)
 
 
-@app.route('/<int:year>/<path:path2>/<path:path3>/save_result', methods=['POST'])
+@app.route('/<year:year>/<path:path2>/<path:path3>/save_result', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
 def save_result(year: int, path2, path3):
     params = page_params(year, path2, path3)
+    url = pref_year(year) + 'add_result.html'
     try:
         subject = path_to_subject(path3)
         user_id = int(request.form['code'])
         res = request.form['result']
     except Exception:
-        return render_template('add_result.html', **params, error2='Некорректные данные')
+        return render_template(url, **params, error2='Некорректные данные')
 
     code = save_result_(current_user, year, subject, user_id, res)
     if code == -1:
         return forbidden_error()
     elif code == 1:
-        return render_template('add_result.html', **params, error2='Поля не заполнены')
+        return render_template(url, **params, error2='Поля не заполнены')
     elif code == 2:
-        return render_template('add_result.html', **params, error2='Такого кода нет')
+        return render_template(url, **params, error2='Такого кода нет')
     elif code == 3:
-        return render_template('add_result.html', **params, error2='Такого предмета нет в этом году.')
+        return render_template(url, **params, error2='Такого предмета нет в этом году.')
     elif code == 4:
-        return render_template('add_result.html', **params, error2='Результат участника {0} уже сохранён. Для '
-                                        'изменения необходимы права администратора'.format(user_id))
+        return render_template(url, **params, error2='Результат участника {0} уже сохранён. Для изменения необходимы '
+                                                     'права администратора'.format(user_id))
     elif code == 5:
-        return render_template('add_result.html', **params, error2='Некорректные данные')
+        return render_template(url, **params, error2='Некорректные данные')
     elif code == 0:
         params = page_params(year, path2, path3)
-        return render_template('add_result.html', **params, error2='Результат участника {0} сохранён'.format(user_id))
+        return render_template(url, **params, error2='Результат участника {0} сохранён'.format(user_id))
 
 
-@app.route('/<int:year>/<path:path2>/<path:path3>/load_result', methods=['POST'])
+@app.route('/<year:year>/<path:path2>/<path:path3>/load_result', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
 def load_result(year: int, path2, path3):
+    url = pref_year(year) + 'add_result.html'
     try:
         subject = path_to_subject(path3)
         file = request.files['file']
@@ -195,60 +198,61 @@ def load_result(year: int, path2, path3):
         filename = Config.DATA_FOLDER + '/load_' + str(year) + '_' + str(subject) + '.' + parts[1]
     except Exception:
         params = page_params(year, path2, path3)
-        return render_template('add_result.html', **params, error6=['[ Некорректные данные ]'])
+        return render_template(url, **params, error6=['[ Некорректные данные ]'])
 
     file.save(filename)
     FileManager.save(filename)
     txt = ExcelResultsReader(filename, year, subject).read(current_user)
     params = page_params(year, path2, path3)
     if txt:
-        return render_template('add_result.html', **params, error6=txt)
-    return render_template('add_result.html', **params, error6=['[ Сохранено ]'])
+        return render_template(url, **params, error6=txt)
+    return render_template(url, **params, error6=['[ Сохранено ]'])
 
 
-@app.route('/<int:year>/<path:path2>/<path:path3>/delete_result', methods=['POST'])
+@app.route('/<year:year>/<path:path2>/<path:path3>/delete_result', methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
 def delete_result(year: int, path2, path3):
     params = page_params(year, path2, path3)
+    url = pref_year(year) + 'add_result.html'
     try:
         subject = path_to_subject(path3)
         user_id = int(request.form['code'])
     except Exception:
-        return render_template('add_result.html', **params, error5='Некорректные данные')
+        return render_template(url, **params, error5='Некорректные данные')
 
     code = delete_result_(current_user, year, subject, user_id)
     if code == -1:
         return forbidden_error
     elif code == 1:
-        return render_template('add_result.html', **params, error5='Для данных предмета и участника не сохранён ' +
-                                                                   'результат')
+        return render_template(url, **params, error5='Для данных предмета и участника не сохранён результат')
     elif code == 0:
-        return render_template('add_result.html', **page_params(year, path2, path3), error5='Удалено')
+        return render_template(url, **page_params(year, path2, path3), error5='Удалено')
 
 
-@app.route('/<int:year>/<path:path2>/<path:path3>/share_results')
+@app.route('/<year:year>/<path:path2>/<path:path3>/share_results')
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
 def share_results(year: int, path2, path3):
     params = page_params(year, path2, path3)
+    url = pref_year(year) + 'add_result.html'
     try:
         subject = path_to_subject(path3)
     except Exception:
-        return render_template('add_result.html', **params, error3='Некорректные данные')
+        return render_template(url, **params, error3='Некорректные данные')
 
     if YearsSubjectsTable.select(year, subject).__is_none__:
-        return render_template('add_result.html', **params, error3='Такого предмета нет в этом году.')
+        return render_template(url, **params, error3='Такого предмета нет в этом году.')
     try:
         Generator.gen_results(year, subject, str(year) + '/' + path2 + '/' + path3)
     except ValueError:
-        return render_template('add_result.html', **params, error3='Сохранены некоректные результаты (есть участник с '
-                                                                   'количеством баллов большим максимального)')
-    return render_template('add_result.html', **params, error3='Результаты опубликованы')
+        return render_template(url, **params, error3='Сохранены некоректные результаты (есть участник с количеством '
+                                                     'баллов большим максимального)')
+    return render_template(url, **params, error3='Результаты опубликованы')
 
 
 '''
@@ -259,19 +263,19 @@ def share_results(year: int, path2, path3):
 '''
 
 
-@app.route("/<int:year>/ratings_update")
+@app.route("/<year:year>/ratings_update")
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
 def ratings_update(year: int):
     if YearsTable.select_by_year(year).__is_none__:
-        return render_template(str(year) + '/rating.html', error='Этого года нет', year=year)
+        return render_template(str(year) + '/rating.html', error='Этого года нет', year=abs(year))
     Generator.gen_ratings(year)
-    return render_template(str(year) + '/rating.html', error='Рейтинги обновлены', year=year)
+    return render_template(str(year) + '/rating.html', error='Рейтинги обновлены', year=abs(year))
 
 
-@app.route('/<int:year>/<path:path2>/<path:path3>/save_group_results', methods=['POST'])
+@app.route('/<year:year>/<path:path2>/<path:path3>/save_group_results', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
@@ -300,7 +304,7 @@ def save_group_results(year: int, path2, path3):
     return render_template(str(year) + '/add_result.html', **params, error1='Результаты сохранены')
 
 
-@app.route('/<int:year>/<path:path2>/<path:path3>/share_group_results')
+@app.route('/<year:year>/<path:path2>/<path:path3>/share_group_results')
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -318,7 +322,7 @@ def share_group_results(year: int, path2, path3):
     return render_template(str(year) + '/add_result.html', **params, error2='Результаты опубликованы')
 
 
-@app.route('/<int:year>/<path:path2>/<path:path3>/add_appeal', methods=['GET', 'POST'])
+@app.route('/<year:year>/<path:path2>/<path:path3>/add_appeal', methods=['GET', 'POST'])
 @cross_origin()
 @login_required
 @check_block_year()

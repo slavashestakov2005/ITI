@@ -23,6 +23,8 @@ def index():
     y = current_year()
     if os.path.exists(Config.TEMPLATES_FOLDER + '/' + str(y) + '/main.html'):
         return redirect(str(y) + '/main.html')
+    elif os.path.exists(Config.TEMPLATES_FOLDER + '/-' + str(y) + '/main.html'):
+        return redirect('-' + str(y) + '/main.html')
     else:
         return render_template('index.html')
 
@@ -38,6 +40,8 @@ def static_file(path):
     try:
         if len(parts) >= 2 and parts[1] == 'html':
             parts, params = path.split('/'), {}
+            if parts[0][0] == '-':
+                parts[0] = parts[0][1:]
             if parts[0].isdigit():
                 params['year'] = parts[0]
             if parts[0] == 'Info' or parts[0] == '2019' or parts[0] == '2020':
@@ -55,10 +59,10 @@ def bie():
     raise ValueError("Goodbye!")
 
 
-@app.route('/<int:year>/individual_tours.html')
+@app.route('/<year:year>/individual_tours.html')
 @cross_origin()
 def search(year: int):
-    params, q = {'year': year}, request.args.get('q')
+    params, q = {'year': abs(year)}, request.args.get('q')
     if year == 2019 or year == 2020:
         params['is_info'] = True
     if q and q != '':

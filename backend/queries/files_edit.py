@@ -3,10 +3,10 @@ from flask import request, redirect, render_template, url_for
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend.config import Config
-from .help import check_status, check_block_year, correct_new_line, path_to_subject, empty_checker
+from .help import check_status, check_block_year, correct_new_line, path_to_subject, empty_checker, pref_year
 from ..help import not_found_error, forbidden_error, FileManager
 from ..database import SubjectsTable, YearsTable, YearsSubjectsTable, SubjectsFilesTable, SubjectFile, StudentsTable,\
-    StudentsCodesTable, Student
+    StudentsCodesTable
 from .results import chose_params
 from .auto_generator import Generator
 import os
@@ -32,7 +32,7 @@ def generate_filename(last_name, new_path, new_name):
 
 
 def generate_filename_by_type(year: int, subject: int, types: list, classes: list):
-    filename = 'ИТИ ' + str(year) + '. '
+    filename = 'ИТИ ' + str(abs(year)) + '. '
     subject = SubjectsTable.select_by_id(subject)
     if subject.__is_none__ or not types or not classes or not len(types) or not len(classes):
         return None
@@ -89,7 +89,7 @@ def upload():
     return render_template('upload.html')
 
 
-@app.route('/<int:year>/<path:path2>/<path:path3>/main_uploader', methods=['POST'])
+@app.route('/<year:year>/<path:path2>/<path:path3>/main_uploader', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
@@ -110,7 +110,7 @@ def main_uploader(year: int, path2, path3):
     if not current_user.can_do(subject) or YearsSubjectsTable.select(year, subject).__is_none__:
         return forbidden_error()
     filename = generate_filename_by_student(year, subject, code, description) if form_2 \
-                else generate_filename_by_type(year, subject, types, classes)
+        else generate_filename_by_type(year, subject, types, classes)
     filename = generate_filename(file.filename, str(year) + '/' + path2 + '/' + str(subject), filename)
     if filename:
         name = os.path.join(Config.UPLOAD_FOLDER, filename)
@@ -124,7 +124,7 @@ def main_uploader(year: int, path2, path3):
     return forbidden_error()
 
 
-@app.route('/<int:year>/<path:path2>/<path:path3>/main_deleter', methods=['POST'])
+@app.route('/<year:year>/<path:path2>/<path:path3>/main_deleter', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
@@ -151,12 +151,12 @@ def main_deleter(year: int, path2, path3):
     info = SubjectFile([year, subject, file])
     file = Config.UPLOAD_FOLDER + '/' + file
     if SubjectsFilesTable.select(info).__is_none__:
-        return render_template('add_result.html', **params, error4='Файла не существует')
+        return render_template(pref_year(year) + 'add_result.html', **params, error4='Файла не существует')
     os.remove(file)
     SubjectsFilesTable.delete(info)
     FileManager.delete(file)
     Generator.gen_files_list(year, subject, path2 + '/' + path3)
-    return render_template('add_result.html', **params, error4='Файл удалён')
+    return render_template(pref_year(year) + 'add_result.html', **params, error4='Файл удалён')
 
 
 @app.route('/<path:path>/edit')
@@ -195,7 +195,7 @@ def editor():
     return render_template('file_edit.html', file_text=file_text, file_name=file_name)
 
 
-@app.route('/save_file',  methods=['POST'])
+@app.route('/save_file', methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -217,4 +217,3 @@ def save_file():
         f.write(file_text)
     FileManager.save(name)
     return render_template('file_edit.html', file_text=file_text, file_name=file_name, error="Файл сохранён")
-

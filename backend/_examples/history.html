@@ -1,0 +1,26 @@
+{% extends "page2.html" %}
+
+{% block header %}
+<a href="main.html"><!-- {year} --></a>
+/
+История операций
+{% endblock %}
+
+{% block content %}
+<center>
+    <h1>История операций</h1>
+    <table border="1" class="td-1">
+        <tr>
+            <td width="10%">Дата</td>
+            <td width="10%">Логин</td>
+            <td width="15%">Действие</td>
+            <td width="15%">Описание</td>
+            <td width="10%">Отменить</td>
+        </tr>
+        <!-- list of actions --><!-- end -->
+    </table>
+</center>
+<br>
+<!-- message --><!-- end -->
+
+{% endblock %}

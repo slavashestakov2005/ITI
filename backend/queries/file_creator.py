@@ -19,10 +19,13 @@ class FileCreator:
         if os.path.exists(directory):
             shutil.rmtree(directory)
             FileManager.delete_dir(directory)
-        shutil.copytree(Config.EXAMPLES_FOLDER, directory)
+        if year > 0:
+            shutil.copytree(Config.EXAMPLES_FOLDER, directory)
+        else:
+            shutil.copytree(Config.EXAMPLES_FOLDER_, directory)
         FileManager.save_dir(directory)
         files = glob.glob(directory + '/**/*.html', recursive=True)
-        text = 'ИТИ-' + str(year)
+        text = 'ИТИ-' + str(abs(year))
         for file_name in files:
             data = SplitFile(file_name)
             data.replace_comment(' {year} ', text)
@@ -47,7 +50,7 @@ class FileCreator:
                 tour_name = 'Командный тур'
             file_name += ref + '/' + str(subject.id) + ".html"
             if not os.path.exists(file_name):
-                data.replace_comment(' {year} ', 'ИТИ-' + str(year))
+                data.replace_comment(' {year} ', 'ИТИ-' + str(abs(year)))
                 data.replace_comment(' {tour_name} ', tour_name)
                 data.replace_comment(' {subject_name} ', subject.name)
                 data.replace_comment(' {ref} ', ref)

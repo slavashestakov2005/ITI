@@ -1,4 +1,4 @@
-from .help import SplitFile, all_templates, tr_format, compare
+from .help import SplitFile, all_templates, tr_format, compare, class_cnt, class_min, class_max
 from ..help.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable,\
@@ -33,17 +33,29 @@ class Generator:
     def gen_years_lists():
         years = YearsTable.select_all()
         type1 = type2 = type3 = type4 = '\n'
+        type_1 = type_2 = type_3 = type_4 = '\n'
         for year in years:
-            type1 += '\t' * 7 + '<a class="dropdown-item" href="{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-            type2 += '\t' * 7 + '<a class="dropdown-item" href="../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-            type3 += '\t' * 7 + '<a class="dropdown-item" href="../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-            type4 += '\t' * 7 + '<a class="dropdown-item" href="../../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+            if year.year > 0:
+                type1 += '\t' * 7 + '<a class="dropdown-item" href="{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+                type2 += '\t' * 7 + '<a class="dropdown-item" href="../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+                type3 += '\t' * 7 + '<a class="dropdown-item" href="../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+                type4 += '\t' * 7 + '<a class="dropdown-item" href="../../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+            else:
+                year.year = abs(year.year)
+                type_1 += '\t' * 7 + '<a class="dropdown-item" href="-{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+                type_2 += '\t' * 7 + '<a class="dropdown-item" href="../-{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+                type_3 += '\t' * 7 + '<a class="dropdown-item" href="../../-{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
+                type_4 += '\t' * 7 + '<a class="dropdown-item" href="../../../-{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
         for file_name in all_templates():
             data = SplitFile(file_name)
             data.insert_after_comment(' list of years (1) ', type1 + '\t' * 7)
             data.insert_after_comment(' list of years (2) ', type2 + '\t' * 7)
             data.insert_after_comment(' list of years (3) ', type3 + '\t' * 7)
             data.insert_after_comment(' list of years (4) ', type4 + '\t' * 7)
+            data.insert_after_comment(' list of years (-1) ', type_1 + '\t' * 7)
+            data.insert_after_comment(' list of years (-2) ', type_2 + '\t' * 7)
+            data.insert_after_comment(' list of years (-3) ', type_3 + '\t' * 7)
+            data.insert_after_comment(' list of years (-4) ', type_4 + '\t' * 7)
             data.save_file()
 
     @staticmethod
@@ -181,7 +193,7 @@ class Generator:
 
     @staticmethod
     def get_codes(year):
-        students = {_.id: _ for _ in StudentsTable.select_all()}
+        students = {_.id: _ for _ in (StudentsTable.select_all() if year > 0 else StudentsTable.select_all_small())}
         all_codes = StudentsCodesTable.select_by_year(year)
         codes = {}
         for code in all_codes:
@@ -223,7 +235,7 @@ class Generator:
                 last_pos, last_result = cnt, result.result
             result.position = last_pos
             text += tr_format(result.position, people.name_1, people.name_2, people.class_name(), result.result,
-                                  result.net_score, color=last_pos, tabs=3)
+                              result.net_score, color=last_pos, tabs=3)
             ResultsTable.update(result)
             cnt += 1
         text += ' ' * 8 + '</table>'
@@ -291,39 +303,52 @@ class Generator:
         results = ResultsTable.select_by_year_and_subject(year, subject)
         year_subject = YearsSubjectsTable.select(year, subject)
         codes = Generator.get_codes(year)
-        sorted_results = [[] for _ in range(5)]
+        sorted_results = [[] for _ in range(class_cnt(year))]
         for r in results:
-            sorted_results[codes[r.user].class_n - 5].append(r)
+            sorted_results[codes[r.user].class_n - class_min(year)].append(r)
         for lst in sorted_results:
             lst.sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: codes[x.user].class_l,
                                  lambda x: codes[x.user].name_1, lambda x: codes[x.user].name_2, field=True))
         pth = Config.TEMPLATES_FOLDER + '/' + str(year) + '/individual/' + str(subject) + '/protocol'
-        params = {' {year} ': str(year), ' {subject_id} ': str(subject),
+        params = {' {year} ': str(abs(year)), ' {subject_id} ': str(subject),
                   ' {subject} ': SubjectsTable.select_by_id(subject).name}
-        txt5, arr5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5, pth + '_5.html', params)
-        txt6, arr6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6, pth + '_6.html', params)
-        txt7, arr7 = Generator.gen_results_2(sorted_results[2], codes, 7, year_subject.score_7, pth + '_7.html', params)
-        txt8, arr8 = Generator.gen_results_2(sorted_results[3], codes, 8, year_subject.score_8, pth + '_8.html', params)
-        txt9, arr9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9, pth + '_9.html', params)
+        if year > 0:
+            txt5, arr5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5, pth + '_5.html', params)
+            txt6, arr6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6, pth + '_6.html', params)
+            txt7, arr7 = Generator.gen_results_2(sorted_results[2], codes, 7, year_subject.score_7, pth + '_7.html', params)
+            txt8, arr8 = Generator.gen_results_2(sorted_results[3], codes, 8, year_subject.score_8, pth + '_8.html', params)
+            txt9, arr9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9, pth + '_9.html', params)
+        else:
+            txt2, arr2 = Generator.gen_results_2(sorted_results[0], codes, 2, year_subject.score_5, pth + '_2.html', params)
+            txt3, arr3 = Generator.gen_results_2(sorted_results[1], codes, 3, year_subject.score_6, pth + '_3.html', params)
+            txt4, arr4 = Generator.gen_results_2(sorted_results[2], codes, 4, year_subject.score_7, pth + '_4.html', params)
         txt = '\n<center><h2>Результаты</h2></center>\n<div class="row col-12 justify-content-center">\n'
         protocols = '<center><h2>Протоколы</h2></center>\n'
         prot_start = '<p><a href="{0}/protocol_'.format(subject)
-        protocols += prot_start + '5.html">5 класс</a></p>\n' if txt5 else ''
-        protocols += prot_start + '6.html">6 класс</a></p>\n' if txt6 else ''
-        protocols += prot_start + '7.html">7 класс</a></p>\n' if txt7 else ''
-        protocols += prot_start + '8.html">8 класс</a></p>\n' if txt8 else ''
-        protocols += prot_start + '9.html">9 класс</a></p>\n' if txt9 else ''
-        txt += txt5 if txt5 else ''
-        txt += txt6 if txt6 else ''
-        txt += txt7 if txt7 else ''
-        txt += txt8 if txt8 else ''
-        txt += txt9 if txt9 else ''
+        if year > 0:
+            protocols += prot_start + '5.html">5 класс</a></p>\n' if txt5 else ''
+            protocols += prot_start + '6.html">6 класс</a></p>\n' if txt6 else ''
+            protocols += prot_start + '7.html">7 класс</a></p>\n' if txt7 else ''
+            protocols += prot_start + '8.html">8 класс</a></p>\n' if txt8 else ''
+            protocols += prot_start + '9.html">9 класс</a></p>\n' if txt9 else ''
+            txt += txt5 if txt5 else ''
+            txt += txt6 if txt6 else ''
+            txt += txt7 if txt7 else ''
+            txt += txt8 if txt8 else ''
+            txt += txt9 if txt9 else ''
+        else:
+            protocols += prot_start + '2.html">2 класс</a></p>\n' if txt2 else ''
+            protocols += prot_start + '3.html">3 класс</a></p>\n' if txt3 else ''
+            protocols += prot_start + '4.html">4 класс</a></p>\n' if txt4 else ''
+            txt += txt2 if txt2 else ''
+            txt += txt3 if txt3 else ''
+            txt += txt4 if txt4 else ''
         txt += '</div>\n' + protocols
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
         data.insert_after_comment(' results table ', txt)
         data.save_file()
         ExcelSubjectWriter(SubjectsTable.select_by_id(subject).name).write(Config.DATA_FOLDER + '/data_{}_{}.xlsx'.format(year, subject),
-                                   [arr5, arr6, arr7, arr8, arr9])
+                                   [arr5, arr6, arr7, arr8, arr9] if year > 0 else [arr2, arr3, arr4])
 
     @staticmethod
     def gen_group_results(year: int, subject: int, file_name: str):
@@ -666,11 +691,16 @@ class Generator:
         index = 0
         tpl = set(_.student for _ in TeamsStudentsTable.select_by_team(-year * 10))
         tmn = set(_.student for _ in TeamsStudentsTable.select_by_team(-year))
-        best_9, index = Generator.gen_ratings_1(codes, index, 9, tpl, tmn)
-        best_8, index = Generator.gen_ratings_1(codes, index, 8, tpl, tmn)
-        best_7, index = Generator.gen_ratings_1(codes, index, 7, tpl, tmn)
-        best_6, index = Generator.gen_ratings_1(codes, index, 6, tpl, tmn)
-        best_5, index = Generator.gen_ratings_1(codes, index, 5, tpl, tmn)
+        if year > 0:
+            best_9, index = Generator.gen_ratings_1(codes, index, 9, tpl, tmn)
+            best_8, index = Generator.gen_ratings_1(codes, index, 8, tpl, tmn)
+            best_7, index = Generator.gen_ratings_1(codes, index, 7, tpl, tmn)
+            best_6, index = Generator.gen_ratings_1(codes, index, 6, tpl, tmn)
+            best_5, index = Generator.gen_ratings_1(codes, index, 5, tpl, tmn)
+        else:
+            best_4, index = Generator.gen_ratings_1(codes, index, 4, tpl, tmn)
+            best_3, index = Generator.gen_ratings_1(codes, index, 3, tpl, tmn)
+            best_2, index = Generator.gen_ratings_1(codes, index, 2, tpl, tmn)
         best_class = Generator.gen_ratings_2(class_results)
         best_team = Generator.gen_ratings_3(year, team_result)
         best_student = Generator.gen_ratings_5(year, codes, teams)
@@ -678,14 +708,19 @@ class Generator:
         data.insert_after_comment(' rating_teams ', best_team)
         data.insert_after_comment(' rating_class ', best_class)
         data.insert_after_comment(' rating_student ', best_student)
-        data.insert_after_comment(' rating_parallel_5 ', best_5)
-        data.insert_after_comment(' rating_parallel_6 ', best_6)
-        data.insert_after_comment(' rating_parallel_7 ', best_7)
-        data.insert_after_comment(' rating_parallel_8 ', best_8)
-        data.insert_after_comment(' rating_parallel_9 ', best_9)
-        data.save_file()
+        if year > 0:
+            data.insert_after_comment(' rating_parallel_5 ', best_5)
+            data.insert_after_comment(' rating_parallel_6 ', best_6)
+            data.insert_after_comment(' rating_parallel_7 ', best_7)
+            data.insert_after_comment(' rating_parallel_8 ', best_8)
+            data.insert_after_comment(' rating_parallel_9 ', best_9)
+        else:
+            data.insert_after_comment(' rating_parallel_2 ', best_2)
+            data.insert_after_comment(' rating_parallel_3 ', best_3)
+            data.insert_after_comment(' rating_parallel_4 ', best_4)
+            data.save_file()
         arr, arr_a = [], []
-        for i in range(5, 10):
+        for i in range(class_min(year), class_max(year)):
             filename = Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating_' + str(i) + '.html'
             now = Generator.gen_ratings_4(codes, i, filename, year, all_student_result)
             arr.append([[y for y in x] for x in now])

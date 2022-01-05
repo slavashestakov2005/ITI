@@ -1,0 +1,90 @@
+<!-- login required -->
+<!-- -1 -->
+
+{% extends "page2.html" %}
+
+{% block header %}
+<a href="main.html"><!-- {year} --></a>
+/
+Настройки ИТИ
+{% endblock %}
+
+{% block content %}
+<center><h1>Настройки ИТИ</h1></center>
+
+<div class="row col-12 justify-content-center">
+    <div class="col t-3">
+        <form action="subject_year" method="post"><center>
+            <h2>Предметы:</h2>
+            <table width="100%">
+                <tr>
+                    <td width="50%" valign="top">
+                        <h3>Индивидуальные туры:</h3>
+                        <!-- list of year_individual tours --><!-- end -->
+                    </td>
+                    <td width="50%" valign="top">
+                        <h3>Групповые туры:</h3>
+                        <!-- list of year_group tours --><!-- end -->
+                        <h3>Другое:</h3>
+                        <!-- list of year_another tours --><!-- end -->
+                    </td>
+                </tr>
+            </table>
+            {% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+            {% endif %}
+            <input type="submit" value="Сохранить">
+        </center></form>
+    </div>
+    <div class="col t-3"><center>
+        <h2>Расписание:</h2>
+        <form action="subject_description" method="post"><center>
+            <p>Предмет (номер): <input type="text" name="subject"></p>
+            <p>Классы: <input type="text" name="classes"></p>
+            <p>Кабинет: <input type="text" name="place" size="40"></p>
+            <p>
+                День: <input type="date" name="date">
+                Номер: <input type="text" name="n_d" size="5">
+            </p>
+            <p>
+                Начало: <input type="time" name="start">
+                Конец: <input type="time" name="end">
+            </p>
+            {% if error6 %} <p><font color="red">[ {{ error6 }} ]</font></p>
+            {% endif %}
+            <p><input type="submit" value="Сохранить"></p>
+        </center></form>
+        <br />
+        {% if full %}
+        <h2>Блокировка:</h2>
+        <form action="year_block" method="post"><center>
+            <!-- is_block -->
+                <p><input type="radio" name="is_block" value="0" checked>Разблокировано</p>
+                <p><input type="radio" name="is_block" value="1">Заблокировано</p>
+            <!-- end -->
+            {% if error8 %} <p><font color="red">[ {{ error8 }} ]</font></p>
+            {% endif %}
+            <p><input type="submit" value="Сохранить"></p>
+        </center></form>
+        {% endif %}
+    </center></div>
+    <div class="col td-2"><center>
+        <h2>Объявления:</h2>
+        <form action="year_message" method="post"><center>
+            <p>
+                <!-- message -->
+                <textarea name="file_text" id="file_text" oninput="textInput(document, 'file_text')" placeholder="Объявление пусто"></textarea>
+                <!-- end -->
+            </p>
+            <script>textInput(document, 'file_text')</script>
+            {% if error7 %} <p><font color="red">[ {{ error7 }} ]</font></p>
+            {% endif %}
+            <p><input type="submit" value="Сохранить"></p>
+        </center></form>
+    </center></div>
+</div>
+<br>
+{% if adm %}
+<a href="download_excel">Скачать все данные за год в формате Excel.</a>
+{% endif %}
+
+{% endblock %}

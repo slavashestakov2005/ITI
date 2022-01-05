@@ -81,7 +81,7 @@ def _delete_year(year: int):
 def add_year():
     try:
         name = int(request.form['name'])
-        if name <= 2000 or name >= 2100:
+        if abs(name) <= 2000 or abs(name) >= 2100:
             raise ValueError
     except ValueError:
         return render_template('subjects_and_years.html', error1='Некорректный год')
@@ -215,7 +215,7 @@ def db():
     return 'OK'
 
 
-@app.route('/<int:year>/year_block', methods=['POST'])
+@app.route('/<year:year>/year_block', methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('full')
@@ -223,11 +223,11 @@ def year_block(year: int):
     try:
         is_block = int(request.form['is_block'])
     except ValueError:
-        return render_template(str(year.year) + '/subjects_for_year.html', error8='Некорректный ввод', year=year.year)
+        return render_template(str(year.year) + '/subjects_for_year.html', error8='Некорректный ввод', year=abs(year.year))
 
     year = YearsTable.select_by_year(year)
     if year.__is_none__:
-        return render_template(str(year.year) + '/subjects_for_year.html', error8='Этого года нет.', year=year.year)
+        return render_template(str(year.year) + '/subjects_for_year.html', error8='Этого года нет.', year=abs(year.year))
     year.block = is_block
     YearsTable.update(year)
     data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year.year) + '/subjects_for_year.html')
@@ -236,7 +236,7 @@ def year_block(year: int):
                 <p><input type="radio" name="is_block" value="1" {1}>Заблокировано</p>
             '''.format('checked' if is_block == 0 else '', 'checked' if is_block == 1 else ''))
     data.save_file()
-    return render_template(str(year.year) + '/subjects_for_year.html', error8='Сохранено.', year=year.year)
+    return render_template(str(year.year) + '/subjects_for_year.html', error8='Сохранено.', year=abs(year.year))
 
 
 @app.route('/load_data_from_excel', methods=['POST', 'GET'])
@@ -279,7 +279,7 @@ def load_data_from_excel():
     return render_template('subjects_and_years.html',  error5='Сохранение...')
 
 
-@app.route('/<int:year>/download_excel', methods=['GET'])
+@app.route('/<year:year>/download_excel', methods=['GET'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -289,7 +289,7 @@ def download_excel(year: int):
     return send_file(filename, as_attachment=True, attachment_filename='Данныe ИТИ {}.xlsx'.format(year))
 
 
-@app.route('/<int:year>/download_classes', methods=['GET'])
+@app.route('/<year:year>/download_classes', methods=['GET'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -298,7 +298,7 @@ def download_classes(year: int):
     return send_file(filename, as_attachment=True, attachment_filename='Данныe классов ИТИ {}.xlsx'.format(year))
 
 
-@app.route('/<int:year>/individual/<path:subject>/download_excel', methods=['GET'])
+@app.route('/<year:year>/individual/<path:subject>/download_excel', methods=['GET'])
 @cross_origin()
 @login_required
 @check_status('admin')

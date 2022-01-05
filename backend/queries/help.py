@@ -116,8 +116,23 @@ def parse_files():
 
 
 def current_year():
-    d = datetime.now()
-    return d.year + (-1 if d.month < 9 else 0)
+    return datetime.now().year
+
+
+def pref_year(year: int):
+    return '_' if year < 0 else ''
+
+
+def class_min(year: int):
+    return 2 if year < 0 else 5
+
+
+def class_max(year: int):
+    return 5 if year < 0 else 10
+
+
+def class_cnt(year: int):
+    return 3 if year < 0 else 5
 
 
 def check_status(status: str):

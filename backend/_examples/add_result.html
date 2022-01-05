@@ -1,0 +1,35 @@
+<!-- login required -->
+{% extends "page4.html" %}
+
+{% block header %}
+<a href="../../main.html"><!-- {year} --></a>
+/
+<a href="../../{{h_type_1}}_tours.html">{{h_type_2}}</a>
+/
+<a href="../{{subject}}.html">{{h_sub_name}}</a>
+/
+Результаты
+{% endblock %}
+
+{% block content %}
+<div class="row col-12 justify-content-center">
+	<div class="col t-3"><center>
+		<h1>Сохранение результатов</h1>
+		<form action="save_group_results" method="post">
+			<!-- teams list for saving group results --><!-- end -->
+			<p>Если результат ещё не был сохранён, то в поле отображается 0.</p>
+			{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+			{% endif %}
+			<input type="submit" value="Сохранить">
+		</form>
+	</center></div>
+	<div class="col t-3"><center>
+		{% if adm %}
+		<h1><a href="share_group_results">Публикация результатов</a></h1>
+		<p>После публикаяии результатов они станут доступны для просмотра всем.</p>
+		{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>{% endif %}
+		{% endif %}
+	</center></div>
+</div>
+
+{% endblock %}

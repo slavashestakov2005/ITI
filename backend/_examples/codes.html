@@ -1,0 +1,34 @@
+<!-- login required -->
+<!-- -1 -->
+{% extends "codes_table.html" %}
+
+{% block header %}
+<a href="main.html"><!-- {year} --></a>
+/
+Коды участников
+{% endblock %}
+
+{% block head %}
+<center>
+    <h1>Коды участников</h1>
+    <p><a href="create_codes">Присвоить коды</a></p>
+    <p><a href="print_codes">Вывести таблицу</a></p>
+    <p><a href="get_codes">Скачать коды в Excel</a></p>
+    {% if error %} <p><font color="red">[ {{ error }} ]</font></p> {% endif %}
+</center>
+{% endblock %}
+
+{% block codes_table1 %}
+<!-- codes_table 1 -->
+<!-- end -->
+{% endblock %}
+
+{% block codes_table2 %}
+<!-- codes_table 2 -->
+<!-- end -->
+{% endblock %}
+
+{% block codes_table3 %}
+<!-- codes_table 3 -->
+<!-- end -->
+{% endblock %}

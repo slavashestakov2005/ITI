@@ -48,7 +48,7 @@ def teams_page_params(user: User, year: int):
         return {}
 
 
-@app.route("/<int:year>/add_team", methods=['POST'])
+@app.route("/<year:year>/add_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -69,7 +69,7 @@ def add_team(year: int):
     return render_template(str(year) + '/teams_for_year.html', **args, error1='Команда добавлена')
 
 
-@app.route("/<int:year>/edit_team", methods=['POST'])
+@app.route("/<year:year>/edit_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -98,7 +98,7 @@ def edit_team(year: int):
     return render_template(str(year) + '/teams_for_year.html', **args, error8='Данные обновлены')
 
 
-@app.route("/<int:year>/delete_team", methods=['POST'])
+@app.route("/<year:year>/delete_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -116,7 +116,7 @@ def delete_team(year: int):
                            error2='Команда удалена')
 
 
-@app.route("/<int:year>/add_student_team", methods=['POST'])
+@app.route("/<year:year>/add_student_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -147,7 +147,7 @@ def add_student_team(year: int):
                            error3='Участник добавлен')
 
 
-@app.route("/<int:year>/delete_student_team", methods=['POST'])
+@app.route("/<year:year>/delete_student_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -178,7 +178,7 @@ def delete_student_team(year: int):
                            error4='Участник удалён')
 
 
-@app.route("/<int:year>/save_teams", methods=['POST'])
+@app.route("/<year:year>/save_teams", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -207,7 +207,7 @@ def save_teams(year: int):
     return render_template(str(year) + '/rating.html', **teams_page_params(current_user, year), **kw)
 
 
-@app.route("/<int:year>/student_subject", methods=['POST'])
+@app.route("/<year:year>/student_subject", methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
@@ -226,7 +226,7 @@ def student_subject(year: int):
                            error5='Сохранено')
 
 
-@app.route("/<int:year>/team_edit")
+@app.route("/<year:year>/team_edit")
 @cross_origin()
 @login_required
 @check_block_year()
@@ -234,7 +234,7 @@ def team_edit(year: int):
     return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year))
 
 
-@app.route("/<int:year>/add_user_team", methods=['POST'])
+@app.route("/<year:year>/add_user_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -259,7 +259,7 @@ def add_user_team(year: int):
     return render_template(str(year) + '/teams_for_year.html', **args, error6='Руководитель добавлен')
 
 
-@app.route("/<int:year>/delete_user_team", methods=['POST'])
+@app.route("/<year:year>/delete_user_team", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -284,7 +284,7 @@ def delete_user_team(year: int):
     return render_template(str(year) + '/teams_for_year.html', **args, error7='Руководитель удалён')
 
 
-@app.route("/<int:year>/automatic_division", methods=['GET'])
+@app.route("/<year:year>/automatic_division", methods=['GET'])
 @cross_origin()
 @login_required
 @check_status('admin')
@@ -297,4 +297,3 @@ def automatic_division(year: int):
     if not good:
         return render_template(str(year) + '/teams_for_year.html', **args, error9='Осталиь свободные места')
     return render_template(str(year) + '/teams_for_year.html', **args, error9='Участники распределены')
-

@@ -1,0 +1,60 @@
+{% extends "page2.html" %}
+
+{% block header %}
+<a href="main.html"><!-- {year} --></a>
+/
+{% if search %}<a href="individual_tours.html">{% endif %}
+Индивидуальные туры
+{% if search %}</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<center>
+    <h1>Индивидуальные туры</h1>
+    <form>
+        <p><input type="search" name="q" placeholder="Найти результаты">
+            <input type="submit" value="&#128269;"></p>
+    </form>
+</center>
+
+{% if not search %}
+<p>Индивидуальные туры проходят ...</p>
+<p>Лучшие участники будут приглашены в команды.</p>
+<h2>Список туров:</h2>
+<!-- list of year_individual tour (main page) -->
+<!-- end -->
+{% else %}
+<center>
+    <h2>{{ search }}</h2>
+    {% if empty %} По вашему запросу ничего не найдено :(
+    {% else %}
+    <div class="col t-2">
+        <table border="1">
+            <tr>
+                <td width="10%">Предмет</td>
+                <td width="10%">Место</td>
+                <td width="10%">Баллы</td>
+                <td width="10%">Сумма</td>
+                <td width="10%">Балл в рейтинг</td>
+            </tr>
+            {% for data in searched_data %}
+            <tr>
+                {% for subdata in data %}
+                <td>{{ subdata }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="4"><center>Сумма*</center></td>
+                <td>{{ summ }}</td>
+            </tr>
+        </table>
+        <br>
+        <p>* В итоговый рейтинг идёт только 2 лучших результата за каждый день.</p>
+    </div>
+    {% endif %}
+</center>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "_rating_table.html" %}
+
+{% block header %}
+<a href="main.html"><!-- {year} --></a>
+/
+Рейтинг
+{% endblock %}
+
+{% block head %}
+<center>
+    <h1>Рейтинг</h1>
+    {% if adm %}
+    <p><a href="ratings_update">Обновить рейтинг</a></p>
+    <p><a href="download_classes">Скачать данные по классам</a></p>
+    {% if error %} <p><font color="red">[ {{ error }} ]</font></p>{% endif %}
+    {% endif %}
+</center>
+{% endblock %}
+
+{% block rating_teams %}
+<!-- rating_teams -->
+<!-- end -->
+{% endblock %}
+
+{% block rating_student %}
+<!-- rating_student -->
+<!-- end -->
+{% endblock %}
+
+{% block rating_class %}
+<!-- rating_class -->
+<!-- end -->
+{% endblock %}
+
+{% block rating_parallel_2 %}
+<!-- rating_parallel_2 -->
+<!-- end -->
+{% endblock %}
+
+{% block rating_parallel_3 %}
+<!-- rating_parallel_3 -->
+<!-- end -->
+{% endblock %}
+
+{% block rating_parallel_4 %}
+<!-- rating_parallel_4 -->
+<!-- end -->
+{% endblock %}

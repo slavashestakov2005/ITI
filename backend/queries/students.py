@@ -100,44 +100,44 @@ def delete_student():
     return render_template('student_edit.html', error3='Участник удалён')
 
 
-@app.route("/<int:year>/create_codes")
+@app.route("/<year:year>/create_codes")
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
 def create_codes(year: int):
     if YearsTable.select_by_year(year).__is_none__:
-        return render_template(str(year) + '/codes.html', year=year, error='Этого года нет.')
-    students = StudentsTable.select_all()
+        return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
+    students = StudentsTable.select_all() if year > 0 else StudentsTable.select_all_small()
     length = len(students)
     codes = sample(range(1000, 10000), length)
     StudentsCodesTable.delete_by_year(year)
     for i in range(length):
         codes[i] = StudentCode([year, codes[i], students[i].id])
     StudentsCodesTable.insert_all(codes)
-    return render_template(str(year) + '/codes.html', year=year, error='Коды сгенерированы')
+    return render_template(str(year) + '/codes.html', year=abs(year), error='Коды сгенерированы')
 
 
-@app.route("/<int:year>/print_codes")
+@app.route("/<year:year>/print_codes")
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
 def print_codes(year: int):
     if YearsTable.select_by_year(year).__is_none__:
-        return render_template(str(year) + '/codes.html', year=year, error='Этого года нет.')
+        return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
     Generator.gen_codes(year)
-    return render_template(str(year) + '/codes.html', year=year, error='Таблица обновлена')
+    return render_template(str(year) + '/codes.html', year=abs(year), error='Таблица обновлена')
 
 
-@app.route("/<int:year>/get_codes")
+@app.route("/<year:year>/get_codes")
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
 def get_codes(year: int):
     if YearsTable.select_by_year(year).__is_none__:
-        return render_template(str(year) + '/codes.html', year=year, error='Этого года нет.')
+        return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
     filename = './data/codes_{}.xlsx'.format(year)
     return send_file(filename, as_attachment=True, attachment_filename='Кодировка ИТИ {}.xlsx'.format(year))
 
@@ -148,7 +148,7 @@ def get_codes(year: int):
 @check_status('admin')
 @check_block_year()
 def create_students_lists():
-    for i in range(5, 10):
+    for i in range(2, 10):
         Generator.gen_students_list(i)
     return render_template('student_edit.html', error4='Таблицы участников обновлены')
 

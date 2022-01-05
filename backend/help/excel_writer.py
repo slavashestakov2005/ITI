@@ -15,7 +15,7 @@ class ExcelSubjectWriter(ExcelParentWriter):
 
     def write(self, filename: str, data: list):
         self.__styles__(filename)
-        c = 5
+        c = 5 if len(data) == 5 else 2
         for x in data:
             if x:
                 self.__gen_sheet__(self.workbook.add_worksheet('{} класс'.format(c)), x, c)
@@ -74,7 +74,7 @@ class ExcelFullWriter(ExcelParentWriter):
         self.__write__(worksheet, data, cols_cnt=1)
 
     def __gen_history__(self, worksheet):
-        self.__head__(worksheet, 'Время', 'Пользователь', 'Тип', 'Описание', 'Отмена', widths=[20, 15, 20, 25, 20])
+        self.__head__(worksheet, 'Время', 'Пользователь', 'Тип', 'Описание', 'Отмена', widths=[20, 20, 20, 25, 20])
         users = {_.id: _.login for _ in UsersTable.select_all()}
         data = []
         for his in HistoriesTable.select_all():
@@ -93,7 +93,7 @@ class ExcelFullWriter(ExcelParentWriter):
             data.append([self.subjects[r.subject], r.user, r.text_result, r.result, r.net_score])
         self.__write__(worksheet, data, cols_cnt=4)
 
-    def __gen_group_results(self, worksheet):
+    def __gen_group_results__(self, worksheet):
         self.__head__(worksheet, 'Команда', 'Предмет', 'Результат')
         max_len, data = 0, []
         for team in self.teams:
@@ -103,7 +103,7 @@ class ExcelFullWriter(ExcelParentWriter):
                     students = [' '.join(self.students[_]) for _ in self.student_subject[result.subject][team]]
                     max_len = max(max_len, len(students))
                 data.append([self.teams[team], self.subjects[result.subject], result.result, *students])
-        self.__write__(worksheet, data, cols_cnt=2)
+        self.__write__(worksheet, data)
         if max_len == 1:
             worksheet.set_column(3, 3, 45)
             worksheet.write(0, 3, 'Участники', self.center_style)
@@ -139,6 +139,6 @@ class ExcelFullWriter(ExcelParentWriter):
         self.__gen_teams__(self.workbook.add_worksheet('Команды'))
         self.__gen_history__(self.workbook.add_worksheet('История'))
         self.__gen_results__(self.workbook.add_worksheet('Результаты'))
-        self.__gen_group_results(self.workbook.add_worksheet('Групповые результаты'))
+        self.__gen_group_results__(self.workbook.add_worksheet('Групповые результаты'))
         self.__gen_appeals__(self.workbook.add_worksheet('Апелляции'))
         self.workbook.close()
