@@ -45,7 +45,7 @@ def page_params(year: int, path2, path3):
         sub = YearsSubjectsTable.select(year, subject)
         appeals = AppealsTable.select_by_year_and_subject(year, subject)
         appeals = [(_, StudentsTable.select(
-            StudentsCodesTable.select_by_code(year, _.student).student
+            StudentsCodesTable.select_by_code(year, _.student, sub.n_d).student
         )) for _ in appeals]
         params.update({'h_sub_name': SubjectsTable.select_by_id(subject).name, 's2': sub.score_5, 's3': sub.score_6,
                        's4': sub.score_7, 's5': sub.score_5, 's6': sub.score_6, 's7': sub.score_7, 's8': sub.score_8,
@@ -111,7 +111,7 @@ def chose_params(p1: int, p2: str, p3: str):
 @check_block_year()
 def history(year: int):
     data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year) + '/history.html')
-    data.insert_after_comment(' list of actions ', Logger.print())
+    data.insert_after_comment(' list of actions ', Logger.print(year))
     data.save_file()
     return redirect('history.html')
 
@@ -333,7 +333,8 @@ def add_appeal(year: int, path2, path3):
     except Exception:
         return render_template('add_appeal.html', **params, error1='Некорректные данные')
 
-    if YearsSubjectsTable.select(year, subject).__is_none__:
+    ys = YearsSubjectsTable.select(year, subject)
+    if ys.__is_none__:
         return render_template('add_appeal.html', **params, error1='Такого предмета нет в этом году.')
     if request.method == 'POST':
         try:
@@ -344,7 +345,7 @@ def add_appeal(year: int, path2, path3):
         except Exception:
             params['error1'] = 'Некорректные данные'
         else:
-            if StudentsCodesTable.select_by_code(year, code).__is_none__:
+            if StudentsCodesTable.select_by_code(year, code, ys.n_d).__is_none__:
                 params['error1'] = 'Некорректный код'
             else:
                 AppealsTable.insert(Appeal([year, subject, code, tasks, description]))

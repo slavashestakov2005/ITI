@@ -98,18 +98,19 @@ def search(year: int):
         elif len(q) == 1:
             try:
                 student_code = int(q[0])
-                user = StudentsCodesTable.select_by_code(year, student_code)
-                if not user.__is_none__:
-                    for subject in YearsSubjectsTable.select_by_year(year):
-                        r = ResultsTable.select_for_people(Result([year, subject.subject, user.code, 0, 0, '', 0]))
-                        if not r.__is_none__ and r.position > 0:
-                            data.append([SubjectsTable.select_by_id(subject.subject).name, r.position, r.text_result,
-                                        r.result, r.net_score])
-                            if subject.n_d not in days:
-                                days[subject.n_d] = []
-                            days[subject.n_d].append(r.net_score)
-                for x in days.values():
-                    summ += sum(sorted(x, reverse=True)[:2])
+                users = StudentsCodesTable.select_by_code(year, student_code)
+                for user in users:
+                    if not user.__is_none__:
+                        for subject in YearsSubjectsTable.select_by_year(year):
+                            r = ResultsTable.select_for_people(Result([year, subject.subject, user.code, 0, 0, '', 0]))
+                            if not r.__is_none__ and r.position > 0:
+                                data.append([SubjectsTable.select_by_id(subject.subject).name, r.position, r.text_result,
+                                            r.result, r.net_score])
+                                if subject.n_d not in days:
+                                    days[subject.n_d] = []
+                                days[subject.n_d].append(r.net_score)
+                    for x in days.values():
+                        summ += sum(sorted(x, reverse=True)[:2])
             except Exception:
                 pass
         params['search'] = ' '.join(res_per)

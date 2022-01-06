@@ -51,15 +51,15 @@ def generate_filename_by_type(year: int, subject: int, types: list, classes: lis
 
 
 def generate_filename_by_student(year: int, subject: int, code: int, desc: str):
-    student = StudentsCodesTable.select_by_code(year, code)
+    filename = 'ИТИ ' + str(year) + '. '
+    subject = SubjectsTable.select_by_id(subject)
+    if subject.__is_none__:
+        return None
+    student = StudentsCodesTable.select_by_code(year, code, subject.n_d)
     if student.__is_none__:
         return None
     student = StudentsTable.select(student.student)
     if student.__is_none__:
-        return None
-    filename = 'ИТИ ' + str(year) + '. '
-    subject = SubjectsTable.select_by_id(subject)
-    if subject.__is_none__:
         return None
     filename += subject.name + '. {} {} {}. '.format(student.name_1, student.name_2, student.class_name()) + desc
     return filename

@@ -11,11 +11,11 @@ from .log import Log
 
 class Logger:
     @staticmethod
-    def print():
+    def print(year: int):
         txt = '\n'
         users = {_.id: _.login for _ in UsersTable.select_all()}
         subjects = {str(_.id): _.short_name for _ in SubjectsTable.select_all()}
-        for history in HistoriesTable.select_all():
+        for history in HistoriesTable.select_by_year(year):
             if history.description[:1] == '@':
                 sp = history.description.split('; ', 1)
                 sp[0] = subjects[sp[0][1:]]

@@ -1,0 +1,46 @@
+<!-- login required -->
+<!-- -2 -->
+{% extends "page2.html" %}
+{% block content %}
+
+{% block head %}{% endblock %}
+<div class="row col-12 justify-content-center">
+     <div class="col t-3">
+        <table width="100%" border="1">
+            <tr>
+                <td width="5%">Класс</td>
+                <td width="10%">Фамилия</td>
+                <td width="10%">Имя</td>
+                <td width="5%">Код 1</td>
+                <td width="5%">Код 2</td>
+            </tr>
+            {% block codes_table1 %}{% endblock %}
+        </table>
+    </div>
+    <div class="col t-3">
+        <table width="100%" border="1">
+            <tr>
+                <td width="5%">Класс</td>
+                <td width="10%">Фамилия</td>
+                <td width="10%">Имя</td>
+                <td width="5%">Код 1</td>
+                <td width="5%">Код 2</td>
+            </tr>
+            {% block codes_table2 %}{% endblock %}
+        </table>
+    </div>
+    <div class="col t-3">
+        <table width="100%" border="1">
+            <tr>
+                <td width="5%">Класс</td>
+                <td width="10%">Фамилия</td>
+                <td width="10%">Имя</td>
+                <td width="5%">Код 1</td>
+                <td width="5%">Код 2</td>
+            </tr>
+            {% block codes_table3 %}{% endblock %}
+        </table>
+    </div>
+</div>
+
+{% endblock %}

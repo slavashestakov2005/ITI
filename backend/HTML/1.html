@@ -1,10 +1,10 @@
 {% extends "page3.html" %}
 
 {% block page_num %}
-{% if not current_user.is_anonymous and current_user.can_do(<!-- {page num} -->) %}
+{% if not anon and current_user.can_do(<!-- {page num} -->) %}
 <a class="dropdown-item" href="#" onclick="addResult(window)">Результаты</a>
 {% endif %}
-{% if '<!-- {ref} -->' == 'individual' and not current_user.is_anonymous %}
+{% if '<!-- {ref} -->' == 'individual' and not anon %}
 <a class="dropdown-item" href="#" onclick="addAppeal(window)">Апелляция</a>
 {% endif %}
 {% endblock %}

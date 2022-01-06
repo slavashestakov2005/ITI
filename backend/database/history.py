@@ -47,6 +47,10 @@ class HistoriesTable:
         return Table.select_list(HistoriesTable.table, History)
 
     @staticmethod
+    def select_by_year(year: int) -> list:
+        return Table.select_list(HistoriesTable.table, History, 'year', year)
+
+    @staticmethod
     def select(id: int) -> History:
         return Table.select_one(HistoriesTable.table, History, 'id', id)
 

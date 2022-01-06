@@ -19,9 +19,16 @@ class Student(Row):
     def class_name(self):
         return str(self.class_n) + self.class_l
 
+    def name(self):
+        return self.name_1 + ' ' + self.name_2
+
     @staticmethod
     def sort_by_class(student):
         return student.class_name()
+
+    @staticmethod
+    def sort_by_name(student):
+        return student.name()
 
 
 class StudentsTable:
@@ -39,11 +46,9 @@ class StudentsTable:
         )''')
 
     @staticmethod
-    def select_all() -> list:
-        return Table.select_list_with_where(StudentsTable.table, Student, 'class_n', 4, 10)
-
-    @staticmethod
-    def select_all_small() -> list:
+    def select_all(year: int) -> list:
+        if year > 0:
+            return Table.select_list_with_where(StudentsTable.table, Student, 'class_n', 4, 10)
         return Table.select_list_with_where(StudentsTable.table, Student, 'class_n', 1, 5)
 
     @staticmethod

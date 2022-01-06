@@ -5,10 +5,11 @@ class StudentCode(Row):
     """
         Строка таблицы StudentsCodesTable
         year        INT     NOT NULL    PK
-        code        INT     NOT NULL    PK
+        code1       INT     NOT NULL
+        code2       INT     NOT NULL
         student     INT     NOT NULL
     """
-    fields = ['year', 'code', 'student']
+    fields = ['year', 'code1', 'code2', 'student']
 
     def __init__(self, row):
         Row.__init__(self, StudentCode, row)
@@ -21,9 +22,10 @@ class StudentsCodesTable:
     def create_table() -> None:
         Table.drop_and_create(StudentsCodesTable.table, '''(
         year	INT NOT NULL,
-        code	INT NOT NULL,
+        code1	INT NOT NULL,
+        code2	INT NOT NULL,
         student	INT NOT NULL,
-        PRIMARY KEY(code,year)
+        PRIMARY KEY(year)
         )''')
 
     @staticmethod
@@ -35,8 +37,12 @@ class StudentsCodesTable:
         return Table.select_list(StudentsCodesTable.table, StudentCode, 'year', year)
 
     @staticmethod
-    def select_by_code(year: int, code: int) -> StudentCode:
-        return Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code', code)
+    def select_by_code(year: int, code: int, day: int = None) -> StudentCode:
+        if not day:
+            r1 = Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code1', code)
+            r2 = Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code2', code)
+            return set([r1, r2])
+        return Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code' + str(day), code)
 
     @staticmethod
     def select_by_student(year: int, student: int) -> StudentCode:

@@ -8,7 +8,7 @@ from werkzeug.routing import BaseConverter
 class YearConverter(BaseConverter):
     def __init__(self, url_map, *items):
         super(YearConverter, self).__init__(url_map)
-        self.regex = r'[-+]?\d+'
+        self.regex = r'[-]?\d+'
 
     def to_python(self, value):
         return int(value)

@@ -27,10 +27,11 @@ def save_result_(user: User, year: int, subject: int, user_id: int, res: str):
     r = Result([year, subject, user_id, result_sum, 0, text_result, 0])
     if user_id == "" or res == "":
         return 1
-    if StudentsCodesTable.select_by_code(year, user_id).__is_none__:
-        return 2
-    if YearsSubjectsTable.select(year, subject).__is_none__:
+    ys = YearsSubjectsTable.select(year, subject)
+    if ys.__is_none__:
         return 3
+    if StudentsCodesTable.select_by_code(year, user_id, ys.n_d).__is_none__:
+        return 2
     old_r = ResultsTable.select_for_people(r)
     if not old_r.__is_none__:
         if not user.can_do(-1):

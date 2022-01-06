@@ -108,13 +108,14 @@ def delete_student():
 def create_codes(year: int):
     if YearsTable.select_by_year(year).__is_none__:
         return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
-    students = StudentsTable.select_all() if year > 0 else StudentsTable.select_all_small()
+    students = StudentsTable.select_all(year)
     length = len(students)
-    codes = sample(range(1000, 10000), length)
+    codes1 = sample(range(1000, 10000), length)
+    codes2 = codes1 if year > 0 else sample(range(1000, 10000), length)
     StudentsCodesTable.delete_by_year(year)
     for i in range(length):
-        codes[i] = StudentCode([year, codes[i], students[i].id])
-    StudentsCodesTable.insert_all(codes)
+        codes1[i] = StudentCode([year, codes1[i], codes2[i], students[i].id])
+    StudentsCodesTable.insert_all(codes1)
     return render_template(str(year) + '/codes.html', year=abs(year), error='Коды сгенерированы')
 
 

@@ -43,9 +43,12 @@ class ExcelClassesWriter(ExcelParentWriter):
 
 
 class ExcelCodesWriter(ExcelParentWriter):
+    def __init__(self, year):
+        self.head_end = ['Код'] if year > 0 else ['Код 1', 'Код 2']
+
     def __gen_sheet__(self, worksheet, data: list):
-        self.__head__(worksheet, 'Фамилия', 'Имя', 'Класс', 'Код')
-        self.__write__(worksheet, data, cols_cnt=3)
+        self.__head__(worksheet, 'Фамилия', 'Имя', 'Класс', *self.head_end)
+        self.__write__(worksheet, data, cols_cnt=2 + len(self.head_end))
 
     def write(self, filename: str, data: list):
         self.__styles__(filename)
@@ -56,15 +59,17 @@ class ExcelCodesWriter(ExcelParentWriter):
 class ExcelFullWriter(ExcelParentWriter):
     def __init__(self, year: int):
         self.year = year
+        self.head_begin = ['Код'] if year > 0 else ['Код 1', 'Код 2']
 
     def __gen_codes__(self, worksheet):
-        self.__head__(worksheet, 'Код', 'Фамилия', 'Имя', 'Класс', 'Команда')
+        self.__head__(worksheet, *self.head_begin, 'Фамилия', 'Имя', 'Класс', 'Команда')
         data = []
         for code in StudentsCodesTable.select_by_year(self.year):
             x = self.students[code.student]
-            data.append([code.code, x[0], x[1], x[2], '' if code.student not in self.student_team else
+            codes = [code.code1] if self.year > 0 else [code.code1, code.code2]
+            data.append([*codes, x[0], x[1], x[2], '' if code.student not in self.student_team else
                         self.later_teams[self.student_team[code.student]]])
-        self.__write__(worksheet, data, cols_cnt=4)
+        self.__write__(worksheet, data, cols_cnt=3 + len(self.head_begin))
 
     def __gen_teams__(self, worksheet):
         self.__head__(worksheet, 'Вертикаль', 'Название')
@@ -77,7 +82,7 @@ class ExcelFullWriter(ExcelParentWriter):
         self.__head__(worksheet, 'Время', 'Пользователь', 'Тип', 'Описание', 'Отмена', widths=[20, 20, 20, 25, 20])
         users = {_.id: _.login for _ in UsersTable.select_all()}
         data = []
-        for his in HistoriesTable.select_all():
+        for his in HistoriesTable.select_by_year(self.year):
             if his.description[:1] == '@':
                 sp = his.description.split('; ', 1)
                 sp[0] = self.subjects[int(sp[0][1:])]
@@ -119,9 +124,9 @@ class ExcelFullWriter(ExcelParentWriter):
         self.__write__(worksheet, data, cols_cnt=3)
 
     def write(self, filename: str):
-        self.students = {_.id: [_.name_1, _.name_2, _.class_name()] for _ in StudentsTable.select_all()}
+        self.students = {_.id: [_.name_1, _.name_2, _.class_name()] for _ in StudentsTable.select_all(self.year)}
         self.subjects = {_.id: _.name for _ in SubjectsTable.select_all()}
-        self.full_teams = TeamsTable.select_all()
+        self.full_teams = TeamsTable.select_by_year(self.year)
         self.later_teams = {_.id: _.later for _ in self.full_teams}
         self.teams = {_.id: _.name for _ in self.full_teams}
         self.student_team = {y.student: y.team for x in self.teams for y in TeamsStudentsTable.select_by_team(x)}

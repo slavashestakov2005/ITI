@@ -135,6 +135,10 @@ def class_cnt(year: int):
     return 3 if year < 0 else 5
 
 
+def team_cnt(year: int):
+    return 10 if year < 0 else 6
+
+
 def check_status(status: str):
     def my_decorator(function_to_decorate):
 
