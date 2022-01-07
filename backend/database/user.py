@@ -4,6 +4,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
 
+def is_in_team(year: int):
+    return -10 * abs(year) - (2 if year < 0 else 0), -10 * abs(year) - (3 if year < 0 else 1)
+
+
 class User(Row, UserMixin):
     """
         Строка таблицы UsersTable
@@ -45,7 +49,7 @@ class User(Row, UserMixin):
     def teams_list(self, year: int):
         can = set(map(int, self.teams.split()))
         now = set([_.id for _ in TeamsTable.select_by_year(year)])
-        now.add(-year)
+        now.add(is_in_team(year)[1])
         if self.can_do(-1):
             return now
         return list(can.intersection(now))

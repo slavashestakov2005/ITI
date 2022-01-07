@@ -86,7 +86,8 @@ def search(year: int):
                 user = StudentsCodesTable.select_by_student(year, res_student.id)
                 if not user.__is_none__:
                     for subject in YearsSubjectsTable.select_by_year(year):
-                        r = ResultsTable.select_for_people(Result([year, subject.subject, user.code, 0, 0, '', 0]))
+                        code = user.code1 if subject.n_d == 1 else user.code2
+                        r = ResultsTable.select_for_people(Result([year, subject.subject, code, 0, 0, '', 0]))
                         if not r.__is_none__ and r.position > 0:
                             data.append([SubjectsTable.select_by_id(subject.subject).name, r.position, r.text_result,
                                          r.result, r.net_score])
@@ -102,15 +103,15 @@ def search(year: int):
                 for user in users:
                     if not user.__is_none__:
                         for subject in YearsSubjectsTable.select_by_year(year):
-                            r = ResultsTable.select_for_people(Result([year, subject.subject, user.code, 0, 0, '', 0]))
+                            r = ResultsTable.select_for_people(Result([year, subject.subject, student_code, 0, 0, '', 0]))
                             if not r.__is_none__ and r.position > 0:
                                 data.append([SubjectsTable.select_by_id(subject.subject).name, r.position, r.text_result,
                                             r.result, r.net_score])
                                 if subject.n_d not in days:
                                     days[subject.n_d] = []
                                 days[subject.n_d].append(r.net_score)
-                    for x in days.values():
-                        summ += sum(sorted(x, reverse=True)[:2])
+                        for x in days.values():
+                            summ += sum(sorted(x, reverse=True)[:2])
             except Exception:
                 pass
         params['search'] = ' '.join(res_per)

@@ -25,7 +25,7 @@ class ExcelSubjectWriter(ExcelParentWriter):
 
 
 class ExcelClassesWriter(ExcelParentWriter):
-    def __int__(self, year):
+    def __init__(self, year):
         self.c = class_min(year)
 
     def __gen_sheet__(self, worksheet, data: list, cls=None):

@@ -5,7 +5,7 @@ from flask_login import login_required
 import shutil
 import glob
 import os
-from .help import check_status, check_block_year, SplitFile, empty_checker, path_to_subject
+from .help import check_status, check_block_year, SplitFile, empty_checker, path_to_subject, is_in_team
 from ..help import init_mail_messages, ExcelFullWriter, FileManager, AsyncWorker
 from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
     TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
@@ -45,8 +45,9 @@ def _delete_year(year: int):
     for team in teams:
         GroupResultsTable.delete_by_team(team.id)
         TeamsStudentsTable.delete_by_team(team.id)
-    TeamsStudentsTable.delete_by_team(-year)
-    TeamsStudentsTable.delete_by_team(-year * 10)
+    pl, mn = is_in_team(year)
+    TeamsStudentsTable.delete_by_team(pl)
+    TeamsStudentsTable.delete_by_team(mn)
     TeamsTable.delete_by_year(year)
 
     Generator.gen_years_lists()

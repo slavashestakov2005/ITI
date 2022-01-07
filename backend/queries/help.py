@@ -144,6 +144,14 @@ def team_cnt(year: int):
     return 10 if year < 0 else 6
 
 
+def is_in_team(year: int):
+    return -10 * abs(year) - (2 if year < 0 else 0), -10 * abs(year) - (3 if year < 0 else 1)
+
+
+def individual_days_count(year: int):
+    return 2 if year < 0 else 0
+
+
 def check_status(status: str):
     def my_decorator(function_to_decorate):
 

@@ -1,7 +1,7 @@
 from backend import app
 from ..database import TeamsTable, Team, StudentsTable, Student, TeamsStudentsTable, TeamStudent, User,\
-    YearsSubjectsTable, SubjectsTable, SubjectsStudentsTable, SubjectStudent, UsersTable
-from .help import check_status, check_block_year, split_class, empty_checker
+    YearsSubjectsTable, SubjectsTable, SubjectsStudentsTable, SubjectStudent, UsersTable, Subject
+from .help import check_status, check_block_year, split_class, empty_checker, is_in_team, compare
 from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
@@ -24,14 +24,21 @@ from flask_login import login_required, current_user
 
 def teams_page_params(user: User, year: int):
     try:
-        teams, res, subjects = user.teams_list(year), [], []
+        teams, res, subjects, team_tour = user.teams_list(year), [], [], None
+        subjects.append(Subject([-1, 'Инд. 1', 'Инд. 1', 'g']))
+        subjects.append(Subject([-2, 'Инд. 2', 'Инд. 2', 'g']))
         for x in YearsSubjectsTable.select_by_year(year):
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'g':
                 subjects.append(subject)
+            if subject.type == 'a':
+                team_tour = subject
+        if team_tour:
+            subjects.append(team_tour)
+        teams = sorted(list(teams), key=compare(lambda x: -x // abs(x), lambda x: x, field=True))
         for now in teams:
             if now < 0:
-                team, t = Team([-year, 'Отказ', None, None]), []
+                team, t = Team([now, 'Отказ', None, None]), []
             else:
                 team, t = TeamsTable.select_by_id(now), []
             peoples = TeamsStudentsTable.select_by_team(team.id)
@@ -42,8 +49,9 @@ def teams_page_params(user: User, year: int):
                 for subject in subjects:
                     p.append([subject.id, people.id, subject.id in subjects_for_people])
                 t.append(p)
+            t.sort(key=compare(lambda x: x[0][1], lambda x: x[1][1], lambda x: x[2][1], field=True))
             res.append([team.name, t])
-        return {'teams': res, 'subjects': [_.short_name for _ in subjects]}
+        return {'year': abs(year), 'teams': res, 'subjects': [_.short_name for _ in subjects]}
     except Exception:
         return {}
 
@@ -192,16 +200,17 @@ def save_teams(year: int):
         cnt = (x + '_0' in t) + (x + '_1' in t) + (x + '_2' in t)
         if cnt != 1:
             return render_template(str(year) + '/rating.html', **teams_page_params(current_user, year), error='Некорректные данные')
+    pl, mn = is_in_team(year)
     for x in different:
         st = int(x)
         if x + '_0' in ot:
-            TeamsStudentsTable.delete(TeamStudent([-year, st]))
+            TeamsStudentsTable.delete(TeamStudent([mn, st]))
         if x + '_2' in ot:
-            TeamsStudentsTable.delete(TeamStudent([-year * 10, st]))
+            TeamsStudentsTable.delete(TeamStudent([pl, st]))
         if x + '_0' in t:
-            TeamsStudentsTable.insert(TeamStudent([-year, st]))
+            TeamsStudentsTable.insert(TeamStudent([mn, st]))
         if x + '_2' in t:
-            TeamsStudentsTable.insert(TeamStudent([-year * 10, st]))
+            TeamsStudentsTable.insert(TeamStudent([pl, st]))
     kw = {'error' + cl: 'Сохранено'}
     Generator.gen_ratings(year)
     return render_template(str(year) + '/rating.html', **teams_page_params(current_user, year), **kw)

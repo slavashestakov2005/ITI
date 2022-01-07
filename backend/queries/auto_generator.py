@@ -1,4 +1,5 @@
-from .help import SplitFile, all_templates, tr_format, compare, class_cnt, class_min, class_max, team_cnt
+from .help import SplitFile, all_templates, tr_format, compare, class_cnt, class_min, class_max, team_cnt, is_in_team, \
+    individual_days_count, class_cnt
 from ..help.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable, \
@@ -254,8 +255,13 @@ class Generator:
         student_team = Generator.get_student_team(year)
         ys = Generator.get_subjects_days(year)
         students = Generator.get_students(year)
+        subjects_students_0, subjects_students = SubjectsStudentsTable.select_by_year(year), {}
+        for s in subjects_students_0:
+            if s.student not in subjects_students:
+                subjects_students[s.student] = []
+            subjects_students[s.student].append(s.subject)
         temp_results, all_students_results = {}, {}
-        class_results, team_results, student_result = {}, {_.id: 0 for _ in TeamsTable.select_by_year(year)}, {}
+        class_results, team_results, student_result = {}, {_.id: {1: 0, 2: 0} for _ in TeamsTable.select_by_year(year)}, {}
         for day in decode:
             for code in decode[day]:
                 class_results[decode[day][code].class_name()] = 0
@@ -275,14 +281,21 @@ class Generator:
 
         for student in temp_results:
             student_info = students[student]
-            student_sum = 0
+            student_sum, stud_res = 0, {1: 0, 2: 0}
             for day in temp_results[student]:
                 temp_results[student][day].sort(reverse=True)
-                student_sum += sum(temp_results[student][day][:2])
+                current_sum = sum(temp_results[student][day][:2])
+                student_sum += current_sum
+                stud_res[day] = current_sum
             student_result[student] = student_sum
             class_results[student_info.class_name()] += student_sum
             if student in student_team:
-                team_results[student_team[student]] += student_sum
+                if student not in subjects_students or -1 not in subjects_students[student]:
+                    stud_res[1] = 0
+                if student not in subjects_students or -2 not in subjects_students[student]:
+                    stud_res[2] = 0
+                team_results[student_team[student]][1] += stud_res[1]
+                team_results[student_team[student]][2] += stud_res[2]
         return student_result, class_results, team_results, all_students_results
 
     @staticmethod
@@ -422,7 +435,7 @@ class Generator:
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
         data.insert_after_comment(' results table ', txt)
         data.save_file()
-        ExcelSubjectWriter(SubjectsTable.select_by_id(subject).name).write(
+        ExcelSubjectWriter(SubjectsTable.select_by_id(subject).name, year).write(
             Config.DATA_FOLDER + '/data_{}_{}.xlsx'.format(year, subject),
             [arr5, arr6, arr7, arr8, arr9] if year > 0 else [arr2, arr3, arr4])
 
@@ -512,18 +525,21 @@ class Generator:
                 break
         return txt
 
-    # Индивидуальные туры не захотели учитывать
+    # Пока будем учитывать индивидуальные туры для НШ
     @staticmethod
     def gen_ratings_best_team(year: int, results: map):
         subjects = []
         team = None
         new_results = []
+        ind_days = individual_days_count(year)
         txt = '''
     <table width="90%" border="1">
         <tr>
             <td width="5%">Место</td>
             <td width="15%">Команда</td>\n'''
-            # <td width="8%">Инд. тур</td>\n'''
+        if ind_days > 0:
+            txt += '''            <td width="8%">Инд. 1</td>
+            <td width="8%">Инд. 2</td>\n'''
         for x in YearsSubjectsTable.select_by_year(year):
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'g':
@@ -536,15 +552,19 @@ class Generator:
             txt += ' ' * 12 + '<td width="8%">{}</td>\n'.format(team.short_name)
         txt += ' ' * 12 + '<td width="8%">Сумма</td>\n' + ' ' * 8 + '</tr>\n'
         subject_ids = [_.id for _ in subjects]
-        cols_result = [[] for _ in range(len(subject_ids) + 1)]
+        cols_result = [[] for _ in range(len(subject_ids) + 1 + ind_days)]
         for x in results:
-            summ = 0    # results[x]
+            summ = results[x][1] + results[x][2] if ind_days > 0 else 0
             team_info = TeamsTable.select_by_id(x)
             row = [team_info.name]
-            # cols_result[0].append(results[x])
+            if ind_days > 0:
+                cols_result[0].append(results[x][1])
+                cols_result[1].append(results[x][2])
+                row.append(results[x][1])
+                row.append(results[x][2])
             res = GroupResultsTable.select_by_team(team_info.id)
             res = {_.subject: _.result for _ in res} if res else {}
-            pos = 0
+            pos = ind_days
             for subject in subject_ids:
                 r = res[subject] if subject in res else 0
                 row.append(r)
@@ -682,9 +702,10 @@ class Generator:
         return sp
 
     @staticmethod
-    def gen_ratings_5_a(subject: int, teams: map, sp: map):
+    def gen_ratings_5_a(year: int, subject: int, teams: map, sp: map):
         ts = set(teams.keys())
         r = [_ for _ in GroupResultsTable.select_by_subject(subject) if _.team in ts]
+        peoples = set([_.student for _ in SubjectsStudentsTable.select_by_subject(year, subject)])
         r.sort(key=GroupResult.sort_by_result)
         last_result, last_pos, i = None, 0, 1
         for x in r:
@@ -693,9 +714,10 @@ class Generator:
             if last_pos > 3:
                 break
             for user in TeamsStudentsTable.select_by_team(x.team):
-                if user.student not in sp:
-                    sp[user.student] = [0, 0, 0]
-                sp[user.student][last_pos - 1] += 1
+                if user.student in peoples:
+                    if user.student not in sp:
+                        sp[user.student] = [0, 0, 0]
+                    sp[user.student][last_pos - 1] += 1
             i += 1
         return sp
 
@@ -714,7 +736,7 @@ class Generator:
             elif subject.type == 'g':
                 res = Generator.gen_ratings_5_g(year, subject.id, teams, res)
             else:
-                res = Generator.gen_ratings_5_a(subject.id, teams, res)
+                res = Generator.gen_ratings_5_a(year, subject.id, teams, res)
         codes = {_.id: _ for _ in codes.values()}
         res = sorted(res.items(), key=compare(lambda x: -x[1][0], lambda x: -x[1][1], lambda x: -x[1][2],
                                               lambda x: Student.sort_by_class(codes[x[0]]),
@@ -741,8 +763,9 @@ class Generator:
                                                   field=True))
         class_results = sorted(class_results.items(), key=compare(lambda x: -x[1], lambda x: x[0], field=True))
         index = 0
-        tpl = set(_.student for _ in TeamsStudentsTable.select_by_team(-year * 10))
-        tmn = set(_.student for _ in TeamsStudentsTable.select_by_team(-year))
+        tpl, tmn = is_in_team(year)
+        tpl = set(_.student for _ in TeamsStudentsTable.select_by_team(tpl))
+        tmn = set(_.student for _ in TeamsStudentsTable.select_by_team(tmn))
         if year > 0:
             best_9, index = Generator.gen_ratings_parallel(codes, index, 9, tpl, tmn)
             best_8, index = Generator.gen_ratings_parallel(codes, index, 8, tpl, tmn)
@@ -784,7 +807,7 @@ class Generator:
                 arr_a[i][0] = arr_a[i - 1][0]
             else:
                 arr_a[i][0] = i + 1
-        ExcelClassesWriter().write(Config.DATA_FOLDER + '/classes_{}.xlsx'.format(year), arr, arr_a)
+        ExcelClassesWriter(year).write(Config.DATA_FOLDER + '/classes_{}.xlsx'.format(year), arr, arr_a)
 
     @staticmethod
     def gen_teams(year: int):
@@ -933,11 +956,11 @@ class Generator:
         return pos, len(t) == 0
 
     @staticmethod
-    def gen_automatic_division_list(start, peoples_in_team_count, teams_count, t0):
+    def gen_automatic_division_list(start, peoples_in_team_count, teams_count, cls_cnt, t0):
         teams, now = [], start
         for i in range(peoples_in_team_count):
             teams.append(t0[now])
-            now = (now + teams_count - 1) % teams_count
+            now = (now + cls_cnt) % teams_count
         return teams
 
     # Изменили распределение по командам
@@ -947,7 +970,7 @@ class Generator:
         for team in teams:
             TeamsStudentsTable.delete_by_team(team.id)
         TeamsTable.delete_by_year(year)
-        for i in range(1, 7):
+        for i in range(1, team_cnt(year) + 1):
             TeamsTable.insert(Team([None, 'Команда {}'.format(i), year, '{}'.format(i)]))
 
         results = Generator.get_results(year)
@@ -959,7 +982,7 @@ class Generator:
         student_result = {}
         t0 = [_.id for _ in TeamsTable.select_by_year(year)]
         ys = Generator.get_subjects_days(year)
-        ts = set((_.student for _ in TeamsStudentsTable.select_by_team(-year * 10)))
+        ts = set((_.student for _ in TeamsStudentsTable.select_by_team(is_in_team(year)[0])))
         for r in results:
             day = ys[r.subject]
             if r.user not in student_result:
@@ -977,7 +1000,7 @@ class Generator:
 
         pos, good = 0, True
         for i in range(class_cnt(year)):
-            teams = Generator.gen_automatic_division_list(i, 4 * team_cnt(year), team_cnt(year), t0)
+            teams = Generator.gen_automatic_division_list(i, 4 * team_cnt(year), team_cnt(year), class_cnt(year), t0)
             pos, g = Generator.gen_automatic_division_1(res_for_ord, pos, teams, ts, class_min(year) + i)
             good = good and g
         return good

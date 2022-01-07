@@ -96,6 +96,8 @@ def subject_description(year: int):
         start = [int(_) for _ in request.form['start'].split(':')]
         end = [int(_) for _ in request.form['end'].split(':')]
         n_d = int(request.form['n_d'])
+        if n_d <= 0:
+            raise ValueError
     except Exception:
         return render_template(str(year) + '/subjects_for_year.html', error6='Некорректные данные')
 
