@@ -89,7 +89,7 @@ def search(year: int):
                         r = ResultsTable.select_for_people(Result([year, subject.subject, user.code, 0, 0, '', 0]))
                         if not r.__is_none__ and r.position > 0:
                             data.append([SubjectsTable.select_by_id(subject.subject).name, r.position, r.text_result,
-                                        r.result, r.net_score])
+                                         r.result, r.net_score])
                             if subject.n_d not in days:
                                 days[subject.n_d] = []
                             days[subject.n_d].append(r.net_score)

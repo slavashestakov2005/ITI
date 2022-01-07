@@ -1,12 +1,14 @@
 from .log import Log
 from .excel_parent import ExcelParentWriter
+from ..queries.help import class_min
 from ..database import StudentsCodesTable, UsersTable, HistoriesTable, ResultsTable, GroupResultsTable, AppealsTable, \
     SubjectsTable, TeamsTable, StudentsTable, TeamsStudentsTable, SubjectsStudentsTable
 
 
 class ExcelSubjectWriter(ExcelParentWriter):
-    def __init__(self, subject):
+    def __init__(self, subject, year):
         self.subject = subject
+        self.c = class_min(year)
 
     def __gen_sheet__(self, worksheet, data: list, cls: int):
         self.__head__(worksheet, 'Место', 'Фамилия', 'Имя', 'Класс', 'Балл', 'Балл в рейтинг',
@@ -15,15 +17,17 @@ class ExcelSubjectWriter(ExcelParentWriter):
 
     def write(self, filename: str, data: list):
         self.__styles__(filename)
-        c = 5 if len(data) == 5 else 2
         for x in data:
             if x:
-                self.__gen_sheet__(self.workbook.add_worksheet('{} класс'.format(c)), x, c)
-            c += 1
+                self.__gen_sheet__(self.workbook.add_worksheet('{} класс'.format(self.c)), x, self.c)
+            self.c += 1
         self.workbook.close()
 
 
 class ExcelClassesWriter(ExcelParentWriter):
+    def __int__(self, year):
+        self.c = class_min(year)
+
     def __gen_sheet__(self, worksheet, data: list, cls=None):
         self.__head__(worksheet, 'Место', 'Класс', 'Сумма', 'Не 0',
                       title=str(cls) + ' класс' if cls else 'Общий', widths=[10, 10, 10, 10])
@@ -34,11 +38,10 @@ class ExcelClassesWriter(ExcelParentWriter):
     def write(self, filename: str, data: list, all: list):
         self.__styles__(filename)
         self.__gen_sheet__(self.workbook.add_worksheet('Общий'), all)
-        c = 5
         for x in data:
             if x:
-                self.__gen_sheet__(self.workbook.add_worksheet('{} класс'.format(c)), x, c)
-            c += 1
+                self.__gen_sheet__(self.workbook.add_worksheet('{} класс'.format(self.c)), x, self.c)
+            self.c += 1
         self.workbook.close()
 
 

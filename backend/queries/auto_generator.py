@@ -12,9 +12,17 @@ import glob
         gen_years_subjects_list(year)       Изменяет списки предметов для одного года.
         gen_students_list(class_n)          Изменяет таблицу учеников класса class_n.
         gen_codes(year)                     Генерирует страницу с кодами участников.
+        
         get_net_score(...)                  Генерирует балл в рейтинг.
-        get_codes(...)                      Отображает код участника в участника.
-        get_student_team(...)               Отображает участника в команду.
+        get_inv_codes(year)                 student : [code1, code2] для НШ / student : [code] для ОШ.
+        get_codes(year)                     Для всех дней: code : student
+        get_students(year)                  student.id : student
+        get_teams(year)                     team.id : team
+        get_subjects_days(year)             subject.id : subject.day
+        get_results(year, subject)          Получает все результаты по указанному предмету.
+        get_student_team(year)              student.id : team.id.
+        get_all_data_from_results(year)     student_result, class_results, team_results, all_students_results
+        
         gen_results(year, sub, file)        Генерирует таблицу результатов по предмету sub.
         gen_group_results(year, sub, file)  Генерирует таблицу групповых результатов по предмету sub.
         gen_ratings(year)                   Генерирует рейтинговые таблицы года year.
@@ -468,7 +476,7 @@ class Generator:
         data.save_file()
 
     @staticmethod
-    def gen_ratings_1(results: list, index: int, start: int, tpl: set, tmn: set):
+    def gen_ratings_parallel(results: list, index: int, start: int, tpl: set, tmn: set):
         radio = '''
     {{% if adm %}}<td>
         <input type="checkbox" name="t" value="{3}_0" id="{3}_0" {0}>-<input type="checkbox" name="ot" value="{3}_0" {0} hidden>
@@ -492,7 +500,7 @@ class Generator:
         return txt, index
 
     @staticmethod
-    def gen_ratings_class(results: list):
+    def gen_ratings_best_class(results: list):
         txt = '\n'
         i, last_pos, last_result = 0, 0, None
         for x in results:
@@ -506,7 +514,7 @@ class Generator:
 
     # Индивидуальные туры не захотели учитывать
     @staticmethod
-    def gen_ratings_team(year: int, results: map):
+    def gen_ratings_best_team(year: int, results: map):
         subjects = []
         team = None
         new_results = []
@@ -560,7 +568,7 @@ class Generator:
 
     # Добавили результаты по классам
     @staticmethod
-    def gen_ratings_4(codes: map, class_n: int, filename: str, year: int, results: list):
+    def gen_ratings_in_class(codes: map, class_n: int, filename: str, year: int, results: list):
         class_results, class_sums = {}, {}
         for x in codes:
             student = x[1]
@@ -692,7 +700,7 @@ class Generator:
         return sp
 
     @staticmethod
-    def gen_ratings_5(year: int, codes: map):
+    def gen_ratings_best_student(year: int, codes: map):
         decode = Generator.get_codes(year)
         teams = Generator.get_teams(year)
         codes = {_[0]: _[1] for _ in codes}
@@ -736,18 +744,18 @@ class Generator:
         tpl = set(_.student for _ in TeamsStudentsTable.select_by_team(-year * 10))
         tmn = set(_.student for _ in TeamsStudentsTable.select_by_team(-year))
         if year > 0:
-            best_9, index = Generator.gen_ratings_1(codes, index, 9, tpl, tmn)
-            best_8, index = Generator.gen_ratings_1(codes, index, 8, tpl, tmn)
-            best_7, index = Generator.gen_ratings_1(codes, index, 7, tpl, tmn)
-            best_6, index = Generator.gen_ratings_1(codes, index, 6, tpl, tmn)
-            best_5, index = Generator.gen_ratings_1(codes, index, 5, tpl, tmn)
+            best_9, index = Generator.gen_ratings_parallel(codes, index, 9, tpl, tmn)
+            best_8, index = Generator.gen_ratings_parallel(codes, index, 8, tpl, tmn)
+            best_7, index = Generator.gen_ratings_parallel(codes, index, 7, tpl, tmn)
+            best_6, index = Generator.gen_ratings_parallel(codes, index, 6, tpl, tmn)
+            best_5, index = Generator.gen_ratings_parallel(codes, index, 5, tpl, tmn)
         else:
-            best_4, index = Generator.gen_ratings_1(codes, index, 4, tpl, tmn)
-            best_3, index = Generator.gen_ratings_1(codes, index, 3, tpl, tmn)
-            best_2, index = Generator.gen_ratings_1(codes, index, 2, tpl, tmn)
-        best_class = Generator.gen_ratings_class(class_results)
-        best_team = Generator.gen_ratings_team(year, team_results)
-        best_student = Generator.gen_ratings_5(year, codes)
+            best_4, index = Generator.gen_ratings_parallel(codes, index, 4, tpl, tmn)
+            best_3, index = Generator.gen_ratings_parallel(codes, index, 3, tpl, tmn)
+            best_2, index = Generator.gen_ratings_parallel(codes, index, 2, tpl, tmn)
+        best_class = Generator.gen_ratings_best_class(class_results)
+        best_team = Generator.gen_ratings_best_team(year, team_results)
+        best_student = Generator.gen_ratings_best_student(year, codes)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating.html')
         data.insert_after_comment(' rating_teams ', best_team)
         data.insert_after_comment(' rating_class ', best_class)
@@ -766,7 +774,7 @@ class Generator:
         arr, arr_a = [], []
         for i in range(class_min(year), class_max(year)):
             filename = Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating_' + str(i) + '.html'
-            now = Generator.gen_ratings_4(codes, i, filename, year, all_res)
+            now = Generator.gen_ratings_in_class(codes, i, filename, year, all_res)
             arr.append([[y for y in x] for x in now])
             arr_a.extend(now)
         arr_a.sort(key=lambda x: -x[2])

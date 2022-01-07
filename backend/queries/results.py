@@ -58,7 +58,7 @@ def page_params(year: int, path2, path3):
             sorted_results[codes[r.user].class_n - class_min(year)].append(r)
         for lst in sorted_results:
             lst.sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: codes[x.user].class_l,
-                             lambda x: codes[x.user].name_1, lambda x: codes[x.user].name_2, field=True))
+                                 lambda x: codes[x.user].name_1, lambda x: codes[x.user].name_2, field=True))
             t, last_pos, last_result = [], 0, None
             for i in range(len(lst)):
                 if last_result != lst[i].result:
