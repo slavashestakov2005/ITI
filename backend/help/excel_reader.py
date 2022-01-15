@@ -19,8 +19,8 @@ def find(titles, exists, not_exists=None):
 
 class ExcelFullReader:
     RES = ['subject', 'code', 'result']
-    CODES = ['name', 'cls', 'code', 'team']
-    STUDENTS = ['name', 'cls']
+    CODES = ['name', 'cls', 'gender', 'code', 'team']
+    STUDENTS = ['name', 'cls', 'gender']
 
     def __init__(self, file: str, year: int, qtype: int):
         self.file = file
@@ -45,16 +45,19 @@ class ExcelFullReader:
         columns = self.code.columns
         name, cls = columns[find(columns, 'имя')], columns[find(columns, 'класс')]
         code, team = columns[find(columns, 'код')], columns[find(columns, 'команда')]
-        frame = pd.DataFrame(self.code, columns=[name, cls, code, team])
+        gender = columns[find(columns, 'пол')]
+        frame = pd.DataFrame(self.code, columns=[name, cls, gender, code, team])
         frame.columns = self.CODES
-        self.code = frame[frame[self.CODES[0]].notna() & frame[self.CODES[1]].notna() & frame[self.CODES[2]].notna()]
+        self.code = frame[frame[self.CODES[0]].notna() & frame[self.CODES[1]].notna() & frame[self.CODES[2]].notna()
+                          & frame[self.CODES[3]].notna()]
 
     def __get_students_cols__(self):
         columns = self.code.columns
         name, cls = columns[find(columns, 'имя')], columns[find(columns, 'класс')]
-        frame = pd.DataFrame(self.code, columns=[name, cls])
+        gender = columns[find(columns, 'пол')]
+        frame = pd.DataFrame(self.code, columns=[name, cls, gender])
         frame.columns = self.STUDENTS
-        self.student = frame[frame[self.STUDENTS[0]].notna() & frame[self.STUDENTS[1]].notna()]
+        self.student = frame[frame[self.STUDENTS[0]].notna() & frame[self.STUDENTS[1]].notna() & frame[self.STUDENTS[2]].notna()]
 
     def __gen_subject__(self):
         subjects = self.result[self.RES[0]].unique().tolist()
@@ -69,14 +72,14 @@ class ExcelFullReader:
             self.subjects[subject] = all_map[all_names[f]]
 
         for subject in self.subjects:
-            ys = YearSubject([self.year, self.subjects[subject], 30, 30, 30, 30, 30, 0, 0, '', '', 0])
+            ys = YearSubject([self.year, self.subjects[subject], 30, 30, 30, 30, 30, 0, 0, '', '', 1])
             YearsSubjectsTable.insert(ys)
         FileCreator.create_subjects(self.year, list(self.subjects.values()))
         Generator.gen_years_subjects_list(self.year)
         self.all_subjects = {_.id: _ for _ in all_subject}
 
     def __gen_teams__(self):
-        teams = [str(_) for _ in self.code[self.CODES[3]].unique().tolist() if str(_) != 'nan']
+        teams = [str(_) for _ in self.code[self.CODES[4]].unique().tolist() if str(_) != 'nan']
         for team in teams:
             TeamsTable.insert(Team([None, 'Вертикаль ' + team, self.year, team]))
         self.teams = {}
@@ -90,7 +93,8 @@ class ExcelFullReader:
         for i, row in self.code.iterrows():
             names = row[0].split()
             class_ = split_class(row[1])
-            student = Student([None, names[0], names[1], class_[0], class_[1]])
+            student = Student([None, names[0], names[1], class_[0], class_[1], 0])
+            student.set_gender(row[2])
             st = StudentsTable.select_by_student(student)
             if st.__is_none__:
                 StudentsTable.insert(student)
@@ -99,11 +103,11 @@ class ExcelFullReader:
                 student.id = sid = st.id
                 StudentsTable.update(student)
             self.student[(row[0], row[1])] = sid
-            c = StudentCode([self.year, int(row[2]), sid])
+            c = StudentCode([self.year, int(row[3]), int(row[3]), sid])
             StudentsCodesTable.insert(c)
-            self.students_codes.append(int(row[2]))
-            if str(row[3]) != 'nan':
-                ts = TeamStudent([self.teams[str(row[3])], sid])
+            self.students_codes.append(int(row[3]))
+            if str(row[4]) != 'nan':
+                ts = TeamStudent([self.teams[str(row[4])], sid])
                 TeamsStudentsTable.insert(ts)
         self.students_codes = set(self.students_codes)
 
@@ -131,7 +135,8 @@ class ExcelFullReader:
         for i, row in self.student.iterrows():
             names = row[0].split()
             class_ = split_class(row[1])
-            student = Student([None, names[0], names[1], class_[0], class_[1]])
+            student = Student([None, names[0], names[1], class_[0], class_[1], 0])
+            student.set_gender(row[2])
             st = StudentsTable.select_by_student(student)
             if st.__is_none__:
                 StudentsTable.insert(student)

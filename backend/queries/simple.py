@@ -72,7 +72,7 @@ def search(year: int):
             res_student = None
             for x in permutations(q):
                 try:
-                    student = Student([0, x[0], x[1], *split_class(x[2])])
+                    student = Student([0, x[0], x[1], *split_class(x[2]), 0])
                     student = StudentsTable.select_by_student(student)
                     if not student.__is_none__:
                         if res_student:

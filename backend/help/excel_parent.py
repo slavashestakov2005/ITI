@@ -10,12 +10,15 @@ class ExcelParentWriter:
             worksheet.write(idx, i, arg, style)
             i += 1
 
-    def __write__(self, worksheet, data, row_idx=0, cols_cnt=0):
+    def __write__(self, worksheet, data, row_idx=0, cols_cnt=0, border=None):
         start = row_idx
         row_idx += 1
         if not cols_cnt and len(data):
             cols_cnt = len(data[0]) - 1
         for row in data:
+            if border is not None:
+                while len(row) < border:
+                    row.append(None)
             self.__add_row__(worksheet, row_idx, *row)
             row_idx += 1
         worksheet.autofilter(start, 0, row_idx-1, cols_cnt)

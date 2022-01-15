@@ -5,7 +5,7 @@ from flask_login import login_required
 import shutil
 import glob
 import os
-from .help import check_status, check_block_year, SplitFile, empty_checker, path_to_subject, is_in_team
+from .help import check_status, check_block_year, SplitFile, empty_checker, path_to_subject, is_in_team, correct_new_line
 from ..help import init_mail_messages, ExcelFullWriter, FileManager, AsyncWorker
 from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
     TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
@@ -26,6 +26,7 @@ from ..config import Config
     /<year>/year_block              year_block()            Блокирует последующее редактирование года для всех.
     /load_data_from_excel           load_data_from_excel()  Загружает данные из Excel таблицы.
     /<year>/download_excel          download_excel()        Выгружает данные в Excel.
+    /<year>/download_diploma        download_diploma()      Выгружает список грамот в Excel.
     /<year>/download_classes        download_classes()      Выгружает результаты по классам в Excel.
     /<year>/<subject>/download_excel   download_excel2()    Выгружает один предмет в Excel.
 '''
@@ -52,7 +53,7 @@ def _delete_year(year: int):
 
     Generator.gen_years_lists()
     dir1, dir2 = Config.UPLOAD_FOLDER + '/' + str(year), Config.TEMPLATES_FOLDER + '/' + str(year)
-    simple_dirs = ['/sheet_', '/data_', '/codes_', '/classes_']
+    simple_dirs = ['/sheet_', '/data_', '/codes_', '/classes_', '/diploma_']
     hard_dirs = ['/data_', '/load_']
     for d in simple_dirs:
         for file in glob.glob(Config.DATA_FOLDER + d + str(year) + '.*'):
@@ -125,6 +126,7 @@ def add_subject():
         name = request.form['name']
         short_name = request.form['short_name']
         subject_type = request.form['type']
+        diploma = correct_new_line(request.form['diploma'])
         empty_checker(name)
         if subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
             raise ValueError
@@ -134,7 +136,7 @@ def add_subject():
     subject = SubjectsTable.select_by_name(name)
     if not subject.__is_none__:
         return render_template('subjects_and_years.html', error2='Предмет уже существует')
-    subject = Subject([None, name, short_name, subject_type])
+    subject = Subject([None, name, short_name, subject_type, diploma])
     SubjectsTable.insert(subject)
     subject = SubjectsTable.select_by_name(subject.name)
     Generator.gen_subjects_lists()
@@ -154,8 +156,8 @@ def edit_subject():
         new_name = request.form['new_name']
         short_name = request.form['new_short_name']
         subject_type = request.form['new_type']
-        empty_checker(new_name)
-        if subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
+        diploma = correct_new_line(request.form['new_diploma'])
+        if len(subject_type) and subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
             raise ValueError
     except Exception:
         return render_template('subjects_and_years.html',  error3='Некорректные данные')
@@ -163,9 +165,10 @@ def edit_subject():
     subject = SubjectsTable.select_by_id(id)
     if subject.__is_none__:
         return render_template('subjects_and_years.html',  error3='Предмета не существует')
-    subject.name = new_name
-    subject.short_name = short_name
-    subject.type = subject_type
+    subject.name = new_name if len(new_name) else subject.name
+    subject.short_name = short_name if len(short_name) else subject.short_name
+    subject.type = subject_type if len(subject_type) else subject.type
+    subject.diploma = diploma if len(diploma) else subject.diploma
     SubjectsTable.update_by_id(subject)
     Generator.gen_subjects_lists()
     return render_template('subjects_and_years.html', error3='Предмет обнавлён')
@@ -288,6 +291,15 @@ def download_excel(year: int):
     ExcelFullWriter(year).write(Config.DATA_FOLDER + '/data_{}.xlsx'.format(year))
     filename = './data/data_{}.xlsx'.format(year)
     return send_file(filename, as_attachment=True, attachment_filename='Данныe ИТИ {}.xlsx'.format(year))
+
+
+@app.route('/<year:year>/download_diploma', methods=['GET'])
+@cross_origin()
+@login_required
+@check_status('admin')
+def download_diploma(year: int):
+    filename = './data/diploma_{}.xlsx'.format(year)
+    return send_file(filename, as_attachment=True, attachment_filename='Дипломы ИТИ {}.xlsx'.format(year))
 
 
 @app.route('/<year:year>/download_classes', methods=['GET'])

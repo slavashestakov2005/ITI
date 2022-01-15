@@ -8,8 +8,9 @@ class Subject(Row):
         name        TEXT    NOT NULL            UNIQUE
         short_name  TEXT    NOT NULL
         type        TEXT    NOT NULL    ('i' / 'g' / 'a')
+        diploma     TEXT    NOT NULL
     """
-    fields = ['id', 'name', 'short_name', 'type']
+    fields = ['id', 'name', 'short_name', 'type', 'diploma']
 
     def __init__(self, row):
         Row.__init__(self, Subject, row)
@@ -20,6 +21,9 @@ class Subject(Row):
         elif self.type == 'g':
             return 'group'
         return 'team'
+
+    def diplomas_br(self):
+        return self.diploma.replace('\n', '<br>')
 
 
 class SubjectsTable:
@@ -32,27 +36,28 @@ class SubjectsTable:
         name	    VARCHAR(30) NOT NULL UNIQUE,
         short_name	TEXT        NOT NULL,
         type	    TEXT        NOT NULL,
+        diploma     TEXT        NOT NULL,
         PRIMARY KEY(id)
         )''')
-        SubjectsTable.insert(Subject([None, 'Командный тур', 'Команд.', 'a']))
-        SubjectsTable.insert(Subject([None, 'История', 'Ист.', 'i']))
-        SubjectsTable.insert(Subject([None, 'Английский язык', 'Анг.', 'i']))
-        SubjectsTable.insert(Subject([None, 'Русский язык', 'Рус.', 'i']))
-        SubjectsTable.insert(Subject([None, 'Информатика', 'Инф.', 'i']))
-        SubjectsTable.insert(Subject([None, 'ИЦН', 'ИЦН', 'i']))
-        SubjectsTable.insert(Subject([None, 'Математика', 'Мат.', 'i']))
-        SubjectsTable.insert(Subject([None, 'Обществознание', 'Общ.', 'i']))
-        SubjectsTable.insert(Subject([None, 'Естествознание', 'Ест.', 'i']))
-        SubjectsTable.insert(Subject([None, 'Литература', 'Лит.', 'i']))
-        SubjectsTable.insert(Subject([None, 'Искусство', 'Иск.', 'i']))
-        SubjectsTable.insert(Subject([None, 'Карусель', 'Карус.', 'g']))
-        SubjectsTable.insert(Subject([None, 'Естественно-научные бои', 'Е-н. бои', 'g']))
-        SubjectsTable.insert(Subject([None, 'Коммуникативные бои', 'Ком. бои', 'g']))
-        SubjectsTable.insert(Subject([None, ' Литература', 'Пар. лит.', 'g']))
-        SubjectsTable.insert(Subject([None, ' Английский язык', 'Пар. анг.', 'g']))
-        SubjectsTable.insert(Subject([None, 'Театр', 'Театр', 'g']))
-        SubjectsTable.insert(Subject([None, 'Изобретательство', 'Изобр.', 'g']))
-        SubjectsTable.insert(Subject([None, ' Информатика', 'Пар. инф.', 'g']))
+        SubjectsTable.insert(Subject([None, 'Командный тур', 'Команд.', 'a', 'в командном туре']))
+        SubjectsTable.insert(Subject([None, 'История', 'Ист.', 'i', 'в индивидуальном туре\nпо истории']))
+        SubjectsTable.insert(Subject([None, 'Английский язык', 'Анг.', 'i', 'в индивидуальном туре\nпо английскому языку']))
+        SubjectsTable.insert(Subject([None, 'Русский язык', 'Рус.', 'i', 'в индивидуальном туре\nпо русскому языку']))
+        SubjectsTable.insert(Subject([None, 'Информатика', 'Инф.', 'i', 'в индивидуальном туре\nпо информатике']))
+        SubjectsTable.insert(Subject([None, 'ИЦН', 'ИЦН', 'i', 'в индивидуальном туре\nпо ИЦН']))
+        SubjectsTable.insert(Subject([None, 'Математика', 'Мат.', 'i', 'в индивидуальном туре\nпо математике']))
+        SubjectsTable.insert(Subject([None, 'Обществознание', 'Общ.', 'i', 'в индивидуальном туре\nпо обществознанию']))
+        SubjectsTable.insert(Subject([None, 'Естествознание', 'Ест.', 'i', 'в индивидуальном туре\nпо естествознанию']))
+        SubjectsTable.insert(Subject([None, 'Литература', 'Лит.', 'i', 'в индивидуальном туре\nпо литературе']))
+        SubjectsTable.insert(Subject([None, 'Искусство', 'Иск.', 'i', 'в индивидуальном туре\nпо искусству']))
+        SubjectsTable.insert(Subject([None, 'Карусель', 'Карус.', 'g', 'в карусели']))
+        SubjectsTable.insert(Subject([None, 'Естественно-научные бои', 'Е-н. бои', 'g', 'в естественно-научных боях']))
+        SubjectsTable.insert(Subject([None, 'Коммуникативные бои', 'Ком. бои', 'g', 'в коммуникативных боях']))
+        SubjectsTable.insert(Subject([None, ' Литература', 'Пар. лит.', 'g', 'в групповом туре\nпо литературе']))
+        SubjectsTable.insert(Subject([None, ' Английский язык', 'Пар. анг.', 'g', 'в групповом туре\nпо английскому языку']))
+        SubjectsTable.insert(Subject([None, 'Театр', 'Театр', 'g', 'в театре']))
+        SubjectsTable.insert(Subject([None, 'Изобретательство', 'Изобр.', 'g', 'в изобретательстве']))
+        SubjectsTable.insert(Subject([None, ' Информатика', 'Пар. инф.', 'g', 'в групповом туре\nпо информатике']))
 
     @staticmethod
     def select_all() -> list:

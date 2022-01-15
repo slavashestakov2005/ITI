@@ -1,9 +1,9 @@
 from .help import SplitFile, all_templates, tr_format, compare, class_cnt, class_min, class_max, team_cnt, is_in_team, \
     individual_days_count, class_cnt
-from ..help.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter
+from ..help.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter, ExcelDiplomaWriter
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable, \
-    GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent
+    GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent, Subject
 from backend.config import Config
 import glob
 '''
@@ -22,7 +22,7 @@ import glob
         get_subjects_days(year)             subject.id : subject.day
         get_results(year, subject)          Получает все результаты по указанному предмету.
         get_student_team(year)              student.id : team.id.
-        get_all_data_from_results(year)     student_result, class_results, team_results, all_students_results
+        get_all_data_from_results(year)     student_result, class_results, team_results, all_students_results, diploma
         
         gen_results(year, sub, file)        Генерирует таблицу результатов по предмету sub.
         gen_group_results(year, sub, file)  Генерирует таблицу групповых результатов по предмету sub.
@@ -73,7 +73,8 @@ class Generator:
         type1 = type2 = type3 = type4 = type5 = type6 = '\n'
         for subject in subjects:
             text1 = ' ' * 16 + '<p><input type="checkbox" name="status" value="{0}">{1}</p>\n'.format(subject.id, subject.name)
-            text2 = ' ' * 12 + '<p>[ {0} ] {1} ({2})</p>\n'.format(subject.id, subject.name, subject.short_name)
+            text2 = ' ' * 12 + '<p>[ {0} ] {1} ({2}) — {3}</p>\n'.format(subject.id, subject.name, subject.short_name,
+                                                                         subject.diplomas_br())
             if subject.type == 'i':
                 type1 += text1
                 type4 += text2
@@ -135,8 +136,8 @@ class Generator:
             data.save_file()
 
     @staticmethod
-    def gen_students_list_1(student):
-        return tr_format(student.name_1, student.name_2, student.class_name())
+    def gen_students_list_1(student: Student):
+        return tr_format(student.name_1, student.name_2, student.class_name(), student.get_gender())
 
     @staticmethod
     def gen_students_list(class_n: int):
@@ -255,12 +256,13 @@ class Generator:
         student_team = Generator.get_student_team(year)
         ys = Generator.get_subjects_days(year)
         students = Generator.get_students(year)
+        subjects = {_.id: _ for _ in SubjectsTable.select_all()}
         subjects_students_0, subjects_students = SubjectsStudentsTable.select_by_year(year), {}
         for s in subjects_students_0:
             if s.student not in subjects_students:
                 subjects_students[s.student] = []
             subjects_students[s.student].append(s.subject)
-        temp_results, all_students_results = {}, {}
+        temp_results, all_students_results, diploma = {}, {}, []
         class_results, team_results, student_result = {}, {_.id: {1: 0, 2: 0} for _ in TeamsTable.select_by_year(year)}, {}
         for day in decode:
             for code in decode[day]:
@@ -278,6 +280,8 @@ class Generator:
                 all_students_results[student.id] = {}
             if r.subject not in all_students_results[student.id]:
                 all_students_results[student.id][r.subject] = r.net_score
+            if r.position < 4:
+                diploma.append([student, r.position, subjects[r.subject]])
 
         for student in temp_results:
             student_info = students[student]
@@ -296,7 +300,7 @@ class Generator:
                     stud_res[2] = 0
                 team_results[student_team[student]][1] += stud_res[1]
                 team_results[student_team[student]][2] += stud_res[2]
-        return student_result, class_results, team_results, all_students_results
+        return student_result, class_results, team_results, all_students_results, diploma
 
     @staticmethod
     def gen_results_main(results: list, codes: map, maximum: int):
@@ -684,7 +688,7 @@ class Generator:
 
     @staticmethod
     def gen_ratings_5_g(year: int, subject: int, teams: map, sp: map):
-        ts = set(teams.keys())
+        ts, diploma = set(teams.keys()), []
         peoples = set([_.student for _ in SubjectsStudentsTable.select_by_subject(year, subject)])
         r = [_ for _ in GroupResultsTable.select_by_subject(subject) if _.team in ts]
         r.sort(key=GroupResult.sort_by_result)
@@ -698,12 +702,13 @@ class Generator:
                 if user not in sp:
                     sp[user] = [0, 0, 0]
                 sp[user][last_pos - 1] += 1
+                diploma.append([user, last_pos])
             i += 1
-        return sp
+        return sp, diploma
 
     @staticmethod
     def gen_ratings_5_a(year: int, subject: int, teams: map, sp: map):
-        ts = set(teams.keys())
+        ts, diploma = set(teams.keys()), []
         r = [_ for _ in GroupResultsTable.select_by_subject(subject) if _.team in ts]
         peoples = set([_.student for _ in SubjectsStudentsTable.select_by_subject(year, subject)])
         r.sort(key=GroupResult.sort_by_result)
@@ -718,26 +723,31 @@ class Generator:
                     if user.student not in sp:
                         sp[user.student] = [0, 0, 0]
                     sp[user.student][last_pos - 1] += 1
+                    diploma.append([user.student, last_pos])
             i += 1
-        return sp
+        return sp, diploma
 
     @staticmethod
     def gen_ratings_best_student(year: int, codes: map):
         decode = Generator.get_codes(year)
         teams = Generator.get_teams(year)
         codes = {_[0]: _[1] for _ in codes}
+        codes = {_.id: _ for _ in codes.values()}
         subjects = YearsSubjectsTable.select_by_year(year)
-        res = {}
+        res, group_diploma, team_diploma = {}, [], []
         for subject in subjects:
             day = subject.n_d
             subject = SubjectsTable.select_by_id(subject.subject)
             if subject.type == 'i':
                 res = Generator.gen_ratings_5_i(year, subject.id, decode[day], res)
             elif subject.type == 'g':
-                res = Generator.gen_ratings_5_g(year, subject.id, teams, res)
+                res, diploma = Generator.gen_ratings_5_g(year, subject.id, teams, res)
+                for d in diploma:
+                    group_diploma.append([codes[d[0]], d[1], subject])
             else:
-                res = Generator.gen_ratings_5_a(year, subject.id, teams, res)
-        codes = {_.id: _ for _ in codes.values()}
+                res, diploma = Generator.gen_ratings_5_a(year, subject.id, teams, res)
+                for d in diploma:
+                    team_diploma.append([codes[d[0]], d[1], subject])
         res = sorted(res.items(), key=compare(lambda x: -x[1][0], lambda x: -x[1][1], lambda x: -x[1][2],
                                               lambda x: Student.sort_by_class(codes[x[0]]),
                                               lambda x: codes[x[0]].name_1, lambda x: codes[x[0]].name_2, field=True))
@@ -750,11 +760,11 @@ class Generator:
             if i == 20:
                 break
             i += 1
-        return txt
+        return txt, group_diploma, team_diploma
 
     @staticmethod
     def gen_ratings(year: int):
-        student_results, class_results, team_results, all_res = Generator.get_all_data_from_results(year)
+        student_results, class_results, team_results, all_res, dip1 = Generator.get_all_data_from_results(year)
         codes = Generator.get_students(year)
         for _ in student_results:
             codes[_].result = student_results[_]
@@ -778,7 +788,7 @@ class Generator:
             best_2, index = Generator.gen_ratings_parallel(codes, index, 2, tpl, tmn)
         best_class = Generator.gen_ratings_best_class(class_results)
         best_team = Generator.gen_ratings_best_team(year, team_results)
-        best_student = Generator.gen_ratings_best_student(year, codes)
+        best_student, dip2, dip3 = Generator.gen_ratings_best_student(year, codes)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating.html')
         data.insert_after_comment(' rating_teams ', best_team)
         data.insert_after_comment(' rating_class ', best_class)
@@ -808,6 +818,7 @@ class Generator:
             else:
                 arr_a[i][0] = i + 1
         ExcelClassesWriter(year).write(Config.DATA_FOLDER + '/classes_{}.xlsx'.format(year), arr, arr_a)
+        ExcelDiplomaWriter(year).write(Config.DATA_FOLDER + '/diploma_{}.xlsx'.format(year), dip1, dip2, dip3)
 
     @staticmethod
     def gen_teams(year: int):

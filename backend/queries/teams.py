@@ -25,8 +25,8 @@ from flask_login import login_required, current_user
 def teams_page_params(user: User, year: int):
     try:
         teams, res, subjects, team_tour = user.teams_list(year), [], [], None
-        subjects.append(Subject([-1, 'Инд. 1', 'Инд. 1', 'g']))
-        subjects.append(Subject([-2, 'Инд. 2', 'Инд. 2', 'g']))
+        subjects.append(Subject([-1, 'Инд. 1', 'Инд. 1', 'g', 'diploma']))
+        subjects.append(Subject([-2, 'Инд. 2', 'Инд. 2', 'g', 'diploma']))
         for x in YearsSubjectsTable.select_by_year(year):
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'g':
@@ -143,7 +143,7 @@ def add_student_team(year: int):
 
     if TeamsTable.select_by_id(team).__is_none__:
         return render_template(str(year) + '/teams_for_year.html', **args, error3='Такой команды нет')
-    student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1]]))
+    student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1], 0]))
     if student.__is_none__:
         return render_template(str(year) + '/teams_for_year.html', **args, error3='Такого участника нет')
     team_student = TeamStudent([team, student.id])
@@ -174,7 +174,7 @@ def delete_student_team(year: int):
 
     if TeamsTable.select_by_id(team).__is_none__:
         return render_template(str(year) + '/teams_for_year.html', **args, error4='Такой команды нет')
-    student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1]]))
+    student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1], 0]))
     if student.__is_none__:
         return render_template(str(year) + '/teams_for_year.html', **args, error4='Такого участника нет')
     team_student = TeamStudent([team, student.id])

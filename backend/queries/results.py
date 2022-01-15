@@ -51,7 +51,7 @@ def page_params(year: int, path2, path3):
                        's4': sub.score_7, 's5': sub.score_5, 's6': sub.score_6, 's7': sub.score_7, 's8': sub.score_8,
                        's9': sub.score_9, 'appeals': appeals})
         results = ResultsTable.select_by_year_and_subject(year, subject)
-        codes = Generator.get_codes(year)
+        codes = Generator.get_codes(year)[sub.n_d]
         sorted_results = [[] for _ in range(class_cnt(year))]
         top = []
         for r in results:

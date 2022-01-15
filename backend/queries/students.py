@@ -26,8 +26,9 @@ def registration_student():
     try:
         class_ = split_class(request.form['class'])
         name1, name2 = request.form['name1'].capitalize(), request.form['name2'].capitalize()
+        gender = request.form['gender']
         empty_checker(name1, name2)
-        student = Student([None, name1, name2, class_[0], class_[1].capitalize()])
+        student = Student([None, name1, name2, class_[0], class_[1].capitalize(), gender])
     except Exception:
         return render_template('student_edit.html', error1='Некорректные данные')
 
@@ -48,7 +49,7 @@ def edit_student():
         class_old = split_class(request.form['o_class'])
         o_name1, o_name2 = request.form['o_name1'].capitalize(), request.form['o_name2'].capitalize()
         empty_checker(o_name1, o_name2)
-        student_old = Student([None, o_name1, o_name2, class_old[0], class_old[1].capitalize()])
+        student_old = Student([None, o_name1, o_name2, class_old[0], class_old[1].capitalize(), 0])
     except Exception:
         return render_template('student_edit.html', error2='Некорректные данные')
 
@@ -69,6 +70,7 @@ def edit_student():
             rows.append(student_old.class_n)
             rows.append(student_old.class_l)
         empty_checker(rows[1], rows[2])
+        rows.append(request.form['n_gender'] if 'n_gender' in request.form else student_old.gender)
     except Exception:
         return render_template('student_edit.html', error2='Некорректные данные')
 
@@ -88,7 +90,7 @@ def delete_student():
         class_ = split_class(request.form['class'])
         name1, name2 = request.form['name1'].capitalize(), request.form['name2'].capitalize()
         empty_checker(name1, name2)
-        student = Student([None, name1, name2, class_[0], class_[1].capitalize()])
+        student = Student([None, name1, name2, class_[0], class_[1].capitalize(), 0])
     except Exception:
         return render_template('student_edit.html', error3='Некорректные данные')
 

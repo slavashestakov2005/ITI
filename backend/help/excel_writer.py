@@ -1,6 +1,6 @@
 from .log import Log
 from .excel_parent import ExcelParentWriter
-from ..queries.help import class_min
+from ..queries.help import class_min, compare
 from ..database import StudentsCodesTable, UsersTable, HistoriesTable, ResultsTable, GroupResultsTable, AppealsTable, \
     SubjectsTable, TeamsTable, StudentsTable, TeamsStudentsTable, SubjectsStudentsTable
 
@@ -59,18 +59,52 @@ class ExcelCodesWriter(ExcelParentWriter):
         self.workbook.close()
 
 
+class ExcelDiplomaWriter(ExcelParentWriter):
+    def __init__(self, year):
+        self.year = year
+
+    def __gen_sheet__(self, worksheet, data: list):
+        self.__head__(worksheet, 'Класс', 'ФИО', 'Место', widths=[30, 30, 15])
+        new_data, sz = [], 3
+        for x in data:
+            student, position, subject = x
+            x = ['учени{} {} класса'.format('ца' if student.gender else 'к', student.class_name()), student.name(),
+                 'за {} место'.format(position), *subject.diploma.split('\n')]
+            sz = max(sz, len(x))
+            new_data.append(x)
+        self.__write__(worksheet, new_data, border=sz)
+        if sz == 4:
+            worksheet.set_column(3, 3, 30)
+            worksheet.write(0, 3, 'Предмет', self.center_style)
+        elif sz > 4:
+            worksheet.set_column(3, sz - 1, 30)
+            worksheet.merge_range(0, 3, 0, sz - 1, 'Предмет', self.center_style)
+
+    def write(self, filename: str, dip1: list, dip2: list, dip3: list):
+        cmp = [lambda x: x[2].id, lambda x: x[0].class_n, lambda x: x[1], lambda x: x[0].class_l, lambda x: x[0].name()]
+        dip1.sort(key=compare(*cmp, field=True))
+        cmp[1], cmp[2] = cmp[2], cmp[1]
+        dip2.sort(key=compare(*cmp, field=True))
+        dip3.sort(key=compare(*cmp, field=True))
+        self.__styles__(filename)
+        self.__gen_sheet__(self.workbook.add_worksheet('Индивидуальные туры'), dip1)
+        self.__gen_sheet__(self.workbook.add_worksheet('Групповые туры'), dip2)
+        self.__gen_sheet__(self.workbook.add_worksheet('Командный тур'), dip3)
+        self.workbook.close()
+
+
 class ExcelFullWriter(ExcelParentWriter):
     def __init__(self, year: int):
         self.year = year
         self.head_begin = ['Код'] if year > 0 else ['Код 1', 'Код 2']
 
     def __gen_codes__(self, worksheet):
-        self.__head__(worksheet, *self.head_begin, 'Фамилия', 'Имя', 'Класс', 'Команда')
+        self.__head__(worksheet, *self.head_begin, 'Фамилия', 'Имя', 'Класс', 'Пол', 'Команда')
         data = []
         for code in StudentsCodesTable.select_by_year(self.year):
             x = self.students[code.student]
             codes = [code.code1] if self.year > 0 else [code.code1, code.code2]
-            data.append([*codes, x[0], x[1], x[2], '' if code.student not in self.student_team else
+            data.append([*codes, x[0], x[1], x[2], x[3], '' if code.student not in self.student_team else
                         self.later_teams[self.student_team[code.student]]])
         self.__write__(worksheet, data, cols_cnt=3 + len(self.head_begin))
 
@@ -108,7 +142,7 @@ class ExcelFullWriter(ExcelParentWriter):
             for result in GroupResultsTable.select_by_team(team):
                 students = []
                 if result.subject in self.student_subject and team in self.student_subject[result.subject]:
-                    students = [' '.join(self.students[_]) for _ in self.student_subject[result.subject][team]]
+                    students = [' '.join(self.students[_][:-1]) for _ in self.student_subject[result.subject][team]]
                     max_len = max(max_len, len(students))
                 data.append([self.teams[team], self.subjects[result.subject], result.result, *students])
         self.__write__(worksheet, data)
@@ -127,7 +161,7 @@ class ExcelFullWriter(ExcelParentWriter):
         self.__write__(worksheet, data, cols_cnt=3)
 
     def write(self, filename: str):
-        self.students = {_.id: [_.name_1, _.name_2, _.class_name()] for _ in StudentsTable.select_all(self.year)}
+        self.students = {_.id: [_.name_1, _.name_2, _.class_name(), _.get_gender()] for _ in StudentsTable.select_all(self.year)}
         self.subjects = {_.id: _.name for _ in SubjectsTable.select_all()}
         self.full_teams = TeamsTable.select_by_year(self.year)
         self.later_teams = {_.id: _.later for _ in self.full_teams}

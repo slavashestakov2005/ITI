@@ -101,6 +101,20 @@ h4{ font-size: 12pt; }
     resize: none;
 }
 
+.slim {
+    display: block;
+    width: 50%;
+    margin-left: 130px;
+    margin-top: -20px;
+    box-sizing: border-box;
+    border: solid 2px #e06969;
+    background-color: #fff;
+    min-height: 54px;
+    font-size: 14px;
+    line-height: 1.2;
+    resize: none;
+}
+
 .current_year{ color: blue; }
 .p1{ background: #ffd700; }
 .p2{ background: #c0c0c0; }
