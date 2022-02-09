@@ -58,6 +58,7 @@ class SubjectsTable:
         SubjectsTable.insert(Subject([None, 'Театр', 'Театр', 'g', 'в театре']))
         SubjectsTable.insert(Subject([None, 'Изобретательство', 'Изобр.', 'g', 'в изобретательстве']))
         SubjectsTable.insert(Subject([None, ' Информатика', 'Пар. инф.', 'g', 'в групповом туре\nпо информатике']))
+        SubjectsTable.insert(Subject([None, 'Окружающий мир', 'Окр. мир', 'i', 'в индивидуальном туре\nпо окружающему миру']))
 
     @staticmethod
     def select_all() -> list:

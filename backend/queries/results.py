@@ -11,7 +11,8 @@ from .auto_generator import Generator
 from ..config import Config
 from .results_raw import save_result_, delete_result_
 '''
-    tour_type(name)                                             Преобразует названия туров.
+    tour_type(name)                                             Переводит названия туров.
+    tour_name(type)                                             Делает длинные названия туров из коротких.
     page_params(path1, path2, path3)                            Возвращает параметры для страницы 'add_result.html'.
     appeal_page_params(path1, path2, path3)                     Возвращает пераметры для страницы 'add_appeal.html'
     group_page_params(path1, path2, path3)                      Возвращает параметры для '<year>/add_result.html'.
@@ -25,6 +26,7 @@ from .results_raw import save_result_, delete_result_
     /<path1>/<path2>/<path3>/share_results  share_results(...)  Генерирует таблицу с результатами (admin).
     /<year>/ratings_update                  ratings_update(...) Обновляет рейтинги (admin).
     /<path1>/<path2>/<path3>/save_group_results      <...>      Сохранение групповых результатов (для предметников).
+    /<path1>/share_all_results                       <...>
     /<path1>/<path2>/<path3>/share_group_results     <...>      Генерирует таблицу с групповыми результатами (admin).
     /<path1>/<path2>/<path3>/add_appeal     add_appeal(...)     Сохранение апелляций и redirect на эту страницу.
 '''
@@ -36,6 +38,14 @@ def tour_type(name: str) -> str:
     elif name == 'group':
         return 'Групповой тур'
     return 'Командный тур'
+
+
+def tour_name(type: str) -> str:
+    if type == 'i':
+        return 'individual'
+    elif type == 'g':
+        return 'group'
+    return 'team'
 
 
 def page_params(year: int, path2, path3):
@@ -158,6 +168,7 @@ def add_result(year: int, path2, path3):
 @check_block_year()
 def save_result(year: int, path2, path3):
     params = page_params(year, path2, path3)
+    params['show_alert'] = True
     url = pref_year(year) + 'add_result.html'
     try:
         subject = path_to_subject(path3)
@@ -320,6 +331,33 @@ def share_group_results(year: int, path2, path3):
         return render_template('/add_result.html', **params, error2='Такого предмета нет в этом году.')
     Generator.gen_group_results(year, subject, str(year) + '/' + path2 + '/' + path3)
     return render_template(str(year) + '/add_result.html', **params, error2='Результаты опубликованы')
+
+
+@app.route('/<year:year>/share_all_results')
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def share_all_results(year: int):
+    ys = YearsSubjectsTable.select_by_year(year)
+    params = {'year': abs(year)}
+    url = str(year) + '/rating.html'
+    errors = []
+    for now in ys:
+        subject = SubjectsTable.select_by_id(now.subject)
+        try:
+            suf = tour_name(subject.type) + '/' + str(subject.id) + '.html'
+            if subject.type == 'i':
+                Generator.gen_results(year, subject.id, str(year) + '/' + suf)
+            else:
+                Generator.gen_group_results(year, subject.id, str(year) + '/' + suf)
+        except ValueError:
+            errors.append(subject.name)
+    Generator.gen_ratings(year)
+    if errors:
+        return render_template(url, **params, error=', '.join(errors) + ' имеют неправильные результаты.')
+    else:
+        return render_template(url, **params, error='Рейтинги обновлены')
 
 
 @app.route('/<year:year>/<path:path2>/<path:path3>/add_appeal', methods=['GET', 'POST'])

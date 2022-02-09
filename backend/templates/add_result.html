@@ -32,7 +32,9 @@
 		<form action="save_result" method="post">
 			<p>Код участника: <input id="results_for_focus" type="text" name="code"></p>
 			<p>Результат: <input type="text" name="result"></p>
-			{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
+			{% if error2 %}
+				<p><font color="red" id="text_for_alert">[ {{ error2 }} ]</font></p>
+				{% if show_alert %} <script> window.onload = show_alert </script> {% endif %}
 			{% endif %}
 			<p>Введите баллы за все задачи. Разделитель между числами может быть любым; десятичный разделитель — ',' или '.'.
 				Симолы 'х', 'Х', 'x', 'X' распознаются как задачи, к которым участник не писал решение.</p>

@@ -62,3 +62,8 @@ function find_checkboxes() {
 function cursor(){
     document.getElementById("results_for_focus").focus();
 }
+
+function show_alert(){
+    let text = document.getElementById('text_for_alert').textContent;
+    alert(text.substr(2, text.length - 4));
+}
