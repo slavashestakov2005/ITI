@@ -113,7 +113,8 @@ def create_codes(year: int):
     students = StudentsTable.select_all(year)
     length = len(students)
     codes1 = sample(range(1000, 10000), length)
-    codes2 = codes1 if year > 0 else sample(range(1000, 10000), length)
+    codes2 = codes1
+    # if year > 0 else sample(range(1000, 10000), length) # НШ передумала :)
     StudentsCodesTable.delete_by_year(year)
     for i in range(length):
         codes1[i] = StudentCode([year, codes1[i], codes2[i], students[i].id])

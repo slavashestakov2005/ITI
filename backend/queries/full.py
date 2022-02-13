@@ -258,7 +258,7 @@ def load_data_from_excel():
         file = request.files['file']
         parts = [x.lower() for x in file.filename.rsplit('.', 1)]
         qtype = int(request.form['type'])
-        if len(parts) < 2 or (qtype == 1 and (year <= 2000 or year >= 2100)):
+        if len(parts) < 2 or (qtype == 1 and (abs(year) <= 2000 or abs(year) >= 2100)):
             raise ValueError
         filename = Config.DATA_FOLDER + '/sheet_' + str(year) + '.' + parts[1]
     except Exception:

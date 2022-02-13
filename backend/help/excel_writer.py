@@ -47,7 +47,8 @@ class ExcelClassesWriter(ExcelParentWriter):
 
 class ExcelCodesWriter(ExcelParentWriter):
     def __init__(self, year):
-        self.head_end = ['Код'] if year > 0 else ['Код 1', 'Код 2']
+        self.head_end = ['Код']
+        # if year > 0 else ['Код 1', 'Код 2'] # НШ передумала :)
 
     def __gen_sheet__(self, worksheet, data: list):
         self.__head__(worksheet, 'Фамилия', 'Имя', 'Класс', *self.head_end)

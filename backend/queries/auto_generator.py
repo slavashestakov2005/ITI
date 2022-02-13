@@ -197,10 +197,12 @@ class Generator:
         ExcelCodesWriter(year).write(Config.DATA_FOLDER + '/codes_{}.xlsx'.format(year), arr)
 
     @staticmethod
-    def get_net_score(maximum: int, best_score: int, score: int) -> int:
-        if 2 * best_score >= maximum:
-            return int(0.5 + score * 100 / best_score)
-        return int(0.5 + score * 200 / maximum)
+    def get_net_score(maximum: int, best_score: int, score: int, year: int) -> int:
+        if year > 0:
+            if 2 * best_score >= maximum:
+                return int(0.5 + score * 100 / best_score)
+            return int(0.5 + score * 200 / maximum)
+        return int(0.5 + score)  # НШ хочет баллы [0;30], у максимума не
 
     @staticmethod
     def get_inv_codes(year):
@@ -208,7 +210,8 @@ class Generator:
         all_codes = StudentsCodesTable.select_by_year(year)
         codes = {}
         for code in all_codes:
-            codes[students[code.student]] = [code.code1, code.code2] if year < 0 else [code.code1]
+            # [code.code1, code.code2] if year < 0 else
+            codes[students[code.student]] = [code.code1]
         return codes
 
     @staticmethod
@@ -219,7 +222,7 @@ class Generator:
         for code in all_codes:
             codes1[code.code1] = students[code.student]
             codes2[code.code2] = students[code.student]
-        return {1: codes1, 2: codes2}
+        return {1: codes1, 2: codes2, 3: codes2}
 
     @staticmethod
     def get_students(year):
@@ -303,7 +306,7 @@ class Generator:
         return student_result, class_results, team_results, all_students_results, diploma
 
     @staticmethod
-    def gen_results_main(results: list, codes: map, maximum: int):
+    def gen_results_main(results: list, codes: map, maximum: int, year: int):
         if len(results) == 0:
             return None
         text = '''
@@ -321,7 +324,7 @@ class Generator:
             if result.result > maximum:
                 raise ValueError("Bad results are saved")
             people = codes[result.user]
-            result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
+            result.net_score = Generator.get_net_score(maximum, results[0].result, result.result, year)
             # if cnt < 20: # на сайте захотели все результаты
             if last_result != result.result:
                 last_pos, last_result = cnt, result.result
@@ -377,8 +380,8 @@ class Generator:
         return arr
 
     @staticmethod
-    def gen_results_2(results: list, codes: map, class_n: int, maximum: int, file_name: str, args: map):
-        txt, arr = Generator.gen_results_main(results, codes, maximum), None
+    def gen_results_2(results: list, codes: map, class_n: int, maximum: int, file_name: str, args: map, year: int):
+        txt, arr = Generator.gen_results_main(results, codes, maximum, year), None
         if txt:
             txt = '''    <div class="col t-3">
         <center>
@@ -405,15 +408,15 @@ class Generator:
         params = {' {year} ': str(abs(year)), ' {subject_id} ': str(subject),
                   ' {subject} ': SubjectsTable.select_by_id(subject).name}
         if year > 0:
-            txt5, arr5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5, pth + '_5.html', params)
-            txt6, arr6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6, pth + '_6.html', params)
-            txt7, arr7 = Generator.gen_results_2(sorted_results[2], codes, 7, year_subject.score_7, pth + '_7.html', params)
-            txt8, arr8 = Generator.gen_results_2(sorted_results[3], codes, 8, year_subject.score_8, pth + '_8.html', params)
-            txt9, arr9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9, pth + '_9.html', params)
+            txt5, arr5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5, pth + '_5.html', params, year)
+            txt6, arr6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6, pth + '_6.html', params, year)
+            txt7, arr7 = Generator.gen_results_2(sorted_results[2], codes, 7, year_subject.score_7, pth + '_7.html', params, year)
+            txt8, arr8 = Generator.gen_results_2(sorted_results[3], codes, 8, year_subject.score_8, pth + '_8.html', params, year)
+            txt9, arr9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9, pth + '_9.html', params, year)
         else:
-            txt2, arr2 = Generator.gen_results_2(sorted_results[0], codes, 2, year_subject.score_5, pth + '_2.html', params)
-            txt3, arr3 = Generator.gen_results_2(sorted_results[1], codes, 3, year_subject.score_6, pth + '_3.html', params)
-            txt4, arr4 = Generator.gen_results_2(sorted_results[2], codes, 4, year_subject.score_7, pth + '_4.html', params)
+            txt2, arr2 = Generator.gen_results_2(sorted_results[0], codes, 2, year_subject.score_5, pth + '_2.html', params, year)
+            txt3, arr3 = Generator.gen_results_2(sorted_results[1], codes, 3, year_subject.score_6, pth + '_3.html', params, year)
+            txt4, arr4 = Generator.gen_results_2(sorted_results[2], codes, 4, year_subject.score_7, pth + '_4.html', params, year)
         txt = '\n<center><h2>Результаты</h2></center>\n<div class="row col-12 justify-content-center">\n'
         protocols = '<center><h2>Протоколы</h2></center>\n'
         prot_start = '<p><a href="{0}/protocol_'.format(subject)

@@ -4,7 +4,7 @@ from backend.database import Table, Row
 class StudentCode(Row):
     """
         Строка таблицы StudentsCodesTable
-        year        INT     NOT NULL    PK
+        year        INT     NOT NULL
         code1       INT     NOT NULL
         code2       INT     NOT NULL
         student     INT     NOT NULL
@@ -24,8 +24,7 @@ class StudentsCodesTable:
         year	INT NOT NULL,
         code1	INT NOT NULL,
         code2	INT NOT NULL,
-        student	INT NOT NULL,
-        PRIMARY KEY(year)
+        student	INT NOT NULL
         )''')
 
     @staticmethod
@@ -39,9 +38,10 @@ class StudentsCodesTable:
     @staticmethod
     def select_by_code(year: int, code: int, day: int = None) -> StudentCode:
         if not day:
-            r1 = Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code1', code)
-            r2 = Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code2', code)
-            return set([r1, r2])
+            # r1 = Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code1', code)
+            # r2 = Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code2', code)
+            # return set([r1, r2])
+            return [StudentsCodesTable.select_by_code(year, code, 1)]
         return Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code' + str(day), code)
 
     @staticmethod
