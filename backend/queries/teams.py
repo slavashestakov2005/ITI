@@ -27,6 +27,7 @@ def teams_page_params(user: User, year: int):
         teams, res, subjects, team_tour = user.teams_list(year), [], [], None
         subjects.append(Subject([-1, 'Инд. 1', 'Инд. 1', 'g', 'diploma']))
         subjects.append(Subject([-2, 'Инд. 2', 'Инд. 2', 'g', 'diploma']))
+        subjects.append(Subject([-3, 'Инд. 3', 'Инд. 3', 'g', 'diploma']))
         for x in YearsSubjectsTable.select_by_year(year):
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'g':

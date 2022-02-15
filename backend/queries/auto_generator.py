@@ -266,7 +266,7 @@ class Generator:
                 subjects_students[s.student] = []
             subjects_students[s.student].append(s.subject)
         temp_results, all_students_results, diploma = {}, {}, []
-        class_results, team_results, student_result = {}, {_.id: {1: 0, 2: 0} for _ in TeamsTable.select_by_year(year)}, {}
+        class_results, team_results, student_result = {}, {_.id: {1: 0, 2: 0, 3: 0} for _ in TeamsTable.select_by_year(year)}, {}
         for day in decode:
             for code in decode[day]:
                 class_results[decode[day][code].class_name()] = 0
@@ -288,7 +288,7 @@ class Generator:
 
         for student in temp_results:
             student_info = students[student]
-            student_sum, stud_res = 0, {1: 0, 2: 0}
+            student_sum, stud_res = 0, {1: 0, 2: 0, 3: 0}
             for day in temp_results[student]:
                 temp_results[student][day].sort(reverse=True)
                 current_sum = sum(temp_results[student][day][:2])
@@ -301,8 +301,11 @@ class Generator:
                     stud_res[1] = 0
                 if student not in subjects_students or -2 not in subjects_students[student]:
                     stud_res[2] = 0
+                if student not in subjects_students or -3 not in subjects_students[student]:
+                    stud_res[3] = 0
                 team_results[student_team[student]][1] += stud_res[1]
                 team_results[student_team[student]][2] += stud_res[2]
+                team_results[student_team[student]][3] += stud_res[3]
         return student_result, class_results, team_results, all_students_results, diploma
 
     @staticmethod
@@ -546,7 +549,9 @@ class Generator:
             <td width="15%">Команда</td>\n'''
         if ind_days > 0:
             txt += '''            <td width="8%">Инд. 1</td>
-            <td width="8%">Инд. 2</td>\n'''
+            <td width="8%">Инд. 2</td>\n
+            <td width="8%">Инд. 3</td>\n
+            '''
         for x in YearsSubjectsTable.select_by_year(year):
             subject = SubjectsTable.select_by_id(x.subject)
             if subject.type == 'g':
@@ -561,14 +566,16 @@ class Generator:
         subject_ids = [_.id for _ in subjects]
         cols_result = [[] for _ in range(len(subject_ids) + 1 + ind_days)]
         for x in results:
-            summ = results[x][1] + results[x][2] if ind_days > 0 else 0
+            summ = results[x][1] + results[x][2] + results[x][3] if ind_days > 0 else 0
             team_info = TeamsTable.select_by_id(x)
             row = [team_info.name]
             if ind_days > 0:
                 cols_result[0].append(results[x][1])
                 cols_result[1].append(results[x][2])
+                cols_result[2].append(results[x][3])
                 row.append(results[x][1])
                 row.append(results[x][2])
+                row.append(results[x][3])
             res = GroupResultsTable.select_by_team(team_info.id)
             res = {_.subject: _.result for _ in res} if res else {}
             pos = ind_days
@@ -1037,7 +1044,7 @@ class Generator:
         if year < 0:
             res_for_ord = sorted(res_for_ord.items(), key=compare(lambda x: x[1].class_name(), lambda x: -x[1].result,
                                                                   lambda x: Student.sort_by_name(x[1]), field=True))
-            used_classes = {}
+            used_classes = {'.': 4}
             for res in res_for_ord:
                 stud = res[1]
                 class_name = stud.class_name()

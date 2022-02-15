@@ -37,6 +37,8 @@ class StudentsCodesTable:
 
     @staticmethod
     def select_by_code(year: int, code: int, day: int = None) -> StudentCode:
+        if day == 3:
+            day = 2
         if not day:
             # r1 = Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code1', code)
             # r2 = Table.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code2', code)

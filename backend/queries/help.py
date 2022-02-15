@@ -151,7 +151,7 @@ def is_in_team(year: int):
 
 
 def individual_days_count(year: int):
-    return 2 if year < 0 else 0
+    return 3 if year < 0 else 0
 
 
 def check_status(status: str):
