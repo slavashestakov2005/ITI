@@ -195,11 +195,17 @@ def save_teams(year: int):
     t = set(request.form.getlist('t'))
     ot = set(request.form.getlist('ot'))
     cl = request.form['cl']
+    if 'part' in request.form:
+        kw = {'error' + str(ord(request.form['part'])): 'Сохранено'}
+        url = '{}/rating_{}.html'.format(year, cl)
+    else:
+        kw = {'error' + cl: 'Сохранено'}
+        url = '{}/rating.html'.format(year)
     different = set(_[:-2] for _ in t.symmetric_difference(ot))
     for x in different:
         cnt = (x + '_0' in t) + (x + '_1' in t) + (x + '_2' in t)
         if cnt != 1:
-            return render_template(str(year) + '/rating.html', **teams_page_params(current_user, year), error='Некорректные данные')
+            return render_template(url, **teams_page_params(current_user, year), error='Некорректные данные')
     pl, mn = is_in_team(year)
     for x in different:
         st = int(x)
@@ -211,9 +217,8 @@ def save_teams(year: int):
             TeamsStudentsTable.insert(TeamStudent([mn, st]))
         if x + '_2' in t:
             TeamsStudentsTable.insert(TeamStudent([pl, st]))
-    kw = {'error' + cl: 'Сохранено'}
     Generator.gen_ratings(year)
-    return render_template(str(year) + '/rating.html', **teams_page_params(current_user, year), **kw)
+    return render_template(url, **teams_page_params(current_user, year), **kw)
 
 
 @app.route("/<year:year>/student_subject", methods=['POST'])

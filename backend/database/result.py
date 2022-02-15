@@ -8,7 +8,7 @@ class Result(Row):
         subject     INT     NOT NULL    PK
         user        INT     NOT NULL    PK
         result      REAL    NOT NULL
-        net_score   INT     NOT NULL
+        net_score   REAL    NOT NULL
         text_result TEXT    NOT NULL
         position    INT     NOT NULL
     """
@@ -32,7 +32,7 @@ class ResultsTable:
         subject	    INT NOT NULL,
         user	    INT NOT NULL,
         result	    REAL NOT NULL,
-        net_score	INT NOT NULL,
+        net_score	REAL NOT NULL,
         text_result	TEXT NOT NULL,
         position	INT NOT NULL,
         PRIMARY KEY(year,subject,user)
