@@ -1,4 +1,4 @@
-from backend.database import Table, Row
+from backend.database import Row, Table, Query
 from backend.database.team import TeamsTable
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -73,19 +73,21 @@ class User(Row, UserMixin):
         return t[:-2] or '—'
 
 
-class UsersTable:
+class UsersTable(Table):
     table = "user"
-
-    @staticmethod
-    def create_table() -> None:
-        Table.drop_and_create(UsersTable.table, '''(
+    row = User
+    create = '''(
         id	        INT NOT NULL UNIQUE KEY AUTO_INCREMENT,
         login	    VARCHAR(30) NOT NULL UNIQUE,
         password	TEXT NOT NULL,
         status	    INT NOT NULL,
         teams	    TEXT NOT NULL,
         PRIMARY KEY(id)
-        )''')
+        )'''
+
+    @staticmethod
+    def create_table() -> None:
+        super().create_table()
         u = User([None, 'slava', '', -2, ''])
         u.set_password('123')
         UsersTable.insert(u)
@@ -97,25 +99,9 @@ class UsersTable:
         UsersTable.insert(u)
 
     @staticmethod
-    def select_all() -> list:
-        return Table.select_list(UsersTable.table, User)
-
-    @staticmethod
-    def select_by_id(id: int) -> User:
-        return Table.select_one(UsersTable.table, User, 'id', id)
-
-    @staticmethod
     def select_by_login(login: str) -> User:
-        return Table.select_one(UsersTable.table, User, 'login', login)
+        return Query.select_one(UsersTable.table, User, 'login', login)
 
     @staticmethod
     def update_by_login(user: User) -> None:
-        return Table.update(UsersTable.table, user, 'login')
-
-    @staticmethod
-    def insert(user: User) -> None:
-        return Table.insert(UsersTable.table, user)
-
-    @staticmethod
-    def delete(user: User) -> None:
-        return Table.delete(UsersTable.table, user)
+        return Query.update(UsersTable.table, user, 'login')

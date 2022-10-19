@@ -1,4 +1,4 @@
-from backend.database import Table, Row
+from backend.database import Row, Table, Query
 
 
 class Year(Row):
@@ -14,36 +14,23 @@ class Year(Row):
         Row.__init__(self, Year, row)
 
 
-class YearsTable:
+class YearsTable(Table):
     table = "year"
-
-    @staticmethod
-    def create_table() -> None:
-        Table.drop_and_create(YearsTable.table, '''(
+    row = Year
+    id_field = 'year'
+    create = '''(
         year	INT NOT NULL UNIQUE,
         message	TEXT NOT NULL,
         block	INT NOT NULL,
         PRIMARY KEY(year)
-        )''')
+        )'''
+
+    @staticmethod
+    def create_table() -> None:
+        super().create_table()
         YearsTable.insert(Year([2019, '', 1]))
         YearsTable.insert(Year([2020, '', 1]))
 
     @staticmethod
-    def select_all() -> list:
-        return Table.select_list(YearsTable.table, Year)
-
-    @staticmethod
-    def select_by_year(year: int) -> Year:
-        return Table.select_one(YearsTable.table, Year, 'year', year)
-
-    @staticmethod
-    def insert(year: Year) -> None:
-        return Table.insert(YearsTable.table, year)
-
-    @staticmethod
-    def update(year: Year) -> None:
-        return Table.update(YearsTable.table, year, 'year')
-
-    @staticmethod
     def delete(year: int) -> None:
-        return Table.delete(YearsTable.table, 'year', year)
+        return Query.delete(YearsTable.table, 'year', year)

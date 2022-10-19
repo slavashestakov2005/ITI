@@ -33,7 +33,7 @@ class FileCreator:
 
     @staticmethod
     def create_subjects(year: int, subjects: list):
-        subjects = [SubjectsTable.select_by_id(_) for _ in subjects]
+        subjects = [SubjectsTable.select(_) for _ in subjects]
         directory = Config.TEMPLATES_FOLDER + "/" + str(year) + "/"
         s = set()
         data = SplitFile(Config.HTML_FOLDER + "/1.html")

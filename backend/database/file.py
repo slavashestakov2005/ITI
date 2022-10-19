@@ -1,4 +1,4 @@
-from backend.database import Table, Row
+from .database import Row, Table, Query
 
 
 class File(Row):
@@ -13,33 +13,16 @@ class File(Row):
         Row.__init__(self, File, row)
 
 
-class FilesTable:
+class FilesTable(Table):
     table = "file"
-
-    @staticmethod
-    def create_table() -> None:
-        Table.drop_and_create(FilesTable.table, '''(
+    row = File
+    id_field = 'name'
+    create = '''(
         name    VARCHAR(256) NOT NULL UNIQUE,
         data	BLOB NOT NULL,
         PRIMARY KEY(name)
-        )''')
-
-    @staticmethod
-    def select_all() -> list:
-        return Table.select_list(FilesTable.table, File)
-
-    @staticmethod
-    def select(filename: str) -> File:
-        return Table.select_one(FilesTable.table, File, 'name', filename)
-
-    @staticmethod
-    def insert(file: File) -> None:
-        return Table.insert(FilesTable.table, file)
-
-    @staticmethod
-    def update(file: File) -> None:
-        return Table.update(FilesTable.table, file, 'name')
+        );'''
 
     @staticmethod
     def delete(filename: str) -> None:
-        return Table.delete(FilesTable.table, 'name', filename)
+        return Query.delete(FilesTable.table, 'name', filename)

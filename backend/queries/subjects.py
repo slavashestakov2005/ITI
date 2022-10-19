@@ -29,7 +29,7 @@ def subject_year(year: int):
     except Exception:
         return render_template(str(year) + '/subjects_for_year.html', error1='Некорректные данные', year=abs(year))
 
-    if YearsTable.select_by_year(year).__is_none__:
+    if YearsTable.select(year).__is_none__:
         return render_template(str(year) + '/subjects_for_year.html', error1='Этого года нет.', year=abs(year))
     old_sub = [x.subject for x in YearsSubjectsTable.select_by_year(year)]
     subjects = [int(_) for _ in subjects]
@@ -128,7 +128,7 @@ def year_message(year: int):
     except Exception:
         return render_template(str(year.year) + '/subjects_for_year.html', error7='Некорректные данные', year=abs(year.year))
 
-    year = YearsTable.select_by_year(year)
+    year = YearsTable.select(year)
     if year.__is_none__:
         return render_template(str(year.year) + '/subjects_for_year.html', error7='Этого года нет.', year=abs(year.year))
     year.message = message

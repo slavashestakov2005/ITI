@@ -1,8 +1,9 @@
 from typing import Tuple
 from ..config import Config
+from .config_db import ConfigDB
 if Config.HEROKU:
     import psycopg2 as db
-elif Config.PA:
+elif ConfigDB.PA:
     import MySQLdb as db
 else:
     import sqlite3 as db
@@ -11,14 +12,14 @@ else:
 class DataBase:
     @staticmethod
     def connect():
-        if Config.PA:
-            return db.connect(user=Config.PA_DB_USER, passwd=Config.PA_DB_PASSWORD, host=Config.PA_DB_HOST,
-                              db=Config.PA_DB)
-        return db.connect(Config.DB)
+        if ConfigDB.PA:
+            return db.connect(user=ConfigDB.PA_DB_USER, passwd=ConfigDB.PA_DB_PASSWORD, host=ConfigDB.PA_DB_HOST,
+                              db=ConfigDB.PA_DB)
+        return db.connect(ConfigDB.DB)
 
     @staticmethod
     def prepare_sql(sql: str, params=()) -> str:
-        return sql if not Config.HEROKU and not Config.PA else sql.replace('?', '%s')
+        return sql if not Config.HEROKU and not ConfigDB.PA else sql.replace('?', '%s')
 
     @staticmethod
     def just_execute(sql: str, params=()) -> None:
@@ -49,6 +50,9 @@ class DataBase:
 
 
 class Row:
+    NONE, STR, INT, FILE, DATETIME = 1, 2, 3, 4, 5
+    NE_STR, NE_INT, NE_DATETIME = 6, 7, 8
+
     def __init__(self, cls, row):
         if len(row) == 0:
             self.__is_none__ = True
@@ -74,15 +78,15 @@ class Row:
         text = ""
         params = []
         for field in self.cls.fields:
-            text += ", " + Config.DB_COLS_PREFIX + field + " = ?"
+            text += ", " + ConfigDB.DB_COLS_PREFIX + field + " = ?"
             params.append(getattr(self, field))
         return text[2:], params
 
 
-class Table:
+class Query:
     @staticmethod
     def correct_table_name(table_name: str):
-        return Config.DB_TABLE_PREFIX + table_name
+        return ConfigDB.DB_TABLE_PREFIX + table_name
 
     @staticmethod
     def conditional_query(args):
@@ -93,13 +97,13 @@ class Table:
         for i in range(0, len(args), 2):
             if i > 0:
                 text += ' AND '
-            text += Config.DB_COLS_PREFIX + args[i] + ' = ?'
+            text += ConfigDB.DB_COLS_PREFIX + args[i] + ' = ?'
             params.append(args[i + 1])
         return text, params
 
     @staticmethod
     def drop_and_create(table_name: str, create: str) -> None:
-        table_name = Table.correct_table_name(table_name)
+        table_name = Query.correct_table_name(table_name)
         try:
             DataBase.just_execute('DROP TABLE ' + table_name)
         except Exception as ex:
@@ -108,36 +112,47 @@ class Table:
             new_create = create.split('"')
             create = new_create[0]
             for i in range(1, len(new_create), 2):
-                create += '"' + Config.DB_COLS_PREFIX + new_create[i] + '"' + new_create[i + 1]
-            template = 'CREATE TABLE "{0}" {1};' if not Config.PA else 'CREATE TABLE {0} {1};'
+                create += '"' + ConfigDB.DB_COLS_PREFIX + new_create[i] + '"' + new_create[i + 1]
+            template = 'CREATE TABLE "{0}" {1};' if not ConfigDB.PA else 'CREATE TABLE {0} {1};'
             DataBase.just_execute(template.format(table_name, create))
         except Exception as ex:
             print('Exception: ', ex)
 
     @staticmethod
     def select_one(table_name: str, cls, *args) -> Row:
-        table_name = Table.correct_table_name(table_name)
+        table_name = Query.correct_table_name(table_name)
         if not len(args):
             raise ValueError("Cannot select one row without parameters")
-        x = Table.conditional_query(args)
+        x = Query.conditional_query(args)
         return cls(DataBase.execute_one("SELECT * FROM " + table_name + x[0], x[1]))
 
     @staticmethod
     def select_list(table_name: str, cls, *args) -> list:
-        table_name = Table.correct_table_name(table_name)
-        x = Table.conditional_query(args)
+        table_name = Query.correct_table_name(table_name)
+        x = Query.conditional_query(args)
         return [cls(_) for _ in DataBase.execute("SELECT * FROM " + table_name + x[0], x[1])]
 
     @staticmethod
+    def select_list_with_simple_where(table_name: str, cls, field: str, op: str, val: int) -> list:
+        table_name = Query.correct_table_name(table_name)
+        field = ConfigDB.DB_COLS_PREFIX + field
+        return [cls(_) for _ in DataBase.execute("SELECT * FROM {0} WHERE {1} {2} {3}"
+                                                 .format(table_name, field, op, val))]
+
+    @staticmethod
     def select_list_with_where(table_name: str, cls, field: str, start: int, end: int) -> list:
-        table_name = Table.correct_table_name(table_name)
-        field = Config.DB_COLS_PREFIX + field
-        return [cls(_) for _ in DataBase.execute("SELECT * FROM {0} WHERE {1} < {2} AND {2} < {3}"
+        table_name = Query.correct_table_name(table_name)
+        field = ConfigDB.DB_COLS_PREFIX + field
+        return [cls(_) for _ in DataBase.execute("SELECT * FROM {0} WHERE {1} <= {2} AND {2} <= {3}"
                                                  .format(table_name, start, field, end))]
 
     @staticmethod
+    def select_last(table_name: str, cls, field='id') -> Row:
+        return cls(DataBase.execute_one("SELECT * FROM " + table_name + ' ORDER BY ' + field + ' DESC LIMIT 1'))
+
+    @staticmethod
     def update(table_name: str, value, *args) -> None:
-        table_name = Table.correct_table_name(table_name)
+        table_name = Query.correct_table_name(table_name)
         if not args or not len(args):
             args = ['id']
         new_args = []
@@ -145,20 +160,20 @@ class Table:
             new_args.append(arg)
             new_args.append(getattr(value, arg))
         value = value.update_string()
-        x = Table.conditional_query(new_args)
+        x = Query.conditional_query(new_args)
         return DataBase.just_execute("UPDATE " + table_name + " SET " + value[0] + x[0], value[1] + x[1])
 
     @staticmethod
     def update_col(table_name: str, field: str, value: str, op: str = '+') -> None:
-        table_name = Table.correct_table_name(table_name)
-        sql = 'UPDATE {0} SET {1} = {1} {2} {3}'.format(table_name, Config.DB_COLS_PREFIX + field, op, value)
+        table_name = Query.correct_table_name(table_name)
+        sql = 'UPDATE {0} SET {1} = {1} {2} {3}'.format(table_name, ConfigDB.DB_COLS_PREFIX + field, op, value)
         return DataBase.just_execute(sql)
 
     @staticmethod
     def insert_query(table_name: str, fields: list):
         text = "INSERT INTO " + table_name + " ("
         for field in fields:
-            text += Config.DB_COLS_PREFIX + field + ", "
+            text += ConfigDB.DB_COLS_PREFIX + field + ", "
         return text[:-2] + ") VALUES"
 
     @staticmethod
@@ -172,7 +187,7 @@ class Table:
 
     @staticmethod
     def insert(table_name: str, rows) -> None:
-        table_name = Table.correct_table_name(table_name)
+        table_name = Query.correct_table_name(table_name)
         if issubclass(type(rows), Row):
             rows = [rows]
         if rows is None or len(rows) == 0:
@@ -183,38 +198,70 @@ class Table:
             if x != 'id':
                 new_fields.append(x)
         fields = new_fields
-        text = Table.insert_query(table_name, fields)
+        text = Query.insert_query(table_name, fields)
         params = []
         for row in rows:
             if row is None or row.__is_none__:
                 raise ValueError("Insert row is {None}")
-            t, p = Table.insert_value(row, fields)
+            t, p = Query.insert_value(row, fields)
             text += t + ', '
             params.extend(p)
         return DataBase.just_execute(text[:-2], params)
 
     @staticmethod
     def delete(table_name: str, *args) -> None:
-        table_name = Table.correct_table_name(table_name)
+        table_name = Query.correct_table_name(table_name)
         if len(args) == 1:
             args = ['id', args[0].id]
-        x = Table.conditional_query(args)
+        x = Query.conditional_query(args)
         return DataBase.just_execute("DELETE FROM " + table_name + x[0], x[1])
 
     @staticmethod
     def replace(table_name: str, rows) -> None:
-        table_name = Table.correct_table_name(table_name)
+        table_name = Query.correct_table_name(table_name)
         if issubclass(type(rows), Row):
             rows = [rows]
         if rows is None or len(rows) == 0:
             raise ValueError("Replace empty list of rows")
         fields = rows[0].cls.fields
-        text = Table.insert_query(table_name, fields).replace('INSERT', 'REPLACE')
+        text = Query.insert_query(table_name, fields).replace('INSERT', 'REPLACE')
         params = []
         for row in rows:
             if row is None or row.__is_none__:
                 raise ValueError("Replace row is {None}")
-            t, p = Table.insert_value(row, fields)
+            t, p = Query.insert_value(row, fields)
             text += t + ', '
             params.extend(p)
         return DataBase.just_execute(text[:-2], params)
+
+
+class Table:
+    table, row, create, id_field = None, None, None, 'id'
+
+    @classmethod
+    def create_table(cls) -> None:
+        Query.drop_and_create(cls.table, cls.create)
+
+    @classmethod
+    def select_all(cls) -> list:
+        return Query.select_list(cls.table, cls.row)
+
+    @classmethod
+    def select_last(cls) -> Row:
+        return Query.select_last(cls.table, cls.row)
+
+    @classmethod
+    def select(cls, _id) -> Row:
+        return Query.select_one(cls.table, cls.row, cls.id_field, _id)
+
+    @classmethod
+    def insert(cls, row: Row) -> None:
+        return Query.insert(cls.table, row)
+
+    @classmethod
+    def update(cls, row: Row) -> None:
+        return Query.update(cls.table, row, cls.id_field)
+
+    @classmethod
+    def delete(cls, row: Row) -> None:
+        return Query.delete(cls.table, cls.id_field, row.__getattribute__(cls.id_field))

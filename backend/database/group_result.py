@@ -1,4 +1,4 @@
-from backend.database import Table, Row
+from .database import Row, Table, Query
 
 
 class GroupResult(Row):
@@ -18,42 +18,32 @@ class GroupResult(Row):
         return -result.result
 
 
-class GroupResultsTable:
+class GroupResultsTable(Table):
     table = "group_results"
-
-    @staticmethod
-    def create_table() -> None:
-        Table.drop_and_create(GroupResultsTable.table, '''(
+    row = GroupResult
+    create = '''(
         team	INT NOT NULL,
         subject	INT NOT NULL,
         result	INT NOT NULL,
         PRIMARY KEY(team,subject)
-        )''')
-
-    @staticmethod
-    def select_all() -> list:
-        return Table.select_list(GroupResultsTable.table, GroupResult)
+        );'''
 
     @staticmethod
     def select_by_team(team: int) -> list:
-        return Table.select_list(GroupResultsTable.table, GroupResult, 'team', team)
+        return Query.select_list(GroupResultsTable.table, GroupResult, 'team', team)
 
     @staticmethod
     def select_by_subject(subject: int) -> list:
-        return Table.select_list(GroupResultsTable.table, GroupResult, 'subject', subject)
+        return Query.select_list(GroupResultsTable.table, GroupResult, 'subject', subject)
 
     @staticmethod
     def select_by_team_and_subject(team: int, subject: int) -> GroupResult:
-        return Table.select_one(GroupResultsTable.table, GroupResult, 'team', team, 'subject', subject)
+        return Query.select_one(GroupResultsTable.table, GroupResult, 'team', team, 'subject', subject)
 
     @staticmethod
     def update(group_result: GroupResult) -> None:
-        return Table.update(GroupResultsTable.table, group_result, 'team', 'subject')
-
-    @staticmethod
-    def insert(group_result: GroupResult) -> None:
-        return Table.insert(GroupResultsTable.table, group_result)
+        return Query.update(GroupResultsTable.table, group_result, 'team', 'subject')
 
     @staticmethod
     def delete_by_team(team: int) -> None:
-        return Table.delete(GroupResultsTable.table, 'team', team)
+        return Query.delete(GroupResultsTable.table, 'team', team)

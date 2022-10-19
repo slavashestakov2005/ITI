@@ -1,6 +1,6 @@
 import threading
 import time
-from .excel_reader import ExcelFullReader
+from backend.excel.excel_reader import ExcelFullReader
 
 
 class AsyncWorker:

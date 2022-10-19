@@ -1,3 +1,4 @@
+from .config_db import *
 from .database import *
 from .subject import *
 from .user import *
@@ -14,11 +15,10 @@ from .file import *
 from .subject_file import *
 from .subject_student import *
 from .history import *
-from ..config import Config
 
 
 def create_tables():
-    if Config.DROP_DB:
+    if ConfigDB.DROP_DB:
         SubjectsTable.create_table()
         UsersTable.create_table()
         YearsTable.create_table()

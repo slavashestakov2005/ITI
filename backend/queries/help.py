@@ -184,7 +184,7 @@ def check_block_year():
                     year = int(str(list(kwargs.values())[0]).split('/')[0])
                 except Exception:
                     return function_to_decorate(*args, **kwargs)
-                y = YearsTable.select_by_year(year)
+                y = YearsTable.select(year)
                 if y.__is_none__ or y.block:
                     return forbidden_error()
             return function_to_decorate(*args, **kwargs)

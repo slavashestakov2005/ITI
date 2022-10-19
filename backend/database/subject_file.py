@@ -1,4 +1,4 @@
-from backend.database import Table, Row
+from backend.database import Row, Table, Query
 
 
 class SubjectFile(Row):
@@ -17,40 +17,30 @@ class SubjectFile(Row):
         return '.'.join(self.file.split('.')[2:-1])[1:]
 
 
-class SubjectsFilesTable:
+class SubjectsFilesTable(Table):
     table = "subjects_files"
-
-    @staticmethod
-    def create_table() -> None:
-        Table.drop_and_create(SubjectsFilesTable.table, '''(
+    row = SubjectFile
+    create = '''(
         year	INT NOT NULL,
         subject	INT NOT NULL,
         file	VARCHAR(256) NOT NULL,
         PRIMARY KEY(subject,file,year)
-        )''')
-
-    @staticmethod
-    def select_all() -> list:
-        return Table.select_list(SubjectsFilesTable.table, SubjectFile)
+        );'''
 
     @staticmethod
     def select_by_subject(year: int, subject: int) -> list:
-        return Table.select_list(SubjectsFilesTable.table, SubjectFile, 'year', year, 'subject', subject)
+        return Query.select_list(SubjectsFilesTable.table, SubjectFile, 'year', year, 'subject', subject)
 
     @staticmethod
     def select(subject_file: SubjectFile) -> SubjectFile:
-        return Table.select_one(SubjectsFilesTable.table, SubjectFile, 'year', subject_file.year,
+        return Query.select_one(SubjectsFilesTable.table, SubjectFile, 'year', subject_file.year,
                                 'subject', subject_file.subject, 'file', subject_file.file)
 
     @staticmethod
-    def insert(subject_file: SubjectFile) -> None:
-        return Table.insert(SubjectsFilesTable.table, subject_file)
-
-    @staticmethod
     def delete(subject_file: SubjectFile) -> None:
-        return Table.delete(SubjectsFilesTable.table, 'year', subject_file.year, 'subject', subject_file.subject,
+        return Query.delete(SubjectsFilesTable.table, 'year', subject_file.year, 'subject', subject_file.subject,
                             'file', subject_file.file)
 
     @staticmethod
     def delete_by_year(year: int) -> None:
-        return Table.delete(SubjectsFilesTable.table, 'year', year)
+        return Query.delete(SubjectsFilesTable.table, 'year', year)

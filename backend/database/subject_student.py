@@ -1,4 +1,4 @@
-from backend.database import Table, Row
+from backend.database import Row, Table, Query
 
 
 class SubjectStudent(Row):
@@ -14,43 +14,33 @@ class SubjectStudent(Row):
         Row.__init__(self, SubjectStudent, row)
 
 
-class SubjectsStudentsTable:
+class SubjectsStudentsTable(Table):
     table = "subjects_students"
-
-    @staticmethod
-    def create_table() -> None:
-        Table.drop_and_create(SubjectsStudentsTable.table, '''(
+    row = SubjectStudent
+    create = '''(
         year	INT NOT NULL,
         subject	INT NOT NULL,
         student	INT NOT NULL,
         PRIMARY KEY(year,subject,student)
-        )''')
-
-    @staticmethod
-    def select_all() -> list:
-        return Table.select_list(SubjectsStudentsTable.table, SubjectStudent)
+        );'''
 
     @staticmethod
     def select_by_year(year: int) -> list:
-        return Table.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year)
+        return Query.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year)
 
     @staticmethod
     def select_by_student(year: int, student: int) -> list:
-        return Table.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year, 'student', student)
+        return Query.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year, 'student', student)
 
     @staticmethod
     def select_by_subject(year: int, subject: int) -> list:
-        return Table.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year, 'subject', subject)
-
-    @staticmethod
-    def insert(subject_student: SubjectStudent) -> None:
-        return Table.insert(SubjectsStudentsTable.table, subject_student)
+        return Query.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year, 'subject', subject)
 
     @staticmethod
     def delete(subject_student: SubjectStudent) -> None:
-        return Table.delete(SubjectsStudentsTable.table, 'year', subject_student.year, 'subject',
+        return Query.delete(SubjectsStudentsTable.table, 'year', subject_student.year, 'subject',
                             subject_student.subject, 'student', subject_student.student)
 
     @staticmethod
     def delete_by_year(year: int) -> None:
-        return Table.delete(SubjectsStudentsTable.table, 'year', year)
+        return Query.delete(SubjectsStudentsTable.table, 'year', year)

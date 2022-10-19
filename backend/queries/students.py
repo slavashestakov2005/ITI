@@ -108,7 +108,7 @@ def delete_student():
 @check_status('admin')
 @check_block_year()
 def create_codes(year: int):
-    if YearsTable.select_by_year(year).__is_none__:
+    if YearsTable.select(year).__is_none__:
         return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
     students = StudentsTable.select_all(year)
     length = len(students)
@@ -128,7 +128,7 @@ def create_codes(year: int):
 @check_status('admin')
 @check_block_year()
 def print_codes(year: int):
-    if YearsTable.select_by_year(year).__is_none__:
+    if YearsTable.select(year).__is_none__:
         return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
     Generator.gen_codes(year)
     return render_template(str(year) + '/codes.html', year=abs(year), error='Таблица обновлена')
@@ -140,7 +140,7 @@ def print_codes(year: int):
 @check_status('admin')
 @check_block_year()
 def get_codes(year: int):
-    if YearsTable.select_by_year(year).__is_none__:
+    if YearsTable.select(year).__is_none__:
         return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
     filename = './data/codes_{}.xlsx'.format(year)
     return send_file(filename, as_attachment=True, attachment_filename='Кодировка ИТИ {}.xlsx'.format(year))

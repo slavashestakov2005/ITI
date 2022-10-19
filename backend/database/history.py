@@ -1,4 +1,4 @@
-from backend.database import Table, Row
+from .database import Row, Table, Query
 from datetime import datetime
 
 
@@ -26,12 +26,10 @@ class History(Row):
         HistoriesTable.revert(self)
 
 
-class HistoriesTable:
+class HistoriesTable(Table):
     table = "history"
-
-    @staticmethod
-    def create_table() -> None:
-        Table.drop_and_create(HistoriesTable.table, '''(
+    row = History
+    create = '''(
         id      INT NOT NULL UNIQUE KEY AUTO_INCREMENT,
         year	INT NOT NULL,
         time	INT NOT NULL,
@@ -40,28 +38,16 @@ class HistoriesTable:
         description	TEXT NOT NULL,
         revert	INT NOT NULL,
         PRIMARY KEY(id)
-        )''')
-
-    @staticmethod
-    def select_all() -> list:
-        return Table.select_list(HistoriesTable.table, History)
+        );'''
 
     @staticmethod
     def select_by_year(year: int) -> list:
-        return Table.select_list(HistoriesTable.table, History, 'year', year)
-
-    @staticmethod
-    def select(id: int) -> History:
-        return Table.select_one(HistoriesTable.table, History, 'id', id)
-
-    @staticmethod
-    def insert(history: History) -> None:
-        return Table.insert(HistoriesTable.table, history)
+        return Query.select_list(HistoriesTable.table, History, 'year', year)
 
     @staticmethod
     def revert(history: History) -> None:
-        return Table.update(HistoriesTable.table, history)
+        return Query.update(HistoriesTable.table, history)
 
     @staticmethod
     def delete_by_year(year: int) -> None:
-        return Table.delete(HistoriesTable.table, 'year', year)
+        return Query.delete(HistoriesTable.table, 'year', year)

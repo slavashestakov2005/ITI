@@ -25,3 +25,5 @@ app.url_map.converters['year'] = YearConverter
 import backend.queries
 import backend.database
 import backend.help
+import backend.eljur
+import backend.excel

@@ -1,6 +1,6 @@
 import pandas as pd
-from ..database import StudentsCodesTable
-from ..queries.results_raw import save_result_
+from backend.database import StudentsCodesTable
+from backend.queries.results_raw import save_result_
 
 
 def find(titles, exists, not_exists=None):

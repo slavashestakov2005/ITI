@@ -1,4 +1,4 @@
-from backend.database import Table, Row
+from backend.database import Row, Table, Query
 
 
 class TeamStudent(Row):
@@ -13,43 +13,32 @@ class TeamStudent(Row):
         Row.__init__(self, TeamStudent, row)
 
 
-class TeamsStudentsTable:
+class TeamsStudentsTable(Table):
     table = "teams_students"
-
-    @staticmethod
-    def create_table() -> None:
-        Table.drop_and_create(TeamsStudentsTable.table, '''(
+    row = TeamStudent
+    create = '''(
         team	INT NOT NULL,
         student	INT NOT NULL,
         PRIMARY KEY(team,student)
-        )''')
-
-    @staticmethod
-    def select_all() -> list:
-        return Table.select_list(TeamsStudentsTable.table, TeamStudent)
+        );'''
 
     @staticmethod
     def select_by_team(team: int) -> list:
-        return Table.select_list(TeamsStudentsTable.table, TeamStudent, 'team', team)
+        return Query.select_list(TeamsStudentsTable.table, TeamStudent, 'team', team)
 
     @staticmethod
     def select_by_student(student: int) -> list:
-        return Table.select_list(TeamsStudentsTable.table, TeamStudent, 'student', student)
+        return Query.select_list(TeamsStudentsTable.table, TeamStudent, 'student', student)
 
     @staticmethod
     def select(team_student: TeamStudent) -> TeamStudent:
-        return Table.select_one(TeamsStudentsTable.table, TeamStudent, 'team', team_student.team, 'student',
+        return Query.select_one(TeamsStudentsTable.table, TeamStudent, 'team', team_student.team, 'student',
                                 team_student.student)
 
     @staticmethod
-    def insert(team_student: TeamStudent) -> None:
-        return Table.insert(TeamsStudentsTable.table, team_student)
-
-    @staticmethod
     def delete(team_student: TeamStudent) -> None:
-        return Table.delete(TeamsStudentsTable.table, 'team', team_student.team, 'student', team_student.student)
+        return Query.delete(TeamsStudentsTable.table, 'team', team_student.team, 'student', team_student.student)
 
     @staticmethod
     def delete_by_team(team: int) -> None:
-        return Table.delete(TeamsStudentsTable.table, 'team', team)
-
+        return Query.delete(TeamsStudentsTable.table, 'team', team)

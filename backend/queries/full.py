@@ -6,7 +6,8 @@ import shutil
 import glob
 import os
 from .help import check_status, check_block_year, SplitFile, empty_checker, path_to_subject, is_in_team, correct_new_line
-from ..help import init_mail_messages, ExcelFullWriter, FileManager, AsyncWorker
+from ..help import init_mail_messages, FileManager, AsyncWorker
+from ..excel import ExcelFullWriter
 from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
     TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
     SubjectsStudentsTable, HistoriesTable
@@ -88,7 +89,7 @@ def add_year():
     except ValueError:
         return render_template('subjects_and_years.html', error1='Некорректный год')
 
-    year = YearsTable.select_by_year(name)
+    year = YearsTable.select(name)
     if not year.__is_none__:
         return render_template('subjects_and_years.html', error1='Год уже существует')
     year = Year([name, '', 0])
@@ -110,7 +111,7 @@ def delete_year():
     except ValueError:
         return render_template('subjects_and_years.html', error6='Некорректный год')
 
-    if YearsTable.select_by_year(year).__is_none__:
+    if YearsTable.select(year).__is_none__:
         return render_template('subjects_and_years.html', error6='Года не существует')
     _delete_year(year)
     return render_template('subjects_and_years.html', error6='Год удалён')
@@ -162,14 +163,14 @@ def edit_subject():
     except Exception:
         return render_template('subjects_and_years.html',  error3='Некорректные данные')
 
-    subject = SubjectsTable.select_by_id(id)
+    subject = SubjectsTable.select(id)
     if subject.__is_none__:
         return render_template('subjects_and_years.html',  error3='Предмета не существует')
     subject.name = new_name if len(new_name) else subject.name
     subject.short_name = short_name if len(short_name) else subject.short_name
     subject.type = subject_type if len(subject_type) else subject.type
     subject.diploma = diploma if len(diploma) else subject.diploma
-    SubjectsTable.update_by_id(subject)
+    SubjectsTable.update(subject)
     Generator.gen_subjects_lists()
     return render_template('subjects_and_years.html', error3='Предмет обнавлён')
 
@@ -185,7 +186,7 @@ def delete_subject():
     except ValueError:
         return render_template('subjects_and_years.html',  error4='Некорректный id')
 
-    subject = SubjectsTable.select_by_id(id)
+    subject = SubjectsTable.select(id)
     if subject.__is_none__:
         return render_template('subjects_and_years.html', error4='Предмета не существует')
     SubjectsTable.delete(subject)
@@ -229,7 +230,7 @@ def year_block(year: int):
     except ValueError:
         return render_template(str(year.year) + '/subjects_for_year.html', error8='Некорректный ввод', year=abs(year.year))
 
-    year = YearsTable.select_by_year(year)
+    year = YearsTable.select(year)
     if year.__is_none__:
         return render_template(str(year.year) + '/subjects_for_year.html', error8='Этого года нет.', year=abs(year.year))
     year.block = is_block
@@ -321,5 +322,5 @@ def download_excel2(year: int, subject: str):
     except Exception:
         return redirect('add_result')
     filename = 'data/data_{}_{}.xlsx'.format(year, subject)
-    name = SubjectsTable.select_by_id(subject).name
+    name = SubjectsTable.select(subject).name
     return send_file(filename, as_attachment=True, attachment_filename='ИТИ {}. {}.xlsx'.format(year, name))

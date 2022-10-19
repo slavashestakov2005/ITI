@@ -1,9 +1,10 @@
-import os
 from flask import request, render_template, redirect, url_for
 from flask_cors import cross_origin
 import logging
 from logging.handlers import SMTPHandler
+import os
 from backend import app
+from .config_mail import ConfigMail
 
 
 def start_debug():
@@ -38,18 +39,17 @@ def error():
 
 
 def init_mail_messages():
-    if app.config['MAIL_SERVER']:
+    if ConfigMail.MAIL_SERVER:
         auth = None
-        if app.config['MAIL_USERNAME'] or app.config['MAIL_PASSWORD']:
-            auth = (app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+        if ConfigMail.MAIL_USERNAME or ConfigMail.MAIL_PASSWORD:
+            auth = (ConfigMail.MAIL_USERNAME, ConfigMail.MAIL_PASSWORD)
         secure = None
-        if app.config['MAIL_USE_TLS']:
+        if ConfigMail.MAIL_USE_TLS:
             secure = ()
         mail_handler = SMTPHandler(
-            mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
-            fromaddr='no-reply@' + app.config['MAIL_SERVER'],
-            toaddrs=app.config['ADMINS'], subject='Ошибка на сайте ИТИ',
+            mailhost=(ConfigMail.MAIL_SERVER, ConfigMail.MAIL_PORT),
+            fromaddr='no-reply@' + ConfigMail.MAIL_SERVER,
+            toaddrs=ConfigMail.ADMINS, subject=ConfigMail.TITLE,
             credentials=auth, secure=secure)
         mail_handler.setLevel(logging.ERROR)
         app.logger.addHandler(mail_handler)
-

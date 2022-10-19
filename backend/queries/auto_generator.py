@@ -1,9 +1,9 @@
-from .help import SplitFile, all_templates, tr_format, compare, class_cnt, class_min, class_max, team_cnt, is_in_team, \
+from .help import SplitFile, all_templates, tr_format, compare, class_min, class_max, team_cnt, is_in_team, \
     individual_days_count, class_cnt
-from ..help.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter, ExcelDiplomaWriter
+from backend.excel.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter, ExcelDiplomaWriter
 from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable, \
-    GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent, Subject
+    GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent
 from backend.config import Config
 import glob
 '''
@@ -409,7 +409,7 @@ class Generator:
                                  lambda x: Student.sort_by_name(codes[x.user]), field=True))
         pth = Config.TEMPLATES_FOLDER + '/' + str(year) + '/individual/' + str(subject) + '/protocol'
         params = {' {year} ': str(abs(year)), ' {subject_id} ': str(subject),
-                  ' {subject} ': SubjectsTable.select_by_id(subject).name}
+                  ' {subject} ': SubjectsTable.select(subject).name}
         if year > 0:
             txt5, arr5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5, pth + '_5.html', params, year)
             txt6, arr6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6, pth + '_6.html', params, year)
@@ -445,13 +445,13 @@ class Generator:
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
         data.insert_after_comment(' results table ', txt)
         data.save_file()
-        ExcelSubjectWriter(SubjectsTable.select_by_id(subject).name, year).write(
+        ExcelSubjectWriter(SubjectsTable.select(subject).name, year).write(
             Config.DATA_FOLDER + '/data_{}_{}.xlsx'.format(year, subject),
             [arr5, arr6, arr7, arr8, arr9] if year > 0 else [arr2, arr3, arr4])
 
     @staticmethod
     def gen_group_results(year: int, subject: int, file_name: str):
-        is_team = (SubjectsTable.select_by_id(subject).type == 'a')
+        is_team = (SubjectsTable.select(subject).type == 'a')
         teams = TeamsTable.select_by_year(year)
         teams_set = set([_.id for _ in teams])
         if len(teams) == 0:
@@ -553,7 +553,7 @@ class Generator:
             <td width="8%">Инд. 3</td>\n
             '''
         for x in YearsSubjectsTable.select_by_year(year):
-            subject = SubjectsTable.select_by_id(x.subject)
+            subject = SubjectsTable.select(x.subject)
             if subject.type == 'g':
                 subjects.append(subject)
                 txt += ' ' * 12 + '<td width="8%">{0}</td>\n'.format(subject.short_name)
@@ -567,7 +567,7 @@ class Generator:
         cols_result = [[] for _ in range(len(subject_ids) + 1 + ind_days)]
         for x in results:
             summ = results[x][1] + results[x][2] + results[x][3] if ind_days > 0 else 0
-            team_info = TeamsTable.select_by_id(x)
+            team_info = TeamsTable.select(x)
             row = [team_info.name]
             if ind_days > 0:
                 cols_result[0].append(results[x][1])
@@ -627,7 +627,7 @@ class Generator:
                     <td width="30%">Фамилия</td>
                     <td width="30%">Имя</td>\n'''
         for x in YearsSubjectsTable.select_by_year(year):
-            subject = SubjectsTable.select_by_id(x.subject)
+            subject = SubjectsTable.select(x.subject)
             if subject.type == 'i':
                 subjects.append(subject)
                 template += ' ' * 20 + '<td width="5%">{}</td>\n'.format(subject.short_name)
@@ -770,7 +770,7 @@ class Generator:
         res, group_diploma, team_diploma = {}, [], []
         for subject in subjects:
             day = subject.n_d
-            subject = SubjectsTable.select_by_id(subject.subject)
+            subject = SubjectsTable.select(subject.subject)
             if subject.type == 'i':
                 res = Generator.gen_ratings_5_i(year, subject.id, decode[day], res)
             elif subject.type == 'g':
@@ -883,7 +883,7 @@ class Generator:
         result = Generator.get_results(year)
         subjects0, subjects, ys = YearsSubjectsTable.select_by_year(year), [], {}
         for x in subjects0:
-            subject = SubjectsTable.select_by_id(x.subject)
+            subject = SubjectsTable.select(x.subject)
             if subject.type == 'i':
                 subjects.append(subject)
                 ys[subject.id] = x.n_d
@@ -948,7 +948,7 @@ class Generator:
         subjects.sort(key=YearSubject.sort_by_start)
         txt = '\n'
         for subject in subjects:
-            txt += tr_format(subject.n_d, subject.date_str(), SubjectsTable.select_by_id(subject.subject).name,
+            txt += tr_format(subject.n_d, subject.date_str(), SubjectsTable.select(subject.subject).name,
                              subject.classes, subject.start_str(), subject.end_str(), subject.place, tabs=3)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/timetable.html")
         data.insert_after_comment(' timetable ', txt + ' ' * 8)

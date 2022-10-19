@@ -1,10 +1,10 @@
 import pandas as pd
-from ..queries.file_creator import FileCreator, SplitFile
-from ..queries.auto_generator import Generator
-from ..queries.help import split_class
-from ..database import SubjectsTable, YearSubject, YearsSubjectsTable, Team, TeamsTable, Student, StudentsTable, \
+from backend.queries.file_creator import FileCreator, SplitFile
+from backend.queries.auto_generator import Generator
+from backend.queries.help import split_class
+from backend.database import SubjectsTable, YearSubject, YearsSubjectsTable, Team, TeamsTable, Student, StudentsTable, \
     StudentCode, StudentsCodesTable, Result, ResultsTable, TeamStudent, TeamsStudentsTable
-from ..config import Config
+from backend.config import Config
 
 
 def find(titles, exists, not_exists=None):

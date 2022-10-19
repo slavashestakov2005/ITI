@@ -29,7 +29,7 @@ def teams_page_params(user: User, year: int):
         subjects.append(Subject([-2, 'Инд. 2', 'Инд. 2', 'g', 'diploma']))
         subjects.append(Subject([-3, 'Инд. 3', 'Инд. 3', 'g', 'diploma']))
         for x in YearsSubjectsTable.select_by_year(year):
-            subject = SubjectsTable.select_by_id(x.subject)
+            subject = SubjectsTable.select(x.subject)
             if subject.type == 'g':
                 subjects.append(subject)
             if subject.type == 'a':
@@ -41,7 +41,7 @@ def teams_page_params(user: User, year: int):
             if now < 0:
                 team, t = Team([now, 'Отказ', None, None]), []
             else:
-                team, t = TeamsTable.select_by_id(now), []
+                team, t = TeamsTable.select(now), []
             peoples = TeamsStudentsTable.select_by_team(team.id)
             for x in peoples:
                 people = StudentsTable.select(x.student)
@@ -92,7 +92,7 @@ def edit_team(year: int):
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error8='Некорректные данные')
 
-    team = TeamsTable.select_by_id(team_id)
+    team = TeamsTable.select(team_id)
     if team.__is_none__:
         return render_template(str(year) + '/teams_for_year.html', **args, error8='Такой команды нет')
     if not TeamsTable.select_by_year_and_later(year, later).__is_none__:
@@ -142,7 +142,7 @@ def add_student_team(year: int):
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error3='Некорректные данные')
 
-    if TeamsTable.select_by_id(team).__is_none__:
+    if TeamsTable.select(team).__is_none__:
         return render_template(str(year) + '/teams_for_year.html', **args, error3='Такой команды нет')
     student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1], 0]))
     if student.__is_none__:
@@ -173,7 +173,7 @@ def delete_student_team(year: int):
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error4='Некорректные данные')
 
-    if TeamsTable.select_by_id(team).__is_none__:
+    if TeamsTable.select(team).__is_none__:
         return render_template(str(year) + '/teams_for_year.html', **args, error4='Такой команды нет')
     student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1], 0]))
     if student.__is_none__:

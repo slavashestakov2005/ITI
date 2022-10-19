@@ -1,4 +1,4 @@
-from backend.database import Table, Row
+from backend.database import Row, Table, Query
 
 
 class Team(Row):
@@ -19,48 +19,25 @@ class Team(Row):
         return team.later
 
 
-class TeamsTable:
+class TeamsTable(Table):
     table = "team"
-
-    @staticmethod
-    def create_table() -> None:
-        Table.drop_and_create(TeamsTable.table, '''(
+    row = Team
+    create = '''(
         id      INT NOT NULL UNIQUE KEY AUTO_INCREMENT,
         name	TEXT NOT NULL,
         year	INT NOT NULL,
         later	TEXT NOT NULL,
         PRIMARY KEY(id)
-        )''')
-
-    @staticmethod
-    def select_all() -> list:
-        return Table.select_list(TeamsTable.table, Team)
+        );'''
 
     @staticmethod
     def select_by_year(year: int) -> list:
-        return Table.select_list(TeamsTable.table, Team, 'year', year)
+        return Query.select_list(TeamsTable.table, Team, 'year', year)
 
     @staticmethod
     def select_by_year_and_later(year: int, later: str) -> Team:
-        return Table.select_one(TeamsTable.table, Team, 'year', year, 'later', later)
-
-    @staticmethod
-    def select_by_id(id: int) -> Team:
-        return Table.select_one(TeamsTable.table, Team, 'id', id)
-
-    @staticmethod
-    def insert(team: Team) -> None:
-        return Table.insert(TeamsTable.table, team)
-
-    @staticmethod
-    def update(team: Team) -> None:
-        return Table.update(TeamsTable.table, team)
-
-    @staticmethod
-    def delete(team: Team) -> None:
-        return Table.delete(TeamsTable.table, team)
+        return Query.select_one(TeamsTable.table, Team, 'year', year, 'later', later)
 
     @staticmethod
     def delete_by_year(year: int) -> None:
-        return Table.delete(TeamsTable.table, 'year', year)
-
+        return Query.delete(TeamsTable.table, 'year', year)

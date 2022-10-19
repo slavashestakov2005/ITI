@@ -1,5 +1,7 @@
 from backend import app
-from ..help import forbidden_error, Logger, SplitFile, FileManager, ExcelResultsReader
+from .help import SplitFile
+from ..help import forbidden_error, Logger, FileManager
+from ..excel import ExcelResultsReader
 from ..database import ResultsTable, Result, SubjectsTable, YearsSubjectsTable, TeamsTable,\
     GroupResultsTable, GroupResult, AppealsTable, Appeal, StudentsCodesTable, StudentsTable, YearsTable, HistoriesTable
 from flask import render_template, request, redirect
@@ -88,7 +90,7 @@ def appeal_page_params(year: int, path2, path3):
     params = {'year': abs(year), 'h_type_1': path2, 'h_type_2': tour_type(path2)}
     try:
         params['subject'] = subject = path_to_subject(path3)
-        params['h_sub_name'] = SubjectsTable.select_by_id(subject).name
+        params['h_sub_name'] = SubjectsTable.select(subject).name
     except Exception:
         pass
     return params
@@ -98,7 +100,7 @@ def group_page_params(year: int, path2, path3):
     res = {'year': abs(year), 'h_type_1': path2, 'h_type_2': tour_type(path2)}
     try:
         res['subject'] = subject = path_to_subject(path3)
-        res['h_sub_name'] = SubjectsTable.select_by_id(subject).name
+        res['h_sub_name'] = SubjectsTable.select(subject).name
         teams = TeamsTable.select_by_year(year)
         for team in teams:
             gr = GroupResultsTable.select_by_team_and_subject(team.id, subject)
@@ -280,7 +282,7 @@ def share_results(year: int, path2, path3):
 @check_status('admin')
 @check_block_year()
 def ratings_update(year: int):
-    if YearsTable.select_by_year(year).__is_none__:
+    if YearsTable.select(year).__is_none__:
         return render_template(str(year) + '/rating.html', error='Этого года нет', year=abs(year))
     Generator.gen_ratings(year)
     return render_template(str(year) + '/rating.html', error='Рейтинги обновлены', year=abs(year))
@@ -344,7 +346,7 @@ def share_all_results(year: int):
     url = str(year) + '/rating.html'
     errors = []
     for now in ys:
-        subject = SubjectsTable.select_by_id(now.subject)
+        subject = SubjectsTable.select(now.subject)
         try:
             suf = tour_name(subject.type) + '/' + str(subject.id) + '.html'
             if subject.type == 'i':

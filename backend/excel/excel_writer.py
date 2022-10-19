@@ -1,7 +1,7 @@
-from .log import Log
-from .excel_parent import ExcelParentWriter
-from ..queries.help import class_min, compare
-from ..database import StudentsCodesTable, UsersTable, HistoriesTable, ResultsTable, GroupResultsTable, AppealsTable, \
+from backend.help.log import Log
+from backend.excel.excel_parent import ExcelParentWriter
+from backend.queries.help import class_min, compare
+from backend.database import StudentsCodesTable, UsersTable, HistoriesTable, ResultsTable, GroupResultsTable, AppealsTable, \
     SubjectsTable, TeamsTable, StudentsTable, TeamsStudentsTable, SubjectsStudentsTable
 
 

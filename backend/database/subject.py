@@ -1,4 +1,4 @@
-from backend.database import Table, Row
+from backend.database import Row, Table, Query
 
 
 class Subject(Row):
@@ -26,19 +26,21 @@ class Subject(Row):
         return self.diploma.replace('\n', '<br>')
 
 
-class SubjectsTable:
+class SubjectsTable(Table):
     table = "subject"
-
-    @staticmethod
-    def create_table() -> None:
-        Table.drop_and_create(SubjectsTable.table, '''(
+    row = Subject
+    create = '''(
         id          INT         NOT NULL UNIQUE KEY AUTO_INCREMENT,
         name	    VARCHAR(30) NOT NULL UNIQUE,
         short_name	TEXT        NOT NULL,
         type	    TEXT        NOT NULL,
         diploma     TEXT        NOT NULL,
         PRIMARY KEY(id)
-        )''')
+        );'''
+
+    @staticmethod
+    def create_table() -> None:
+        super().create_table()
         SubjectsTable.insert(Subject([None, 'Командный тур', 'Команд.', 'a', 'в командном туре']))
         SubjectsTable.insert(Subject([None, 'История', 'Ист.', 'i', 'в индивидуальном туре\nпо истории']))
         SubjectsTable.insert(Subject([None, 'Английский язык', 'Анг.', 'i', 'в индивидуальном туре\nпо английскому языку']))
@@ -61,25 +63,5 @@ class SubjectsTable:
         SubjectsTable.insert(Subject([None, 'Окружающий мир', 'Окр. мир', 'i', 'в индивидуальном туре\nпо окружающему миру']))
 
     @staticmethod
-    def select_all() -> list:
-        return Table.select_list(SubjectsTable.table, Subject)
-
-    @staticmethod
     def select_by_name(name: str) -> Subject:
-        return Table.select_one(SubjectsTable.table, Subject, 'name', name)
-
-    @staticmethod
-    def select_by_id(id: int) -> Subject:
-        return Table.select_one(SubjectsTable.table, Subject, 'id', id)
-
-    @staticmethod
-    def insert(subject: Subject) -> None:
-        return Table.insert(SubjectsTable.table, subject)
-
-    @staticmethod
-    def update_by_id(subject: Subject) -> None:
-        return Table.update(SubjectsTable.table, subject)
-
-    @staticmethod
-    def delete(subject: Subject) -> None:
-        return Table.delete(SubjectsTable.table, subject)
+        return Query.select_one(SubjectsTable.table, Subject, 'name', name)

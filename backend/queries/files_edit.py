@@ -33,7 +33,7 @@ def generate_filename(last_name, new_path, new_name):
 
 def generate_filename_by_type(year: int, subject: int, types: list, classes: list):
     filename = 'ИТИ ' + str(abs(year)) + '. '
-    subject = SubjectsTable.select_by_id(subject)
+    subject = SubjectsTable.select(subject)
     if subject.__is_none__ or not types or not classes or not len(types) or not len(classes):
         return None
     filename += subject.name + '. '
@@ -52,7 +52,7 @@ def generate_filename_by_type(year: int, subject: int, types: list, classes: lis
 
 def generate_filename_by_student(year: int, subject: int, code: int, desc: str):
     filename = 'ИТИ ' + str(year) + '. '
-    subject = SubjectsTable.select_by_id(subject)
+    subject = SubjectsTable.select(subject)
     if subject.__is_none__:
         return None
     student = StudentsCodesTable.select_by_code(year, code, subject.n_d)
@@ -177,7 +177,7 @@ def editor():
     try:
         file_name = request.args.get('file_name')
         year = int(file_name.split('/')[0])
-        y = YearsTable.select_by_year(year)
+        y = YearsTable.select(year)
         if y.__is_none__ or y.block:
             return forbidden_error()
     except ValueError:
