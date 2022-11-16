@@ -5,7 +5,7 @@ from ..config import Config
 class ConfigDB:
     PA = True if os.getenv('PA') else False
     PA_DB_USER = 'iti106'
-    PA_DB_PASSWORD = '**********'
+    PA_DB_PASSWORD = os.getenv('DB_PA_PASS')
     PA_DB_HOST = 'iti106.mysql.pythonanywhere-services.com'
     PA_DB = 'iti106$iti'
 

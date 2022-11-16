@@ -68,4 +68,4 @@ def eljur_login():
 @check_block_year()
 def logout():
     logout_user()
-    return render_template('index.html')
+    return redirect('/')

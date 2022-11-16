@@ -1,5 +1,7 @@
 import os
+from dotenv import load_dotenv
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv('.env')
 
 
 from backend import app
@@ -15,4 +17,4 @@ start_debug()
 create_tables()
 # FileManager.restore_all() # база данных на сайте обрезает концы файлов
 if __name__ == '__main__' and not Config.HEROKU:
-        app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8080)

@@ -15,6 +15,7 @@ from .file import *
 from .subject_file import *
 from .subject_student import *
 from .history import *
+from .messages import *
 
 
 def create_tables():
@@ -34,3 +35,4 @@ def create_tables():
         SubjectsFilesTable.create_table()
         SubjectsStudentsTable.create_table()
         HistoriesTable.create_table()
+        MessagesTable.create_table()

@@ -263,5 +263,7 @@ class Table:
         return Query.update(cls.table, row, cls.id_field)
 
     @classmethod
-    def delete(cls, row: Row) -> None:
-        return Query.delete(cls.table, cls.id_field, row.__getattribute__(cls.id_field))
+    def delete(cls, row) -> None:
+        if issubclass(type(row), Row):
+            row = row.__getattribute__(cls.id_field)
+        return Query.delete(cls.table, cls.id_field, row)

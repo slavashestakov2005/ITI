@@ -1,11 +1,5 @@
 <!-- login required -->
-{% extends "page1.html" %}
-
-{% block header %}
-<a href="/">ИТИ</a>
-/
-Настройки
-{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 <center><h1>Настройки пользователя</h1></center>
@@ -16,7 +10,7 @@
 			<p>Старый пароль: <input type="password" name="password_old"></p>
 			<p>Новый пароль: <input type="password" name="password"></p>
 			<p>Подтверждение пароля: <input type="password" name="password2"></p>
-			{% if error %} <p><font color="red">[ {{ error }} ]</font></p>
+			{% if error %} <p class="error-msg">[ {{ error }} ]</p>
 			{% endif %}
 			<input type="submit" value="Сохранить">
 		</form>
@@ -27,7 +21,7 @@
 			<p>Почта: {{ email }} (неизменяема)</p>
 			<p>Пароль: <input type="text" name="password" placeholder="{{password}}"></p>
 			<p>Получатели: {{ admins }} (неизменяемы)</p>
-			{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
+			{% if error2 %} <p class="error-msg">[ {{ error2 }} ]</p>
 			{% endif %}
 			<input type="submit" value="Сохранить">
 		</form>

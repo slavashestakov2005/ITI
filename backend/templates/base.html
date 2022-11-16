@@ -1,0 +1,76 @@
+<!-- login required -->
+<!-- -2 -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    {% if current_user.is_anonymous %} {% set anon = True %} {% else %} {% set anon = False %} {% endif %}
+    {% if not anon and current_user.can_do(-1) %} {% set adm = True %} {% else %} {% set adm = False %} {% endif %}
+    {% if not anon and current_user.can_do(-2) %} {% set full = True %} {% else %} {% set full = False %} {% endif %}
+    <meta charset="utf-8">
+    <title>ИТИ</title>
+    <script src="/JS/scripts.js"></script>
+    <link rel="stylesheet" href="/CSS/bootstrap.min.css">
+    <link rel="stylesheet" href="/CSS/menu.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link rel="stylesheet" href="/CSS/style_old.css">
+    <link rel="icon" href="/Images/logo.png" type="image/x-icon">
+    <link href='https://fonts.googleapis.com/css?family=Lora' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="wrapper">
+    <div class="content">
+        <div class="row justify-content-between">
+            <div class="col-auto logo">
+                <a href="/"><img src="/Images/logo.png" height="80px"></a>
+            </div>
+            <div class="col-auto rlogo">
+                <h1 class="headtext">ИНТЕЛЛЕКТУАЛЬНО <br> ТВОРЧЕСКИЕ <br>ИГРЫ</h1>
+            </div>
+            <div class="col-auto">
+                <div class="dropdown">
+                    <p class="dropbtn" data-toggle="dropdown">Личный кабинет</p>
+                    <div class="dropdown-menu">
+                        {% if anon %}
+                        <a class="dropdown-item" href="/login">Войти</a>
+                        {% else %}
+                        <a class="dropdown-item" href="#" onclick="adminPanel()">Редактирование</a>
+                        <a class="dropdown-item" href="/logout">Выйти</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="white-line"></div>
+        {% block content %}{% endblock %}
+        <div class="white-line"></div>
+    </div>
+    <div class="footer">
+        <div class="container">
+            <div class="row justify-content-between">
+                <div class="col-auto">
+                    О нас:<br>
+                    <a href="/Info/organizer.html">Организаторы</a><br>
+                    <a href="/Info/author.html">Авторы</a><br>
+                    <a href="/Info/thank_us.html">Благодарности</a><br>
+                    <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSd7FopqmHoR5Ugcg_-ZAs-guy8NHS5PSvvDsx_rYetaPMKxjw/viewform?usp=sf_link">Обратная связь</a><br>
+                    <a href="/Info/reviews.html">Отзывы</a>
+                </div>
+                <div class="col-auto footer-center">
+                    О ИТИ:<br>
+                    <a href="/Info/_rules.html">Правила НШ</a><br>
+                    <a href="/Info/rules.html">Правила ОШ</a><br>
+                    История ИТИ?
+                </div>
+                <div class="col-auto footer-right">
+                    Контакты:<br>
+                    г. Красноярск, ул. Корнеева 50<br>
+                    iti.univers106@gmail.com<br>
+                    <a href="http://univers.su" target="_blank">МАОУ КУГ №1 «Универс»</a><br>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -12,6 +12,7 @@ from .help import check_status, check_block_year, correct_new_line, path_to_subj
 from .auto_generator import Generator
 from ..config import Config
 from .results_raw import save_result_, delete_result_
+from .messages_help import message_results_public, message_ratings_public, message_all_ratings_public
 '''
     tour_type(name)                                             Переводит названия туров.
     tour_name(type)                                             Делает длинные названия туров из коротких.
@@ -59,7 +60,7 @@ def page_params(year: int, path2, path3):
         appeals = [(_, StudentsTable.select(
             StudentsCodesTable.select_by_code(year, _.student, sub.n_d).student
         )) for _ in appeals]
-        params.update({'h_sub_name': SubjectsTable.select_by_id(subject).name, 's2': sub.score_5, 's3': sub.score_6,
+        params.update({'h_sub_name': SubjectsTable.select(subject).name, 's2': sub.score_5, 's3': sub.score_6,
                        's4': sub.score_7, 's5': sub.score_5, 's6': sub.score_6, 's7': sub.score_7, 's8': sub.score_8,
                        's9': sub.score_9, 'appeals': appeals})
         results = ResultsTable.select_by_year_and_subject(year, subject)
@@ -96,8 +97,8 @@ def appeal_page_params(year: int, path2, path3):
     return params
 
 
-def group_page_params(year: int, path2, path3):
-    res = {'year': abs(year), 'h_type_1': path2, 'h_type_2': tour_type(path2)}
+def group_page_params(year: int, path3):
+    res = {'year': abs(year)}
     try:
         res['subject'] = subject = path_to_subject(path3)
         res['h_sub_name'] = SubjectsTable.select(subject).name
@@ -113,7 +114,7 @@ def group_page_params(year: int, path2, path3):
 
 
 def chose_params(p1: int, p2: str, p3: str):
-    return group_page_params(p1, p2, p3) if p2 == 'group' or p2 == 'team' else page_params(p1, p2, p3)
+    return group_page_params(p1, p3) if p2 == 'group' or p2 == 'team' else page_params(p1, p2, p3)
 
 
 @app.route('/<year:year>/history')
@@ -146,29 +147,33 @@ def revert(year: int):
     return redirect('history')
 
 
-@app.route('/<year:year>/<path:path2>/<path:path3>/add_result')
+@app.route('/<year:year>/<path:path3>/add_result')
 @cross_origin()
 @login_required
 @check_block_year()
-def add_result(year: int, path2, path3):
-    params = chose_params(year, path2, path3)
+def add_result(year: int, path3):
     try:
-        subject = path_to_subject(path3)
+        subject = SubjectsTable.select(path_to_subject(path3))
+        if subject.__is_none__:
+            raise ValueError()
     except Exception:
         return forbidden_error()
-
-    if not current_user.can_do(subject):
+    if not current_user.can_do(subject.id):
         return forbidden_error()
+
+    path2 = tour_name(subject.type)
+    params = chose_params(year, path2, path3)
     if path2 == 'group' or path2 == 'team':
         return render_template(str(year) + '/add_result.html', **params)
     return render_template(pref_year(year) + 'add_result.html', **params)
 
 
-@app.route('/<year:year>/<path:path2>/<path:path3>/save_result', methods=['POST'])
+@app.route('/<year:year>/<path:path3>/save_result', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
-def save_result(year: int, path2, path3):
+def save_result(year: int, path3):
+    path2 = 'individual'
     params = page_params(year, path2, path3)
     params['show_alert'] = True
     url = pref_year(year) + 'add_result.html'
@@ -198,11 +203,12 @@ def save_result(year: int, path2, path3):
         return render_template(url, **params, error2='Результат участника {0} сохранён'.format(user_id))
 
 
-@app.route('/<year:year>/<path:path2>/<path:path3>/load_result', methods=['POST'])
+@app.route('/<year:year>/<path:path3>/load_result', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
-def load_result(year: int, path2, path3):
+def load_result(year: int, path3):
+    path2 = 'individual'
     url = pref_year(year) + 'add_result.html'
     try:
         subject = path_to_subject(path3)
@@ -222,12 +228,13 @@ def load_result(year: int, path2, path3):
     return render_template(url, **params, error6=['[ Сохранено ]'])
 
 
-@app.route('/<year:year>/<path:path2>/<path:path3>/delete_result', methods=['POST'])
+@app.route('/<year:year>/<path:path3>/delete_result', methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def delete_result(year: int, path2, path3):
+def delete_result(year: int, path3):
+    path2 = 'individual'
     params = page_params(year, path2, path3)
     url = pref_year(year) + 'add_result.html'
     try:
@@ -245,12 +252,13 @@ def delete_result(year: int, path2, path3):
         return render_template(url, **page_params(year, path2, path3), error5='Удалено')
 
 
-@app.route('/<year:year>/<path:path2>/<path:path3>/share_results')
+@app.route('/<year:year>/<path:path3>/share_results')
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def share_results(year: int, path2, path3):
+def share_results(year: int, path3):
+    path2 = 'individual'
     params = page_params(year, path2, path3)
     url = pref_year(year) + 'add_result.html'
     try:
@@ -261,10 +269,11 @@ def share_results(year: int, path2, path3):
     if YearsSubjectsTable.select(year, subject).__is_none__:
         return render_template(url, **params, error3='Такого предмета нет в этом году.')
     try:
-        Generator.gen_results(year, subject, str(year) + '/' + path2 + '/' + path3)
+        Generator.gen_results(year, subject, str(year) + '/' + path3)
     except ValueError:
         return render_template(url, **params, error3='Сохранены некоректные результаты (есть участник с количеством '
                                                      'баллов большим максимального)')
+    message_results_public(year, subject)
     return render_template(url, **params, error3='Результаты опубликованы')
 
 
@@ -285,15 +294,16 @@ def ratings_update(year: int):
     if YearsTable.select(year).__is_none__:
         return render_template(str(year) + '/rating.html', error='Этого года нет', year=abs(year))
     Generator.gen_ratings(year)
+    message_ratings_public(year)
     return render_template(str(year) + '/rating.html', error='Рейтинги обновлены', year=abs(year))
 
 
-@app.route('/<year:year>/<path:path2>/<path:path3>/save_group_results', methods=['POST'])
+@app.route('/<year:year>/<path:path3>/save_group_results', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
-def save_group_results(year: int, path2, path3):
-    params = group_page_params(year, path2, path3)
+def save_group_results(year: int, path3):
+    params = group_page_params(year, path3)
     try:
         subject = path_to_subject(path3)
     except Exception:
@@ -314,16 +324,17 @@ def save_group_results(year: int, path2, path3):
             GroupResultsTable.insert(gr)
         else:
             GroupResultsTable.update(gr)
+    params = group_page_params(year, path3)
     return render_template(str(year) + '/add_result.html', **params, error1='Результаты сохранены')
 
 
-@app.route('/<year:year>/<path:path2>/<path:path3>/share_group_results')
+@app.route('/<year:year>/<path:path3>/share_group_results')
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def share_group_results(year: int, path2, path3):
-    params = group_page_params(year, path2, path3)
+def share_group_results(year: int, path3):
+    params = group_page_params(year, path3)
     try:
         subject = path_to_subject(path3)
     except Exception:
@@ -331,7 +342,8 @@ def share_group_results(year: int, path2, path3):
 
     if YearsSubjectsTable.select(year, subject).__is_none__:
         return render_template('/add_result.html', **params, error2='Такого предмета нет в этом году.')
-    Generator.gen_group_results(year, subject, str(year) + '/' + path2 + '/' + path3)
+    Generator.gen_group_results(year, subject, str(year) + '/' + path3)
+    message_results_public(year, subject)
     return render_template(str(year) + '/add_result.html', **params, error2='Результаты опубликованы')
 
 
@@ -345,10 +357,12 @@ def share_all_results(year: int):
     params = {'year': abs(year)}
     url = str(year) + '/rating.html'
     errors = []
+    subjects = []
     for now in ys:
         subject = SubjectsTable.select(now.subject)
+        subjects.append(subject)
         try:
-            suf = tour_name(subject.type) + '/' + str(subject.id) + '.html'
+            suf = str(subject.id) + '.html'
             if subject.type == 'i':
                 Generator.gen_results(year, subject.id, str(year) + '/' + suf)
             else:
@@ -359,9 +373,11 @@ def share_all_results(year: int):
     if errors:
         return render_template(url, **params, error=', '.join(errors) + ' имеют неправильные результаты.')
     else:
+        message_all_ratings_public(year, subjects)
         return render_template(url, **params, error='Рейтинги обновлены')
 
 
+# TODO: апелляции
 @app.route('/<year:year>/<path:path2>/<path:path3>/add_appeal', methods=['GET', 'POST'])
 @cross_origin()
 @login_required

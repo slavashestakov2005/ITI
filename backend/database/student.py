@@ -56,8 +56,8 @@ class StudentsTable(Table):
     @staticmethod
     def select_all(year: int) -> list:
         if year > 0:
-            return Table.select_list_with_where(StudentsTable.table, Student, 'class_n', 4, 10)
-        return Table.select_list_with_where(StudentsTable.table, Student, 'class_n', 1, 5)
+            return Query.select_list_with_where(StudentsTable.table, Student, 'class_n', 5, 9)
+        return Query.select_list_with_where(StudentsTable.table, Student, 'class_n', 2, 4)
 
     @staticmethod
     def select_by_class_n(class_n: int) -> list:

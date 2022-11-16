@@ -1,5 +1,5 @@
 <!-- login required -->
-{% extends "page4.html" %}
+{% extends "base.html" %}
 
 {% block header %}
 <a href="../../main.html">ИТИ-{{year}}</a>
@@ -18,9 +18,9 @@
 		<p>Код участника: <input type="text" name="code"></p>
 		<p>Апеллируемые задачи: <input type="text" name="tasks"></p>
 		<p>Причина апелляции:
-			<textarea name="description" id="file_text" oninput="textInput(document, 'file_text')"></textarea></p>
-		<script>textInput(document, 'file_text')</script>
-		{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+			<textarea name="description" class="js-textarea"></textarea></p>
+		<script>initTextArea()</script>
+		{% if error1 %} <p class="error-msg">[ {{ error1 }} ]</p>
 		{% endif %}
 		<input type="submit" value="Подать">
 	</form>

@@ -1,4 +1,4 @@
-{% extends "page1.html" %}
+{% extends "base.html" %}
 
 {% block header %}
 <a href="/">ИТИ</a>
@@ -10,7 +10,6 @@
 <center>
     <h1>Упс, непредвиденная ошибка сервера!</h1>
     <p>Администратору отправлено сообщение. Простите за неудобства!</p>
-    <p><font color="red">[ Ошибка 500 ]</font></p>
+    <p class="error-msg">[ Ошибка 500 ]</p>
 </center>
-
 {% endblock %}

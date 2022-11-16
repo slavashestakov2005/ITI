@@ -1,10 +1,4 @@
-{% extends "page1.html" %}
-
-{% block header %}
-<a href="/">ИТИ</a>
-/
-Вход на сайт
-{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 <center>
@@ -14,10 +8,9 @@
         <br/>
         <input type="password" name="password" placeholder="Пароль">
         <br/>
-        {% if error %} <font color="red">[ {{ error }} ]</font><br/>
+        {% if error %} <p class="error-msg">[ {{ error }} ]</p>
         {% endif %}
         <input type="submit" value="Войти">
     </form>
 </center>
-
 {% endblock %}

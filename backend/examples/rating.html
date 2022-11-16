@@ -1,12 +1,6 @@
 {% extends "rating_table.html" %}
 
-{% block header %}
-<a href="main.html"><!-- {year} --></a>
-/
-Рейтинг
-{% endblock %}
-
-{% block head %}
+{% block cont %}
 <center>
     <h1>Рейтинг</h1>
     {% if adm %}
@@ -14,7 +8,7 @@
     <p><a href="download_classes">Скачать данные по классам</a></p>
     <p><a href="download_diploma">Скачать список грамот</a></p>
     <p><a href="share_all_results">Опубликовать все результаты</a></p>
-    {% if error %} <p><font color="red">[ {{ error }} ]</font></p>{% endif %}
+    {% if error %} <p class="error-msg">[ {{ error }} ]</p>{% endif %}
     {% endif %}
 </center>
 {% endblock %}

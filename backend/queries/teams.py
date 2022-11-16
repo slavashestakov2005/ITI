@@ -6,6 +6,7 @@ from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
+from .messages_help import message_teams_public
 '''
     teams_page_params(user, year)                               Параметры для страницы 'teams_for_year.html'
     /<year>/add_team                add_team()                  Добавляет команду.
@@ -25,9 +26,9 @@ from flask_login import login_required, current_user
 def teams_page_params(user: User, year: int):
     try:
         teams, res, subjects, team_tour = user.teams_list(year), [], [], None
-        subjects.append(Subject([-1, 'Инд. 1', 'Инд. 1', 'g', 'diploma']))
-        subjects.append(Subject([-2, 'Инд. 2', 'Инд. 2', 'g', 'diploma']))
-        subjects.append(Subject([-3, 'Инд. 3', 'Инд. 3', 'g', 'diploma']))
+        subjects.append(Subject([-1, 'Инд. 1', 'Инд. 1', 'g', 'diploma', 'msg']))
+        subjects.append(Subject([-2, 'Инд. 2', 'Инд. 2', 'g', 'diploma', 'msg']))
+        subjects.append(Subject([-3, 'Инд. 3', 'Инд. 3', 'g', 'diploma', 'msg']))
         for x in YearsSubjectsTable.select_by_year(year):
             subject = SubjectsTable.select(x.subject)
             if subject.type == 'g':
@@ -311,4 +312,5 @@ def automatic_division(year: int):
     Generator.gen_teams_students(year)
     if not good:
         return render_template(str(year) + '/teams_for_year.html', **args, error9='Осталиь свободные места')
+    message_teams_public(year)
     return render_template(str(year) + '/teams_for_year.html', **args, error9='Участники распределены')

@@ -1,14 +1,6 @@
 <!-- login required -->
 <!-- -1 -->
-{% extends "page1.html" %}
-
-{% block header %}
-<a href="/">ИТИ</a>
-/
-Пользователи
-{% endblock %}
-
-{% block content %}
+{% extends "base.html" %}
 
 <div class="row col-12 justify-content-center">
 	<div class="col t-3">
@@ -20,7 +12,7 @@
 			<p>Пароль: <input type="text" name="password"></p>
 			<p>Подтверждение пароля: <input type="text" name="password2"></p>
 			{% include "subjects.html" %}
-			{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+			{% if error1 %} <p class="error-msg">[ {{ error1 }} ]</p>
 			{% endif %}
 			<input type="submit" value="Создать">
 		</form>
@@ -32,7 +24,7 @@
 			{% else %} <p>Логин: <input type="text" name="login"></p>
 			{% endif %}
 			{% include "subjects.html" %}
-			{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
+			{% if error2 %} <p class="error-msg">[ {{ error2 }} ]</p>
 			{% endif %}
 			<input type="submit" value="Изменить">
 		</form>
@@ -43,7 +35,7 @@
 			{% if login3 %} <p>Логин: <input type="text" name="login" value="{{login3}}"></p>
 			{% else %} <p>Логин: <input type="text" name="login"></p>
 			{% endif %}
-			{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
+			{% if error3 %} <p class="error-msg">[ {{ error3 }} ]</p>
 			{% endif %}
 			<input type="submit" value="Удалить">
 		</form>
@@ -55,10 +47,9 @@
 				<td width="10%">Статус</td>
 			</tr>
 			<!-- list of users -->
-                <tr><td>2</td><td>prohodsky</td><td>admin</td></tr>
-                <tr><td>3</td><td>савокина_е_в</td><td>admin</td></tr>
-                <tr><td>5</td><td>login</td><td>admin</td></tr>
-            <!-- end -->
+			<tr><td>2</td><td>Савокина</td><td>admin</td></tr>
+			<tr><td>3</td><td>Проходский</td><td>admin</td></tr>
+			<!-- end -->
 		</table>
 	</div>
 </div>

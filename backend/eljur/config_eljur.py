@@ -1,5 +1,8 @@
+import os
+
+
 class ConfigEljur:
-    DEVKEY = '**********'
+    DEVKEY = os.getenv('ELJUR_DEVKEY')
     QUERY_PART = {'vendor': 'univers', 'out_format': 'json', 'devkey': DEVKEY}
 
     SERVER_API = 'https://univers.eljur.ru/api/'

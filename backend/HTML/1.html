@@ -1,21 +1,4 @@
-{% extends "page3.html" %}
-
-{% block page_num %}
-{% if not anon and current_user.can_do(<!-- {page num} -->) %}
-<a class="dropdown-item" href="#" onclick="addResult(window)">Результаты</a>
-{% endif %}
-{% if '<!-- {ref} -->' == 'individual' and not anon %}
-<a class="dropdown-item" href="#" onclick="addAppeal(window)">Апелляция</a>
-{% endif %}
-{% endblock %}
-
-{% block header %}
-<a href="../main.html"><!-- {year} --></a>
-/
-<a href="../<!-- {ref} -->_tours.html"><!-- {tour_name} --></a>
-/
-<!-- {subject_name} -->
-{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 <center><h1><!-- {subject_name} --></h1></center>

@@ -1,4 +1,4 @@
-{% extends "page1.html" %}
+{% extends "base.html" %}
 
 {% block header %}
 <a href="/">ИТИ</a>
@@ -9,7 +9,6 @@
 {% block content %}
 <center>
     <h1>Ресурс не найден :(</h1>
-    <p><font color="red">[ Ошибки 404, 405 ]</font></p>
+    <p class="error-msg">[ Ошибки 404, 405 ]</p>
 </center>
-
 {% endblock %}

@@ -38,23 +38,9 @@ class FileCreator:
         s = set()
         data = SplitFile(Config.HTML_FOLDER + "/1.html")
         for subject in subjects:
-            file_name = directory
-            if subject.type == 'i':
-                ref = 'individual'
-                tour_name = 'Индивидуальный тур'
-            elif subject.type == 'g':
-                ref = 'group'
-                tour_name = 'Групповой тур'
-            else:
-                ref = 'team'
-                tour_name = 'Командный тур'
-            file_name += ref + '/' + str(subject.id) + ".html"
+            file_name = directory + str(subject.id) + ".html"
             if not os.path.exists(file_name):
-                data.replace_comment(' {year} ', 'ИТИ-' + str(abs(year)))
-                data.replace_comment(' {tour_name} ', tour_name)
                 data.replace_comment(' {subject_name} ', subject.name)
-                data.replace_comment(' {ref} ', ref)
-                data.replace_comment(' {page num} ', str(subject.id))
                 data.save_file(file_name)
             s.add(file_name)
         for file_name in glob.glob(directory + '*/*.html'):

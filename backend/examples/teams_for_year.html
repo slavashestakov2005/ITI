@@ -1,12 +1,6 @@
 <!-- login required -->
 
-{% extends "page2.html" %}
-
-{% block header %}
-<a href="main.html"><!-- {year} --></a>
-/
-Настройки команд
-{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 <center>
@@ -14,7 +8,7 @@
     {% if adm %}
         <br>
         <h3><a href="automatic_division">Автоматическое распределение</a></h3>
-        {% if error9 %} <p><font color="red">[ {{ error9 }} ]</font></p> {% endif %}
+        {% if error9 %} <p class="error-msg">[ {{ error9 }} ]</p> {% endif %}
     {% endif %}
 </center>
 <br>
@@ -36,7 +30,7 @@
             <h3>Новая команда:</h3>
             <p>Название: <input type="text" name="name"></p>
             <p>Вертикаль: <input type="text" name="later"></p>
-            {% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+            {% if error1 %} <p class="error-msg">[ {{ error1 }} ]</p>
             {% endif %}
             <input type="submit" value="Добавить">
             <p>Первая буква вертикали автоматически переводится в верхний регистр.</p>
@@ -46,14 +40,14 @@
             <p>Номер: <input type="text" name="id"></p>
             <p>Новое название: <input type="text" name="name"></p>
             <p>Новая вертикаль: <input type="text" name="later"></p>
-            {% if error8 %} <p><font color="red">[ {{ error8 }} ]</font></p>
+            {% if error8 %} <p class="error-msg">[ {{ error8 }} ]</p>
             {% endif %}
             <input type="submit" value="Обновить">
         </center></form>
         <form action="delete_team" method="post"><center>
             <h3>Удалить команду:</h3>
             <p>Номер: <input type="text" name="id"></p>
-            {% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
+            {% if error2 %} <p class="error-msg">[ {{ error2 }} ]</p>
             {% endif %}
             <input type="submit" value="Удалить">
         </center></form>
@@ -64,7 +58,7 @@
             <h3>Добавить руководителя:</h3>
             <p>Логин: <input type="text" name="login"></p>
             <p>Номер команды: <input type="text" name="team"></p>
-            {% if error6 %} <p><font color="red">[ {{ error6 }} ]</font></p>
+            {% if error6 %} <p class="error-msg">[ {{ error6 }} ]</p>
             {% endif %}
             <input type="submit" value="Добавить">
         </center></form>
@@ -72,7 +66,7 @@
             <h3>Удалить руководителя:</h3>
             <p>Логин: <input type="text" name="login"></p>
             <p>Номер команды: <input type="text" name="team"></p>
-            {% if error7 %} <p><font color="red">[ {{ error7 }} ]</font></p>
+            {% if error7 %} <p class="error-msg">[ {{ error7 }} ]</p>
             {% endif %}
             <input type="submit" value="Добавить">
         </center></form>
@@ -85,7 +79,7 @@
             <p>Имя: <input type="text" name="name2"></p>
             <p>Фамилия: <input type="text" name="name1"></p>
             <p>Класс: <input type="text" name="class"></p>
-            {% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
+            {% if error3 %} <p class="error-msg">[ {{ error3 }} ]</p>
             {% endif %}
             <input type="submit" value="Добавить">
         </center></form>
@@ -95,7 +89,7 @@
             <p>Имя: <input type="text" name="name2"></p>
             <p>Фамилия: <input type="text" name="name1"></p>
             <p>Класс: <input type="text" name="class"></p>
-            {% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
+            {% if error4 %} <p class="error-msg">[ {{ error4 }} ]</p>
             {% endif %}
             <input type="submit" value="Удалить">
         </center></form>
@@ -137,7 +131,7 @@
             </center></form>
             <br>
         {% endfor %}
-        {% if error5 %} <p><font color="red">[ {{ error5 }} ]</font></p>
+        {% if error5 %} <p class="error-msg">[ {{ error5 }} ]</p>
         {% endif %}
     </center></div>
 </div>

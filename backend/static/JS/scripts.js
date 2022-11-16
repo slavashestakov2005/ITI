@@ -1,19 +1,30 @@
-function edit(document){
-    document.location.replace(window.location + '/edit');
+function go(url){
+    document.location.replace(url);
 }
 
-function textInput(document, txt){
-    var textarea = document.getElementById(txt);
+function edit(document){
+    go(window.location + '/edit');
+}
+
+function textAreaInput(textarea){
     textarea.style.height = '1px';
     textarea.style.height = (textarea.scrollHeight + 6) + 'px';
 }
 
+function initTextArea(){
+    let areas = document.getElementsByClassName('js-textarea');
+    for (let textarea of areas){
+        textarea.oninput = function(){ textAreaInput(textarea); };
+        textAreaInput(textarea);
+    }
+}
+
 function addResult(window) {
-    document.location.replace(window.location + '/add_result');
+    go(window.location + '/add_result');
 }
 
 function addAppeal(window) {
-    document.location.replace(window.location + '/add_appeal');
+    go(window.location + '/add_appeal');
 }
 
 function file_type() {
@@ -66,4 +77,47 @@ function cursor(){
 function show_alert(){
     let text = document.getElementById('text_for_alert').textContent;
     alert(text.substr(2, text.length - 4));
+}
+
+function convert(str) {
+    str = str.replace(/&amp;/g, "&");
+    str = str.replace(/&gt;/g, ">");
+    str = str.replace(/&lt;/g, "<");
+    str = str.replace(/&quot;/g, '"');
+    str = str.replace(/&#039;/g, "'");
+    return str;
+}
+
+function initHTMLContent() {
+    let items = document.getElementsByClassName('js-html-content');
+    for(let item of items) item.innerHTML = convert(item.innerHTML.toString());
+}
+
+function adminPath(year, subject){
+    let path = '/admin_panel?';
+    if (year) path += 'year=' + year + '&';
+    if (subject) path += 'subject=' + subject;
+    return path;
+}
+
+function adminPanel(){
+    let parts = window.location.pathname.split('/');
+    let year = null, subject = null;
+    console.log(parts);
+    if (parts.length > 1) year = parseInt(parts[1]);
+    if (parts.length > 2) subject = parseInt(parts[2]);
+    if (isNaN(year)) year = subject = null;
+    if (isNaN(subject)) subject = null;
+    go(adminPath(year, subject));
+}
+
+function chooseYear(year){
+    let subject = new URL(window.location).searchParams.get('subject');
+    go(adminPath(year, subject))
+}
+
+function chooseSubject(subject){
+    let year = new URL(window.location).searchParams.get('year');
+    if (!year) subject = null;
+    go(adminPath(year, subject))
 }

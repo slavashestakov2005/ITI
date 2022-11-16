@@ -1,11 +1,5 @@
 <!-- login required -->
-{% extends "page1.html" %}
-
-{% block header %}
-<a href="/">ИТИ</a>
-/
-Участники
-{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 <div class="row col-12 justify-content-center">
@@ -16,11 +10,11 @@
 			<p>Фамилия: <input type="text" name="name1"></p>
 			<p>Класс (номер и буква): <input type="text" name="class"></p>
 			<p>Пол: <input name="gender" type="radio" value="0" checked>М<<input name="gender" type="radio" value="1">Ж</p>
-			{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+			{% if error1 %} <p class="error-msg">[ {{ error1 }} ]</p>
 			{% endif %}
 			<input type="submit" value="Создать">
 			<p>Первая буква имени, фамилии и буква класса автоматически переводятся в верхний регистр.
-			Все остальные буквы — в нижний.</p>
+				Все остальные буквы — в нижний.</p>
 		</form>
 	</div>
 	<div class="col t-3">
@@ -35,7 +29,7 @@
 			<p>Фамилия: <input type="text" name="n_name1"></p>
 			<p>Класс (номер и буква): <input type="text" name="n_class"></p>
 			<p>Пол: <input name="n_gender" type="radio" value="0">М<<input name="n_gender" type="radio" value="1">Ж</p>
-			{% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>
+			{% if error2 %} <p class="error-msg">[ {{ error2 }} ]</p>
 			{% endif %}
 			<input type="submit" value="Изменить">
 			<p>Если поля новых данных оставить пустыми, то информация не изменится.</p>
@@ -47,7 +41,7 @@
 			<p>Имя: <input type="text" name="name2"></p>
 			<p>Фамилия: <input type="text" name="name1"></p>
 			<p>Класс (номер и буква): <input type="text" name="class"></p>
-			{% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>
+			{% if error3 %} <p class="error-msg">[ {{ error3 }} ]</p>
 			{% endif %}
 			<input type="submit" value="Удалить">
 		</form>
@@ -84,7 +78,7 @@
 		{% if full %}
 		<p><a href="update_all_class_n">Перевести всех в следующий класс</a></p>
 		{% endif %}
-		{% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>
+		{% if error4 %} <p class="error-msg">[ {{ error4 }} ]</p>
 		{% endif %}
 	</div>
 </div>

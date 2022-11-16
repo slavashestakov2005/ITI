@@ -407,7 +407,7 @@ class Generator:
         for lst in sorted_results:
             lst.sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: codes[x.user].class_l,
                                  lambda x: Student.sort_by_name(codes[x.user]), field=True))
-        pth = Config.TEMPLATES_FOLDER + '/' + str(year) + '/individual/' + str(subject) + '/protocol'
+        pth = Config.TEMPLATES_FOLDER + '/' + str(year) + '/' + str(subject) + '/protocol'
         params = {' {year} ': str(abs(year)), ' {subject_id} ': str(subject),
                   ' {subject} ': SubjectsTable.select(subject).name}
         if year > 0:
@@ -632,7 +632,7 @@ class Generator:
                 subjects.append(subject)
                 template += ' ' * 20 + '<td width="5%">{}</td>\n'.format(subject.short_name)
         template += '''                    <td width="5%">Сумма</td>
-                    <td width="10%">Команда</td>
+                    <td width="11%">Команда</td>
                 </tr>\n'''
         radio = '''
                     {{% if adm %}}<td>
@@ -682,10 +682,11 @@ class Generator:
             sub_sums = sub_sums.values()
             txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, r[1],
                                                                                             tr=False) + '</tr>\n'
+            error_idx = str(ord(r[0])) if r[0] else '0'
             txt += '''            </table>
             {% if adm %}
                 <center>
-                    {% if error''' + str(ord(r[0])) + ''' %} <p><font color="red">[ {{ error''' + str(ord(r[0])) + ''' }} ]</font></p>{% endif %}
+                    {% if error''' + error_idx + ''' %} <p><font color="red">[ {{ error''' + error_idx + ''' }} ]</font></p>{% endif %}
                     <p><input type="submit" value="Сохранить"></p>
                 </center></form>
             {% endif %}

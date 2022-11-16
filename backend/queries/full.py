@@ -10,7 +10,7 @@ from ..help import init_mail_messages, FileManager, AsyncWorker
 from ..excel import ExcelFullWriter
 from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
     TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
-    SubjectsStudentsTable, HistoriesTable
+    SubjectsStudentsTable, HistoriesTable, MessagesTable
 from .auto_generator import Generator
 from .file_creator import FileCreator
 from ..config import Config
@@ -42,6 +42,7 @@ def _delete_year(year: int):
     SubjectsStudentsTable.delete_by_year(year)
     YearsTable.delete(year)
     YearsSubjectsTable.delete_by_year(year)
+    MessagesTable.delete_by_year(year)
 
     teams = TeamsTable.select_by_year(year)
     for team in teams:
@@ -220,6 +221,10 @@ def db():
     return 'OK'
 
 
+def page_args(year: int):
+    return {'year': abs(year), 'messages': MessagesTable.select_by_year(year)}
+
+
 @app.route('/<year:year>/year_block', methods=['POST'])
 @cross_origin()
 @login_required
@@ -228,11 +233,11 @@ def year_block(year: int):
     try:
         is_block = int(request.form['is_block'])
     except ValueError:
-        return render_template(str(year.year) + '/subjects_for_year.html', error8='Некорректный ввод', year=abs(year.year))
+        return render_template(str(year.year) + '/subjects_for_year.html', error8='Некорректный ввод', **page_args(year.year))
 
     year = YearsTable.select(year)
     if year.__is_none__:
-        return render_template(str(year.year) + '/subjects_for_year.html', error8='Этого года нет.', year=abs(year.year))
+        return render_template(str(year.year) + '/subjects_for_year.html', error8='Этого года нет.', **page_args(year.year))
     year.block = is_block
     YearsTable.update(year)
     data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year.year) + '/subjects_for_year.html')
@@ -241,7 +246,7 @@ def year_block(year: int):
                 <p><input type="radio" name="is_block" value="1" {1}>Заблокировано</p>
             '''.format('checked' if is_block == 0 else '', 'checked' if is_block == 1 else ''))
     data.save_file()
-    return render_template(str(year.year) + '/subjects_for_year.html', error8='Сохранено.', year=abs(year.year))
+    return render_template(str(year.year) + '/subjects_for_year.html', error8='Сохранено.', **page_args(year.year))
 
 
 @app.route('/load_data_from_excel', methods=['POST', 'GET'])

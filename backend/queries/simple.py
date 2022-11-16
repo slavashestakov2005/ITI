@@ -1,19 +1,22 @@
 from backend import app
 from flask import render_template, redirect, request
 from flask_cors import cross_origin
-from flask_login import current_user
+from flask_login import current_user, login_required
 from ..help.errors import forbidden_error, not_found_error
 from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES, current_year, split_class
 from ..database import StudentsTable, Student, ResultsTable, YearsSubjectsTable, SubjectsTable, StudentsCodesTable,\
-    Result
+    Result, MessagesTable, YearsTable
 from jinja2 import TemplateNotFound
 from itertools import permutations
 import os
 from ..config import Config
 '''
-    /           index()             Возвращает стартовую страницу.
-    /<path>     static_file(path)   Возвращает статическую страницу, проверяя статус пользователя и доступ к файлу.
-    def search()                    Ищет индивидуальные результаты участника по его имени.
+    /                                   Возвращает стартовую страницу сайта.
+    /<year>/                            Возвращает стартовую страницу года.
+    /<year>/main.html                   Рисует стартовую страницу года.
+    /admin_panel                        Рисует админ-панель.
+    /<path>                             Возвращает статическую страницу, проверяя статус пользователя и доступ к файлу.
+    /<year>/individual_tours.html       Ищет индивидуальные результаты участника по его имени.
 '''
 
 
@@ -26,7 +29,34 @@ def index():
     elif os.path.exists(Config.TEMPLATES_FOLDER + '/-' + str(y) + '/main.html'):
         return redirect('-' + str(y) + '/main.html')
     else:
-        return render_template('index.html')
+        return forbidden_error()
+
+
+@app.route('/<year:year>/')
+@cross_origin()
+def main_year_page_redirect(year: int):
+    return redirect('/{}/main.html'.format(year))
+
+
+@app.route('/<year:year>/main.html')
+@cross_origin()
+def main_year_page(year: int):
+    return render_template('{}/main.html'.format(year), messages=MessagesTable.select_by_year(year), years=YearsTable.select_all())
+
+
+@app.route('/admin_panel')
+@cross_origin()
+@login_required
+def admin_panel():
+    year, subject, sub = request.args.get('year'), request.args.get('subject'), []
+    if subject:
+        subject = SubjectsTable.select(subject)
+        if subject.__is_none__:
+            subject = None
+    if year:
+        for cur_sub in YearsSubjectsTable.select_by_year(year):
+            sub.append(SubjectsTable.select(cur_sub.subject))
+    return render_template('admin_panel.html', year=year, subject=subject, years=YearsTable.select_all(), subjects=sub)
 
 
 @app.route('/<path:path>')
@@ -50,13 +80,6 @@ def static_file(path):
         return app.send_static_file(path)
     except TemplateNotFound:
         return not_found_error()
-
-
-# [[maybe_unused]]
-@app.route('/bie')
-@cross_origin()
-def bie():
-    raise ValueError("Goodbye!")
 
 
 @app.route('/<year:year>/individual_tours.html')
@@ -89,7 +112,7 @@ def search(year: int):
                         code = user.code1 if subject.n_d == 1 else user.code2
                         r = ResultsTable.select_for_people(Result([year, subject.subject, code, 0, 0, '', 0]))
                         if not r.__is_none__ and r.position > 0:
-                            data.append([SubjectsTable.select_by_id(subject.subject).name, r.position, r.text_result,
+                            data.append([SubjectsTable.select(subject.subject).name, r.position, r.text_result,
                                          r.result, r.net_score])
                             if subject.n_d not in days:
                                 days[subject.n_d] = []
@@ -105,7 +128,7 @@ def search(year: int):
                         for subject in YearsSubjectsTable.select_by_year(year):
                             r = ResultsTable.select_for_people(Result([year, subject.subject, student_code, 0, 0, '', 0]))
                             if not r.__is_none__ and r.position > 0:
-                                data.append([SubjectsTable.select_by_id(subject.subject).name, r.position, r.text_result,
+                                data.append([SubjectsTable.select(subject.subject).name, r.position, r.text_result,
                                             r.result, r.net_score])
                                 if subject.n_d not in days:
                                     days[subject.n_d] = []

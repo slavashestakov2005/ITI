@@ -23,5 +23,4 @@ class EljurUser:
         data['auth_token'] = token
         response = s.get(ConfigEljur.RULES_URL, json=data).json()['response']
         name = response['result']['lastname'] + ' ' + response['result']['firstname']
-        print(name)
-        return response
+        return str(response)

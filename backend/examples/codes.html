@@ -2,19 +2,13 @@
 <!-- -1 -->
 {% extends "codes_table.html" %}
 
-{% block header %}
-<a href="main.html"><!-- {year} --></a>
-/
-Коды участников
-{% endblock %}
-
 {% block head %}
 <center>
     <h1>Коды участников</h1>
     <p><a href="create_codes">Присвоить коды</a></p>
     <p><a href="print_codes">Вывести таблицу</a></p>
     <p><a href="get_codes">Скачать коды в Excel</a></p>
-    {% if error %} <p><font color="red">[ {{ error }} ]</font></p> {% endif %}
+    {% if error %} <p class="error-msg">[ {{ error }} ]</p> {% endif %}
 </center>
 {% endblock %}
 

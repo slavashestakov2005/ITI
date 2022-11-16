@@ -1,4 +1,4 @@
-from .database import Row, Table, Query
+from .database import Row, Table
 
 
 class File(Row):
@@ -22,7 +22,3 @@ class FilesTable(Table):
         data	BLOB NOT NULL,
         PRIMARY KEY(name)
         );'''
-
-    @staticmethod
-    def delete(filename: str) -> None:
-        return Query.delete(FilesTable.table, 'name', filename)
