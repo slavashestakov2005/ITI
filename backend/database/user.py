@@ -41,7 +41,6 @@ class User(Row, UserMixin):
                 self.status += 1 << int(now)
 
     def can_do(self, status: int):
-        print('Can do ( ' + str(status) + ")")
         return self.status == -2 or \
                self.status == -1 and status != -2 or \
                status > 0 and (self.status >> status) % 2

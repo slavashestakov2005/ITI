@@ -129,6 +129,7 @@ def add_subject():
         short_name = request.form['short_name']
         subject_type = request.form['type']
         diploma = correct_new_line(request.form['diploma'])
+        msg = correct_new_line(request.form['msg'])
         empty_checker(name)
         if subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
             raise ValueError
@@ -138,7 +139,7 @@ def add_subject():
     subject = SubjectsTable.select_by_name(name)
     if not subject.__is_none__:
         return render_template('subjects_and_years.html', error2='Предмет уже существует')
-    subject = Subject([None, name, short_name, subject_type, diploma])
+    subject = Subject([None, name, short_name, subject_type, diploma, msg])
     SubjectsTable.insert(subject)
     subject = SubjectsTable.select_by_name(subject.name)
     Generator.gen_subjects_lists()
@@ -159,6 +160,7 @@ def edit_subject():
         short_name = request.form['new_short_name']
         subject_type = request.form['new_type']
         diploma = correct_new_line(request.form['new_diploma'])
+        msg = correct_new_line(request.form['new_msg'])
         if len(subject_type) and subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
             raise ValueError
     except Exception:
@@ -171,6 +173,7 @@ def edit_subject():
     subject.short_name = short_name if len(short_name) else subject.short_name
     subject.type = subject_type if len(subject_type) else subject.type
     subject.diploma = diploma if len(diploma) else subject.diploma
+    subject.msg = msg if len(msg) else subject.msg
     SubjectsTable.update(subject)
     Generator.gen_subjects_lists()
     return render_template('subjects_and_years.html', error3='Предмет обнавлён')

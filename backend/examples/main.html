@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
+<h1>Поиск результатов</h1>
+<center><form>
+	<p><input type="search" name="q" placeholder="Найти результаты">
+		<input type="submit" value="&#128269;"></p>
+</form></center>
+<br>
+{% if not search %}
 <h1>Новости <!-- {year} --></h1>
 <div class="message row col-12 justify-content-center">
     {% for message in messages[::-1] %}
@@ -25,6 +32,38 @@
     {% endif %}
 {% endfor %}
 </ul>
+{% else %}
+<center>
+    <h2>{{ search }}</h2>
+    {% if empty %} По вашему запросу ничего не найдено :(
+    {% else %}
+    <div class="col t-2">
+        <table border="1">
+            <tr>
+                <td width="10%">Предмет</td>
+                <td width="10%">Место</td>
+                <td width="10%">Баллы</td>
+                <td width="10%">Сумма</td>
+                <td width="10%">Балл в рейтинг</td>
+            </tr>
+            {% for data in searched_data %}
+            <tr>
+                {% for subdata in data %}
+                <td>{{ subdata }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="4"><center>Сумма*</center></td>
+                <td>{{ summ }}</td>
+            </tr>
+        </table>
+        <br>
+        <p>* В итоговый рейтинг идёт только 2 лучших результата за каждый день.</p>
+    </div>
+    {% endif %}
+</center>
+{% endif %}
 
 <script>initHTMLContent()</script>
 {% endblock %}

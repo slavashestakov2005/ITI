@@ -6,6 +6,12 @@ function edit(document){
     go(window.location + '/edit');
 }
 
+function textInput(document, txt){
+    var textarea = document.getElementById(txt);
+    textarea.style.height = '1px';
+    textarea.style.height = (textarea.scrollHeight + 6) + 'px';
+}
+
 function textAreaInput(textarea){
     textarea.style.height = '1px';
     textarea.style.height = (textarea.scrollHeight + 6) + 'px';

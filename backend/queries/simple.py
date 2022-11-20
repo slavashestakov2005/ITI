@@ -38,12 +38,6 @@ def main_year_page_redirect(year: int):
     return redirect('/{}/main.html'.format(year))
 
 
-@app.route('/<year:year>/main.html')
-@cross_origin()
-def main_year_page(year: int):
-    return render_template('{}/main.html'.format(year), messages=MessagesTable.select_by_year(year), years=YearsTable.select_all())
-
-
 @app.route('/admin_panel')
 @cross_origin()
 @login_required
@@ -82,7 +76,7 @@ def static_file(path):
         return not_found_error()
 
 
-@app.route('/<year:year>/individual_tours.html')
+@app.route('/<year:year>/main.html')
 @cross_origin()
 def search(year: int):
     params, q = {'year': abs(year)}, request.args.get('q')
@@ -141,7 +135,10 @@ def search(year: int):
         params['searched_data'] = data
         params['empty'] = not bool(len(data))
         params['summ'] = summ
+    else:
+        params['messages'] = MessagesTable.select_by_year(year)
+        params['years'] = YearsTable.select_all()
     try:
-        return render_template(str(year) + '/individual_tours.html', **params)
+        return render_template(str(year) + '/main.html', **params)
     except TemplateNotFound:
         return not_found_error()

@@ -26,8 +26,8 @@ class Subject(Row):
     def diplomas_br(self):
         return self.diploma.replace('\n', '<br>')
 
-
-# TODO: проверить subject.msg
+    def msg_br(self):
+        return self.msg.replace('\n', '<br>')
 
 
 class SubjectsTable(Table):

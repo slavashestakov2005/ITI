@@ -4,6 +4,7 @@ from ..database import MessagesTable, YearsTable, Message
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required
+from .messages_help import send_message_to_telegram
 from datetime import datetime
 
 
@@ -33,6 +34,7 @@ def add_message(year: int):
         return render_template(str(year) + '/subjects_for_year.html', error7='Этого года нет.', **page_args(year))
 
     MessagesTable.insert(Message([None, year, title, content, point]))
+    send_message_to_telegram(title, content, year)
     return render_template(str(year) + '/subjects_for_year.html', error7='Сохранено.', **page_args(year))
 
 
@@ -88,6 +90,3 @@ def delete_message(year: int):
         return render_template(str(year) + '/subjects_for_year.html', error10='Такого ID нет.', **page_args(year))
     MessagesTable.delete(message)
     return render_template(str(year) + '/subjects_for_year.html', error10='Сохранено.', **page_args(year))
-
-
-

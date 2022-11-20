@@ -73,8 +73,8 @@ class Generator:
         type1 = type2 = type3 = type4 = type5 = type6 = '\n'
         for subject in subjects:
             text1 = ' ' * 16 + '<p><input type="checkbox" name="status" value="{0}">{1}</p>\n'.format(subject.id, subject.name)
-            text2 = ' ' * 12 + '<p>[ {0} ] {1} ({2}) — {3}</p>\n'.format(subject.id, subject.name, subject.short_name,
-                                                                         subject.diplomas_br())
+            text2 = ' ' * 12 + '<p>[ {0} ] {1} ({2}) — {3} — {4}</p>\n'.format(subject.id, subject.name, subject.short_name,
+                                                                         subject.diplomas_br(), subject.msg_br())
             if subject.type == 'i':
                 type1 += text1
                 type4 += text2

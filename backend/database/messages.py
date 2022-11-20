@@ -27,7 +27,7 @@ class MessagesTable(Table):
         year        INT     NOT NULL,
         title	    TEXT    NOT NULL,
         content	    TEXT    NOT NULL,
-        time    	INT     NOT NULL
+        time    	INT     NOT NULL,
         PRIMARY KEY(id)
         );'''
 
