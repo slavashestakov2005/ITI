@@ -228,15 +228,17 @@ def page_args(year: int):
     return {'year': abs(year), 'messages': MessagesTable.select_by_year(year)}
 
 
-@app.route('/<year:year>/year_block', methods=['POST'])
+@app.route('/<year:year>/year_block', methods=['POST', 'GET'])
 @cross_origin()
 @login_required
 @check_status('full')
 def year_block(year: int):
+    if request.method == 'GET':
+        return render_template(str(year) + '/subjects_for_year.html', **page_args(year))
     try:
         is_block = int(request.form['is_block'])
     except ValueError:
-        return render_template(str(year.year) + '/subjects_for_year.html', error8='Некорректный ввод', **page_args(year.year))
+        return render_template(str(year) + '/subjects_for_year.html', error8='Некорректный ввод', **page_args(year))
 
     year = YearsTable.select(year)
     if year.__is_none__:

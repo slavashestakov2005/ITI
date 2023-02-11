@@ -222,7 +222,7 @@ class Generator:
         for code in all_codes:
             codes1[code.code1] = students[code.student]
             codes2[code.code2] = students[code.student]
-        return {1: codes1, 2: codes2, 3: codes2}
+        return {1: codes1, 2: codes2, 3: codes2, 4: codes2, 5: codes2}
 
     @staticmethod
     def get_students(year):
@@ -266,7 +266,7 @@ class Generator:
                 subjects_students[s.student] = []
             subjects_students[s.student].append(s.subject)
         temp_results, all_students_results, diploma = {}, {}, []
-        class_results, team_results, student_result = {}, {_.id: {1: 0, 2: 0, 3: 0} for _ in TeamsTable.select_by_year(year)}, {}
+        class_results, team_results, student_result = {}, {_.id: {1: 0, 2: 0, 3: 0, 4: 0} for _ in TeamsTable.select_by_year(year)}, {}
         for day in decode:
             for code in decode[day]:
                 class_results[decode[day][code].class_name()] = 0
@@ -288,7 +288,7 @@ class Generator:
 
         for student in temp_results:
             student_info = students[student]
-            student_sum, stud_res = 0, {1: 0, 2: 0, 3: 0}
+            student_sum, stud_res = 0, {1: 0, 2: 0, 3: 0, 4: 0}
             for day in temp_results[student]:
                 temp_results[student][day].sort(reverse=True)
                 current_sum = sum(temp_results[student][day][:2])
@@ -306,6 +306,7 @@ class Generator:
                 team_results[student_team[student]][1] += stud_res[1]
                 team_results[student_team[student]][2] += stud_res[2]
                 team_results[student_team[student]][3] += stud_res[3]
+                team_results[student_team[student]][4] += stud_res[4]
         return student_result, class_results, team_results, all_students_results, diploma
 
     @staticmethod
@@ -552,8 +553,9 @@ class Generator:
             <td width="15%">Команда</td>\n'''
         if ind_days > 0:
             txt += '''            <td width="8%">Инд. 1</td>
-            <td width="8%">Инд. 2</td>\n
-            <td width="8%">Инд. 3</td>\n
+            <td width="8%">Инд. 2</td>
+            <td width="8%">Инд. 3</td>
+            <td width="8%">Инд. 4</td>
             '''
         for x in YearsSubjectsTable.select_by_year(year):
             subject = SubjectsTable.select(x.subject)
@@ -566,24 +568,26 @@ class Generator:
             subjects.append(team)
             txt += ' ' * 12 + '<td width="8%">{}</td>\n'.format(team.short_name)
         txt += ' ' * 12 + '<td width="8%">Сумма</td>\n' + ' ' * 8 + '</tr>\n'
-        subject_ids = [_.id for _ in subjects]
-        cols_result = [[] for _ in range(len(subject_ids) + 1 + ind_days)]
+        subject_ids = [_ for _ in range(-1, -ind_days - 1, -1)] + [_.id for _ in subjects]
+        cols_result = [[] for _ in range(len(subject_ids) + 1)]
         returned_data, teams_ids = {}, []
         for x in results:
-            summ = results[x][1] + results[x][2] + results[x][3] if ind_days > 0 else 0
+            summ = results[x][1] + results[x][2] + results[x][3] + results[x][4] if ind_days > 0 else 0
             team_info = TeamsTable.select(x)
             row = [team_info.id, team_info.name]
             if ind_days > 0:
                 cols_result[0].append(results[x][1])
                 cols_result[1].append(results[x][2])
                 cols_result[2].append(results[x][3])
+                cols_result[3].append(results[x][4])
                 row.append(results[x][1])
                 row.append(results[x][2])
                 row.append(results[x][3])
+                row.append(results[x][4])
             res = GroupResultsTable.select_by_team(team_info.id)
             res = {_.subject: _.result for _ in res} if res else {}
             pos = ind_days
-            for subject in subject_ids:
+            for subject in subject_ids[ind_days:]:
                 r = res[subject] if subject in res else 0
                 row.append(r)
                 summ += r
@@ -605,7 +609,7 @@ class Generator:
             txt += tr_format(last_pos, *x[0], tabs=2, color=colors)
             i += 1
 
-            for j in range(1, len(x[0]) - 1):
+            for j in range(1 + ind_days, len(x[0]) - 1):
                 team_id = teams_ids[i - 2]
                 subject_id = subject_ids[j - 1]
                 if team_id not in returned_data:
@@ -687,6 +691,8 @@ class Generator:
                     raise ValueError()
                 other_subjects_text = ''
                 for sub in x_subjects:
+                    if sub.subject < 0:
+                        continue
                     gres = team_info[x_team[0]][sub.subject]
                     other_subjects_text += subjects_map[sub.subject].name + ' ({})'.format(gres)
 

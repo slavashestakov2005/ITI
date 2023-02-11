@@ -26,6 +26,9 @@
         <h2>Настройки ИТИ {{ year if year else '' }}</h2>
         {% if not year %}<p>Год ИТИ не выбран</p>
         {% else %}<ul>
+            {% if full %}
+            <li><a href="{{ year }}/year_block">Блокировка ИТИ</a></li>
+            {% endif %}
             {% if adm %}
             <li><a href="{{ year }}/subjects_for_year.html">Редактировать ИТИ</a></li>
             <li><a href="{{ year }}/team_edit">Команды ИТИ</a></li>
