@@ -1,10 +1,8 @@
 <!-- login required -->
 <!-- -2 -->
-{% extends "page2.html" %}
+{% extends "base.html" %}
 {% block content %}
-
-{% block head %}{% endblock %}
-
+{% block cont %}{% endblock %}
 <center>
     <h2>Командный зачёт</h2>
     {% block rating_teams %}{% endblock %}
@@ -61,6 +59,7 @@
             {% block rating_parallel_2 %}{% endblock %}
         </table>
         {% if adm %}
+            {% block rating_parallel_sum_2 %}{% endblock %}
             <center>
                 {% if error2 %} <p><font color="red">[ {{ error2 }} ]</font></p>{% endif %}
                 <p><input type="submit" value="Сохранить"></p>
@@ -85,6 +84,7 @@
             {% block rating_parallel_3 %}{% endblock %}
         </table>
         {% if adm %}
+            {% block rating_parallel_sum_3 %}{% endblock %}
             <center>
                 {% if error3 %} <p><font color="red">[ {{ error3 }} ]</font></p>{% endif %}
                 <p><input type="submit" value="Сохранить"></p>
@@ -109,6 +109,7 @@
             {% block rating_parallel_4 %}{% endblock %}
         </table>
         {% if adm %}
+            {% block rating_parallel_sum_4 %}{% endblock %}
             <center>
                 {% if error4 %} <p><font color="red">[ {{ error4 }} ]</font></p>{% endif %}
                 <p><input type="submit" value="Сохранить"></p>

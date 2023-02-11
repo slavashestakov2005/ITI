@@ -141,6 +141,7 @@ class ExcelFullReader:
             if st.__is_none__:
                 StudentsTable.insert(student)
             else:
+                student.id = st.id
                 StudentsTable.update(student)
 
     def read(self):

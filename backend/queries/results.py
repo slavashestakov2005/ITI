@@ -2,12 +2,12 @@ from backend import app
 from .help import SplitFile
 from ..help import forbidden_error, Logger, FileManager
 from ..excel import ExcelResultsReader
-from ..database import ResultsTable, Result, SubjectsTable, YearsSubjectsTable, TeamsTable,\
+from ..database import ResultsTable, Result, SubjectsTable, YearsSubjectsTable, TeamsTable, \
     GroupResultsTable, GroupResult, AppealsTable, Appeal, StudentsCodesTable, StudentsTable, YearsTable, HistoriesTable
 from flask import render_template, request, redirect
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
-from .help import check_status, check_block_year, correct_new_line, path_to_subject, compare, empty_checker, pref_year,\
+from .help import check_status, check_block_year, correct_new_line, path_to_subject, compare, empty_checker, pref_year, \
     class_min, class_cnt
 from .auto_generator import Generator
 from ..config import Config

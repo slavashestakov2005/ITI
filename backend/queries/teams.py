@@ -1,5 +1,5 @@
 from backend import app
-from ..database import TeamsTable, Team, StudentsTable, Student, TeamsStudentsTable, TeamStudent, User,\
+from ..database import TeamsTable, Team, StudentsTable, Student, TeamsStudentsTable, TeamStudent, User, \
     YearsSubjectsTable, SubjectsTable, SubjectsStudentsTable, SubjectStudent, UsersTable, Subject
 from .help import check_status, check_block_year, split_class, empty_checker, is_in_team, compare
 from .auto_generator import Generator

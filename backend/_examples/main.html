@@ -1,19 +1,69 @@
-{% extends "page2.html" %}
+{% extends "base.html" %}
+
 {% block content %}
-
+<h1>Поиск результатов</h1>
+<center><form>
+	<p><input type="search" name="q" placeholder="Фамилия Имя Класс">
+		<input type="submit" value="&#128269;"></p>
+</form></center>
+<br>
+{% if not search %}
+<h1>Новости <!-- {year} --></h1>
+<div class="message row col-12 justify-content-center">
+    {% for message in messages[::-1] %}
+    <div class="message-item row col-8">
+        <div class="container"><div class="row align-items-start">
+            <div class="col align-self-start">
+                <span class="message-title">{{ message.title }}</span><br>
+                <span class="message-date">{{ message.time_str() }}</span>
+            </div>
+            <div class="w-100"></div>
+            <div class="col-12 message-content js-html-content">{{ message.content }}</div>
+        </div></div>
+    </div>
+    {% endfor %}
+</div>
+<br>
+<h1>Все ИТИ</h1>
+<ul>
+{% for year in years %}
+    {% if year.year < 0 %}<li><a href="/{{ year.year }}">ИТИ НШ {{ -year.year }}</a></li>
+    {% else %}<li><a href="/{{ year.year }}">ИТИ ОШ {{ year.year }}</a></li>
+    {% endif %}
+{% endfor %}
+</ul>
+{% else %}
 <center>
-    <h2><a href="individual_tours.html">Индивидуальные туры</a></h2>
-    <p>В индивидуальном туре участники могут писать сколько угодно предметов, в зачёт идут два лучших за день. Проводится ...</p>
-    <h2><a href="group_tours.html">Групповые туры</a></h2>
-    <p>Участвуют 2-6 человек из команды. Проводится ...</p>
-    <h2><a href="team_tours.html">Командный тур</a></h2>
-    <p>Участвуют все команды. Проводится ...</p>
-    <h2><a href="rating.html">Рейтинг</a></h2>
-    <p>Здесь вы можете посмотреть на все рейтинги (по классам, параллелям и т.д.).</p>
-    <h2><a href="teams.html">Команды</a></h2>
-    <p>Результаты участников команд в индивидуальные дни.</p>
-    <h2><a href="timetable.html">Расписание</a></h2>
-    <p>Расписание всех туров ИТИ.</p>
+    <h2>{{ search }}</h2>
+    {% if empty %} По вашему запросу ничего не найдено :(
+    {% else %}
+    <div class="col t-2">
+        <table border="1">
+            <tr>
+                <td width="10%">Предмет</td>
+                <td width="10%">Место</td>
+                <td width="10%">Баллы</td>
+                <td width="10%">Сумма</td>
+                <td width="10%">Балл в рейтинг</td>
+            </tr>
+            {% for data in searched_data %}
+            <tr>
+                {% for subdata in data %}
+                <td>{{ subdata }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="4"><center>Сумма*</center></td>
+                <td>{{ summ }}</td>
+            </tr>
+        </table>
+        <br>
+        <p>* В итоговый рейтинг идёт только 2 лучших результата за каждый день.</p>
+    </div>
+    {% endif %}
 </center>
+{% endif %}
 
+<script>initHTMLContent()</script>
 {% endblock %}

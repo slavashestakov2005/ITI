@@ -43,7 +43,7 @@ def settings():
         else:
             return render_template(TEMPLATE1, error='Ваш старый пароль не {0}'.format(password_old))
     params = {'password': 'Уже введён' if ConfigMail.MAIL_PASSWORD else 'Отсутствует',
-              'email': ConfigMail.MAIL_USERNAME, 'admins': str(ConfigMail.ADMINS)}\
+              'email': ConfigMail.MAIL_USERNAME, 'admins': str(ConfigMail.ADMINS)} \
         if current_user.can_do(-2) else {}
     return render_template(TEMPLATE1, **params)
 

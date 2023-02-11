@@ -16,7 +16,11 @@ class Message(Row):
         Row.__init__(self, Message, row)
 
     def time_str(self):
-        return datetime.fromtimestamp(self.time).strftime('%Y-%m-%d %H:%M:%S')
+        return datetime.fromtimestamp(self.time).strftime('%Y-%m-%d %H:%M')
+
+    @staticmethod
+    def sort_by_time(message):
+        return message.time
 
 
 class MessagesTable(Table):

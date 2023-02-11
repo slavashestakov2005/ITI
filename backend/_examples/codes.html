@@ -1,12 +1,6 @@
 <!-- login required -->
 <!-- -1 -->
-{% extends "_codes_table.html" %}
-
-{% block header %}
-<a href="main.html"><!-- {year} --></a>
-/
-Коды участников
-{% endblock %}
+{% extends "codes_table.html" %}
 
 {% block head %}
 <center>
@@ -14,7 +8,7 @@
     <p><a href="create_codes">Присвоить коды</a></p>
     <p><a href="print_codes">Вывести таблицу</a></p>
     <p><a href="get_codes">Скачать коды в Excel</a></p>
-    {% if error %} <p><font color="red">[ {{ error }} ]</font></p> {% endif %}
+    {% if error %} <p class="error-msg">[ {{ error }} ]</p> {% endif %}
 </center>
 {% endblock %}
 

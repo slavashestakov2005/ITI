@@ -49,7 +49,7 @@
     <div class="col">
         <h2>Настройки предмета {{ subject.name if subject else '' }}</h2>
         {% if not subject %}<p>Предмет не выбран (для выбора предмета должен быть выбран год)</p>
-        {% elif not anon and current_user.can_do(2) %}<ul>
+        {% elif not anon and current_user.can_do(subject.id) %}<ul>
             <li><a href="{{ year }}/{{ subject.id }}.html">Результаты</a></li>
             <li><a href="{{ year }}/{{ subject.id }}.html/add_result">Редактировать</a></li>
         </ul>{% endif %}

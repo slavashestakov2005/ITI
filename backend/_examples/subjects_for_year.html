@@ -1,13 +1,7 @@
 <!-- login required -->
 <!-- -1 -->
 
-{% extends "page2.html" %}
-
-{% block header %}
-<a href="main.html"><!-- {year} --></a>
-/
-Настройки ИТИ
-{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
 <center><h1>Настройки ИТИ</h1></center>
@@ -30,7 +24,7 @@
                     </td>
                 </tr>
             </table>
-            {% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
+            {% if error1 %} <p class="error-msg">[ {{ error1 }} ]</p>
             {% endif %}
             <input type="submit" value="Сохранить">
         </center></form>
@@ -49,11 +43,14 @@
                 Начало: <input type="time" name="start">
                 Конец: <input type="time" name="end">
             </p>
-            {% if error6 %} <p><font color="red">[ {{ error6 }} ]</font></p>
+            {% if error6 %} <p class="error-msg">[ {{ error6 }} ]</p>
             {% endif %}
             <p><input type="submit" value="Сохранить"></p>
         </center></form>
-        <br />
+        <br>
+        <h2><a href="public_description">Опубликовать расписание</a></h2>
+        {% if error11 %} <p class="error-msg">[ {{ error11 }} ]</p>{% endif %}
+        <br>
         {% if full %}
         <h2>Блокировка:</h2>
         <form action="year_block" method="post"><center>
@@ -61,7 +58,7 @@
                 <p><input type="radio" name="is_block" value="0" checked>Разблокировано</p>
                 <p><input type="radio" name="is_block" value="1">Заблокировано</p>
             <!-- end -->
-            {% if error8 %} <p><font color="red">[ {{ error8 }} ]</font></p>
+            {% if error8 %} <p class="error-msg">[ {{ error8 }} ]</p>
             {% endif %}
             <p><input type="submit" value="Сохранить"></p>
         </center></form>
@@ -69,16 +66,57 @@
     </center></div>
     <div class="col td-2"><center>
         <h2>Объявления:</h2>
-        <form action="year_message" method="post"><center>
-            <p>
-                <!-- message -->
-                <textarea name="file_text" id="file_text" oninput="textInput(document, 'file_text')" placeholder="Объявление пусто"></textarea>
-                <!-- end -->
+        <table border="1">
+            <tr>
+                <td width="5%">ID</td>
+                <td width="20%">Заголовок</td>
+                <td width="50%">Содержимое</td>
+                <td width="15%">Время</td>
+            </tr>
+            {% for msg in messages %}
+            <tr>
+                <td>{{ msg.id }}</td>
+                <td>{{ msg.title }}</td>
+                <td>{{ msg.content }}</td>
+                <td>{{ msg.time_str() }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <h3>Добавить:</h3>
+        <form action="add_message" method="post"><center>
+            <p><textarea name="title" class="js-textarea" placeholder="Заголовок"></textarea></p>
+            <p><textarea name="content" class="js-textarea" placeholder="Содержимое"></textarea></p>
+            <p>Время публикации (текущее по умолчанию):
+                <input type="date" name="date">
+                <input type="time" name="time">
             </p>
-            <script>textInput(document, 'file_text')</script>
-            {% if error7 %} <p><font color="red">[ {{ error7 }} ]</font></p>
+            {% if error7 %} <p class="error-msg">[ {{ error7 }} ]</p>
+            {% endif %}
+            <p><input type="submit" value="Добавить"></p>
+        </center></form>
+        <br>
+        <h3>Редактировать:</h3>
+        <form action="edit_message" method="post"><center>
+            <p>Номер: <input type="text" name="id"></p>
+            <p><textarea name="title" class="js-textarea" placeholder="Заголовок"></textarea></p>
+            <p><textarea name="content" class="js-textarea" placeholder="Содержимое"></textarea></p>
+            <p>Время публикации:
+                <input type="date" name="date">
+                <input type="time" name="time">
+            </p>
+            <p>Если поле оставить пустым, то измения этого параметра не произойдёт.</p>
+            {% if error9 %} <p class="error-msg">[ {{ error9 }} ]</p>
             {% endif %}
             <p><input type="submit" value="Сохранить"></p>
+        </center></form>
+        <br>
+        <h3>Удалить:</h3>
+        <form action="delete_message" method="post"><center>
+            <p>Номер: <input type="text" name="id"></p>
+            {% if error10 %} <p class="error-msg">[ {{ error10 }} ]</p>
+            {% endif %}
+            <p><input type="submit" value="Удалить"></p>
         </center></form>
     </center></div>
 </div>
@@ -87,4 +125,5 @@
 <a href="download_excel">Скачать все данные за год в формате Excel.</a>
 {% endif %}
 
+<script>initTextArea()</script>
 {% endblock %}

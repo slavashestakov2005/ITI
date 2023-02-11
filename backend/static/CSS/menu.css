@@ -33,12 +33,24 @@ html, body {
     background-color: var(--footer-color);
 }
 
+.footer-left {
+    width: 130px;
+    text-align: left;
+}
+
 .footer-center {
+    width: 130px;
     text-align: center;
 }
 
 .footer-right {
     text-align: right;
+}
+
+.box {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 

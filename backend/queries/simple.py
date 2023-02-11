@@ -4,8 +4,8 @@ from flask_cors import cross_origin
 from flask_login import current_user, login_required
 from ..help.errors import forbidden_error, not_found_error
 from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES, current_year, split_class
-from ..database import StudentsTable, Student, ResultsTable, YearsSubjectsTable, SubjectsTable, StudentsCodesTable,\
-    Result, MessagesTable, YearsTable
+from ..database import StudentsTable, Student, ResultsTable, YearsSubjectsTable, SubjectsTable, StudentsCodesTable, \
+    Result, MessagesTable, YearsTable, Message
 from jinja2 import TemplateNotFound
 from itertools import permutations
 import os
@@ -123,7 +123,7 @@ def search(year: int):
                             r = ResultsTable.select_for_people(Result([year, subject.subject, student_code, 0, 0, '', 0]))
                             if not r.__is_none__ and r.position > 0:
                                 data.append([SubjectsTable.select(subject.subject).name, r.position, r.text_result,
-                                            r.result, r.net_score])
+                                             r.result, r.net_score])
                                 if subject.n_d not in days:
                                     days[subject.n_d] = []
                                 days[subject.n_d].append(r.net_score)
@@ -136,7 +136,7 @@ def search(year: int):
         params['empty'] = not bool(len(data))
         params['summ'] = summ
     else:
-        params['messages'] = MessagesTable.select_by_year(year)
+        params['messages'] = sorted(MessagesTable.select_by_year(year), key=Message.sort_by_time)
         params['years'] = YearsTable.select_all()
     try:
         return render_template(str(year) + '/main.html', **params)

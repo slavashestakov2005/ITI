@@ -1,0 +1,48 @@
+@media screen and (max-width: 800px) {
+    .headtext {
+        font-size: 19pt;
+    }
+}
+
+@media screen and (max-width: 710px){
+    .headtext {
+      display: none;
+      visibility: hidden;
+    }
+}
+
+@media screen and (max-width: 550px){
+    :root{
+        --footer-height: 250px;
+        --footer-height-p10: 260px;
+    }
+
+    .footer-left {
+        text-align: center;
+    }
+
+    .footer-right {
+        text-align: center;
+    }
+}
+
+@media screen and (max-width: 480px){
+    .itcss {
+        display: none;
+        visibility: hidden;
+    }
+}
+
+@media screen and (max-width: 315px){
+    :root{
+        --footer-height: 350px;
+        --footer-height-p10: 360px;
+    }
+}
+
+
+@media screen and (orientation: portrait) {
+  .white-line {
+    height: 20px;
+  }
+}

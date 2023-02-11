@@ -8,8 +8,8 @@ import os
 from .help import check_status, check_block_year, SplitFile, empty_checker, path_to_subject, is_in_team, correct_new_line
 from ..help import init_mail_messages, FileManager, AsyncWorker
 from ..excel import ExcelFullWriter
-from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable,\
-    TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable,\
+from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable, \
+    TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable, \
     SubjectsStudentsTable, HistoriesTable, MessagesTable
 from .auto_generator import Generator
 from .file_creator import FileCreator
@@ -320,7 +320,7 @@ def download_classes(year: int):
     return send_file(filename, as_attachment=True, attachment_filename='Данныe классов ИТИ {}.xlsx'.format(year))
 
 
-@app.route('/<year:year>/individual/<path:subject>/download_excel', methods=['GET'])
+@app.route('/<year:year>/<path:subject>/download_excel', methods=['GET'])
 @cross_origin()
 @login_required
 @check_status('admin')

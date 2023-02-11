@@ -20,7 +20,7 @@ class Logger:
                 sp = history.description.split('; ', 1)
                 sp[0] = subjects[sp[0][1:]]
                 history.description = '; '.join(sp)
-            revert = '<a href="revert?i={}">Отменить</a>'.format(history.id) if not history.revert\
+            revert = '<a href="revert?i={}">Отменить</a>'.format(history.id) if not history.revert \
                 else 'Отменено ' + users[int(history.revert)]
             txt += tr_format(history.time_str(), users[history.user], Log.actions[history.type], history.description,
                              revert, tabs=3)

@@ -10,12 +10,24 @@
     --box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 
+
+
+/* text*/
+.headtext {
+  font-size: 25pt;
+  text-align: center;
+  visibility: visible;
+  display: block;
+}
+
+
+
 /* lines */
 .white-line {
     background-color: transparent;
     text-align: center;
     padding: 2px;
-    min-height: 50px;
+    height: 50px;
 }
 
 

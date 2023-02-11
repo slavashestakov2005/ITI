@@ -2,8 +2,8 @@ from backend import app
 from backend.help.errors import forbidden_error
 from .help import check_status, check_block_year, path_to_subject, pref_year
 from .messages_help import message_timetable_public
-from ..database import YearSubject, YearsSubjectsTable, YearsTable, MessagesTable
-from .results import page_params
+from ..database import YearSubject, YearsSubjectsTable, YearsTable, MessagesTable, SubjectsTable
+from .results import page_params, tour_name
 from .auto_generator import Generator
 from .file_creator import FileCreator
 from flask import render_template, request
@@ -12,7 +12,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 '''
     /<year>/subject_year                    subject_year(year)          Сопастовляет ИТИ и предметы.
-    /<path1>/<path2>/<path3>/max_score      max_score(...)              Сохраняет максимальные баллы по предмету.
+    /<path1>/<path3>/max_score              max_score(...)              Сохраняет максимальные баллы по предмету.
     /<year>/subject_description             subject_description(...)    Сохраняет описание предмета (время и место).
 '''
 
@@ -48,21 +48,23 @@ def subject_year(year: int):
     return render_template(str(year) + '/subjects_for_year.html', error1='Сохранено', **page_args(year))
 
 
-@app.route('/<year:year>/<path:path2>/<path:path3>/max_score', methods=['POST'])
+@app.route('/<year:year>/<path:path3>/max_score', methods=['POST'])
 @cross_origin()
 @login_required
 @check_block_year()
-def max_score(year: int, path2, path3):
-    params = page_params(year, path2, path3)
+def max_score(year: int, path3):
     url = pref_year(year) + 'add_result.html'
     try:
         subject = path_to_subject(path3)
+        subject = SubjectsTable.select(subject)
+        if subject.__is_none__:
+            raise ValueError()
     except Exception:
-        return render_template(url, **params, error1='Некорректные данные')
-
-    if not current_user.can_do(subject):
+        return render_template(url, error1='Некорректные данные')
+    params = page_params(year, tour_name(subject.type), path3)
+    if not current_user.can_do(subject.id):
         return forbidden_error()
-    ys = YearsSubjectsTable.select(year, subject)
+    ys = YearsSubjectsTable.select(year, subject.id)
     if ys.__is_none__:
         return render_template(url, **params, error1='Такого предмета в этом году нет')
 
@@ -81,7 +83,7 @@ def max_score(year: int, path2, path3):
     except Exception:
         return render_template(url, **params, error1='Некорректные данные')
 
-    YearsSubjectsTable.update(YearSubject([year, subject, s5, s6, s7, s8, s9, ys.start, ys.end, ys.classes, ys.place, ys.n_d]))
+    YearsSubjectsTable.update(YearSubject([year, subject.id, s5, s6, s7, s8, s9, ys.start, ys.end, ys.classes, ys.place, ys.n_d]))
     return render_template(url, **params, error1='Обновлено')
 
 

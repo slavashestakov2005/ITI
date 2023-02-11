@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from backend.config import Config
 from .help import check_status, check_block_year, correct_new_line, path_to_subject, empty_checker, pref_year
 from ..help import not_found_error, forbidden_error, FileManager
-from ..database import SubjectsTable, YearsTable, YearsSubjectsTable, SubjectsFilesTable, SubjectFile, StudentsTable,\
+from ..database import SubjectsTable, YearsTable, YearsSubjectsTable, SubjectsFilesTable, SubjectFile, StudentsTable, \
     StudentsCodesTable
 from .results import chose_params
 from .auto_generator import Generator
