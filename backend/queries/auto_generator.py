@@ -6,6 +6,7 @@ from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTa
     GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent
 from backend.config import Config
 import glob
+#TODO: убрать повторы коды в генерации результатов
 '''
     class Generator             Заменяет комментарии специального вида на код.
         gen_years_lists()                   Изменяет списки годов.

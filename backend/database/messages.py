@@ -15,12 +15,17 @@ class Message(Row):
     def __init__(self, row):
         Row.__init__(self, Message, row)
 
-    def time_str(self):
-        return datetime.fromtimestamp(self.time).strftime('%Y-%m-%d %H:%M')
+    def year_start(self):
+        return int(datetime(abs(self.year), 1, 1, 0, 0).timestamp())
+
+    def time_str(self, show=False):
+        if not show and self.time - self.year_start() < 24 * 60 * 60:
+            return ''
+        return datetime.fromtimestamp(self.time + 25200).strftime('%Y-%m-%d %H:%M')
 
     @staticmethod
     def sort_by_time(message):
-        return message.time
+        return message.time + 10 ** 8 if message.time - message.year_start() < 24 * 60 * 60 else message.time
 
 
 class MessagesTable(Table):
