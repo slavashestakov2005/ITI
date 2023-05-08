@@ -2,7 +2,7 @@ from backend import app
 from flask import render_template, request, redirect
 from flask_cors import cross_origin
 from flask_login import current_user, login_required
-from backend.database import UsersTable, User
+from ..database import User
 from .help import check_status, check_block_year, empty_checker
 from ..help import ConfigMail
 from .auto_generator import Generator
@@ -36,8 +36,8 @@ def settings():
         if current_user.check_password(password_old):
             if password == password2:
                 current_user.set_password(password)
-                UsersTable.update_by_login(current_user)
-                return render_template(TEMPLATE1, error='Ваш пароль обнавлён')
+                User.update_by_login(current_user)
+                return render_template(TEMPLATE1, error='Ваш пароль обновлён')
             else:
                 return render_template(TEMPLATE1, error='Новые пароли {0} и {1} не совпадают'.format(password, password2))
         else:
@@ -64,13 +64,13 @@ def registration():
         except Exception:
             return render_template(TEMPLATE2, error1='Некорректные данные')
 
-        u = UsersTable.select_by_login(user_login)
-        if u.__is_none__:
+        u = User.select_by_login(user_login)
+        if u is None:
             if user_password == user_password2:
-                u = User([None, user_login, '', -100, ''])
+                u = User.build(None, user_login, '', -100, '')
                 u.set_password(user_password)
                 u.set_status(user_status)
-                UsersTable.insert(u)
+                User.insert(u)
                 Generator.gen_users_list()
                 return render_template(TEMPLATE2, error1='Пользователь {0} зарегистрирован'.format(user_login))
             else:
@@ -95,12 +95,12 @@ def edit_status():
         except Exception:
             return render_template(TEMPLATE2, error2='Некорректные данные')
 
-        u = UsersTable.select_by_login(user_login)
-        if not u.__is_none__:
+        u = User.select_by_login(user_login)
+        if u is not None:
             u.set_status(user_status)
-            UsersTable.update_by_login(u)
+            User.update_by_login(u)
             Generator.gen_users_list()
-            return render_template(TEMPLATE2, error2='Статус пользователя {0} обнавлён'.format(user_login))
+            return render_template(TEMPLATE2, error2='Статус пользователя {0} обновлён'.format(user_login))
         else:
             return render_template(TEMPLATE2, error2='Пользователя {0} не существует'.format(user_login))
     return redirect('user_edit.html')
@@ -119,9 +119,9 @@ def delete():
         except Exception:
             return render_template(TEMPLATE2, error3='Некорректные данные')
 
-        u = UsersTable.select_by_login(user_login)
-        if not u.__is_none__:
-            UsersTable.delete(u)
+        u = User.select_by_login(user_login)
+        if u is not None:
+            User.delete(u)
             Generator.gen_users_list()
             return render_template(TEMPLATE2, error3='Пользователь {0} удалён'.format(user_login))
         else:

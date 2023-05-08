@@ -5,8 +5,7 @@ from flask_login import login_required, current_user
 from backend.config import Config
 from .help import check_status, check_block_year, correct_new_line, path_to_subject, empty_checker, pref_year
 from ..help import not_found_error, forbidden_error, FileManager
-from ..database import SubjectsTable, YearsTable, YearsSubjectsTable, SubjectsFilesTable, SubjectFile, StudentsTable, \
-    StudentsCodesTable
+from ..database import Student, StudentCode, Subject, Year, YearSubject
 from .results import chose_params
 from .auto_generator import Generator
 import os
@@ -33,8 +32,8 @@ def generate_filename(last_name, new_path, new_name):
 
 def generate_filename_by_type(year: int, subject: int, types: list, classes: list):
     filename = 'ИТИ ' + str(abs(year)) + '. '
-    subject = SubjectsTable.select(subject)
-    if subject.__is_none__ or not types or not classes or not len(types) or not len(classes):
+    subject = Subject.select(subject)
+    if subject is None or not types or not classes or not len(types) or not len(classes):
         return None
     filename += subject.name + '. '
     types_translate = {'task': 'задания', 'solution': 'решения', 'criteria': 'критерии'}
@@ -52,14 +51,14 @@ def generate_filename_by_type(year: int, subject: int, types: list, classes: lis
 
 def generate_filename_by_student(year: int, subject: int, code: int, desc: str):
     filename = 'ИТИ ' + str(year) + '. '
-    subject = SubjectsTable.select(subject)
-    if subject.__is_none__:
+    subject = Subject.select(subject)
+    if subject is None:
         return None
-    student = StudentsCodesTable.select_by_code(year, code, subject.n_d)
-    if student.__is_none__:
+    student = StudentCode.select_by_code(year, code, subject.n_d)
+    if student is None:
         return None
-    student = StudentsTable.select(student.student)
-    if student.__is_none__:
+    student = Student.select(student.student)
+    if student is None:
         return None
     filename += subject.name + '. {} {} {}. '.format(student.name_1, student.name_2, student.class_name()) + desc
     return filename
@@ -107,7 +106,7 @@ def main_uploader(year: int, path2, path3):
     except Exception:
         return forbidden_error()
 
-    if not current_user.can_do(subject) or YearsSubjectsTable.select(year, subject).__is_none__:
+    if not current_user.can_do(subject) or YearSubject.select(year, subject) is None:
         return forbidden_error()
     filename = generate_filename_by_student(year, subject, code, description) if form_2 \
         else generate_filename_by_type(year, subject, types, classes)
@@ -116,9 +115,9 @@ def main_uploader(year: int, path2, path3):
         name = os.path.join(Config.UPLOAD_FOLDER, filename)
         file.save(name)
         FileManager.save(name)
-        info = SubjectFile([year, subject, filename])
-        if SubjectsFilesTable.select(info).__is_none__:
-            SubjectsFilesTable.insert(info)
+        # info = SubjectFile([year, subject, filename])
+        # if SubjectsFilesTable.select(info).__is_none__:
+        #     SubjectsFilesTable.insert(info)
         Generator.gen_files_list(year, subject, path2 + '/' + path3)
         return redirect('/' + filename)
     return forbidden_error()
@@ -143,17 +142,17 @@ def main_deleter(year: int, path2, path3):
     except Exception:
         return forbidden_error()
 
-    if not current_user.can_do(subject) or YearsSubjectsTable.select(year, subject).__is_none__:
+    if not current_user.can_do(subject) or YearSubject.select(year, subject) is None:
         return forbidden_error()
     file = generate_filename_by_student(year, subject, code, description) if form_2 \
         else generate_filename_by_type(year, subject, types, classes)
     file = str(year) + '/' + path2 + '/' + str(subject) + '/' + file + '.' + extension
-    info = SubjectFile([year, subject, file])
+    # info = SubjectFile([year, subject, file])
     file = Config.UPLOAD_FOLDER + '/' + file
-    if SubjectsFilesTable.select(info).__is_none__:
-        return render_template(pref_year(year) + 'add_result.html', **params, error4='Файла не существует')
+    # if SubjectsFilesTable.select(info).__is_none__:
+    #     return render_template(pref_year(year) + 'add_result.html', **params, error4='Файла не существует')
     os.remove(file)
-    SubjectsFilesTable.delete(info)
+    # SubjectsFilesTable.delete(info)
     FileManager.delete(file)
     Generator.gen_files_list(year, subject, path2 + '/' + path3)
     return render_template(pref_year(year) + 'add_result.html', **params, error4='Файл удалён')
@@ -177,8 +176,8 @@ def editor():
     try:
         file_name = request.args.get('file_name')
         year = int(file_name.split('/')[0])
-        y = YearsTable.select(year)
-        if y.__is_none__ or y.block:
+        y = Year.select(year)
+        if y is None or y.block:
             return forbidden_error()
     except ValueError:
         pass

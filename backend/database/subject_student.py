@@ -1,46 +1,33 @@
-from backend.database import Row, Table, Query
+import sqlalchemy as sa
+from .__db_session import SqlAlchemyBase, Table
 
 
-class SubjectStudent(Row):
-    """
-        Строка таблицы SubjectsStudentsTable
-        year        INT     NOT NULL    PK
-        subject     INT     NOT NULL    PK
-        student     INT     NOT NULL    PK
-    """
+class SubjectStudent(SqlAlchemyBase, Table):
+    __tablename__ = 'subjects_students'
     fields = ['year', 'subject', 'student']
 
-    def __init__(self, row):
-        Row.__init__(self, SubjectStudent, row)
+    year = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    subject = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    student = sa.Column(sa.Integer, nullable=False, primary_key=True)
 
+    # Table
 
-class SubjectsStudentsTable(Table):
-    table = "subjects_students"
-    row = SubjectStudent
-    create = '''(
-        year	INT NOT NULL,
-        subject	INT NOT NULL,
-        student	INT NOT NULL,
-        PRIMARY KEY(year,subject,student)
-        );'''
+    @classmethod
+    def select_by_year(cls, year: int) -> list:
+        return cls.__select_by_expr__(cls.year == year)
 
-    @staticmethod
-    def select_by_year(year: int) -> list:
-        return Query.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year)
+    @classmethod
+    def select_by_student(cls, year: int, student: int) -> list:
+        return cls.__select_by_expr__(cls.year == year, cls.student == student)
 
-    @staticmethod
-    def select_by_student(year: int, student: int) -> list:
-        return Query.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year, 'student', student)
+    @classmethod
+    def select_by_subject(cls, year: int, subject: int) -> list:
+        return cls.__select_by_expr__(cls.year == year, cls.subject == subject)
 
-    @staticmethod
-    def select_by_subject(year: int, subject: int) -> list:
-        return Query.select_list(SubjectsStudentsTable.table, SubjectStudent, 'year', year, 'subject', subject)
+    @classmethod
+    def delete(cls, subject_student) -> None:
+        return cls.__delete_by_expr__(cls.year == subject_student.year, cls.subject == subject_student.subject, cls.student ==  subject_student.student)
 
-    @staticmethod
-    def delete(subject_student: SubjectStudent) -> None:
-        return Query.delete(SubjectsStudentsTable.table, 'year', subject_student.year, 'subject',
-                            subject_student.subject, 'student', subject_student.student)
-
-    @staticmethod
-    def delete_by_year(year: int) -> None:
-        return Query.delete(SubjectsStudentsTable.table, 'year', year)
+    @classmethod
+    def delete_by_year(cls, year: int) -> None:
+        return cls.__delete_by_expr__(cls.year == year)

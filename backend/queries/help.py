@@ -4,7 +4,7 @@ from functools import wraps, cmp_to_key
 from glob import glob
 from backend.config import Config
 from ..help import FileManager, correct_slash
-from ..database import YearsTable
+from ..database import Year
 import re
 import os
 from datetime import datetime
@@ -184,8 +184,8 @@ def check_block_year():
                     year = int(str(list(kwargs.values())[0]).split('/')[0])
                 except Exception:
                     return function_to_decorate(*args, **kwargs)
-                y = YearsTable.select(year)
-                if y.__is_none__ or y.block:
+                y = Year.select(year)
+                if y is None or y.block:
                     return forbidden_error()
             return function_to_decorate(*args, **kwargs)
 

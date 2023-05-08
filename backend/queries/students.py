@@ -1,5 +1,5 @@
 from backend import app
-from ..database import StudentsTable, Student, StudentsCodesTable, StudentCode, YearsTable
+from ..database import Student, StudentCode, Year
 from .help import check_status, check_block_year, split_class, empty_checker
 from .auto_generator import Generator
 from flask import render_template, request, send_file
@@ -13,7 +13,7 @@ from random import sample
     /<year>/create_codes    create_codes()              Создаёт коды для участников (admin).
     /<year>/print_codes     print_codes()               Генерирует страницу с кодами всех участников (admin).
     /<year>/get_codes       get_codes()                 Возвращает Excel таблицу с годовой кодировкой (admin).
-    /create_students_lists  create_students_lists()     Генериркет списки участников для всех классов (admin).
+    /create_students_lists  create_students_lists()     Генерирует списки участников для всех классов (admin).
     /update_all_class_n     update_all_class_n()        Переводит всех школьников в следующий класс (full).
 '''
 
@@ -28,14 +28,14 @@ def registration_student():
         name1, name2 = request.form['name1'].capitalize(), request.form['name2'].capitalize()
         gender = request.form['gender']
         empty_checker(name1, name2)
-        student = Student([None, name1, name2, class_[0], class_[1].capitalize(), gender])
+        student = Student.build(None, name1, name2, class_[0], class_[1].capitalize(), gender)
     except Exception:
         return render_template('student_edit.html', error1='Некорректные данные')
 
-    s = StudentsTable.select_by_student(student)
-    if not s.__is_none__:
+    s = Student.select_by_student(student)
+    if s is not None:
         return render_template('student_edit.html', error1='Такой участник уже есть')
-    StudentsTable.insert(student)
+    Student.insert(student)
     Generator.gen_students_list(student.class_n)
     return render_template('student_edit.html', error1='Участник добавлен')
 
@@ -49,13 +49,13 @@ def edit_student():
         class_old = split_class(request.form['o_class'])
         o_name1, o_name2 = request.form['o_name1'].capitalize(), request.form['o_name2'].capitalize()
         empty_checker(o_name1, o_name2)
-        student_old = Student([None, o_name1, o_name2, class_old[0], class_old[1].capitalize(), 0])
+        student_old = Student.build(None, o_name1, o_name2, class_old[0], class_old[1].capitalize(), 0)
     except Exception:
         return render_template('student_edit.html', error2='Некорректные данные')
 
-    student_old = StudentsTable.select_by_student(student_old)
+    student_old = Student.select_by_student(student_old)
     rows = []
-    if student_old.__is_none__:
+    if student_old is None:
         return render_template('student_edit.html', error2='Такого участника нет')
     rows.append(student_old.id)
 
@@ -74,8 +74,8 @@ def edit_student():
     except Exception:
         return render_template('student_edit.html', error2='Некорректные данные')
 
-    s = Student(rows)
-    StudentsTable.update(s)
+    s = Student.build(*rows)
+    Student.update(s)
     Generator.gen_students_list(student_old.class_n)
     Generator.gen_students_list(s.class_n)
     return render_template('student_edit.html', error2='Данные изменены')
@@ -90,14 +90,14 @@ def delete_student():
         class_ = split_class(request.form['class'])
         name1, name2 = request.form['name1'].capitalize(), request.form['name2'].capitalize()
         empty_checker(name1, name2)
-        student = Student([None, name1, name2, class_[0], class_[1].capitalize(), 0])
+        student = Student.build(None, name1, name2, class_[0], class_[1].capitalize(), 0)
     except Exception:
         return render_template('student_edit.html', error3='Некорректные данные')
 
-    student = StudentsTable.select_by_student(student)
-    if student.__is_none__:
+    student = Student.select_by_student(student)
+    if student is None:
         return render_template('student_edit.html', error3='Такого участника нет')
-    StudentsTable.delete(student)
+    Student.delete(student)
     Generator.gen_students_list(student.class_n)
     return render_template('student_edit.html', error3='Участник удалён')
 
@@ -108,17 +108,17 @@ def delete_student():
 @check_status('admin')
 @check_block_year()
 def create_codes(year: int):
-    if YearsTable.select(year).__is_none__:
+    if Year.select(year) is None:
         return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
-    students = StudentsTable.select_all(year)
+    students = Student.select_all(year)
     length = len(students)
     codes1 = sample(range(1000, 10000), length)
     codes2 = codes1
     # if year > 0 else sample(range(1000, 10000), length) # НШ передумала :)
-    StudentsCodesTable.delete_by_year(year)
+    StudentCode.delete_by_year(year)
     for i in range(length):
-        codes1[i] = StudentCode([year, codes1[i], codes2[i], students[i].id])
-    StudentsCodesTable.insert_all(codes1)
+        codes1[i] = StudentCode.build(year, codes1[i], codes2[i], students[i].id)
+    StudentCode.insert_all(codes1)
     return render_template(str(year) + '/codes.html', year=abs(year), error='Коды сгенерированы')
 
 
@@ -128,7 +128,7 @@ def create_codes(year: int):
 @check_status('admin')
 @check_block_year()
 def print_codes(year: int):
-    if YearsTable.select(year).__is_none__:
+    if Year.select(year) is None:
         return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
     Generator.gen_codes(year)
     return render_template(str(year) + '/codes.html', year=abs(year), error='Таблица обновлена')
@@ -140,7 +140,7 @@ def print_codes(year: int):
 @check_status('admin')
 @check_block_year()
 def get_codes(year: int):
-    if YearsTable.select(year).__is_none__:
+    if Year.select(year) is None:
         return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
     filename = './data/codes_{}.xlsx'.format(year)
     return send_file(filename, as_attachment=True, attachment_filename='Кодировка ИТИ {}.xlsx'.format(year))
@@ -163,5 +163,5 @@ def create_students_lists():
 @check_status('full')
 @check_block_year()
 def update_all_class_n():
-    StudentsTable.add_class()
+    Student.add_class()
     return render_template('student_edit.html', error4='Класс добавлен')

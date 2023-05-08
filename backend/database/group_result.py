@@ -1,49 +1,37 @@
-from .database import Row, Table, Query
+import sqlalchemy as sa
+from .__db_session import SqlAlchemyBase, Table
 
 
-class GroupResult(Row):
-    """
-        Строка таблицы GroupResultsTable
-        team        INT     NOT NULL    PK
-        subject     INT     NOT NULL    PK
-        result      INT     NOT NULL
-    """
+class GroupResult(SqlAlchemyBase, Table):
+    __tablename__ = 'group_results'
     fields = ['team', 'subject', 'result']
 
-    def __init__(self, row):
-        Row.__init__(self, GroupResult, row)
+    team = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    subject = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    result = sa.Column(sa.Integer, nullable=False)
 
     @staticmethod
     def sort_by_result(result):
         return -result.result
 
+    # Table
 
-class GroupResultsTable(Table):
-    table = "group_results"
-    row = GroupResult
-    create = '''(
-        team	INT NOT NULL,
-        subject	INT NOT NULL,
-        result	INT NOT NULL,
-        PRIMARY KEY(team,subject)
-        );'''
+    @classmethod
+    def select_by_team(cls, team: int) -> list:
+        return cls.__select_by_expr__(cls.team == team)
 
-    @staticmethod
-    def select_by_team(team: int) -> list:
-        return Query.select_list(GroupResultsTable.table, GroupResult, 'team', team)
+    @classmethod
+    def select_by_subject(cls, subject: int) -> list:
+        return cls.__select_by_expr__(cls.subject == subject)
 
-    @staticmethod
-    def select_by_subject(subject: int) -> list:
-        return Query.select_list(GroupResultsTable.table, GroupResult, 'subject', subject)
+    @classmethod
+    def select_by_team_and_subject(cls, team: int, subject: int):
+        return cls.__select_by_expr__(cls.team == team, cls.subject == subject, one=True)
 
-    @staticmethod
-    def select_by_team_and_subject(team: int, subject: int) -> GroupResult:
-        return Query.select_one(GroupResultsTable.table, GroupResult, 'team', team, 'subject', subject)
+    @classmethod
+    def update(cls, row) -> None:
+        return cls.__update_by_expr__(row, cls.team == row.team, cls.subject == row.subject)
 
-    @staticmethod
-    def update(group_result: GroupResult) -> None:
-        return Query.update(GroupResultsTable.table, group_result, 'team', 'subject')
-
-    @staticmethod
-    def delete_by_team(team: int) -> None:
-        return Query.delete(GroupResultsTable.table, 'team', team)
+    @classmethod
+    def delete_by_team(cls, team: int) -> None:
+        return cls.__delete_by_expr__(cls.team == team)

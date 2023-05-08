@@ -1,57 +1,45 @@
-from .database import Row, Table, Query
+import sqlalchemy as sa
+from .__db_session import SqlAlchemyBase, Table
 
 
-class StudentCode(Row):
-    """
-        Строка таблицы StudentsCodesTable
-        year        INT     NOT NULL
-        code1       INT     NOT NULL
-        code2       INT     NOT NULL
-        student     INT     NOT NULL
-    """
+class StudentCode(SqlAlchemyBase, Table):
+    __tablename__ = 'students_codes'
     fields = ['year', 'code1', 'code2', 'student']
 
-    def __init__(self, row):
-        Row.__init__(self, StudentCode, row)
+    year = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    code1 = sa.Column(sa.Integer, nullable=False)
+    code2 = sa.Column(sa.Integer, nullable=False)
+    student = sa.Column(sa.Integer, nullable=False, primary_key=True)
 
+    # Table
 
-class StudentsCodesTable(Table):
-    table = "students_codes"
-    row = StudentCode
-    create = '''(
-        year	INT NOT NULL,
-        code1	INT NOT NULL,
-        code2	INT NOT NULL,
-        student	INT NOT NULL
-        );'''
+    @classmethod
+    def select_by_year(cls, year: int) -> list:
+        return cls.__select_by_expr__(cls.year == year)
 
-    @staticmethod
-    def select_by_year(year: int) -> list:
-        return Query.select_list(StudentsCodesTable.table, StudentCode, 'year', year)
-
-    @staticmethod
-    def select_by_code(year: int, code: int, day: int = None) -> StudentCode:
+    @classmethod
+    def select_by_code(cls, year: int, code: int, day: int = None):
         if day > 1:
             day = 2
         if not day:
             # r1 = Query.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code1', code)
             # r2 = Query.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code2', code)
             # return set([r1, r2])
-            return [StudentsCodesTable.select_by_code(year, code, 1)]
-        return Query.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code' + str(day), code)
+            return [cls.select_by_code(year, code, 1)]
+        return cls.__select_by_expr__(cls.year == year, getattr(cls, 'code' + str(day)) == code, one=True)
 
-    @staticmethod
-    def select_by_student(year: int, student: int) -> StudentCode:
-        return Query.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'student', student)
+    @classmethod
+    def select_by_student(cls, year: int, student: int):
+        return cls.__select_by_expr__(cls.year == year, cls.student == student, one=True)
 
-    @staticmethod
-    def insert_all(codes: list) -> None:
-        i = 0
-        while i < len(codes):
-            j = min(i + 125, len(codes))
-            Query.insert(StudentsCodesTable.table, codes[i:j])
-            i = j
+    # @staticmethod
+    # def insert_all(codes: list) -> None:
+    #     i = 0
+    #     while i < len(codes):
+    #         j = min(i + 125, len(codes))
+    #         Query.insert(StudentsCodesTable.table, codes[i:j])
+    #         i = j
 
-    @staticmethod
-    def delete_by_year(year: int) -> None:
-        return Query.delete(StudentsCodesTable.table, 'year', year)
+    @classmethod
+    def delete_by_year(cls, year: int) -> None:
+        return cls.__delete_by_expr__(cls.year == year)

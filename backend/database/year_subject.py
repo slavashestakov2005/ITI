@@ -1,28 +1,24 @@
-from backend.database import Row, Table, Query
+import sqlalchemy as sa
+from .__db_session import SqlAlchemyBase, Table
 from datetime import datetime
 
 
-class YearSubject(Row):
-    """
-        Строка таблицы YearsSubjectsTable
-        year        INT     NOT NULL    PK
-        subject     INT     NOT NULL    PK
-        score_5     INT     NOT NULL
-        score_6     INT     NOT NULL
-        score_7     INT     NOT NULL
-        score_8     INT     NOT NULL
-        score_9     INT     NOT NULL
-        start       INT     NOT NULL
-        end         INT     NOT NULL
-        classes     TEXT    NOT NULL
-        place       TEXT    NOT NULL
-        n_d         INT     NOT NULL
-    """
-    fields = ['year', 'subject', 'score_5', 'score_6', 'score_7', 'score_8', 'score_9', 'start', 'end', 'classes',
-              'place', 'n_d']
+class YearSubject(SqlAlchemyBase, Table):
+    __tablename__ = 'years_subjects'
+    fields = ['year', 'subject', 'score_5', 'score_6', 'score_7', 'score_8', 'score_9', 'start', 'end', 'classes', 'place', 'n_d']
 
-    def __init__(self, row):
-        Row.__init__(self, YearSubject, row)
+    year = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    subject = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    score_5 = sa.Column(sa.Integer, nullable=False)
+    score_6 = sa.Column(sa.Integer, nullable=False)
+    score_7 = sa.Column(sa.Integer, nullable=False)
+    score_8 = sa.Column(sa.Integer, nullable=False)
+    score_9 = sa.Column(sa.Integer, nullable=False)
+    start = sa.Column(sa.Integer, nullable=False)
+    end = sa.Column(sa.Integer, nullable=False)
+    classes = sa.Column(sa.String, nullable=False)
+    place = sa.Column(sa.String, nullable=False)
+    n_d = sa.Column(sa.String, nullable=False)
 
     @staticmethod
     def sort_by_start(year_subject):
@@ -37,42 +33,24 @@ class YearSubject(Row):
     def end_str(self) -> str:
         return datetime.fromtimestamp(self.end).strftime('%H:%M')
 
+    # Table
 
-class YearsSubjectsTable(Table):
-    table = "years_subjects"
-    row = YearSubject
-    create = '''(
-        year	INT NOT NULL,
-        subject	INT NOT NULL,
-        score_5	INT NOT NULL,
-        score_6	INT NOT NULL,
-        score_7	INT NOT NULL,
-        score_8	INT NOT NULL,
-        score_9	INT NOT NULL,
-        start	INT NOT NULL,
-        end	INT NOT NULL,
-        classes	TEXT NOT NULL,
-        place	TEXT NOT NULL,
-        n_d	INT NOT NULL,
-        PRIMARY KEY(year,subject)
-        );'''
+    @classmethod
+    def select_by_year(cls, year: int) -> list:
+        return cls.__select_by_expr__(cls.year == year)
 
-    @staticmethod
-    def select_by_year(year: int) -> list:
-        return Query.select_list(YearsSubjectsTable.table, YearSubject, 'year', year)
+    @classmethod
+    def select(cls, year: int, subject: int):
+        return cls.__select_by_expr__(cls.year == year, cls.subject == subject, one=True)
 
-    @staticmethod
-    def select(year: int, subject: int) -> YearSubject:
-        return Query.select_one(YearsSubjectsTable.table, YearSubject, 'year', year, 'subject', subject)
+    @classmethod
+    def update(cls, year_subject) -> None:
+        return cls.__update_by_expr__(year_subject, cls.year == year_subject.year, cls.subject == year_subject.subject)
 
-    @staticmethod
-    def update(year_subject: YearSubject) -> None:
-        return Query.update(YearsSubjectsTable.table, year_subject, 'year', 'subject')
+    @classmethod
+    def delete_by_year(cls, year: int) -> None:
+        return cls.__delete_by_expr__(cls.year == year)
 
-    @staticmethod
-    def delete_by_year(year: int) -> None:
-        return Query.delete(YearsSubjectsTable.table, 'year', year)
-
-    @staticmethod
-    def delete(year: int, subject: int) -> None:
-        return Query.delete(YearsSubjectsTable.table, 'year', year, 'subject', subject)
+    @classmethod
+    def delete(cls, year: int, subject: int) -> None:
+        return cls.__delete_by_expr__(cls.year == year, cls.subject == subject)

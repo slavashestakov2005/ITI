@@ -4,8 +4,7 @@ from flask_cors import cross_origin
 from flask_login import current_user, login_required
 from ..help.errors import forbidden_error, not_found_error
 from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES, current_year, split_class
-from ..database import StudentsTable, Student, ResultsTable, YearsSubjectsTable, SubjectsTable, StudentsCodesTable, \
-    Result, MessagesTable, YearsTable, Message
+from ..database import Message, Result, Student, StudentCode, Subject, Year, YearSubject
 from jinja2 import TemplateNotFound
 from itertools import permutations
 import os
@@ -44,13 +43,11 @@ def main_year_page_redirect(year: int):
 def admin_panel():
     year, subject, sub = request.args.get('year'), request.args.get('subject'), []
     if subject:
-        subject = SubjectsTable.select(subject)
-        if subject.__is_none__:
-            subject = None
+        subject = Subject.select(subject)
     if year:
-        for cur_sub in YearsSubjectsTable.select_by_year(year):
-            sub.append(SubjectsTable.select(cur_sub.subject))
-    return render_template('admin_panel.html', year=year, subject=subject, years=YearsTable.select_all(), subjects=sub)
+        for cur_sub in YearSubject.select_by_year(year):
+            sub.append(Subject.select(cur_sub.subject))
+    return render_template('admin_panel.html', year=year, subject=subject, years=Year.select_all(), subjects=sub)
 
 
 @app.route('/<path:path>')
@@ -89,9 +86,9 @@ def search(year: int):
             res_student = None
             for x in permutations(q):
                 try:
-                    student = Student([0, x[0], x[1], *split_class(x[2]), 0])
-                    student = StudentsTable.select_by_student(student)
-                    if not student.__is_none__:
+                    student = Student.build(0, x[0], x[1], *split_class(x[2]), 0)
+                    student = Student.select_by_student(student)
+                    if student is not None:
                         if res_student:
                             res_student, res_per = None, q
                             break
@@ -100,13 +97,13 @@ def search(year: int):
                 except Exception:
                     pass
             if res_student:
-                user = StudentsCodesTable.select_by_student(year, res_student.id)
-                if not user.__is_none__:
-                    for subject in YearsSubjectsTable.select_by_year(year):
+                user = StudentCode.select_by_student(year, res_student.id)
+                if user is not None:
+                    for subject in YearSubject.select_by_year(year):
                         code = user.code1 if subject.n_d == 1 else user.code2
-                        r = ResultsTable.select_for_people(Result([year, subject.subject, code, 0, 0, '', 0]))
-                        if not r.__is_none__ and r.position > 0:
-                            data.append([SubjectsTable.select(subject.subject).name, r.position, r.text_result,
+                        r = Result.select_for_people(Result.build(year, subject.subject, code, 0, 0, '', 0))
+                        if r is not None and r.position > 0:
+                            data.append([Subject.select(subject.subject).name, r.position, r.text_result,
                                          r.result, r.net_score])
                             if subject.n_d not in days:
                                 days[subject.n_d] = []
@@ -116,13 +113,13 @@ def search(year: int):
         elif len(q) == 1:
             try:
                 student_code = int(q[0])
-                users = StudentsCodesTable.select_by_code(year, student_code)
+                users = StudentCode.select_by_code(year, student_code)
                 for user in users:
-                    if not user.__is_none__:
-                        for subject in YearsSubjectsTable.select_by_year(year):
-                            r = ResultsTable.select_for_people(Result([year, subject.subject, student_code, 0, 0, '', 0]))
-                            if not r.__is_none__ and r.position > 0:
-                                data.append([SubjectsTable.select(subject.subject).name, r.position, r.text_result,
+                    if user is not None:
+                        for subject in YearSubject.select_by_year(year):
+                            r = Result.select_for_people(Result.build(year, subject.subject, student_code, 0, 0, '', 0))
+                            if r is not None and r.position > 0:
+                                data.append([Subject.select(subject.subject).name, r.position, r.text_result,
                                              r.result, r.net_score])
                                 if subject.n_d not in days:
                                     days[subject.n_d] = []
@@ -136,8 +133,8 @@ def search(year: int):
         params['empty'] = not bool(len(data))
         params['summ'] = summ
     else:
-        params['messages'] = sorted(MessagesTable.select_by_year(year), key=Message.sort_by_time)
-        params['years'] = YearsTable.select_all()
+        params['messages'] = sorted(Message.select_by_year(year), key=Message.sort_by_time)
+        params['years'] = Year.select_all()
     try:
         return render_template(str(year) + '/main.html', **params)
     except TemplateNotFound:

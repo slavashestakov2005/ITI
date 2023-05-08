@@ -8,9 +8,7 @@ import os
 from .help import check_status, check_block_year, SplitFile, empty_checker, path_to_subject, is_in_team, correct_new_line
 from ..help import init_mail_messages, FileManager, AsyncWorker
 from ..excel import ExcelFullWriter
-from ..database import DataBase, SubjectsTable, Subject, YearsTable, Year, YearsSubjectsTable, TeamsTable, \
-    TeamsStudentsTable, AppealsTable, GroupResultsTable, ResultsTable, StudentsCodesTable, SubjectsFilesTable, \
-    SubjectsStudentsTable, HistoriesTable, MessagesTable
+from ..database import execute_sql, GroupResult, Message, Result, StudentCode, Subject, SubjectStudent, Team, TeamStudent, Year, YearSubject
 from .auto_generator import Generator
 from .file_creator import FileCreator
 from ..config import Config
@@ -23,7 +21,7 @@ from ..config import Config
     /edit_subject                   edit_subject()          Редактирует предмет.
     /delete_subject                 delete_subject()        Удаляет предмет.
     /global_settings                global_settings()       Сохраняет глобальные настройки (пароль от почты).
-    /db                             db()                    Делает SQL запросы к базе данных.
+    /database                             database()                    Делает SQL запросы к базе данных.
     /<year>/year_block              year_block()            Блокирует последующее редактирование года для всех.
     /load_data_from_excel           load_data_from_excel()  Загружает данные из Excel таблицы.
     /<year>/download_excel          download_excel()        Выгружает данные в Excel.
@@ -34,24 +32,24 @@ from ..config import Config
 
 
 def _delete_year(year: int):
-    AppealsTable.delete_by_year(year)
-    HistoriesTable.delete_by_year(year)
-    ResultsTable.delete_by_year(year)
-    StudentsCodesTable.delete_by_year(year)
-    SubjectsFilesTable.delete_by_year(year)
-    SubjectsStudentsTable.delete_by_year(year)
-    YearsTable.delete(year)
-    YearsSubjectsTable.delete_by_year(year)
-    MessagesTable.delete_by_year(year)
+    # AppealsTable.delete_by_year(year)
+    # HistoriesTable.delete_by_year(year)
+    Result.delete_by_year(year)
+    StudentCode.delete_by_year(year)
+    # SubjectsFilesTable.delete_by_year(year)
+    SubjectStudent.delete_by_year(year)
+    Year.delete(year)
+    YearSubject.delete_by_year(year)
+    Message.delete_by_year(year)
 
-    teams = TeamsTable.select_by_year(year)
+    teams = Team.select_by_year(year)
     for team in teams:
-        GroupResultsTable.delete_by_team(team.id)
-        TeamsStudentsTable.delete_by_team(team.id)
+        GroupResult.delete_by_team(team.id)
+        TeamStudent.delete_by_team(team.id)
     pl, mn = is_in_team(year)
-    TeamsStudentsTable.delete_by_team(pl)
-    TeamsStudentsTable.delete_by_team(mn)
-    TeamsTable.delete_by_year(year)
+    TeamStudent.delete_by_team(pl)
+    TeamStudent.delete_by_team(mn)
+    Team.delete_by_year(year)
 
     Generator.gen_years_lists()
     dir1, dir2 = Config.UPLOAD_FOLDER + '/' + str(year), Config.TEMPLATES_FOLDER + '/' + str(year)
@@ -90,11 +88,11 @@ def add_year():
     except ValueError:
         return render_template('subjects_and_years.html', error1='Некорректный год')
 
-    year = YearsTable.select(name)
-    if not year.__is_none__:
+    year = Year.select(name)
+    if year is not None:
         return render_template('subjects_and_years.html', error1='Год уже существует')
-    year = Year([name, '', 0])
-    YearsTable.insert(year)
+    year = Year.build(name, '', 0)
+    Year.insert(year)
     FileCreator.create_year(name)
     Generator.gen_years_lists()
     Generator.gen_years_subjects_list(name)
@@ -112,7 +110,7 @@ def delete_year():
     except ValueError:
         return render_template('subjects_and_years.html', error6='Некорректный год')
 
-    if YearsTable.select(year).__is_none__:
+    if Year.select(year) is None:
         return render_template('subjects_and_years.html', error6='Года не существует')
     _delete_year(year)
     return render_template('subjects_and_years.html', error6='Год удалён')
@@ -136,12 +134,12 @@ def add_subject():
     except Exception:
         return render_template('subjects_and_years.html', error2='Некорректные данные')
 
-    subject = SubjectsTable.select_by_name(name)
-    if not subject.__is_none__:
+    subject = Subject.select_by_name(name)
+    if subject is not None:
         return render_template('subjects_and_years.html', error2='Предмет уже существует')
-    subject = Subject([None, name, short_name, subject_type, diploma, msg])
-    SubjectsTable.insert(subject)
-    subject = SubjectsTable.select_by_name(subject.name)
+    subject = Subject.build(None, name, short_name, subject_type, diploma, msg)
+    Subject.insert(subject)
+    subject = Subject.select_by_name(subject.name)
     Generator.gen_subjects_lists()
     if subject_type == 'g':
         Generator.gen_rules(subject)
@@ -166,17 +164,17 @@ def edit_subject():
     except Exception:
         return render_template('subjects_and_years.html',  error3='Некорректные данные')
 
-    subject = SubjectsTable.select(id)
-    if subject.__is_none__:
+    subject = Subject.select(id)
+    if subject is None:
         return render_template('subjects_and_years.html',  error3='Предмета не существует')
     subject.name = new_name if len(new_name) else subject.name
     subject.short_name = short_name if len(short_name) else subject.short_name
     subject.type = subject_type if len(subject_type) else subject.type
     subject.diploma = diploma if len(diploma) else subject.diploma
     subject.msg = msg if len(msg) else subject.msg
-    SubjectsTable.update(subject)
+    Subject.update(subject)
     Generator.gen_subjects_lists()
-    return render_template('subjects_and_years.html', error3='Предмет обнавлён')
+    return render_template('subjects_and_years.html', error3='Предмет обновлён')
 
 
 @app.route("/delete_subject", methods=['POST'])
@@ -190,10 +188,10 @@ def delete_subject():
     except ValueError:
         return render_template('subjects_and_years.html',  error4='Некорректный id')
 
-    subject = SubjectsTable.select(id)
-    if subject.__is_none__:
+    subject = Subject.select(id)
+    if subject is None:
         return render_template('subjects_and_years.html', error4='Предмета не существует')
-    SubjectsTable.delete(subject)
+    Subject.delete(subject)
     Generator.gen_subjects_lists()
     return render_template('subjects_and_years.html', error4='Предмет удалён')
 
@@ -210,7 +208,7 @@ def global_settings():
                            admins=str(app.config['ADMINS']), password='Уже введён')
 
 
-@app.route('/db')
+@app.route('/database')
 @cross_origin()
 @login_required
 @check_status('full')
@@ -219,13 +217,13 @@ def db():
     sql = request.args.get('sql')
     t = request.args.get('type')
     if t and t != '':
-        return str(DataBase.execute(sql))
-    DataBase.just_execute(sql)
+        return str(execute_sql(sql))
+    execute_sql(sql)
     return 'OK'
 
 
 def page_args(year: int):
-    return {'year': abs(year), 'messages': MessagesTable.select_by_year(year)}
+    return {'year': abs(year), 'messages': Message.select_by_year(year)}
 
 
 @app.route('/<year:year>/year_block', methods=['POST', 'GET'])
@@ -240,11 +238,11 @@ def year_block(year: int):
     except ValueError:
         return render_template(str(year) + '/subjects_for_year.html', error8='Некорректный ввод', **page_args(year))
 
-    year = YearsTable.select(year)
-    if year.__is_none__:
+    year = Year.select(year)
+    if year is None:
         return render_template(str(year.year) + '/subjects_for_year.html', error8='Этого года нет.', **page_args(year.year))
     year.block = is_block
-    YearsTable.update(year)
+    Year.update(year)
     data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year.year) + '/subjects_for_year.html')
     data.insert_after_comment(' is_block ', '''
                 <p><input type="radio" name="is_block" value="0" {0}>Разблокировано</p>
@@ -279,7 +277,7 @@ def load_data_from_excel():
 
     if qtype == 1:
         _delete_year(year)
-        YearsTable.insert(Year([year, '', 1]))
+        Year.insert(Year.build(year, '', 1))
         FileCreator.create_year(year)
         Generator.gen_years_lists()
         Generator.gen_years_subjects_list(year)
@@ -332,5 +330,5 @@ def download_excel2(year: int, subject: str):
     except Exception:
         return redirect('add_result')
     filename = 'data/data_{}_{}.xlsx'.format(year, subject)
-    name = SubjectsTable.select(subject).name
+    name = Subject.select(subject).name
     return send_file(filename, as_attachment=True, attachment_filename='ИТИ {}. {}.xlsx'.format(year, name))

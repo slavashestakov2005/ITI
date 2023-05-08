@@ -1,5 +1,5 @@
 import pandas as pd
-from backend.database import StudentsCodesTable
+from ..database import StudentCode
 from backend.queries.results_raw import save_result_
 
 
@@ -35,7 +35,7 @@ class ExcelResultsReader:
         self.result = frame[frame[self.RES[0]].notna() & frame[self.RES[1]].notna()]
 
     def __gen_results__(self, user):
-        self.students_codes = [x.code for x in StudentsCodesTable.select_by_year(self.year)]
+        self.students_codes = [x.code for x in StudentCode.select_by_year(self.year)]
         ans = {}
         for i, row in self.result.iterrows():
             try:

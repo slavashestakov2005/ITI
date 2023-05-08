@@ -1,9 +1,10 @@
 from .help import SplitFile, all_templates, tr_format, compare, class_min, class_max, team_cnt, is_in_team, \
     individual_days_count, class_cnt
 from backend.excel.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter, ExcelDiplomaWriter
-from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
-    TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable, \
-    GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent
+from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, User, Year, YearSubject
+# from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
+#     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable, \
+#     GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent
 from backend.config import Config
 import glob
 #TODO: убрать повторы коды в генерации результатов
@@ -41,7 +42,7 @@ import glob
 class Generator:
     @staticmethod
     def gen_years_lists():
-        years = YearsTable.select_all()
+        years = Year.select_all()
         type1 = type2 = type3 = type4 = '\n'
         type_1 = type_2 = type_3 = type_4 = '\n'
         for year in years:
@@ -70,7 +71,7 @@ class Generator:
 
     @staticmethod
     def gen_subjects_lists():
-        subjects = SubjectsTable.select_all()
+        subjects = Subject.select_all()
         type1 = type2 = type3 = type4 = type5 = type6 = '\n'
         for subject in subjects:
             text1 = ' ' * 16 + '<p><input type="checkbox" name="status" value="{0}">{1}</p>\n'.format(subject.id, subject.name)
@@ -97,10 +98,10 @@ class Generator:
 
     @staticmethod
     def gen_years_subjects_list(year: int):
-        years_subjects_0 = YearsSubjectsTable.select_by_year(year)
+        years_subjects_0 = YearSubject.select_by_year(year)
         years_subjects = set([x.subject for x in years_subjects_0])
         subject_n_d = {_.subject: _.n_d for _ in years_subjects_0}
-        subjects = SubjectsTable.select_all()
+        subjects = Subject.select_all()
         text1 = text2 = text3 = text4 = text5 = '\n'
         t4 = []
         for subject in subjects:
@@ -143,7 +144,7 @@ class Generator:
     @staticmethod
     def gen_students_list(class_n: int):
         file_name = Config.TEMPLATES_FOLDER + '/students_' + str(class_n) + '.html'
-        students = StudentsTable.select_by_class_n(class_n)
+        students = Student.select_by_class_n(class_n)
         students = sorted(students, key=compare(lambda x: Student.sort_by_class(x), lambda x: x.name_1,
                                                 lambda x: x.name_2, field=True))
         length = len(students)
@@ -208,7 +209,7 @@ class Generator:
     @staticmethod
     def get_inv_codes(year):
         students = Generator.get_students(year)
-        all_codes = StudentsCodesTable.select_by_year(year)
+        all_codes = StudentCode.select_by_year(year)
         codes = {}
         for code in all_codes:
             # [code.code1, code.code2] if year < 0 else
@@ -218,7 +219,7 @@ class Generator:
     @staticmethod
     def get_codes(year):
         students = Generator.get_students(year)
-        all_codes = StudentsCodesTable.select_by_year(year)
+        all_codes = StudentCode.select_by_year(year)
         codes1, codes2 = {}, {}
         for code in all_codes:
             codes1[code.code1] = students[code.student]
@@ -227,28 +228,28 @@ class Generator:
 
     @staticmethod
     def get_students(year):
-        return {_.id: _ for _ in StudentsTable.select_all(year)}
+        return {_.id: _ for _ in Student.select_all(year)}
 
     @staticmethod
     def get_teams(year):
-        return {_.id: _ for _ in TeamsTable.select_by_year(year)}
+        return {_.id: _ for _ in Team.select_by_year(year)}
 
     @staticmethod
     def get_subjects_days(year):
-        return {_.subject: _.n_d for _ in YearsSubjectsTable.select_by_year(year)}
+        return {_.subject: _.n_d for _ in YearSubject.select_by_year(year)}
 
     @staticmethod
     def get_results(year: int, subject: int = None):
         if not subject:
-            return ResultsTable.select_by_year(year)
-        return ResultsTable.select_by_year_and_subject(year, subject)
+            return Result.select_by_year(year)
+        return Result.select_by_year_and_subject(year, subject)
 
     @staticmethod
     def get_student_team(year):
-        teams = TeamsTable.select_by_year(year)
+        teams = Team.select_by_year(year)
         ans = {}
         for team in teams:
-            students = TeamsStudentsTable.select_by_team(team.id)
+            students = TeamStudent.select_by_team(team.id)
             for student in students:
                 ans[student.student] = student.team
         return ans
@@ -260,14 +261,14 @@ class Generator:
         student_team = Generator.get_student_team(year)
         ys = Generator.get_subjects_days(year)
         students = Generator.get_students(year)
-        subjects = {_.id: _ for _ in SubjectsTable.select_all()}
-        subjects_students_0, subjects_students = SubjectsStudentsTable.select_by_year(year), {}
+        subjects = {_.id: _ for _ in Subject.select_all()}
+        subjects_students_0, subjects_students = SubjectStudent.select_by_year(year), {}
         for s in subjects_students_0:
             if s.student not in subjects_students:
                 subjects_students[s.student] = []
             subjects_students[s.student].append(s.subject)
         temp_results, all_students_results, diploma = {}, {}, []
-        class_results, team_results, student_result = {}, {_.id: {1: 0, 2: 0, 3: 0, 4: 0} for _ in TeamsTable.select_by_year(year)}, {}
+        class_results, team_results, student_result = {}, {_.id: {1: 0, 2: 0, 3: 0, 4: 0} for _ in Team.select_by_year(year)}, {}
         for day in decode:
             for code in decode[day]:
                 class_results[decode[day][code].class_name()] = 0
@@ -336,7 +337,7 @@ class Generator:
             result.position = last_pos
             text += tr_format(result.position, people.name_1, people.name_2, people.class_name(), result.result,
                               result.net_score, color=last_pos, tabs=3)
-            ResultsTable.update(result)
+            Result.update(result)
             cnt += 1
         text += ' ' * 8 + '</table>'
         return text
@@ -401,7 +402,7 @@ class Generator:
     @staticmethod
     def gen_results(year: int, subject: int, file_name: str):
         results = Generator.get_results(year, subject)
-        year_subject = YearsSubjectsTable.select(year, subject)
+        year_subject = YearSubject.select(year, subject)
         codes = Generator.get_codes(year)[year_subject.n_d]
         sorted_results = [[] for _ in range(class_cnt(year))]
         for r in results:
@@ -411,7 +412,7 @@ class Generator:
                                  lambda x: Student.sort_by_name(codes[x.user]), field=True))
         pth = Config.TEMPLATES_FOLDER + '/' + str(year) + '/' + str(subject) + '/protocol'
         params = {' {year} ': str(abs(year)), ' {subject_id} ': str(subject),
-                  ' {subject} ': SubjectsTable.select(subject).name}
+                  ' {subject} ': Subject.select(subject).name}
         if year > 0:
             txt5, arr5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5, pth + '_5.html', params, year)
             txt6, arr6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6, pth + '_6.html', params, year)
@@ -447,29 +448,29 @@ class Generator:
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
         data.insert_after_comment(' results table ', txt)
         data.save_file()
-        ExcelSubjectWriter(SubjectsTable.select(subject).name, year).write(
+        ExcelSubjectWriter(Subject.select(subject).name, year).write(
             Config.DATA_FOLDER + '/data_{}_{}.xlsx'.format(year, subject),
             [arr5, arr6, arr7, arr8, arr9] if year > 0 else [arr2, arr3, arr4])
 
     @staticmethod
     def gen_group_results(year: int, subject: int, file_name: str):
-        is_team = (SubjectsTable.select(subject).type == 'a')
-        teams = TeamsTable.select_by_year(year)
+        is_team = (Subject.select(subject).type == 'a')
+        teams = Team.select_by_year(year)
         teams_set = set([_.id for _ in teams])
         if len(teams) == 0:
             return None
-        results = {_: GroupResultsTable.select_by_team_and_subject(_.id, subject) for _ in teams}
+        results = {_: GroupResult.select_by_team_and_subject(_.id, subject) for _ in teams}
         results = sorted(results.items(), key=compare(GroupResult.sort_by_result, lambda x: x[1],
                                                       Team.sort_by_later, lambda x: x[0]))
-        students = [_.student for _ in SubjectsStudentsTable.select_by_subject(year, subject)]
+        students = [_.student for _ in SubjectStudent.select_by_subject(year, subject)]
         teams_student, students_count = {}, 0
         for now in students:
-            ts = list(set([_.team for _ in TeamsStudentsTable.select_by_student(now)]).intersection(teams_set))
+            ts = list(set([_.team for _ in TeamStudent.select_by_student(now)]).intersection(teams_set))
             if len(ts) != 1:
                 raise ValueError
             if ts[0] not in teams_student:
                 teams_student[ts[0]] = []
-            teams_student[ts[0]].append(StudentsTable.select(now))
+            teams_student[ts[0]].append(Student.select(now))
         for x in teams_student:
             students_count = max(students_count, len(teams_student[x]))
             teams_student[x].sort(key=compare(Student.sort_by_class, Student.sort_by_name, field=True))
@@ -558,8 +559,8 @@ class Generator:
             <td width="8%">Инд. 3</td>
             <td width="8%">Инд. 4</td>
             '''
-        for x in YearsSubjectsTable.select_by_year(year):
-            subject = SubjectsTable.select(x.subject)
+        for x in YearSubject.select_by_year(year):
+            subject = Subject.select(x.subject)
             if subject.type == 'g':
                 subjects.append(subject)
                 txt += ' ' * 12 + '<td width="8%">{0}</td>\n'.format(subject.short_name)
@@ -574,7 +575,7 @@ class Generator:
         returned_data, teams_ids = {}, []
         for x in results:
             summ = results[x][1] + results[x][2] + results[x][3] + results[x][4] if ind_days > 0 else 0
-            team_info = TeamsTable.select(x)
+            team_info = Team.select(x)
             row = [team_info.id, team_info.name]
             if ind_days > 0:
                 cols_result[0].append(results[x][1])
@@ -585,7 +586,7 @@ class Generator:
                 row.append(results[x][2])
                 row.append(results[x][3])
                 row.append(results[x][4])
-            res = GroupResultsTable.select_by_team(team_info.id)
+            res = GroupResult.select_by_team(team_info.id)
             res = {_.subject: _.result for _ in res} if res else {}
             pos = ind_days
             for subject in subject_ids[ind_days:]:
@@ -645,8 +646,8 @@ class Generator:
                     <td width="5%">Место</td>
                     <td width="30%">Фамилия</td>
                     <td width="30%">Имя</td>\n'''
-        for x in YearsSubjectsTable.select_by_year(year):
-            subject = SubjectsTable.select(x.subject)
+        for x in YearSubject.select_by_year(year):
+            subject = Subject.select(x.subject)
             subjects_map[subject.id] = subject
             if subject.type == 'i':
                 subjects.append(subject)
@@ -676,7 +677,7 @@ class Generator:
                 </tr>\n'''
         all_pos, all_res, gun_zero, gsum = 0, None, 0, 0
         ret_data = []
-        teams = set([_.id for _ in TeamsTable.select_by_year(year)])
+        teams = set([_.id for _ in Team.select_by_year(year)])
 
         for r in class_sums:
             if all_res != r[1]:
@@ -686,8 +687,8 @@ class Generator:
             txt += template.format(str(class_n) + r[0], r[0])
             position, last_pos, last_result, un_zero = 1, 1, None, 0
             for x in class_results[r[0]]:
-                x_team = list(set([_.team for _ in TeamsStudentsTable.select_by_student(x.id)]).intersection(teams))
-                x_subjects = SubjectsStudentsTable.select_by_student(year, x.id)
+                x_team = list(set([_.team for _ in TeamStudent.select_by_student(x.id)]).intersection(teams))
+                x_subjects = SubjectStudent.select_by_student(year, x.id)
                 if len(x_subjects) and len(x_team) != 1:
                     raise ValueError()
                 other_subjects_text = ''
@@ -740,7 +741,7 @@ class Generator:
 
     @staticmethod
     def gen_ratings_5_i(year: int, subject: int, decode: map, sp: map):
-        r = ResultsTable.select_by_year_and_subject(year, subject)
+        r = Result.select_by_year_and_subject(year, subject)
         r.sort(key=compare(lambda x: decode[x.user].class_n, lambda x: Result.sort_by_result(x), field=True))
         last_result, last_pos, last_class, i = None, 0, 0, 1
         for x in r:
@@ -759,8 +760,8 @@ class Generator:
     @staticmethod
     def gen_ratings_5_g(year: int, subject: int, teams: map, sp: map):
         ts, diploma = set(teams.keys()), []
-        peoples = set([_.student for _ in SubjectsStudentsTable.select_by_subject(year, subject)])
-        r = [_ for _ in GroupResultsTable.select_by_subject(subject) if _.team in ts]
+        peoples = set([_.student for _ in SubjectStudent.select_by_subject(year, subject)])
+        r = [_ for _ in GroupResult.select_by_subject(subject) if _.team in ts]
         r.sort(key=GroupResult.sort_by_result)
         last_result, last_pos, i = None, 0, 1
         for x in r:
@@ -768,7 +769,7 @@ class Generator:
                 last_result, last_pos = x.result, i
             if last_pos > 3:
                 break
-            for user in peoples.intersection(set([_.student for _ in TeamsStudentsTable.select_by_team(x.team)])):
+            for user in peoples.intersection(set([_.student for _ in TeamStudent.select_by_team(x.team)])):
                 if user not in sp:
                     sp[user] = [0, 0, 0]
                 sp[user][last_pos - 1] += 1
@@ -779,8 +780,8 @@ class Generator:
     @staticmethod
     def gen_ratings_5_a(year: int, subject: int, teams: map, sp: map):
         ts, diploma = set(teams.keys()), []
-        r = [_ for _ in GroupResultsTable.select_by_subject(subject) if _.team in ts]
-        peoples = set([_.student for _ in SubjectsStudentsTable.select_by_subject(year, subject)])
+        r = [_ for _ in GroupResult.select_by_subject(subject) if _.team in ts]
+        peoples = set([_.student for _ in SubjectStudent.select_by_subject(year, subject)])
         r.sort(key=GroupResult.sort_by_result)
         last_result, last_pos, i = None, 0, 1
         for x in r:
@@ -788,7 +789,7 @@ class Generator:
                 last_result, last_pos = x.result, i
             if last_pos > 3:
                 break
-            for user in TeamsStudentsTable.select_by_team(x.team):
+            for user in TeamStudent.select_by_team(x.team):
                 if user.student in peoples:
                     if user.student not in sp:
                         sp[user.student] = [0, 0, 0]
@@ -803,11 +804,11 @@ class Generator:
         teams = Generator.get_teams(year)
         codes = {_[0]: _[1] for _ in codes}
         codes = {_.id: _ for _ in codes.values()}
-        subjects = YearsSubjectsTable.select_by_year(year)
+        subjects = YearSubject.select_by_year(year)
         res, group_diploma, team_diploma = {}, [], []
         for subject in subjects:
             day = subject.n_d
-            subject = SubjectsTable.select(subject.subject)
+            subject = Subject.select(subject.subject)
             if subject.type == 'i':
                 res = Generator.gen_ratings_5_i(year, subject.id, decode[day], res)
             elif subject.type == 'g':
@@ -844,8 +845,8 @@ class Generator:
         class_results = sorted(class_results.items(), key=compare(lambda x: -x[1], lambda x: x[0], field=True))
         index = 0
         tpl, tmn = is_in_team(year)
-        tpl = set(_.student for _ in TeamsStudentsTable.select_by_team(tpl))
-        tmn = set(_.student for _ in TeamsStudentsTable.select_by_team(tmn))
+        tpl = set(_.student for _ in TeamStudent.select_by_team(tpl))
+        tmn = set(_.student for _ in TeamStudent.select_by_team(tmn))
         if year > 0:
             best_9, index, best_sum_9 = Generator.gen_ratings_parallel(codes, index, 9, tpl, tmn)
             best_8, index, best_sum_8 = Generator.gen_ratings_parallel(codes, index, 8, tpl, tmn)
@@ -900,7 +901,7 @@ class Generator:
 
     @staticmethod
     def gen_teams(year: int):
-        teams = TeamsTable.select_by_year(year)
+        teams = Team.select_by_year(year)
         text1, text2, text3 = '\n', '\n', '\n'
         for team in teams:
             row = [team.later, team.name]
@@ -926,9 +927,9 @@ class Generator:
         codes = Generator.get_students(year)
         decode = Generator.get_codes(year)
         result = Generator.get_results(year)
-        subjects0, subjects, ys = YearsSubjectsTable.select_by_year(year), [], {}
+        subjects0, subjects, ys = YearSubject.select_by_year(year), [], {}
         for x in subjects0:
-            subject = SubjectsTable.select(x.subject)
+            subject = Subject.select(x.subject)
             if subject.type == 'i':
                 subjects.append(subject)
                 ys[subject.id] = x.n_d
@@ -941,7 +942,7 @@ class Generator:
             if day not in student_result[student.id]:
                 student_result[student.id][day] = {}
             student_result[student.id][day][r.subject] = r.net_score
-        teams = TeamsTable.select_by_year(year)
+        teams = Team.select_by_year(year)
         teams.sort(key=Team.sort_by_later)
         template = '''
         <div class="col t-2"><center><h2>{0}</h2></center>
@@ -955,7 +956,7 @@ class Generator:
         template += ' ' * 20 + '<td width="5%">Сумма</td>\n' + ' ' * 16 + '</tr>\n'
         txt = ''
         for team in teams:
-            students = TeamsStudentsTable.select_by_team(team.id)
+            students = TeamStudent.select_by_team(team.id)
             students = [codes[_.student] for _ in students]
             students.sort(key=compare(lambda x: x.class_name(), lambda x: x.name_1, lambda x: x.name_2, field=True))
             sub_sums = {_.id: 0 for _ in subjects}
@@ -989,11 +990,11 @@ class Generator:
 
     @staticmethod
     def gen_timetable(year: int):
-        subjects = [_ for _ in YearsSubjectsTable.select_by_year(year) if _.start or _.end or _.place]
+        subjects = [_ for _ in YearSubject.select_by_year(year) if _.start or _.end or _.place]
         subjects.sort(key=YearSubject.sort_by_start)
         txt = '\n'
         for subject in subjects:
-            txt += tr_format(subject.n_d, subject.date_str(), SubjectsTable.select(subject.subject).name,
+            txt += tr_format(subject.n_d, subject.date_str(), Subject.select(subject.subject).name,
                              subject.classes, subject.start_str(), subject.end_str(), subject.place, tabs=3)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/timetable.html")
         data.insert_after_comment(' timetable ', txt + ' ' * 8)
@@ -1002,17 +1003,18 @@ class Generator:
     @staticmethod
     def gen_files_list(year: int, subject: int, path: str):
         data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year) + '/' + path)
-        files = SubjectsFilesTable.select_by_subject(year, subject)
+        # files = SubjectsFilesTable.select_by_subject(year, subject)
+        files = []
         txt = '\n    <center><h2>Файлы</h2></center>\n' if len(files) != 0 else '\n'
-        for file in files:
-            txt += '    <p><a href="/' + file.file + '">' + file.just_filename() + '</a></p>\n'
+        # for file in files:
+        #     txt += '    <p><a href="/' + file.file + '">' + file.just_filename() + '</a></p>\n'
         data.insert_after_comment(' files ', txt)
         data.save_file()
 
     @staticmethod
     def gen_users_list():
-        txt, users = '\n', UsersTable.select_all()
-        subjects = {_.id: _.short_name for _ in SubjectsTable.select_all()}
+        txt, users = '\n', User.select_all()
+        subjects = {_.id: _.short_name for _ in Subject.select_all()}
         for user in users:
             if user.can_do(-2):
                 continue
@@ -1037,7 +1039,7 @@ class Generator:
         t.reverse()
         while pos < ln and codes[pos][1].class_n == cls and len(t):
             if codes[pos][1].id in ts:
-                TeamsStudentsTable.insert(TeamStudent([t[-1], codes[pos][1].id]))
+                TeamStudent.insert(TeamStudent.build(t[-1], codes[pos][1].id))
                 t.pop()
             pos += 1
         while pos < ln and codes[pos][1].class_n == cls:
@@ -1056,15 +1058,15 @@ class Generator:
     @staticmethod
     def gen_automatic_division(year: int):
         teams_l = 'АБВГДЕЖЗИМ'
-        teams = TeamsTable.select_by_year(year)
+        teams = Team.select_by_year(year)
         for team in teams:
-            TeamsStudentsTable.delete_by_team(team.id)
-        TeamsTable.delete_by_year(year)
+            TeamStudent.delete_by_team(team.id)
+        Team.delete_by_year(year)
         for i in range(1, team_cnt(year) + 1):
             if year > 0:
-                TeamsTable.insert(Team([None, 'Команда {}'.format(i), year, '{}'.format(i)]))
+                Team.insert(Team.build(None, 'Команда {}'.format(i), year, '{}'.format(i)))
             else:
-                TeamsTable.insert(Team([None, 'Команда {}'.format(teams_l[i - 1]), year, teams_l[i - 1]]))
+                Team.insert(Team.build(None, 'Команда {}'.format(teams_l[i - 1]), year, teams_l[i - 1]))
         results = Generator.get_results(year)
         decode, res_for_ord = Generator.get_codes(year), {}
         for day in decode:
@@ -1072,9 +1074,9 @@ class Generator:
                 res_for_ord[decode[day][code].id] = decode[day][code]
                 res_for_ord[decode[day][code].id].result = 0
         student_result = {}
-        t0 = [_.id for _ in TeamsTable.select_by_year(year)]
+        t0 = [_.id for _ in Team.select_by_year(year)]
         ys = Generator.get_subjects_days(year)
-        ts = set((_.student for _ in TeamsStudentsTable.select_by_team(is_in_team(year)[0])))
+        ts = set((_.student for _ in TeamStudent.select_by_team(is_in_team(year)[0])))
         for r in results:
             day = ys[r.subject]
             if r.user not in student_result:
@@ -1096,7 +1098,7 @@ class Generator:
                 if class_name not in used_classes:
                     used_classes[class_name] = 0
                 if stud.id in ts and used_classes[class_name] < 4:
-                    TeamsStudentsTable.insert(TeamStudent([t0[teams_l.find(stud.class_l)], stud.id]))
+                    TeamStudent.insert(TeamStudent.build(t0[teams_l.find(stud.class_l)], stud.id))
                     used_classes[class_name] += 1
             return min(used_classes.values()) == 4
         res_for_ord = sorted(res_for_ord.items(), key=compare(lambda x: x[1].class_n, lambda x: -x[1].result,

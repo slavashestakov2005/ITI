@@ -1,70 +1,52 @@
-from .database import Row, Table, Query
+import sqlalchemy as sa
+from .__db_session import SqlAlchemyBase, Table
 
 
-class Result(Row):
-    """
-        Строка таблицы ResultsTable
-        year        INT     NOT NULL    PK
-        subject     INT     NOT NULL    PK
-        user        INT     NOT NULL    PK
-        result      REAL    NOT NULL
-        net_score   REAL    NOT NULL
-        text_result TEXT    NOT NULL
-        position    INT     NOT NULL
-    """
+class Result(SqlAlchemyBase, Table):
+    __tablename__ = 'result'
     fields = ['year', 'subject', 'user', 'result', 'net_score', 'text_result', 'position']
 
-    def __init__(self, row):
-        Row.__init__(self, Result, row)
+    year = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    subject = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    user = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    result = sa.Column(sa.Float, nullable=False)
+    net_score = sa.Column(sa.Float, nullable=False)
+    text_result = sa.Column(sa.String, nullable=False)
+    position = sa.Column(sa.Integer, nullable=False)
 
     @staticmethod
     def sort_by_result(result):
         return -result.result
 
+    # Table
+    @classmethod
+    def select_by_year(cls, year: int) -> list:
+        return cls.__select_by_expr__(cls.year == year)
 
-class ResultsTable(Table):
-    table = "result"
-    row = Result
-    create = '''(
-        year	    INT NOT NULL,
-        subject	    INT NOT NULL,
-        user	    INT NOT NULL,
-        result	    REAL NOT NULL,
-        net_score	REAL NOT NULL,
-        text_result	TEXT NOT NULL,
-        position	INT NOT NULL,
-        PRIMARY KEY(year,subject,user)
-        );'''
+    @classmethod
+    def select_by_year_and_subject(cls, year: int, subject: int) -> list:
+        return cls.__select_by_expr__(cls.year == year, cls.subject == subject)
 
-    @staticmethod
-    def select_by_year(year: int) -> list:
-        return Query.select_list(ResultsTable.table, Result, 'year', year)
+    @classmethod
+    def select_for_people(cls, result):
+        return cls.__select_by_expr__(cls.year == result.year, cls.subject == result.subject, cls.user == result.user, one=True)
 
-    @staticmethod
-    def select_by_year_and_subject(year: int, subject: int) -> list:
-        return Query.select_list(ResultsTable.table, Result, 'year', year, 'subject', subject)
+    @classmethod
+    def update(cls, result) -> None:
+        return cls.__update_by_expr__(result, cls.year == result.year, cls.subject == result.subject, cls.user == result.user)
 
-    @staticmethod
-    def select_for_people(result: Result) -> Result:
-        return Query.select_one(ResultsTable.table, Result, 'year', result.year, 'subject', result.subject,
-                                'user', result.user)
+    # @classmethod
+    # def replace(results: list) -> None:
+    #     i = 0
+    #     while i < len(results):
+    #         j = min(i + 125, len(results))
+    #         Query.replace(ResultsTable.table, results[i:j])
+    #         i = j
 
-    @staticmethod
-    def update(result: Result) -> None:
-        return Query.update(ResultsTable.table, result, 'year', 'subject', 'user')
+    @classmethod
+    def delete_by_year(cls, year: int) -> None:
+        return cls.__delete_by_expr__(cls.year == year)
 
-    @staticmethod
-    def replace(results: list) -> None:
-        i = 0
-        while i < len(results):
-            j = min(i + 125, len(results))
-            Query.replace(ResultsTable.table, results[i:j])
-            i = j
-
-    @staticmethod
-    def delete_by_year(year: int) -> None:
-        return Query.delete(ResultsTable.table, 'year', year)
-
-    @staticmethod
-    def delete_by_people(result: Result) -> None:
-        return Query.delete(ResultsTable.table, 'year', result.year, 'subject', result.subject, 'user', result.user)
+    @classmethod
+    def delete_by_people(cls, result) -> None:
+        return cls.__delete_by_expr__(cls.year == result.year, cls.subject == result.subject, cls.user == result.user)

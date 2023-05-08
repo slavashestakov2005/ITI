@@ -2,7 +2,7 @@ from backend import app, login
 from flask import render_template, request, redirect
 from flask_cors import cross_origin
 from flask_login import login_user, logout_user, current_user
-from backend.database import UsersTable
+from ..database import User
 from backend.queries.help import check_block_year, empty_checker
 from ..eljur import EljurUser
 
@@ -19,7 +19,7 @@ TEMPLATE, ELJUR_LOGIN = 'login.html', 'eljur_login.html'
 
 @login.user_loader
 def load_user(id):
-    return UsersTable.select(int(id))
+    return User.select(int(id))
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -36,8 +36,8 @@ def login():
         except Exception:
             return render_template(TEMPLATE, error='Некорректные данные')
 
-        u = UsersTable.select_by_login(user_login)
-        if not u.__is_none__ and u.check_password(user_password):
+        u = User.select_by_login(user_login)
+        if u is not None and u.check_password(user_password):
             login_user(u)
             return redirect('/')
         else:

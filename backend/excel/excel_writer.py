@@ -1,8 +1,7 @@
-from backend.help.log import Log
+# from backend.help.log import Log
 from backend.excel.excel_parent import ExcelParentWriter
 from backend.queries.help import class_min, compare
-from backend.database import StudentsCodesTable, UsersTable, HistoriesTable, ResultsTable, GroupResultsTable, AppealsTable, \
-    SubjectsTable, TeamsTable, StudentsTable, TeamsStudentsTable, SubjectsStudentsTable
+from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, User
 
 
 class ExcelSubjectWriter(ExcelParentWriter):
@@ -102,7 +101,7 @@ class ExcelFullWriter(ExcelParentWriter):
     def __gen_codes__(self, worksheet):
         self.__head__(worksheet, *self.head_begin, 'Фамилия', 'Имя', 'Класс', 'Пол', 'Команда')
         data = []
-        for code in StudentsCodesTable.select_by_year(self.year):
+        for code in StudentCode.select_by_year(self.year):
             x = self.students[code.student]
             codes = [code.code1] if self.year > 0 else [code.code1, code.code2]
             data.append([*codes, x[0], x[1], x[2], x[3], '' if code.student not in self.student_team else
@@ -118,21 +117,21 @@ class ExcelFullWriter(ExcelParentWriter):
 
     def __gen_history__(self, worksheet):
         self.__head__(worksheet, 'Время', 'Пользователь', 'Тип', 'Описание', 'Отмена', widths=[20, 20, 20, 25, 20])
-        users = {_.id: _.login for _ in UsersTable.select_all()}
+        users = {_.id: _.login for _ in User.select_all()}
         data = []
-        for his in HistoriesTable.select_by_year(self.year):
-            if his.description[:1] == '@':
-                sp = his.description.split('; ', 1)
-                sp[0] = self.subjects[int(sp[0][1:])]
-                his.description = '; '.join(sp)
-            revert = '' if not his.revert else 'Отменено ' + users[int(his.revert)]
-            data.append([his.time_str(), users[his.user], Log.actions[his.type], his.description, revert])
+        # for his in HistoriesTable.select_by_year(self.year):
+        #     if his.description[:1] == '@':
+        #         sp = his.description.split('; ', 1)
+        #         sp[0] = self.subjects[int(sp[0][1:])]
+        #         his.description = '; '.join(sp)
+        #     revert = '' if not his.revert else 'Отменено ' + users[int(his.revert)]
+        #     data.append([his.time_str(), users[his.user], Log.actions[his.type], his.description, revert])
         self.__write__(worksheet, data, cols_cnt=4)
 
     def __gen_results__(self, worksheet):
         self.__head__(worksheet, 'Предмет', 'Код', 'Балл', 'Сумма', 'Чист. балл')
         data = []
-        for r in ResultsTable.select_by_year(self.year):
+        for r in Result.select_by_year(self.year):
             data.append([self.subjects[r.subject], r.user, r.text_result, r.result, r.net_score])
         self.__write__(worksheet, data, cols_cnt=4)
 
@@ -140,7 +139,7 @@ class ExcelFullWriter(ExcelParentWriter):
         self.__head__(worksheet, 'Команда', 'Предмет', 'Результат')
         max_len, data = 0, []
         for team in self.teams:
-            for result in GroupResultsTable.select_by_team(team):
+            for result in GroupResult.select_by_team(team):
                 students = []
                 if result.subject in self.student_subject and team in self.student_subject[result.subject]:
                     students = [' '.join(self.students[_][:-1]) for _ in self.student_subject[result.subject][team]]
@@ -157,19 +156,19 @@ class ExcelFullWriter(ExcelParentWriter):
     def __gen_appeals__(self, worksheet):
         self.__head__(worksheet, 'Предмет', 'Код', 'Задания', 'Описание')
         data = []
-        for appeal in AppealsTable.select_by_year(self.year):
-            data.append([self.subjects[appeal.subject], appeal.student, appeal.tasks, appeal.description])
+        # for appeal in AppealsTable.select_by_year(self.year):
+        #     data.append([self.subjects[appeal.subject], appeal.student, appeal.tasks, appeal.description])
         self.__write__(worksheet, data, cols_cnt=3)
 
     def write(self, filename: str):
-        self.students = {_.id: [_.name_1, _.name_2, _.class_name(), _.get_gender()] for _ in StudentsTable.select_all(self.year)}
-        self.subjects = {_.id: _.name for _ in SubjectsTable.select_all()}
-        self.full_teams = TeamsTable.select_by_year(self.year)
+        self.students = {_.id: [_.name_1, _.name_2, _.class_name(), _.get_gender()] for _ in Student.select_all(self.year)}
+        self.subjects = {_.id: _.name for _ in Subject.select_all()}
+        self.full_teams = Team.select_by_year(self.year)
         self.later_teams = {_.id: _.later for _ in self.full_teams}
         self.teams = {_.id: _.name for _ in self.full_teams}
-        self.student_team = {y.student: y.team for x in self.teams for y in TeamsStudentsTable.select_by_team(x)}
+        self.student_team = {y.student: y.team for x in self.teams for y in TeamStudent.select_by_team(x)}
         self.student_subject = {}
-        for student in SubjectsStudentsTable.select_by_year(self.year):
+        for student in SubjectStudent.select_by_year(self.year):
             sub, stud, team = student.subject, student.student, self.student_team[student.student]
             if sub not in self.student_subject:
                 self.student_subject[sub] = {}

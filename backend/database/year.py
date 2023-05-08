@@ -1,34 +1,21 @@
-from backend.database import Row, Table, Query
+import sqlalchemy as sa
+from .__db_session import SqlAlchemyBase, Table
 
 
-class Year(Row):
-    """
-        Строка таблицы YearsTable
-        year    INT     NOT NULL    PK      UNIQUE
-        block   INT     NOT NULL    (0 = 'free', 1 = 'block')
-    """
+class Year(SqlAlchemyBase, Table):
+    __tablename__ = 'year'
     fields = ['year', 'block']
 
-    def __init__(self, row):
-        Row.__init__(self, Year, row)
+    year = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True)
+    block = sa.Column(sa.Integer, nullable=False)
 
+    # Table
 
-class YearsTable(Table):
-    table = "year"
-    row = Year
-    id_field = 'year'
-    create = '''(
-        year	INT NOT NULL UNIQUE,
-        block	INT NOT NULL,
-        PRIMARY KEY(year)
-        )'''
+    @classmethod
+    def default_init(cls):
+        cls.insert(cls.build(2019, 1))
+        cls.insert(cls.build(2020, 1))
 
-    @staticmethod
-    def create_table() -> None:
-        super().create_table()
-        YearsTable.insert(Year([2019, 1]))
-        YearsTable.insert(Year([2020, 1]))
-
-    @staticmethod
-    def delete(year: int) -> None:
-        return Query.delete(YearsTable.table, 'year', year)
+    @classmethod
+    def delete(cls, year: int) -> None:
+        return cls.__delete_by_expr__(cls.year == year)

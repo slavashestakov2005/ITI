@@ -1,35 +1,24 @@
-from backend.database import Row, Table, Query
-from backend.database.team import TeamsTable
+import datetime
+import sqlalchemy as sa
+from .__db_session import SqlAlchemyBase, Table
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
 
-def is_in_team(year: int):
-    return -10 * abs(year) - (2 if year < 0 else 0), -10 * abs(year) - (3 if year < 0 else 1)
-
-
-class User(Row, UserMixin):
-    """
-        Строка таблицы UsersTable
-        id          INT     NOT NULL    PK  AI  UNIQUE
-        login       TEXT    NOT NULL            UNIQUE
-        password    TEXT    NOT NULL
-        status      INT     NOT NULL    -2 = 'full', -1 = 'admin', x = ...100100... (subjects)
-        teams       TEXT    NOT NULL
-    """
+class User(SqlAlchemyBase, UserMixin, Table):
+    __tablename__ = 'user'
     fields = ['id', 'login', 'password', 'status', 'teams']
 
-    def __init__(self, row):
-        Row.__init__(self, User, row)
+    id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    login = sa.Column(sa.String, nullable=False, unique=True)
+    password = sa.Column(sa.String, nullable=False)
+    status = sa.Column(sa.Integer, nullable=False)      # -2 = 'full', -1 = 'admin', x = ...100100... (subjects)
+    teams = sa.Column(sa.String, nullable=False)
 
     def check_password(self, password) -> bool:
-        if self.__is_none__:
-            return False
         return check_password_hash(self.password, password)
 
-    def set_password(self, password) -> None:
-        if self.__is_none__:
-            return
+    def set_password(self, password):
         self.password = generate_password_hash(password)
 
     def set_status(self, status: list) -> None:
@@ -45,13 +34,13 @@ class User(Row, UserMixin):
                self.status == -1 and status != -2 or \
                status > 0 and (self.status >> status) % 2
 
-    def teams_list(self, year: int):
-        can = set(map(int, self.teams.split()))
-        now = set([_.id for _ in TeamsTable.select_by_year(year)])
-        now.add(is_in_team(year)[1])
-        if self.can_do(-1):
-            return now
-        return list(can.intersection(now))
+    # def teams_list(self, year: int):
+    #     can = set(map(int, self.teams.split()))
+    #     now = set([_.id for _ in TeamsTable.select_by_year(year)])
+    #     now.add(is_in_team(year)[1])
+    #     if self.can_do(-1):
+    #         return now
+    #     return list(can.intersection(now))
 
     def add_team(self, team: int):
         self.teams = ' '.join([str(team), *self.teams.split()])
@@ -71,36 +60,24 @@ class User(Row, UserMixin):
                 t += subjects[subject] + '; '
         return t[:-2] or '—'
 
+    # Table
 
-class UsersTable(Table):
-    table = "user"
-    row = User
-    create = '''(
-        id	        INT NOT NULL UNIQUE KEY AUTO_INCREMENT,
-        login	    VARCHAR(30) NOT NULL UNIQUE,
-        password	TEXT NOT NULL,
-        status	    INT NOT NULL,
-        teams	    TEXT NOT NULL,
-        PRIMARY KEY(id)
-        )'''
-
-    @staticmethod
-    def create_table() -> None:
-        super().create_table()
-        u = User([None, 'slava', '', -2, ''])
+    @classmethod
+    def default_init(cls):
+        u = cls.build(None, 'slava', '', -2, '')
         u.set_password('123')
-        UsersTable.insert(u)
-        u = User([None, 'Савокина', '', -1, ''])
+        cls.insert(u)
+        u = cls.build(None, 'Савокина', '', -1, '')
         u.set_password('1')
-        UsersTable.insert(u)
-        u = User([None, 'Проходский', '', -1, ''])
+        cls.insert(u)
+        u = cls.build(None, 'Проходский', '', -1, '')
         u.set_password('1')
-        UsersTable.insert(u)
+        cls.insert(u)
 
-    @staticmethod
-    def select_by_login(login: str) -> User:
-        return Query.select_one(UsersTable.table, User, 'login', login)
+    @classmethod
+    def select_by_login(cls, login: str):
+        return cls.__select_by_expr__(cls.login == login, one=True)
 
-    @staticmethod
-    def update_by_login(user: User) -> None:
-        return Query.update(UsersTable.table, user, 'login')
+    @classmethod
+    def update_by_login(cls, user) -> None:
+        return cls.__update_by_expr__(user, cls.login == user.login)

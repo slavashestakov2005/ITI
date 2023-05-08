@@ -1,6 +1,5 @@
 from backend import app
-from ..database import TeamsTable, Team, StudentsTable, Student, TeamsStudentsTable, TeamStudent, User, \
-    YearsSubjectsTable, SubjectsTable, SubjectsStudentsTable, SubjectStudent, UsersTable, Subject
+from ..database import Student, Subject, SubjectStudent, Team, TeamStudent, YearSubject, User
 from .help import check_status, check_block_year, split_class, empty_checker, is_in_team, compare
 from .auto_generator import Generator
 from flask import render_template, request
@@ -26,12 +25,12 @@ from .messages_help import message_teams_public
 def teams_page_params(user: User, year: int):
     try:
         teams, res, subjects, team_tour = user.teams_list(year), [], [], None
-        subjects.append(Subject([-1, 'Инд. 1', 'Инд. 1', 'g', 'diploma', 'msg']))
-        subjects.append(Subject([-2, 'Инд. 2', 'Инд. 2', 'g', 'diploma', 'msg']))
-        subjects.append(Subject([-3, 'Инд. 3', 'Инд. 3', 'g', 'diploma', 'msg']))
-        subjects.append(Subject([-4, 'Инд. 4', 'Инд. 4', 'g', 'diploma', 'msg']))
-        for x in YearsSubjectsTable.select_by_year(year):
-            subject = SubjectsTable.select(x.subject)
+        subjects.append(Subject.build(-1, 'Инд. 1', 'Инд. 1', 'g', 'diploma', 'msg'))
+        subjects.append(Subject.build(-2, 'Инд. 2', 'Инд. 2', 'g', 'diploma', 'msg'))
+        subjects.append(Subject.build(-3, 'Инд. 3', 'Инд. 3', 'g', 'diploma', 'msg'))
+        subjects.append(Subject.build(-4, 'Инд. 4', 'Инд. 4', 'g', 'diploma', 'msg'))
+        for x in YearSubject.select_by_year(year):
+            subject = Subject.select(x.subject)
             if subject.type == 'g':
                 subjects.append(subject)
             if subject.type == 'a':
@@ -41,13 +40,13 @@ def teams_page_params(user: User, year: int):
         teams = sorted(list(teams), key=compare(lambda x: -x // abs(x), lambda x: x, field=True))
         for now in teams:
             if now < 0:
-                team, t = Team([now, 'Отказ', None, None]), []
+                team, t = Team.build(now, 'Отказ', None, None), []
             else:
-                team, t = TeamsTable.select(now), []
-            peoples = TeamsStudentsTable.select_by_team(team.id)
+                team, t = Team.select(now), []
+            peoples = TeamStudent.select_by_team(team.id)
             for x in peoples:
-                people = StudentsTable.select(x.student)
-                subjects_for_people = set([_.subject for _ in SubjectsStudentsTable.select_by_student(year, people.id)])
+                people = Student.select(x.student)
+                subjects_for_people = set([_.subject for _ in SubjectStudent.select_by_student(year, people.id)])
                 p = [[None, people.class_name()], [None, people.name_1], [None, people.name_2]]
                 for subject in subjects:
                     p.append([subject.id, people.id, subject.id in subjects_for_people])
@@ -73,9 +72,9 @@ def add_team(year: int):
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error1='Некорректные данные')
 
-    if not TeamsTable.select_by_year_and_later(year, later).__is_none__:
+    if Team.select_by_year_and_later(year, later) is not None:
         return render_template(str(year) + '/teams_for_year.html', **args, error1='Команда от этой вертикали уже есть')
-    TeamsTable.insert(Team([None, name, year, later]))
+    Team.insert(Team.build(None, name, year, later))
     Generator.gen_teams(year)
     return render_template(str(year) + '/teams_for_year.html', **args, error1='Команда добавлена')
 
@@ -94,16 +93,16 @@ def edit_team(year: int):
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error8='Некорректные данные')
 
-    team = TeamsTable.select(team_id)
-    if team.__is_none__:
+    team = Team.select(team_id)
+    if team is None:
         return render_template(str(year) + '/teams_for_year.html', **args, error8='Такой команды нет')
-    if not TeamsTable.select_by_year_and_later(year, later).__is_none__:
+    if Team.select_by_year_and_later(year, later) is not None:
         return render_template(str(year) + '/teams_for_year.html', **args, error8='Команда от этой вертикали уже есть')
     if name and len(name):
         team.name = name
     if later and len(later):
         team.later = later
-    TeamsTable.update(team)
+    Team.update(team)
     Generator.gen_teams(year)
     Generator.gen_teams_students(year)
     return render_template(str(year) + '/teams_for_year.html', **args, error8='Данные обновлены')
@@ -121,7 +120,7 @@ def delete_team(year: int):
         return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
                                error2='Некорректные данные')
 
-    TeamsTable.delete(Team([id, '', year, '']))
+    Team.delete(Team.build(id, '', year, ''))
     Generator.gen_teams(year)
     return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
                            error2='Команда удалена')
@@ -144,15 +143,15 @@ def add_student_team(year: int):
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error3='Некорректные данные')
 
-    if TeamsTable.select(team).__is_none__:
+    if Team.select(team) is None:
         return render_template(str(year) + '/teams_for_year.html', **args, error3='Такой команды нет')
-    student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1], 0]))
-    if student.__is_none__:
+    student = Student.select_by_student(Student.build(None, name1, name2, class_[0], class_[1], 0))
+    if student is None:
         return render_template(str(year) + '/teams_for_year.html', **args, error3='Такого участника нет')
-    team_student = TeamStudent([team, student.id])
-    if not TeamsStudentsTable.select(team_student).__is_none__:
+    team_student = TeamStudent.build(team, student.id)
+    if TeamStudent.select(team_student) is not None:
         return render_template(str(year) + '/teams_for_year.html', **args, error3='Этот участник уже в этой команде')
-    TeamsStudentsTable.insert(team_student)
+    TeamStudent.insert(team_student)
     Generator.gen_teams_students(year)
     return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
                            error3='Участник добавлен')
@@ -175,15 +174,15 @@ def delete_student_team(year: int):
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error4='Некорректные данные')
 
-    if TeamsTable.select(team).__is_none__:
+    if Team.select(team) is None:
         return render_template(str(year) + '/teams_for_year.html', **args, error4='Такой команды нет')
-    student = StudentsTable.select_by_student(Student([None, name1, name2, class_[0], class_[1], 0]))
-    if student.__is_none__:
+    student = Student.select_by_student(Student.build(None, name1, name2, class_[0], class_[1], 0))
+    if student is None:
         return render_template(str(year) + '/teams_for_year.html', **args, error4='Такого участника нет')
-    team_student = TeamStudent([team, student.id])
-    if TeamsStudentsTable.select(team_student).__is_none__:
+    team_student = TeamStudent.build(team, student.id)
+    if TeamStudent.select(team_student) is None:
         return render_template(str(year) + '/teams_for_year.html', **args, error4='Этого человека нет в этой команде')
-    TeamsStudentsTable.delete(team_student)
+    TeamStudent.delete(team_student)
     Generator.gen_teams_students(year)
     return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
                            error4='Участник удалён')
@@ -213,13 +212,13 @@ def save_teams(year: int):
     for x in different:
         st = int(x)
         if x + '_0' in ot:
-            TeamsStudentsTable.delete(TeamStudent([mn, st]))
+            TeamStudent.delete(TeamStudent.build(mn, st))
         if x + '_2' in ot:
-            TeamsStudentsTable.delete(TeamStudent([pl, st]))
+            TeamStudent.delete(TeamStudent.build(pl, st))
         if x + '_0' in t:
-            TeamsStudentsTable.insert(TeamStudent([mn, st]))
+            TeamStudent.insert(TeamStudent.build(mn, st))
         if x + '_2' in t:
-            TeamsStudentsTable.insert(TeamStudent([pl, st]))
+            TeamStudent.insert(TeamStudent.build(pl, st))
     Generator.gen_ratings(year)
     return render_template(url, **teams_page_params(current_user, year), **kw)
 
@@ -234,11 +233,11 @@ def student_subject(year: int):
     different = subjects.symmetric_difference(old_subjects)
     for x in different:
         t = x.split('_')
-        t = SubjectStudent([year, int(t[0]), int(t[1])])
+        t = SubjectStudent.build(year, int(t[0]), int(t[1]))
         if x in subjects:
-            SubjectsStudentsTable.insert(t)
+            SubjectStudent.insert(t)
         else:
-            SubjectsStudentsTable.delete(t)
+            SubjectStudent.delete(t)
     return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
                            error5='Сохранено')
 
@@ -265,14 +264,14 @@ def add_user_team(year: int):
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error6='Некорректные данные')
 
-    user = UsersTable.select_by_login(login)
-    if user.__is_none__:
+    user = User.select_by_login(login)
+    if user is None:
         return render_template(str(year) + '/teams_for_year.html', **args, error6='Несуществующий логин')
     if user.is_exists_team(team):
         return render_template(str(year) + '/teams_for_year.html', **args, error6='Пользователь уже руководит этой'
                                                                                   'командой')
     user.add_team(team)
-    UsersTable.update_by_login(user)
+    User.update_by_login(user)
     return render_template(str(year) + '/teams_for_year.html', **args, error6='Руководитель добавлен')
 
 
@@ -290,14 +289,14 @@ def delete_user_team(year: int):
     except Exception:
         return render_template(str(year) + '/teams_for_year.html', **args, error7='Некорректные данные')
 
-    user = UsersTable.select_by_login(login)
-    if user.__is_none__:
+    user = User.select_by_login(login)
+    if user is None:
         return render_template(str(year) + '/teams_for_year.html', **args, error7='Несуществующий логин')
     if not user.is_exists_team(team):
         return render_template(str(year) + '/teams_for_year.html', **args, error7='Пользователь не руководит этой '
                                                                                   'командой')
     user.delete_team(team)
-    UsersTable.update_by_login(user)
+    User.update_by_login(user)
     return render_template(str(year) + '/teams_for_year.html', **args, error7='Руководитель удалён')
 
 
@@ -312,6 +311,6 @@ def automatic_division(year: int):
     Generator.gen_teams(year)
     Generator.gen_teams_students(year)
     if not good:
-        return render_template(str(year) + '/teams_for_year.html', **args, error9='Осталиь свободные места')
+        return render_template(str(year) + '/teams_for_year.html', **args, error9='Остались свободные места')
     message_teams_public(year)
     return render_template(str(year) + '/teams_for_year.html', **args, error9='Участники распределены')

@@ -2,8 +2,7 @@ import pandas as pd
 from backend.queries.file_creator import FileCreator, SplitFile
 from backend.queries.auto_generator import Generator
 from backend.queries.help import split_class
-from backend.database import SubjectsTable, YearSubject, YearsSubjectsTable, Team, TeamsTable, Student, StudentsTable, \
-    StudentCode, StudentsCodesTable, Result, ResultsTable, TeamStudent, TeamsStudentsTable
+from ..database import Result, Student, StudentCode, Subject, Team, TeamStudent, Year, YearSubject
 from backend.config import Config
 
 
@@ -61,7 +60,7 @@ class ExcelFullReader:
 
     def __gen_subject__(self):
         subjects = self.result[self.RES[0]].unique().tolist()
-        all_subject = SubjectsTable.select_all()
+        all_subject = Subject.select_all()
         all_names = [_.name for _ in all_subject]
         all_map = {_.name: _.id for _ in all_subject}
         self.subjects = {}
@@ -72,8 +71,8 @@ class ExcelFullReader:
             self.subjects[subject] = all_map[all_names[f]]
 
         for subject in self.subjects:
-            ys = YearSubject([self.year, self.subjects[subject], 30, 30, 30, 30, 30, 0, 0, '', '', 1])
-            YearsSubjectsTable.insert(ys)
+            ys = Year.build(self.year, self.subjects[subject], 30, 30, 30, 30, 30, 0, 0, '', '', 1)
+            YearSubject.insert(ys)
         FileCreator.create_subjects(self.year, list(self.subjects.values()))
         Generator.gen_years_subjects_list(self.year)
         self.all_subjects = {_.id: _ for _ in all_subject}
@@ -81,10 +80,10 @@ class ExcelFullReader:
     def __gen_teams__(self):
         teams = [str(_) for _ in self.code[self.CODES[4]].unique().tolist() if str(_) != 'nan']
         for team in teams:
-            TeamsTable.insert(Team([None, 'Вертикаль ' + team, self.year, team]))
+            Team.insert(Team.build(None, 'Вертикаль ' + team, self.year, team))
         self.teams = {}
         for team in teams:
-            self.teams[team] = TeamsTable.select_by_year_and_later(self.year, team).id
+            self.teams[team] = Team.select_by_year_and_later(self.year, team).id
         Generator.gen_teams(self.year)
 
     def __gen_students__(self):
@@ -93,30 +92,30 @@ class ExcelFullReader:
         for i, row in self.code.iterrows():
             names = row[0].split()
             class_ = split_class(row[1])
-            student = Student([None, names[0], names[1], class_[0], class_[1], 0])
+            student = Student.build(None, names[0], names[1], class_[0], class_[1], 0)
             student.set_gender(row[2])
-            st = StudentsTable.select_by_student(student)
-            if st.__is_none__:
-                StudentsTable.insert(student)
-                sid = StudentsTable.select_by_student(student).id
+            st = Student.select_by_student(student)
+            if st is None:
+                Student.insert(student)
+                sid = Student.select_by_student(student).id
             else:
                 student.id = sid = st.id
-                StudentsTable.update(student)
+                Student.update(student)
             self.student[(row[0], row[1])] = sid
-            c = StudentCode([self.year, int(row[3]), int(row[3]), sid])
-            StudentsCodesTable.insert(c)
+            c = StudentCode.build(self.year, int(row[3]), int(row[3]), sid)
+            StudentCode.insert(c)
             self.students_codes.append(int(row[3]))
             if str(row[4]) != 'nan':
-                ts = TeamStudent([self.teams[str(row[4])], sid])
-                TeamsStudentsTable.insert(ts)
+                ts = TeamStudent.build(self.teams[str(row[4])], sid)
+                TeamStudent.insert(ts)
         self.students_codes = set(self.students_codes)
 
     def __gen_results__(self):
         result = []
         for i, row in self.result.iterrows():
             if row[0] in self.subjects and int(row[1]) in self.students_codes and str(row[2]) != 'nan':
-                result.append(Result([self.year, self.subjects[row[0]], int(row[1]), row[2], 0, str(row[2]), 0]))
-        ResultsTable.replace(result)
+                result.append(Result.build(self.year, self.subjects[row[0]], int(row[1]), row[2], 0, str(row[2]), 0))
+        Result.replace(result)
         for subject in self.subjects.values():
             t = self.all_subjects[subject].type_str()
             Generator.gen_results(self.year, subject, str(self.year) + '/' + t + '/' + str(subject) + '.html')
@@ -135,14 +134,14 @@ class ExcelFullReader:
         for i, row in self.student.iterrows():
             names = row[0].split()
             class_ = split_class(row[1])
-            student = Student([None, names[0], names[1], class_[0], class_[1], 0])
+            student = Student.build(None, names[0], names[1], class_[0], class_[1], 0)
             student.set_gender(row[2])
-            st = StudentsTable.select_by_student(student)
-            if st.__is_none__:
-                StudentsTable.insert(student)
+            st = Student.select_by_student(student)
+            if st is None:
+                Student.insert(student)
             else:
                 student.id = st.id
-                StudentsTable.update(student)
+                Student.update(student)
 
     def read(self):
         self.sheet = pd.read_excel(self.file, sheet_name=None, engine="openpyxl")

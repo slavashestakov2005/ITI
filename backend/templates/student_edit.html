@@ -9,7 +9,7 @@
 			<p>Имя: <input type="text" name="name2"></p>
 			<p>Фамилия: <input type="text" name="name1"></p>
 			<p>Класс (номер и буква): <input type="text" name="class"></p>
-			<p>Пол: <input name="gender" type="radio" value="0" checked>М<<input name="gender" type="radio" value="1">Ж</p>
+			<p>Пол: <input name="gender" type="radio" value="0" checked>М&nbsp;&nbsp;<input name="gender" type="radio" value="1">Ж</p>
 			{% if error1 %} <p class="error-msg">[ {{ error1 }} ]</p>
 			{% endif %}
 			<input type="submit" value="Создать">
@@ -28,7 +28,7 @@
 			<p>Имя: <input type="text" name="n_name2"></p>
 			<p>Фамилия: <input type="text" name="n_name1"></p>
 			<p>Класс (номер и буква): <input type="text" name="n_class"></p>
-			<p>Пол: <input name="n_gender" type="radio" value="0">М<<input name="n_gender" type="radio" value="1">Ж</p>
+			<p>Пол: <input name="n_gender" type="radio" value="0">М&nbsp;&nbsp;<input name="n_gender" type="radio" value="1">Ж</p>
 			{% if error2 %} <p class="error-msg">[ {{ error2 }} ]</p>
 			{% endif %}
 			<input type="submit" value="Изменить">

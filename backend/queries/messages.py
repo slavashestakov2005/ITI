@@ -1,6 +1,6 @@
 from backend import app
 from .help import check_status, check_block_year, correct_new_line
-from ..database import MessagesTable, YearsTable, Message
+from ..database import Message, Year
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required
@@ -9,7 +9,7 @@ from datetime import datetime
 
 
 def page_args(year: int):
-    return {'year': abs(year), 'messages': MessagesTable.select_by_year(year)}
+    return {'year': abs(year), 'messages': Message.select_by_year(year)}
 
 
 @app.route('/<year:year>/add_message', methods=['POST'])
@@ -30,10 +30,10 @@ def add_message(year: int):
     except Exception:
         return render_template(str(year) + '/subjects_for_year.html', error7='Некорректные данные', **page_args(year))
 
-    if YearsTable.select(year).__is_none__:
+    if Year.select(year) is None:
         return render_template(str(year) + '/subjects_for_year.html', error7='Этого года нет.', **page_args(year))
 
-    MessagesTable.insert(Message([None, year, title, content, point]))
+    Message.insert(Message.build(None, year, title, content, point))
     send_message_to_telegram(title, content, year)
     return render_template(str(year) + '/subjects_for_year.html', error7='Сохранено.', **page_args(year))
 
@@ -57,10 +57,10 @@ def edit_message(year: int):
     except Exception:
         return render_template(str(year) + '/subjects_for_year.html', error9='Некорректные данные', **page_args(year))
 
-    message = MessagesTable.select(id_)
-    if YearsTable.select(year).__is_none__:
+    message = Message.select(id_)
+    if Year.select(year) is None:
         return render_template(str(year) + '/subjects_for_year.html', error9='Этого года нет.', **page_args(year))
-    if message.__is_none__:
+    if message is None:
         return render_template(str(year) + '/subjects_for_year.html', error9='Такого ID нет.', **page_args(year))
     if title:
         message.title = title
@@ -68,7 +68,7 @@ def edit_message(year: int):
         message.content = content
     if point:
         message.time = point
-    MessagesTable.update(message)
+    Message.update(message)
     return render_template(str(year) + '/subjects_for_year.html', error9='Сохранено.', **page_args(year))
 
 
@@ -83,10 +83,10 @@ def delete_message(year: int):
     except Exception:
         return render_template(str(year) + '/subjects_for_year.html', error10='Некорректные данные', **page_args(year))
 
-    message = MessagesTable.select(id_)
-    if YearsTable.select(year).__is_none__:
+    message = Message.select(id_)
+    if Year.select(year) is None:
         return render_template(str(year) + '/subjects_for_year.html', error10='Этого года нет.', **page_args(year))
-    if message.__is_none__:
+    if message is None:
         return render_template(str(year) + '/subjects_for_year.html', error10='Такого ID нет.', **page_args(year))
-    MessagesTable.delete(message)
+    Message.delete(message)
     return render_template(str(year) + '/subjects_for_year.html', error10='Сохранено.', **page_args(year))

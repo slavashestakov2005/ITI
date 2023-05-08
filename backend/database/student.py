@@ -1,21 +1,19 @@
-from .database import Row, Table, Query
+import sqlalchemy as sa
+from .__db_session import SqlAlchemyBase, Table, execute_sql
+from .__config_db import ConfigDB
 
 
-class Student(Row):
-    """
-        Строка таблицы StudentsTable
-        id          INT     NOT NULL    PK  AI  UNIQUE
-        name_1      TEXT    NOT NULL                        (Фамилия)
-        name_2      TEXT    NOT NULL                        (Имя)
-        class_n     INT     NOT NULL
-        class_l     TEXT    NOT NULL
-        gender      INT                                     (0 - м, 1 - ж)
-    """
+class Student(SqlAlchemyBase, Table):
+    __tablename__ = 'student'
     fields = ['id', 'name_1', 'name_2', 'class_n', 'class_l', 'gender']
 
-    def __init__(self, row):
-        Row.__init__(self, Student, row)
-        self.result = 0
+    id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    name_1 = sa.Column(sa.String, nullable=False)   # (Фамилия)
+    name_2 = sa.Column(sa.String, nullable=False)   # (Имя)
+    class_n = sa.Column(sa.String, nullable=False)
+    class_l = sa.Column(sa.String, nullable=False)
+    gender = sa.Column(sa.String, nullable=False)   # (0 - м, 1 - ж)
+    result = 0
 
     def class_name(self):
         return str(self.class_n) + self.class_l
@@ -39,36 +37,24 @@ class Student(Row):
     def sort_by_name(student):
         return student.name()
 
+    # Table
 
-class StudentsTable(Table):
-    table = "student"
-    row = Student
-    create = '''(
-        id      INT     NOT NULL UNIQUE KEY AUTO_INCREMENT,
-        name_1	TEXT    NOT NULL,
-        name_2	TEXT    NOT NULL,
-        class_n	INT     NOT NULL,
-        class_l	TEXT NOT NULL,
-        gender  INT,
-        PRIMARY KEY(id)
-        );'''
+    # @staticmethod
+    # def select_all(year: int) -> list:
+    #     if year > 0:
+    #         return Query.select_list_with_where(StudentsTable.table, Student, 'class_n', 5, 9)
+    #     return Query
 
-    @staticmethod
-    def select_all(year: int) -> list:
-        if year > 0:
-            return Query.select_list_with_where(StudentsTable.table, Student, 'class_n', 5, 9)
-        return Query.select_list_with_where(StudentsTable.table, Student, 'class_n', 2, 4)
+    @classmethod
+    def select_by_class_n(cls, class_n: int) -> list:
+        return cls.__select_by_expr__(cls.class_n == class_n)
 
-    @staticmethod
-    def select_by_class_n(class_n: int) -> list:
-        return Query.select_list(StudentsTable.table, Student, 'class_n', class_n)
+    @classmethod
+    def select_by_student(cls, student):
+        return cls.__select_by_expr__(cls.name_1==student.name_1, cls.name_2==student.name_2,
+                                cls.class_n==student.class_n, cls.class_l==student.class_l, one=True)
 
-    @staticmethod
-    def select_by_student(student: Student) -> Student:
-        return Query.select_one(StudentsTable.table, Student, 'name_1', student.name_1, 'name_2', student.name_2,
-                                'class_n', student.class_n, 'class_l', student.class_l)
-
-    @staticmethod
-    def add_class() -> None:
-        return Query.update_col(StudentsTable.table, 'class_n', '1')
-
+    @classmethod
+    def add_class(cls, class_n):
+        sql = 'UPDATE {0} SET {1} = {1} + 1'.format(cls.__tablename__, ConfigDB.DB_COLS_PREFIX + 'class_n')
+        return execute_sql(sql)

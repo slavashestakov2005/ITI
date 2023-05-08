@@ -1,4 +1,4 @@
-from ..database import FilesTable, File
+# from ..database import FilesTable, File
 import os
 import glob
 import re
@@ -23,11 +23,11 @@ class FileManager:
         filename = correct_slash(filename)
         with open(filename, 'rb') as f:
             data = f.read()
-        f = File([filename, data])
-        if FilesTable.select(filename).__is_none__:
-            FilesTable.insert(f)
-        else:
-            FilesTable.update(f)
+        # f = File([filename, data])
+        # if FilesTable.select(filename).__is_none__:
+        #     FilesTable.insert(f)
+        # else:
+        #     FilesTable.update(f)
 
     @staticmethod
     def save_dir(directory: str) -> None:
@@ -38,7 +38,7 @@ class FileManager:
     @staticmethod
     def delete(filename: str) -> None:
         filename = correct_slash(filename)
-        FilesTable.delete(filename)
+        # FilesTable.delete(filename)
 
     @staticmethod
     def delete_dir(directory: str) -> None:
@@ -48,12 +48,13 @@ class FileManager:
 
     @staticmethod
     def restore_all() -> None:
-        try:
-            files = FilesTable.select_all()
-        except Exception:
-            return
-        for file in files:
-            if not os.path.exists(os.path.dirname(file.name)):
-                os.makedirs(os.path.dirname(file.name))
-            with open(file.name, 'wb') as f:
-                f.write(file.data)
+        pass
+        # try:
+        #     files = FilesTable.select_all()
+        # except Exception:
+        #     return
+        # for file in files:
+        #     if not os.path.exists(os.path.dirname(file.name)):
+        #         os.makedirs(os.path.dirname(file.name))
+        #     with open(file.name, 'wb') as f:
+        #         f.write(file.data)

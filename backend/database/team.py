@@ -1,43 +1,30 @@
-from backend.database import Row, Table, Query
+import sqlalchemy as sa
+from .__db_session import SqlAlchemyBase, Table
 
 
-class Team(Row):
-    """
-        Строка таблицы TeamsTable
-        id      INT     NOT NULL    PK  AI  UNIQUE
-        name    TEXT    NOT NULL
-        year    INT     NOT NULL
-        later   TEXT    NOT NULL
-    """
+class Team(SqlAlchemyBase, Table):
+    __tablename__ = 'team'
     fields = ['id', 'name', 'year', 'later']
 
-    def __init__(self, row):
-        Row.__init__(self, Team, row)
+    id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    name = sa.Column(sa.String, nullable=False)
+    year = sa.Column(sa.Integer, nullable=False)
+    later = sa.Column(sa.String, nullable=False)
 
     @staticmethod
     def sort_by_later(team):
         return team.later
 
+    # Table
 
-class TeamsTable(Table):
-    table = "team"
-    row = Team
-    create = '''(
-        id      INT NOT NULL UNIQUE KEY AUTO_INCREMENT,
-        name	TEXT NOT NULL,
-        year	INT NOT NULL,
-        later	TEXT NOT NULL,
-        PRIMARY KEY(id)
-        );'''
+    @classmethod
+    def select_by_year(cls, year: int) -> list:
+        return cls.__select_by_expr__(cls.year == year)
 
-    @staticmethod
-    def select_by_year(year: int) -> list:
-        return Query.select_list(TeamsTable.table, Team, 'year', year)
+    @classmethod
+    def select_by_year_and_later(cls, year: int, later: str):
+        return cls.__select_by_expr__(cls.year == year, cls.later == later, one=True)
 
-    @staticmethod
-    def select_by_year_and_later(year: int, later: str) -> Team:
-        return Query.select_one(TeamsTable.table, Team, 'year', year, 'later', later)
-
-    @staticmethod
-    def delete_by_year(year: int) -> None:
-        return Query.delete(TeamsTable.table, 'year', year)
+    @classmethod
+    def delete_by_year(cls, year: int) -> None:
+        return cls.__delete_by_expr__(cls.year == year)

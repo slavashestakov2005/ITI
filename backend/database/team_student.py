@@ -1,44 +1,31 @@
-from backend.database import Row, Table, Query
+from .__db_session import sa, SqlAlchemyBase, Table
 
 
-class TeamStudent(Row):
-    """
-        Строка таблицы TeamsStudentsTable
-        team        INT     NOT NULL    PK
-        student     INT     NOT NULL    PK
-    """
+class TeamStudent(SqlAlchemyBase, Table):
+    __tablename__ = 'teams_students'
     fields = ['team', 'student']
 
-    def __init__(self, row):
-        Row.__init__(self, TeamStudent, row)
+    team = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    student = sa.Column(sa.Integer, nullable=False, primary_key=True)
 
+    # Table
 
-class TeamsStudentsTable(Table):
-    table = "teams_students"
-    row = TeamStudent
-    create = '''(
-        team	INT NOT NULL,
-        student	INT NOT NULL,
-        PRIMARY KEY(team,student)
-        );'''
+    @classmethod
+    def select_by_team(cls, team: int) -> list:
+        return cls.__select_by_expr__(cls.team == team)
 
-    @staticmethod
-    def select_by_team(team: int) -> list:
-        return Query.select_list(TeamsStudentsTable.table, TeamStudent, 'team', team)
+    @classmethod
+    def select_by_student(cls, student: int) -> list:
+        return cls.__select_by_expr__(cls.student == student)
 
-    @staticmethod
-    def select_by_student(student: int) -> list:
-        return Query.select_list(TeamsStudentsTable.table, TeamStudent, 'student', student)
+    @classmethod
+    def select(cls, team_student):
+        return cls.__select_by_expr__(cls.team == team_student.team, cls.student == team_student.student, one=True)
 
-    @staticmethod
-    def select(team_student: TeamStudent) -> TeamStudent:
-        return Query.select_one(TeamsStudentsTable.table, TeamStudent, 'team', team_student.team, 'student',
-                                team_student.student)
+    @classmethod
+    def delete(cls, team_student) -> None:
+        return cls.__delete_by_expr__(cls.team == team_student.team, cls.student == team_student.student)
 
-    @staticmethod
-    def delete(team_student: TeamStudent) -> None:
-        return Query.delete(TeamsStudentsTable.table, 'team', team_student.team, 'student', team_student.student)
-
-    @staticmethod
-    def delete_by_team(team: int) -> None:
-        return Query.delete(TeamsStudentsTable.table, 'team', team)
+    @classmethod
+    def delete_by_team(cls, team: int) -> None:
+        return cls.__delete_by_expr__(cls.team == team)
