@@ -10,6 +10,6 @@ class ConfigDB:
     PA_DB = 'iti106$iti'
 
     DROP_DB = True if os.getenv('DROP_DB') else False
-    DB = os.getenv('DATABASE_URL') if Config.HEROKU else 'backend/database.database'
+    DB = os.getenv('DATABASE_URL') if Config.HEROKU else 'backend/database.db'
     DB_COLS_PREFIX = 'c_' if Config.HEROKU else ''
     DB_TABLE_PREFIX = 't_' if Config.HEROKU else ''

@@ -1,5 +1,4 @@
-import sqlalchemy as sa
-from .__db_session import SqlAlchemyBase, Table, execute_sql
+from .__db_session import sa, SqlAlchemyBase, Table, execute_sql
 from .__config_db import ConfigDB
 
 
@@ -39,11 +38,12 @@ class Student(SqlAlchemyBase, Table):
 
     # Table
 
-    # @staticmethod
-    # def select_all(year: int) -> list:
-    #     if year > 0:
-    #         return Query.select_list_with_where(StudentsTable.table, Student, 'class_n', 5, 9)
-    #     return Query
+    @classmethod
+    def select_all(cls, year: int) -> list:
+        sql = 'SELECT * FROM {0} WHERE {1} <= {2} AND {2} <= {3}'
+        if year > 0:
+            return execute_sql(sql.format(cls.__tablename__, 5, ConfigDB.DB_COLS_PREFIX + 'class_n', 9))
+        return execute_sql(sql.format(cls.__tablename__, 2, ConfigDB.DB_COLS_PREFIX + 'class_n', 4))
 
     @classmethod
     def select_by_class_n(cls, class_n: int) -> list:
@@ -51,8 +51,8 @@ class Student(SqlAlchemyBase, Table):
 
     @classmethod
     def select_by_student(cls, student):
-        return cls.__select_by_expr__(cls.name_1==student.name_1, cls.name_2==student.name_2,
-                                cls.class_n==student.class_n, cls.class_l==student.class_l, one=True)
+        return cls.__select_by_expr__(cls.name_1 == student.name_1, cls.name_2 == student.name_2,
+                                cls.class_n == student.class_n, cls.class_l == student.class_l, one=True)
 
     @classmethod
     def add_class(cls, class_n):

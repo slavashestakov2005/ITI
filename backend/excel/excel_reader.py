@@ -111,11 +111,9 @@ class ExcelFullReader:
         self.students_codes = set(self.students_codes)
 
     def __gen_results__(self):
-        result = []
         for i, row in self.result.iterrows():
             if row[0] in self.subjects and int(row[1]) in self.students_codes and str(row[2]) != 'nan':
-                result.append(Result.build(self.year, self.subjects[row[0]], int(row[1]), row[2], 0, str(row[2]), 0))
-        Result.replace(result)
+                Result.replace(Result.build(self.year, self.subjects[row[0]], int(row[1]), row[2], 0, str(row[2]), 0))
         for subject in self.subjects.values():
             t = self.all_subjects[subject].type_str()
             Generator.gen_results(self.year, subject, str(self.year) + '/' + t + '/' + str(subject) + '.html')

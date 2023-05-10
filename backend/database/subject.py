@@ -1,5 +1,4 @@
-import sqlalchemy as sa
-from .__db_session import SqlAlchemyBase, Table
+from .__db_session import sa, SqlAlchemyBase, Table
 
 
 class Subject(SqlAlchemyBase, Table):

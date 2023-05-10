@@ -2,9 +2,6 @@ from .help import SplitFile, all_templates, tr_format, compare, class_min, class
     individual_days_count, class_cnt
 from backend.excel.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter, ExcelDiplomaWriter
 from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, User, Year, YearSubject
-# from ..database import YearsTable, SubjectsTable, YearsSubjectsTable, StudentsTable, ResultsTable, StudentsCodesTable, \
-#     TeamsTable, TeamsStudentsTable, GroupResultsTable, Result, Student, Team, YearSubject, SubjectsFilesTable, \
-#     GroupResult, SubjectsStudentsTable, UsersTable, TeamStudent
 from backend.config import Config
 import glob
 #TODO: убрать повторы коды в генерации результатов

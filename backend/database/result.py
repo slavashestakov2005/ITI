@@ -1,5 +1,4 @@
-import sqlalchemy as sa
-from .__db_session import SqlAlchemyBase, Table
+from .__db_session import create_session, sa, SqlAlchemyBase, Table
 
 
 class Result(SqlAlchemyBase, Table):
@@ -35,13 +34,13 @@ class Result(SqlAlchemyBase, Table):
     def update(cls, result) -> None:
         return cls.__update_by_expr__(result, cls.year == result.year, cls.subject == result.subject, cls.user == result.user)
 
-    # @classmethod
-    # def replace(results: list) -> None:
-    #     i = 0
-    #     while i < len(results):
-    #         j = min(i + 125, len(results))
-    #         Query.replace(ResultsTable.table, results[i:j])
-    #         i = j
+    @classmethod
+    def replace(cls, result) -> None:
+        res = cls.select_for_people(result)
+        if res is None:
+            cls.insert(result)
+        else:
+            cls.update(result)
 
     @classmethod
     def delete_by_year(cls, year: int) -> None:

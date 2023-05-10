@@ -1,5 +1,4 @@
-import sqlalchemy as sa
-from .__db_session import SqlAlchemyBase, Table
+from .__db_session import create_session, sa, SqlAlchemyBase, Table
 
 
 class StudentCode(SqlAlchemyBase, Table):
@@ -22,9 +21,6 @@ class StudentCode(SqlAlchemyBase, Table):
         if day > 1:
             day = 2
         if not day:
-            # r1 = Query.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code1', code)
-            # r2 = Query.select_one(StudentsCodesTable.table, StudentCode, 'year', year, 'code2', code)
-            # return set([r1, r2])
             return [cls.select_by_code(year, code, 1)]
         return cls.__select_by_expr__(cls.year == year, getattr(cls, 'code' + str(day)) == code, one=True)
 
@@ -32,13 +28,12 @@ class StudentCode(SqlAlchemyBase, Table):
     def select_by_student(cls, year: int, student: int):
         return cls.__select_by_expr__(cls.year == year, cls.student == student, one=True)
 
-    # @staticmethod
-    # def insert_all(codes: list) -> None:
-    #     i = 0
-    #     while i < len(codes):
-    #         j = min(i + 125, len(codes))
-    #         Query.insert(StudentsCodesTable.table, codes[i:j])
-    #         i = j
+    @staticmethod
+    def insert_all(codes: list) -> None:
+        session = create_session()
+        for code in codes:
+            session.add(code)
+        session.commit()
 
     @classmethod
     def delete_by_year(cls, year: int) -> None:

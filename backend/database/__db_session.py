@@ -60,11 +60,11 @@ class Table:
 
     @classmethod
     def one_or_many(cls, data, one=False):
-        return data if not one else data[0] if len(data) else None
+        return data.one_or_none() if one else data.all()
 
     @classmethod
     def __select_by_expr__(cls, *exprs, one=False):
-        return cls.one_or_many(create_session().query(cls).filter(sa.and_(*exprs)).all(), one)
+        return cls.one_or_many(create_session().query(cls).filter(sa.and_(*exprs)), one)
 
     @classmethod
     def select(cls, _id):

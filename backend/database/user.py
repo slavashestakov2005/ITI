@@ -1,8 +1,11 @@
-import datetime
-import sqlalchemy as sa
-from .__db_session import SqlAlchemyBase, Table
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from .__db_session import sa, SqlAlchemyBase, Table
+from .team import Team
+
+
+def is_in_team(year: int):
+    return -10 * abs(year) - (2 if year < 0 else 0), -10 * abs(year) - (3 if year < 0 else 1)
 
 
 class User(SqlAlchemyBase, UserMixin, Table):
@@ -34,13 +37,13 @@ class User(SqlAlchemyBase, UserMixin, Table):
                self.status == -1 and status != -2 or \
                status > 0 and (self.status >> status) % 2
 
-    # def teams_list(self, year: int):
-    #     can = set(map(int, self.teams.split()))
-    #     now = set([_.id for _ in TeamsTable.select_by_year(year)])
-    #     now.add(is_in_team(year)[1])
-    #     if self.can_do(-1):
-    #         return now
-    #     return list(can.intersection(now))
+    def teams_list(self, year: int):
+        can = set(map(int, self.teams.split()))
+        now = set([_.id for _ in Team.select_by_year(year)])
+        now.add(is_in_team(year)[1])
+        if self.can_do(-1):
+            return now
+        return list(can.intersection(now))
 
     def add_team(self, team: int):
         self.teams = ' '.join([str(team), *self.teams.split()])

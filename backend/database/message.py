@@ -1,6 +1,5 @@
-import sqlalchemy as sa
-from .__db_session import SqlAlchemyBase, Table
 from datetime import datetime
+from .__db_session import sa, SqlAlchemyBase, Table
 
 
 class Message(SqlAlchemyBase, Table):
