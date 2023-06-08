@@ -1,7 +1,6 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from .__db_session import sa, SqlAlchemyBase, Table
-from .team import Team
 
 
 def is_in_team(year: int):
@@ -10,13 +9,12 @@ def is_in_team(year: int):
 
 class User(SqlAlchemyBase, UserMixin, Table):
     __tablename__ = 'user'
-    fields = ['id', 'login', 'password', 'status', 'teams']
+    fields = ['id', 'login', 'password', 'status']
 
     id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     login = sa.Column(sa.String, nullable=False, unique=True)
     password = sa.Column(sa.String, nullable=False)
     status = sa.Column(sa.Integer, nullable=False)      # -2 = 'full', -1 = 'admin', x = ...100100... (subjects)
-    teams = sa.Column(sa.String, nullable=False)
 
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)
@@ -37,23 +35,6 @@ class User(SqlAlchemyBase, UserMixin, Table):
                self.status == -1 and status != -2 or \
                status > 0 and (self.status >> status) % 2
 
-    def teams_list(self, year: int):
-        can = set(map(int, self.teams.split()))
-        now = set([_.id for _ in Team.select_by_year(year)])
-        now.add(is_in_team(year)[1])
-        if self.can_do(-1):
-            return now
-        return list(can.intersection(now))
-
-    def add_team(self, team: int):
-        self.teams = ' '.join([str(team), *self.teams.split()])
-
-    def delete_team(self, team: int):
-        self.teams = ' '.join(set(self.teams.split()).symmetric_difference([str(team)]))
-
-    def is_exists_team(self, team: int):
-        return str(team) in self.teams.split()
-
     def subjects_str(self, subjects):
         if self.status < 0:
             return 'admin'
@@ -67,13 +48,13 @@ class User(SqlAlchemyBase, UserMixin, Table):
 
     @classmethod
     def default_init(cls):
-        u = cls.build(None, 'slava', '', -2, '')
+        u = cls.build(None, 'slava', '', -2)
         u.set_password('123')
         cls.insert(u)
-        u = cls.build(None, 'Савокина', '', -1, '')
+        u = cls.build(None, 'Савокина', '', -1)
         u.set_password('1')
         cls.insert(u)
-        u = cls.build(None, 'Проходский', '', -1, '')
+        u = cls.build(None, 'Проходский', '', -1)
         u.set_password('1')
         cls.insert(u)
 

@@ -5,13 +5,12 @@
 <center><h1>Настройки пользователя</h1></center>
 <div class="row col-12 justify-content-center">
 	<div class="col t-3">
-		<form action="settings" method="post">
-			<p>Логин: {{ current_user.login }} (неизменяем)</p>
+		<form onsubmit="user_settings(this); return false;">
+			<p>ID (неизменяем): <input type="text" name="id" value="{{ current_user.id }}" readonly></p>
+			<p>Логин (неизменяем): {{ current_user.login }}</p>
 			<p>Старый пароль: <input type="password" name="password_old"></p>
 			<p>Новый пароль: <input type="password" name="password"></p>
 			<p>Подтверждение пароля: <input type="password" name="password2"></p>
-			{% if error %} <p class="error-msg">[ {{ error }} ]</p>
-			{% endif %}
 			<input type="submit" value="Сохранить">
 		</form>
 	</div>

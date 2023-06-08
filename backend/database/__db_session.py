@@ -3,6 +3,7 @@ import sqlalchemy.orm as orm
 from sqlalchemy.orm import Session
 import sqlalchemy.ext.declarative as dec
 from .__config_db import ConfigDB
+from ..help.errors import EmptyFieldException
 
 
 SqlAlchemyBase = dec.declarative_base()
@@ -50,7 +51,10 @@ class Table:
         position = 0
         fields = {}
         for field in cls.fields:
-            fields[field] = row[position]
+            value = row[position]
+            if value == '':
+                raise EmptyFieldException(field)
+            fields[field] = value
             position += 1
         return cls(**fields)
 
@@ -92,9 +96,9 @@ class Table:
 
     @classmethod
     def __delete_by_expr__(cls, *exprs):
+        expr = cls.__table__.delete().where(sa.and_(*exprs))
         session = create_session()
-        row = session.query(cls).filter(sa.and_(*exprs)).first()
-        session.delete(row)
+        session.execute(expr)
         session.commit()
 
     @classmethod

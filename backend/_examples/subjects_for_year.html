@@ -53,13 +53,11 @@
         <br>
         {% if full %}
         <h2>Блокировка:</h2>
-        <form action="year_block" method="post"><center>
+        <form onsubmit="year_block(this); return false;"><center>
             <!-- is_block -->
-                <p><input type="radio" name="is_block" value="0" checked>Разблокировано</p>
-                <p><input type="radio" name="is_block" value="1">Заблокировано</p>
+                <p><input type="radio" name="block" value="0" checked>Разблокировано</p>
+                <p><input type="radio" name="block" value="1">Заблокировано</p>
             <!-- end -->
-            {% if error8 %} <p class="error-msg">[ {{ error8 }} ]</p>
-            {% endif %}
             <p><input type="submit" value="Сохранить"></p>
         </center></form>
         {% endif %}

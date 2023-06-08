@@ -75,47 +75,6 @@ def _delete_year(year: int):
         pass
 
 
-@app.route("/add_year", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('full')
-@check_block_year()
-def add_year():
-    try:
-        name = int(request.form['name'])
-        if abs(name) <= 2000 or abs(name) >= 2100:
-            raise ValueError
-    except ValueError:
-        return render_template('subjects_and_years.html', error1='Некорректный год')
-
-    year = Year.select(name)
-    if year is not None:
-        return render_template('subjects_and_years.html', error1='Год уже существует')
-    year = Year.build(name, '', 0)
-    Year.insert(year)
-    FileCreator.create_year(name)
-    Generator.gen_years_lists()
-    Generator.gen_years_subjects_list(name)
-    return render_template('subjects_and_years.html', error1='Год добавлен')
-
-
-@app.route("/delete_year", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('full')
-@check_block_year()
-def delete_year():
-    try:
-        year = int(request.form['year'])
-    except ValueError:
-        return render_template('subjects_and_years.html', error6='Некорректный год')
-
-    if Year.select(year) is None:
-        return render_template('subjects_and_years.html', error6='Года не существует')
-    _delete_year(year)
-    return render_template('subjects_and_years.html', error6='Год удалён')
-
-
 @app.route("/add_subject", methods=['POST'])
 @cross_origin()
 @login_required
@@ -226,30 +185,12 @@ def page_args(year: int):
     return {'year': abs(year), 'messages': Message.select_by_year(year)}
 
 
-@app.route('/<year:year>/year_block', methods=['POST', 'GET'])
+@app.route('/<year:year>/year_block')
 @cross_origin()
 @login_required
 @check_status('full')
 def year_block(year: int):
-    if request.method == 'GET':
-        return render_template(str(year) + '/subjects_for_year.html', **page_args(year))
-    try:
-        is_block = int(request.form['is_block'])
-    except ValueError:
-        return render_template(str(year) + '/subjects_for_year.html', error8='Некорректный ввод', **page_args(year))
-
-    year = Year.select(year)
-    if year is None:
-        return render_template(str(year.year) + '/subjects_for_year.html', error8='Этого года нет.', **page_args(year.year))
-    year.block = is_block
-    Year.update(year)
-    data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year.year) + '/subjects_for_year.html')
-    data.insert_after_comment(' is_block ', '''
-                <p><input type="radio" name="is_block" value="0" {0}>Разблокировано</p>
-                <p><input type="radio" name="is_block" value="1" {1}>Заблокировано</p>
-            '''.format('checked' if is_block == 0 else '', 'checked' if is_block == 1 else ''))
-    data.save_file()
-    return render_template(str(year.year) + '/subjects_for_year.html', error8='Сохранено.', **page_args(year.year))
+    return render_template(str(year) + '/subjects_for_year.html', **page_args(year))
 
 
 @app.route('/load_data_from_excel', methods=['POST', 'GET'])

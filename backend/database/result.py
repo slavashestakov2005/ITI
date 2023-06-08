@@ -1,4 +1,4 @@
-from .__db_session import create_session, sa, SqlAlchemyBase, Table
+from .__db_session import sa, SqlAlchemyBase, Table
 
 
 class Result(SqlAlchemyBase, Table):

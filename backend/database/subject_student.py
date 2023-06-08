@@ -25,7 +25,7 @@ class SubjectStudent(SqlAlchemyBase, Table):
 
     @classmethod
     def delete(cls, subject_student) -> None:
-        return cls.__delete_by_expr__(cls.year == subject_student.year, cls.subject == subject_student.subject, cls.student ==  subject_student.student)
+        return cls.__delete_by_expr__(cls.year == subject_student.year, cls.subject == subject_student.subject, cls.student == subject_student.student)
 
     @classmethod
     def delete_by_year(cls, year: int) -> None:
