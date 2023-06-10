@@ -5,11 +5,9 @@
 <div class="row col-12 justify-content-center">
 	<div class="col t-3"><center>
 		<h1>Сохранение результатов</h1>
-		<form action="save_group_results" method="post">
+		<form onsubmit="group_results_save(this); return false;">
 			<!-- teams list for saving group results --><!-- end -->
 			<p>Если результат ещё не был сохранён, то в поле отображается 0.</p>
-			{% if error1 %} <p class="error-msg">[ {{ error1 }} ]</p>
-			{% endif %}
 			<input type="submit" value="Сохранить">
 		</form>
 	</center></div>

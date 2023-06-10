@@ -40,19 +40,31 @@ def execute_sql(text: str):
 class Table:
     id_field, fields = 'id', []
 
+    def __xor__(self, other):
+        row = []
+        cls = self.__class__
+        for field in cls.fields:
+            v1 = getattr(self, field)
+            v2 = getattr(other, field)
+            if v2 != '' and v2 is not None:
+                row.append(v2)
+            else:
+                row.append(v1)
+        return cls.build(*row, allow_empty=True)
+
     @classmethod
     def default_init(cls):
         pass
 
     @classmethod
-    def build(cls, *row):
+    def build(cls, *row, allow_empty=False):
         if len(row) == 0:
             return None
         position = 0
         fields = {}
         for field in cls.fields:
             value = row[position]
-            if value == '':
+            if value == '' and not allow_empty:
                 raise EmptyFieldException(field)
             fields[field] = value
             position += 1

@@ -2,10 +2,8 @@ from backend import app
 from flask import render_template, request, redirect
 from flask_cors import cross_origin
 from flask_login import current_user, login_required
-from ..database import User
-from .help import check_status, check_block_year, empty_checker
+from .help import check_status, check_block_year
 from ..help import ConfigMail
-from .auto_generator import Generator
 '''
                     TEMPLATE1           Имя шаблона с настройкой пользователя (себя).
                     TEMPLATE2           Имя шаблона с настройкой другого пользователя.

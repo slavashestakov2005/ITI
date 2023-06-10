@@ -8,7 +8,7 @@
 
 <div class="row col-12 justify-content-center">
     <div class="col t-3">
-        <form action="subject_year" method="post"><center>
+        <form onsubmit="year_subject_save(this); return false;"><center>
             <h2>Предметы:</h2>
             <table width="100%">
                 <tr>
@@ -24,14 +24,12 @@
                     </td>
                 </tr>
             </table>
-            {% if error1 %} <p class="error-msg">[ {{ error1 }} ]</p>
-            {% endif %}
             <input type="submit" value="Сохранить">
         </center></form>
     </div>
     <div class="col t-3"><center>
         <h2>Расписание:</h2>
-        <form action="subject_description" method="post"><center>
+        <form onsubmit="year_subject_edit(this, 'description'); return false;"><center>
             <p>Предмет (номер): <input type="text" name="subject"></p>
             <p>Классы: <input type="text" name="classes"></p>
             <p>Кабинет: <input type="text" name="place" size="40"></p>
@@ -43,8 +41,6 @@
                 Начало: <input type="time" name="start">
                 Конец: <input type="time" name="end">
             </p>
-            {% if error6 %} <p class="error-msg">[ {{ error6 }} ]</p>
-            {% endif %}
             <p><input type="submit" value="Сохранить"></p>
         </center></form>
         <br>
@@ -82,20 +78,18 @@
         </table>
         <br>
         <h3>Добавить:</h3>
-        <form action="add_message" method="post"><center>
+        <form onsubmit="message_add(this); return false;"><center>
             <p><textarea name="title" class="js-textarea" placeholder="Заголовок"></textarea></p>
             <p><textarea name="content" class="js-textarea" placeholder="Содержимое"></textarea></p>
             <p>Время публикации (текущее по умолчанию):
                 <input type="date" name="date">
                 <input type="time" name="time">
             </p>
-            {% if error7 %} <p class="error-msg">[ {{ error7 }} ]</p>
-            {% endif %}
             <p><input type="submit" value="Добавить"></p>
         </center></form>
         <br>
         <h3>Редактировать:</h3>
-        <form action="edit_message" method="post"><center>
+        <form onsubmit="message_edit(this); return false;"><center>
             <p>Номер: <input type="text" name="id"></p>
             <p><textarea name="title" class="js-textarea" placeholder="Заголовок"></textarea></p>
             <p><textarea name="content" class="js-textarea" placeholder="Содержимое"></textarea></p>
@@ -104,16 +98,12 @@
                 <input type="time" name="time">
             </p>
             <p>Если поле оставить пустым, то измения этого параметра не произойдёт.</p>
-            {% if error9 %} <p class="error-msg">[ {{ error9 }} ]</p>
-            {% endif %}
             <p><input type="submit" value="Сохранить"></p>
         </center></form>
         <br>
         <h3>Удалить:</h3>
-        <form action="delete_message" method="post"><center>
+        <form onsubmit="message_delete(this); return false;"><center>
             <p>Номер: <input type="text" name="id"></p>
-            {% if error10 %} <p class="error-msg">[ {{ error10 }} ]</p>
-            {% endif %}
             <p><input type="submit" value="Удалить"></p>
         </center></form>
     </center></div>

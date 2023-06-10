@@ -48,7 +48,7 @@ def save_result_(user: User, year: int, subject: int, user_id: int, res: str):
 def delete_result_(user: User, year: int, subject: int, user_id: int):
     if not user.can_do(-1):
         return -1
-    r = Result.build(year, subject, user_id, 0, 0, '', 0)
+    r = Result.build(year, subject, user_id, 0, 0, '', 0, allow_empty=True)
     old_r = Result.select_for_people(r)
     if old_r is None:
         return 1

@@ -26,29 +26,23 @@
             <!-- list of teams (full) -->
             <!-- end -->
         </table>
-        <form action="add_team" method="post"><center>
+        <form onsubmit="team_add(this); return false;"><center>
             <h3>Новая команда:</h3>
             <p>Название: <input type="text" name="name"></p>
             <p>Вертикаль: <input type="text" name="later"></p>
-            {% if error1 %} <p class="error-msg">[ {{ error1 }} ]</p>
-            {% endif %}
             <input type="submit" value="Добавить">
             <p>Первая буква вертикали автоматически переводится в верхний регистр.</p>
         </center></form>
-        <form action="edit_team" method="post"><center>
+        <form onsubmit="team_edit(this); return false;"><center>
             <h3>Изменить команду:</h3>
-            <p>Номер: <input type="text" name="id"></p>
+            <p>ID: <input type="text" name="id"></p>
             <p>Новое название: <input type="text" name="name"></p>
             <p>Новая вертикаль: <input type="text" name="later"></p>
-            {% if error8 %} <p class="error-msg">[ {{ error8 }} ]</p>
-            {% endif %}
             <input type="submit" value="Обновить">
         </center></form>
-        <form action="delete_team" method="post"><center>
+        <form onsubmit="team_delete(this); return false;"><center>
             <h3>Удалить команду:</h3>
-            <p>Номер: <input type="text" name="id"></p>
-            {% if error2 %} <p class="error-msg">[ {{ error2 }} ]</p>
-            {% endif %}
+            <p>ID: <input type="text" name="id"></p>
             <input type="submit" value="Удалить">
         </center></form>
     </center></div>
@@ -73,24 +67,16 @@
     </center></div>
     <div class="col t-3"><center>
         <h2>Участники команд:</h2>
-        <form action="add_student_team" method="post"><center>
+        <form onsubmit="team_student_add(this); return false;"><center>
             <h3>Новый участник:</h3>
-            <p>Команда (номер): <input type="text" name="team"></p>
-            <p>Имя: <input type="text" name="name2"></p>
-            <p>Фамилия: <input type="text" name="name1"></p>
-            <p>Класс: <input type="text" name="class"></p>
-            {% if error3 %} <p class="error-msg">[ {{ error3 }} ]</p>
-            {% endif %}
+            <p>Команда (ID): <input type="text" name="team"></p>
+            <p>Участник (ID): <input type="text" name="student"></p>
             <input type="submit" value="Добавить">
         </center></form>
-        <form action="delete_student_team" method="post"><center>
+        <form onsubmit="team_student_delete(this); return false;"><center>
             <h3>Удалить участника:</h3>
-            <p>Команда (номер): <input type="text" name="team"></p>
-            <p>Имя: <input type="text" name="name2"></p>
-            <p>Фамилия: <input type="text" name="name1"></p>
-            <p>Класс: <input type="text" name="class"></p>
-            {% if error4 %} <p class="error-msg">[ {{ error4 }} ]</p>
-            {% endif %}
+            <p>Команда (ID): <input type="text" name="team"></p>
+            <p>Участник (ID): <input type="text" name="student"></p>
             <input type="submit" value="Удалить">
         </center></form>
     </center></div>
@@ -98,7 +84,7 @@
     <div class="col t-2"><center>
         <h2>Ваши команды:</h2>
         {% for team in teams %}
-            <form action="student_subject" method="post"><center>
+            <form onsubmit="subject_student_save(this); return false;"><center>
                 <h3>{{ team[0] }}</h3>
                 <table border="1">
                     <tr>

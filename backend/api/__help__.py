@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import make_response, jsonify
 from flask_cors import cross_origin
 from flask_login import current_user
@@ -35,8 +36,9 @@ def api_item(method, status=None):
                 data['status'] = 'OK' if result else 'FAIL'
                 return make_response(jsonify(data), 200 if result else 404)
             except EmptyFieldException as ex:
-                return make_response(jsonify({'status': 'FAIL', 'message': 'Пустое поле ' + ex}), 404)
-            except Exception:
+                return make_response(jsonify({'status': 'FAIL', 'message': 'Пустое поле ' + str(ex)}), 404)
+            except Exception as ex:
+                print(ex)
                 return make_response(jsonify({'status': 'FAIL', 'message': 'Ошибка на сервере'}), 500)
 
         return wrapped
@@ -58,9 +60,18 @@ def api_group(status=None):
                 return make_response(jsonify(data), 200 if result else 404)
             except EmptyFieldException as ex:
                 return make_response(jsonify({'status': 'FAIL', 'message': 'Пустое поле ' + str(ex)}), 404)
-            except Exception:
+            except Exception as ex:
+                print(ex)
                 return make_response(jsonify({'status': 'FAIL', 'message': 'Ошибка на сервере'}), 500)
 
         return wrapped
 
     return my_decorator
+
+
+def get_point(date: str, time: str, null=True):
+    if not date or not time:
+        return None if null else int(datetime.now().timestamp())
+    date = [int(_) for _ in date.split('-')]
+    time = [int(_) for _ in time.split(':')]
+    return int(datetime(*date, *time).timestamp())

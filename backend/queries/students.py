@@ -1,6 +1,6 @@
 from backend import app
 from ..database import Student, StudentCode, Year
-from .help import check_status, check_block_year, split_class, empty_checker
+from .help import check_status, check_block_year
 from .auto_generator import Generator
 from flask import render_template, request, send_file
 from flask_cors import cross_origin
@@ -16,90 +16,6 @@ from random import sample
     /create_students_lists  create_students_lists()     Генерирует списки участников для всех классов (admin).
     /update_all_class_n     update_all_class_n()        Переводит всех школьников в следующий класс (full).
 '''
-
-
-@app.route('/registration_student', methods=['POST'])
-@cross_origin()
-@login_required
-@check_block_year()
-def registration_student():
-    try:
-        class_ = split_class(request.form['class'])
-        name1, name2 = request.form['name1'].capitalize(), request.form['name2'].capitalize()
-        gender = request.form['gender']
-        empty_checker(name1, name2)
-        student = Student.build(None, name1, name2, class_[0], class_[1].capitalize(), gender)
-    except Exception:
-        return render_template('student_edit.html', error1='Некорректные данные')
-
-    s = Student.select_by_student(student)
-    if s is not None:
-        return render_template('student_edit.html', error1='Такой участник уже есть')
-    Student.insert(student)
-    Generator.gen_students_list(student.class_n)
-    return render_template('student_edit.html', error1='Участник добавлен')
-
-
-@app.route('/edit_student', methods=['POST'])
-@cross_origin()
-@login_required
-@check_block_year()
-def edit_student():
-    try:
-        class_old = split_class(request.form['o_class'])
-        o_name1, o_name2 = request.form['o_name1'].capitalize(), request.form['o_name2'].capitalize()
-        empty_checker(o_name1, o_name2)
-        student_old = Student.build(None, o_name1, o_name2, class_old[0], class_old[1].capitalize(), 0)
-    except Exception:
-        return render_template('student_edit.html', error2='Некорректные данные')
-
-    student_old = Student.select_by_student(student_old)
-    rows = []
-    if student_old is None:
-        return render_template('student_edit.html', error2='Такого участника нет')
-    rows.append(student_old.id)
-
-    try:
-        rows.append(request.form['n_name1'].capitalize() if request.form['n_name1'] else student_old.name_1)
-        rows.append(request.form['n_name2'].capitalize() if request.form['n_name2'] else student_old.name_2)
-        if request.form['n_class']:
-            class_ = split_class(request.form['n_class'])
-            rows.append(class_[0])
-            rows.append(class_[1].capitalize())
-        else:
-            rows.append(student_old.class_n)
-            rows.append(student_old.class_l)
-        empty_checker(rows[1], rows[2])
-        rows.append(request.form['n_gender'] if 'n_gender' in request.form else student_old.gender)
-    except Exception:
-        return render_template('student_edit.html', error2='Некорректные данные')
-
-    s = Student.build(*rows)
-    Student.update(s)
-    Generator.gen_students_list(student_old.class_n)
-    Generator.gen_students_list(s.class_n)
-    return render_template('student_edit.html', error2='Данные изменены')
-
-
-@app.route('/delete_student', methods=['POST'])
-@cross_origin()
-@login_required
-@check_block_year()
-def delete_student():
-    try:
-        class_ = split_class(request.form['class'])
-        name1, name2 = request.form['name1'].capitalize(), request.form['name2'].capitalize()
-        empty_checker(name1, name2)
-        student = Student.build(None, name1, name2, class_[0], class_[1].capitalize(), 0)
-    except Exception:
-        return render_template('student_edit.html', error3='Некорректные данные')
-
-    student = Student.select_by_student(student)
-    if student is None:
-        return render_template('student_edit.html', error3='Такого участника нет')
-    Student.delete(student)
-    Generator.gen_students_list(student.class_n)
-    return render_template('student_edit.html', error3='Участник удалён')
 
 
 @app.route("/<year:year>/create_codes")

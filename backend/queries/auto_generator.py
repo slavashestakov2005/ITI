@@ -684,6 +684,7 @@ class Generator:
             txt += template.format(str(class_n) + r[0], r[0])
             position, last_pos, last_result, un_zero = 1, 1, None, 0
             for x in class_results[r[0]]:
+                # TODO: починить строку ниже
                 x_team = list(set([_.team for _ in TeamStudent.select_by_student(x.id)]).intersection(teams))
                 x_subjects = SubjectStudent.select_by_student(year, x.id)
                 if len(x_subjects) and len(x_team) != 1:

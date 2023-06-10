@@ -16,25 +16,19 @@
 <div class="row col-12 justify-content-center">
 	<div class="col t-3"><center>
 		<h1>Максимальный балл</h1>
-		<form action="max_score" method="post">
+		<form onsubmit="year_subject_edit(this, 'score'); return false;">
 			<p>2 класс: <input type="text" name="score_2" value="{{s2}}"></p>
 			<p>3 класс: <input type="text" name="score_3" value="{{s3}}"></p>
 			<p>4 класс: <input type="text" name="score_4" value="{{s4}}"></p>
-			{% if error1 %} <p><font color="red">[ {{ error1 }} ]</font></p>
-			{% endif %}
 			<p>Если оставить поле пустыми (или поставить 0), то данного предмета для данного класса не будет.</p>
 			<input type="submit" value="Сохранить">
 		</form>
 	</center></div>
 	<div class="col t-3"><center>
 		<h1>Сохранение результатов</h1>
-		<form action="save_result" method="post">
+		<form onsubmit="result_save(this); return false;">
 			<p>Код участника: <input id="results_for_focus" type="text" name="code"></p>
 			<p>Результат: <input type="text" name="result"></p>
-			{% if error2 %}
-				<p><font color="red" id="text_for_alert">[ {{ error2 }} ]</font></p>
-				{% if show_alert %} <script> window.onload = show_alert </script> {% endif %}
-			{% endif %}
 			<p>Введите баллы за все задачи. Разделитель между числами может быть любым; десятичный разделитель — ',' или '.'.
 				Симолы 'х', 'Х', 'x', 'X' распознаются как задачи, к которым участник не писал решение.</p>
 			<input type="submit" value="Сохранить">
@@ -63,11 +57,9 @@
 		<h1><a href="download_excel">Скачать данные в формате Excel</a></h1>
 		<br>
 		<h1>Удаление результатов</h1>
-		<form action="delete_result" method="post">
+		<form onsubmit="result_delete(this); return false;">
 			<p>Код участника: <input type="text" name="code"></p>
 			<input type="submit" value="Удалить">
-			{% if error5 %} <p><font color="red">[ {{ error5 }} ]</font></p>
-			{% endif %}
 		</form>
 	</center></div>
 	{% endif %}

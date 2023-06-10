@@ -34,36 +34,30 @@
 	</div>
 	<div class="col t-3">
 		<h1>Добавить предмет</h1>
-		<form action="add_subject" method="post">
+		<form onsubmit="subject_add(this); return false;">
 			<p>Название: <input type="text" name="name"></p>
 			<p>Короткое название: <input type="text" name="short_name"></p>
 			<p>Тип (i / g / a): <input type="text" name="type"></p>
 			<p>Текст диплома: <textarea type="text" id="diploma" name="diploma" class="slim" oninput="textInput(document, 'diploma')"></textarea></p>
 			<p>Текст новости: <textarea type="text" id="msg" name="msg" class="slim" oninput="textInput(document, 'msg')"></textarea></p>
 			<script>textInput(document, 'diploma'); textInput(document, 'msg');</script>
-			{% if error2 %} <p class="error-msg">[ {{ error2 }} ]</p>
-			{% endif %}
 			<input type="submit" value="Добавить">
 		</form>
 		<h1>Редактировать предмет</h1>
-		<form action="edit_subject" method="post">
-			<p>Номер: <input type="text" name="id"></p>
-			<p>Название: <input type="text" name="new_name"></p>
-			<p>Короткое название: <input type="text" name="new_short_name"></p>
-			<p>Тип (i / g / a): <input type="text" name="new_type"></p>
-			<p>Текст диплома: <textarea type="text" id="new_diploma" name="new_diploma" class="slim" oninput="textInput(document, 'new_diploma')"></textarea></p>
-			<p>Текст новости: <textarea type="text" id="new_msg" name="new_msg" class="slim" oninput="textInput(document, 'new_msg')"></textarea></p>
+		<form onsubmit="subject_edit(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			<p>Название: <input type="text" name="name"></p>
+			<p>Короткое название: <input type="text" name="short_name"></p>
+			<p>Тип (i / g / a): <input type="text" name="type"></p>
+			<p>Текст диплома: <textarea type="text" id="new_diploma" name="diploma" class="slim" oninput="textInput(document, 'new_diploma')"></textarea></p>
+			<p>Текст новости: <textarea type="text" id="new_msg" name="msg" class="slim" oninput="textInput(document, 'new_msg')"></textarea></p>
 			<script>textInput(document, 'new_diploma');textInput(document, 'new_msg');</script>
 			Если оставить поле пустым, то данные не изменятся.
-			{% if error3 %} <p class="error-msg">[ {{ error3 }} ]</p>
-			{% endif %}
 			<input type="submit" value="Сохранить">
 		</form>
 		<h1>Удалить предмет</h1>
-		<form action="delete_subject" method="post">
-			<p>Номер: <input type="text" name="id"></p>
-			{% if error4 %} <p class="error-msg">[ {{ error4 }} ]</p>
-			{% endif %}
+		<form onsubmit="subject_delete(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
 			<input type="submit" value="Удалить">
 		</form>
 	</div>

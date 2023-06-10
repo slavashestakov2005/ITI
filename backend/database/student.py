@@ -40,10 +40,9 @@ class Student(SqlAlchemyBase, Table):
 
     @classmethod
     def select_all(cls, year: int) -> list:
-        sql = 'SELECT * FROM {0} WHERE {1} <= {2} AND {2} <= {3}'
         if year > 0:
-            return execute_sql(sql.format(cls.__tablename__, 5, ConfigDB.DB_COLS_PREFIX + 'class_n', 9))
-        return execute_sql(sql.format(cls.__tablename__, 2, ConfigDB.DB_COLS_PREFIX + 'class_n', 4))
+            return cls.__select_by_expr__(5 <= cls.class_n, cls.class_n <= 9)
+        return cls.__select_by_expr__(2 <= cls.class_n, cls.class_n <= 4)
 
     @classmethod
     def select_by_class_n(cls, class_n: int) -> list:
@@ -55,6 +54,6 @@ class Student(SqlAlchemyBase, Table):
                                 cls.class_n == student.class_n, cls.class_l == student.class_l, one=True)
 
     @classmethod
-    def add_class(cls, class_n):
+    def add_class(cls):
         sql = 'UPDATE {0} SET {1} = {1} + 1'.format(cls.__tablename__, ConfigDB.DB_COLS_PREFIX + 'class_n')
         return execute_sql(sql)

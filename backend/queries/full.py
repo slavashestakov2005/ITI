@@ -5,7 +5,7 @@ from flask_login import login_required
 import shutil
 import glob
 import os
-from .help import check_status, check_block_year, SplitFile, empty_checker, path_to_subject, is_in_team, correct_new_line
+from .help import check_status, check_block_year, path_to_subject, is_in_team
 from ..help import init_mail_messages, FileManager, AsyncWorker
 from ..excel import ExcelFullWriter
 from ..database import execute_sql, GroupResult, Message, Result, StudentCode, Subject, SubjectStudent, Team, TeamStudent, Year, YearSubject
@@ -73,86 +73,6 @@ def _delete_year(year: int):
         shutil.rmtree(dir2)
     except FileNotFoundError:
         pass
-
-
-@app.route("/add_subject", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('full')
-@check_block_year()
-def add_subject():
-    try:
-        name = request.form['name']
-        short_name = request.form['short_name']
-        subject_type = request.form['type']
-        diploma = correct_new_line(request.form['diploma'])
-        msg = correct_new_line(request.form['msg'])
-        empty_checker(name)
-        if subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
-            raise ValueError
-    except Exception:
-        return render_template('subjects_and_years.html', error2='Некорректные данные')
-
-    subject = Subject.select_by_name(name)
-    if subject is not None:
-        return render_template('subjects_and_years.html', error2='Предмет уже существует')
-    subject = Subject.build(None, name, short_name, subject_type, diploma, msg)
-    Subject.insert(subject)
-    subject = Subject.select_by_name(subject.name)
-    Generator.gen_subjects_lists()
-    if subject_type == 'g':
-        Generator.gen_rules(subject)
-    return render_template('subjects_and_years.html', error2='Предмет добавлен')
-
-
-@app.route("/edit_subject", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('full')
-@check_block_year()
-def edit_subject():
-    try:
-        id = int(request.form['id'])
-        new_name = request.form['new_name']
-        short_name = request.form['new_short_name']
-        subject_type = request.form['new_type']
-        diploma = correct_new_line(request.form['new_diploma'])
-        msg = correct_new_line(request.form['new_msg'])
-        if len(subject_type) and subject_type != 'i' and subject_type != 'g' and subject_type != 'a':
-            raise ValueError
-    except Exception:
-        return render_template('subjects_and_years.html',  error3='Некорректные данные')
-
-    subject = Subject.select(id)
-    if subject is None:
-        return render_template('subjects_and_years.html',  error3='Предмета не существует')
-    subject.name = new_name if len(new_name) else subject.name
-    subject.short_name = short_name if len(short_name) else subject.short_name
-    subject.type = subject_type if len(subject_type) else subject.type
-    subject.diploma = diploma if len(diploma) else subject.diploma
-    subject.msg = msg if len(msg) else subject.msg
-    Subject.update(subject)
-    Generator.gen_subjects_lists()
-    return render_template('subjects_and_years.html', error3='Предмет обновлён')
-
-
-@app.route("/delete_subject", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('full')
-@check_block_year()
-def delete_subject():
-    try:
-        id = int(request.form['id'])
-    except ValueError:
-        return render_template('subjects_and_years.html',  error4='Некорректный id')
-
-    subject = Subject.select(id)
-    if subject is None:
-        return render_template('subjects_and_years.html', error4='Предмета не существует')
-    Subject.delete(subject)
-    Generator.gen_subjects_lists()
-    return render_template('subjects_and_years.html', error4='Предмет удалён')
 
 
 @app.route("/global_settings", methods=['POST'])

@@ -5,13 +5,11 @@
 <div class="row col-12 justify-content-center">
 	<div class="col t-3">
 		<h1>Новый участник</h1>
-		<form action="registration_student" method="post">
+		<form onsubmit="student_registration(this); return false;">
 			<p>Имя: <input type="text" name="name2"></p>
 			<p>Фамилия: <input type="text" name="name1"></p>
 			<p>Класс (номер и буква): <input type="text" name="class"></p>
 			<p>Пол: <input name="gender" type="radio" value="0" checked>М&nbsp;&nbsp;<input name="gender" type="radio" value="1">Ж</p>
-			{% if error1 %} <p class="error-msg">[ {{ error1 }} ]</p>
-			{% endif %}
 			<input type="submit" value="Создать">
 			<p>Первая буква имени, фамилии и буква класса автоматически переводятся в верхний регистр.
 				Все остальные буквы — в нижний.</p>
@@ -19,30 +17,20 @@
 	</div>
 	<div class="col t-3">
 		<h1>Изменить участника</h1>
-		<form action="edit_student" method="post">
-			<h2>Старые данные</h2>
-			<p>Имя: <input type="text" name="o_name2"></p>
-			<p>Фамилия: <input type="text" name="o_name1"></p>
-			<p>Класс (номер и буква): <input type="text" name="o_class"></p>
-			<h2>Новые данные</h2>
-			<p>Имя: <input type="text" name="n_name2"></p>
-			<p>Фамилия: <input type="text" name="n_name1"></p>
-			<p>Класс (номер и буква): <input type="text" name="n_class"></p>
-			<p>Пол: <input name="n_gender" type="radio" value="0">М&nbsp;&nbsp;<input name="n_gender" type="radio" value="1">Ж</p>
-			{% if error2 %} <p class="error-msg">[ {{ error2 }} ]</p>
-			{% endif %}
+		<form onsubmit="student_edit(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			<p>Имя: <input type="text" name="name2"></p>
+			<p>Фамилия: <input type="text" name="name1"></p>
+			<p>Класс (номер и буква): <input type="text" name="class"></p>
+			<p>Пол: <input name="gender" type="radio" value="0">М&nbsp;&nbsp;<input name="gender" type="radio" value="1">Ж</p>
 			<input type="submit" value="Изменить">
 			<p>Если поля новых данных оставить пустыми, то информация не изменится.</p>
 		</form>
 	</div>
 	<div class="col t-3">
 		<h1>Удалить участника</h1>
-		<form action="delete_student" method="post">
-			<p>Имя: <input type="text" name="name2"></p>
-			<p>Фамилия: <input type="text" name="name1"></p>
-			<p>Класс (номер и буква): <input type="text" name="class"></p>
-			{% if error3 %} <p class="error-msg">[ {{ error3 }} ]</p>
-			{% endif %}
+		<form onsubmit="student_delete(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
 			<input type="submit" value="Удалить">
 		</form>
 	</div>

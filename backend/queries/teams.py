@@ -1,6 +1,6 @@
 from backend import app
 from ..database import Student, Subject, SubjectStudent, Team, TeamStudent, YearSubject, User
-from .help import check_status, check_block_year, split_class, empty_checker, is_in_team, compare
+from .help import check_status, check_block_year, empty_checker, is_in_team, compare
 from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
@@ -58,136 +58,6 @@ def teams_page_params(user: User, year: int):
         return {}
 
 
-@app.route("/<year:year>/add_team", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_year()
-def add_team(year: int):
-    args = teams_page_params(current_user, year)
-    try:
-        name = request.form['name']
-        later = request.form['later'].capitalize()
-        empty_checker(name, later)
-    except Exception:
-        return render_template(str(year) + '/teams_for_year.html', **args, error1='Некорректные данные')
-
-    if Team.select_by_year_and_later(year, later) is not None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error1='Команда от этой вертикали уже есть')
-    Team.insert(Team.build(None, name, year, later))
-    Generator.gen_teams(year)
-    return render_template(str(year) + '/teams_for_year.html', **args, error1='Команда добавлена')
-
-
-@app.route("/<year:year>/edit_team", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_year()
-def edit_team(year: int):
-    args = teams_page_params(current_user, year)
-    try:
-        team_id = int(request.form['id'])
-        name = request.form['name']
-        later = request.form['later'].capitalize()
-    except Exception:
-        return render_template(str(year) + '/teams_for_year.html', **args, error8='Некорректные данные')
-
-    team = Team.select(team_id)
-    if team is None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error8='Такой команды нет')
-    if Team.select_by_year_and_later(year, later) is not None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error8='Команда от этой вертикали уже есть')
-    if name and len(name):
-        team.name = name
-    if later and len(later):
-        team.later = later
-    Team.update(team)
-    Generator.gen_teams(year)
-    Generator.gen_teams_students(year)
-    return render_template(str(year) + '/teams_for_year.html', **args, error8='Данные обновлены')
-
-
-@app.route("/<year:year>/delete_team", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_year()
-def delete_team(year: int):
-    try:
-        id = int(request.form['id'])
-    except Exception:
-        return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
-                               error2='Некорректные данные')
-
-    Team.delete(Team.build(id, '', year, ''))
-    Generator.gen_teams(year)
-    return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
-                           error2='Команда удалена')
-
-
-@app.route("/<year:year>/add_student_team", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_year()
-def add_student_team(year: int):
-    args = teams_page_params(current_user, year)
-    try:
-        team = int(request.form['team'])
-        name1 = request.form['name1'].capitalize()
-        name2 = request.form['name2'].capitalize()
-        class_ = split_class(request.form['class'])
-        class_[1].capitalize()
-        empty_checker(name1, name2)
-    except Exception:
-        return render_template(str(year) + '/teams_for_year.html', **args, error3='Некорректные данные')
-
-    if Team.select(team) is None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error3='Такой команды нет')
-    student = Student.select_by_student(Student.build(None, name1, name2, class_[0], class_[1], 0))
-    if student is None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error3='Такого участника нет')
-    team_student = TeamStudent.build(team, student.id)
-    if TeamStudent.select(team_student) is not None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error3='Этот участник уже в этой команде')
-    TeamStudent.insert(team_student)
-    Generator.gen_teams_students(year)
-    return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
-                           error3='Участник добавлен')
-
-
-@app.route("/<year:year>/delete_student_team", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_year()
-def delete_student_team(year: int):
-    args = teams_page_params(current_user, year)
-    try:
-        team = int(request.form['team'])
-        name1 = request.form['name1'].capitalize()
-        name2 = request.form['name2'].capitalize()
-        class_ = split_class(request.form['class'])
-        class_[1].capitalize()
-        empty_checker(name1, name2)
-    except Exception:
-        return render_template(str(year) + '/teams_for_year.html', **args, error4='Некорректные данные')
-
-    if Team.select(team) is None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error4='Такой команды нет')
-    student = Student.select_by_student(Student.build(None, name1, name2, class_[0], class_[1], 0))
-    if student is None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error4='Такого участника нет')
-    team_student = TeamStudent.build(team, student.id)
-    if TeamStudent.select(team_student) is None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error4='Этого человека нет в этой команде')
-    TeamStudent.delete(team_student)
-    Generator.gen_teams_students(year)
-    return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
-                           error4='Участник удалён')
-
-
 @app.route("/<year:year>/save_teams", methods=['POST'])
 @cross_origin()
 @login_required
@@ -221,25 +91,6 @@ def save_teams(year: int):
             TeamStudent.insert(TeamStudent.build(pl, st))
     Generator.gen_ratings(year)
     return render_template(url, **teams_page_params(current_user, year), **kw)
-
-
-@app.route("/<year:year>/student_subject", methods=['POST'])
-@cross_origin()
-@login_required
-@check_block_year()
-def student_subject(year: int):
-    subjects = set(request.form.getlist('subject'))
-    old_subjects = set(request.form.getlist('old_subject'))
-    different = subjects.symmetric_difference(old_subjects)
-    for x in different:
-        t = x.split('_')
-        t = SubjectStudent.build(year, int(t[0]), int(t[1]))
-        if x in subjects:
-            SubjectStudent.insert(t)
-        else:
-            SubjectStudent.delete(t)
-    return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year),
-                           error5='Сохранено')
 
 
 @app.route("/<year:year>/team_edit")

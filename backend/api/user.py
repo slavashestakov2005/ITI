@@ -31,6 +31,8 @@ class UserResource(Resource):
             if not args['password']:
                 return False, {'message': 'Новый пароль пустой'}
             user.set_password(args['password'])
+        else:
+            return False, {'message': 'Неизвестный тип запроса'}
         User.update(user)
         Generator.gen_users_list()
         return True, {'message': 'Пользователь обновлён'}
