@@ -25,6 +25,15 @@ class Subject(SqlAlchemyBase, Table):
     def msg_br(self):
         return self.msg.replace('\n', '<br>')
 
+    @staticmethod
+    def sort_by_type(subject):
+        if subject.type == 'i':
+            return 0
+        elif subject.type == 'g':
+            return 1
+        else:
+            return 2
+
     # Table
     @classmethod
     def default_init(cls):

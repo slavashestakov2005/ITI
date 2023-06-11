@@ -1,7 +1,6 @@
-# from backend.help.log import Log
 from backend.excel.excel_parent import ExcelParentWriter
 from backend.queries.help import class_min, compare
-from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, User
+from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent
 
 
 class ExcelSubjectWriter(ExcelParentWriter):
@@ -115,19 +114,6 @@ class ExcelFullWriter(ExcelParentWriter):
             data.append([team.later, team.name])
         self.__write__(worksheet, data, cols_cnt=1)
 
-    def __gen_history__(self, worksheet):
-        self.__head__(worksheet, 'Время', 'Пользователь', 'Тип', 'Описание', 'Отмена', widths=[20, 20, 20, 25, 20])
-        users = {_.id: _.login for _ in User.select_all()}
-        data = []
-        # for his in HistoriesTable.select_by_year(self.year):
-        #     if his.description[:1] == '@':
-        #         sp = his.description.split('; ', 1)
-        #         sp[0] = self.subjects[int(sp[0][1:])]
-        #         his.description = '; '.join(sp)
-        #     revert = '' if not his.revert else 'Отменено ' + users[int(his.revert)]
-        #     data.append([his.time_str(), users[his.user], Log.actions[his.type], his.description, revert])
-        self.__write__(worksheet, data, cols_cnt=4)
-
     def __gen_results__(self, worksheet):
         self.__head__(worksheet, 'Предмет', 'Код', 'Балл', 'Сумма', 'Чист. балл')
         data = []
@@ -153,13 +139,6 @@ class ExcelFullWriter(ExcelParentWriter):
             worksheet.set_column(3, max_len + 2, 45)
             worksheet.merge_range(0, 3, 0, max_len + 2, 'Участники', self.center_style)
 
-    def __gen_appeals__(self, worksheet):
-        self.__head__(worksheet, 'Предмет', 'Код', 'Задания', 'Описание')
-        data = []
-        # for appeal in AppealsTable.select_by_year(self.year):
-        #     data.append([self.subjects[appeal.subject], appeal.student, appeal.tasks, appeal.description])
-        self.__write__(worksheet, data, cols_cnt=3)
-
     def write(self, filename: str):
         self.students = {_.id: [_.name_1, _.name_2, _.class_name(), _.get_gender()] for _ in Student.select_all(self.year)}
         self.subjects = {_.id: _.name for _ in Subject.select_all()}
@@ -179,8 +158,6 @@ class ExcelFullWriter(ExcelParentWriter):
         self.__styles__(filename)
         self.__gen_codes__(self.workbook.add_worksheet('Коды'))
         self.__gen_teams__(self.workbook.add_worksheet('Команды'))
-        self.__gen_history__(self.workbook.add_worksheet('История'))
         self.__gen_results__(self.workbook.add_worksheet('Результаты'))
         self.__gen_group_results__(self.workbook.add_worksheet('Групповые результаты'))
-        self.__gen_appeals__(self.workbook.add_worksheet('Апелляции'))
         self.workbook.close()

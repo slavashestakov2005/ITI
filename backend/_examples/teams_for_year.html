@@ -47,25 +47,6 @@
         </center></form>
     </center></div>
     <div class="col t-3"><center>
-        <h2>Руководители команд:</h2>
-        <form action="add_user_team" method="post"><center>
-            <h3>Добавить руководителя:</h3>
-            <p>Логин: <input type="text" name="login"></p>
-            <p>Номер команды: <input type="text" name="team"></p>
-            {% if error6 %} <p class="error-msg">[ {{ error6 }} ]</p>
-            {% endif %}
-            <input type="submit" value="Добавить">
-        </center></form>
-        <form action="delete_user_team" method="post"><center>
-            <h3>Удалить руководителя:</h3>
-            <p>Логин: <input type="text" name="login"></p>
-            <p>Номер команды: <input type="text" name="team"></p>
-            {% if error7 %} <p class="error-msg">[ {{ error7 }} ]</p>
-            {% endif %}
-            <input type="submit" value="Добавить">
-        </center></form>
-    </center></div>
-    <div class="col t-3"><center>
         <h2>Участники команд:</h2>
         <form onsubmit="team_student_add(this); return false;"><center>
             <h3>Новый участник:</h3>

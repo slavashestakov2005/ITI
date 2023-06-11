@@ -2,6 +2,7 @@ from backend.help.errors import forbidden_error
 from flask_login import current_user
 from functools import wraps, cmp_to_key
 from glob import glob
+from jinja2 import Environment, FileSystemLoader
 from backend.config import Config
 from ..help import FileManager, correct_slash
 from ..database import Year
@@ -266,3 +267,22 @@ class SplitFile:
                 f.write(self.writable())
             FileManager.save(file_name)
         self.replace = {}
+
+
+default_replace = [['<!-- replace 1 -->', '{% extends "base.html" %}{% block content %}'],
+                   ['<!-- replace 2 -->', '{% endblock %}\n']]
+
+
+def html_render(template_name: str, output_name: str, template_folder: str = Config.HTML_FOLDER,
+                output_folder: str = Config.TEMPLATES_FOLDER, replaced: list = None, **data):
+    if replaced is None:
+        replaced = []
+    env = Environment(loader=FileSystemLoader(template_folder))
+    template = env.get_template(template_name)
+    data = template.render(**data)
+    for rep in default_replace:
+        data = data.replace(rep[0], rep[1])
+    for rep in replaced:
+        data = data.replace(rep[0], rep[1])
+    with open(output_folder + '/' + output_name, 'w', encoding='UTF-8') as f:
+        f.write(data)

@@ -2,14 +2,11 @@ from backend import app
 from ..database import Student, StudentCode, Year
 from .help import check_status, check_block_year
 from .auto_generator import Generator
-from flask import render_template, request, send_file
+from flask import render_template, send_file
 from flask_cors import cross_origin
 from flask_login import login_required
 from random import sample
 '''
-    /registration_student   registration_student()      Регистрирует участника.
-    /edit_student           edit_student()              Редактирует ученика.
-    /delete_student         delete_student()            Удаляет ученика.
     /<year>/create_codes    create_codes()              Создаёт коды для участников (admin).
     /<year>/print_codes     print_codes()               Генерирует страницу с кодами всех участников (admin).
     /<year>/get_codes       get_codes()                 Возвращает Excel таблицу с годовой кодировкой (admin).

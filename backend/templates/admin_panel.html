@@ -11,14 +11,14 @@
             <li><a href="subjects_and_years.html">Создать ИТИ или предмет</a></li>
             <!--<li><a href="#" onclick="edit(document)">Редактировать страницу</a></li>-->
             <li><a href="student_edit.html">Участники (школьники)</a></li>
-            <li><a href="settings">Настройки пользователя (и сайта)</a></li>
+            <li><a href="settings.html">Настройки пользователя (и сайта)</a></li>
             {% elif adm %}
             <li><a href="user_edit.html">Пользователи (учителя)</a></li>
             <li><a href="student_edit.html">Участники (школьники)</a></li>
-            <li><a href="settings">Настройки пользователя</a></li>
+            <li><a href="settings.html">Настройки пользователя</a></li>
             {% else %}
             <li><a href="student_edit.html">Участники (школьники)</a></li>
-            <li><a href="settings">Настройки пользователя</a></li>
+            <li><a href="settings.html">Настройки пользователя</a></li>
             {% endif %}
         </ul>
     </div>
@@ -33,7 +33,6 @@
             <li><a href="{{ year }}/subjects_for_year.html">Редактировать ИТИ</a></li>
             <li><a href="{{ year }}/team_edit">Команды ИТИ</a></li>
             <li><a href="{{ year }}/codes.html">Коды участников</a></li>
-            <li><a href="{{ year }}/history">История операций</a></li>
             {% else %}
             <li><a href="{{ year }}/team_edit">Настройки команд</a></li>
             {% endif %}

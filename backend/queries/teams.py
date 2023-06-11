@@ -1,6 +1,6 @@
 from backend import app
 from ..database import Student, Subject, SubjectStudent, Team, TeamStudent, YearSubject, User
-from .help import check_status, check_block_year, empty_checker, is_in_team, compare
+from .help import check_status, check_block_year, is_in_team, compare
 from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
@@ -8,16 +8,8 @@ from flask_login import login_required, current_user
 from .messages_help import message_teams_public
 '''
     teams_page_params(user, year)                               Параметры для страницы 'teams_for_year.html'
-    /<year>/add_team                add_team()                  Добавляет команду.
-    /<year>/edit_team               edit_team()                 Редактирует команду.
-    /<year>/delete_team             delete_team()               Удаляет команду.
-    /<year>/add_student_team        add_student_team()          Добавляет участника в команду.
-    /<year>/delete_student_team     delete_student_team()       Удаляет участника из команды.
     /<year>/save_teams              save_teams()                Список согласных / несогласных играть у команде.
-    /<year>/student_subject         student_subject()           Добавляет командного участника на групповой тур.
     /<year>/team_edit               team_edit()                 redirect с параметрами на страницу редактирования.
-    /<year>/add_user_team           add_user_team()             Добавляет руководителя команды.
-    /<year>/delete_user_team        delete_user_team()          Удаляет руководителя команды.
     /<year>/automatic_division      automatic_division()        Генерирует автоматическое распределение школьников.
 '''
 
@@ -99,56 +91,6 @@ def save_teams(year: int):
 @check_block_year()
 def team_edit(year: int):
     return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year))
-
-
-@app.route("/<year:year>/add_user_team", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_year()
-def add_user_team(year: int):
-    args = teams_page_params(current_user, year)
-    try:
-        login = request.form['login']
-        team = int(request.form['team'])
-        empty_checker(login)
-    except Exception:
-        return render_template(str(year) + '/teams_for_year.html', **args, error6='Некорректные данные')
-
-    user = User.select_by_login(login)
-    if user is None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error6='Несуществующий логин')
-    if user.is_exists_team(team):
-        return render_template(str(year) + '/teams_for_year.html', **args, error6='Пользователь уже руководит этой'
-                                                                                  'командой')
-    user.add_team(team)
-    User.update_by_login(user)
-    return render_template(str(year) + '/teams_for_year.html', **args, error6='Руководитель добавлен')
-
-
-@app.route("/<year:year>/delete_user_team", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_year()
-def delete_user_team(year: int):
-    args = teams_page_params(current_user, year)
-    try:
-        login = request.form['login']
-        team = int(request.form['team'])
-        empty_checker(login)
-    except Exception:
-        return render_template(str(year) + '/teams_for_year.html', **args, error7='Некорректные данные')
-
-    user = User.select_by_login(login)
-    if user is None:
-        return render_template(str(year) + '/teams_for_year.html', **args, error7='Несуществующий логин')
-    if not user.is_exists_team(team):
-        return render_template(str(year) + '/teams_for_year.html', **args, error7='Пользователь не руководит этой '
-                                                                                  'командой')
-    user.delete_team(team)
-    User.update_by_login(user)
-    return render_template(str(year) + '/teams_for_year.html', **args, error7='Руководитель удалён')
 
 
 @app.route("/<year:year>/automatic_division", methods=['GET'])

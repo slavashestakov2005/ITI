@@ -1,0 +1,86 @@
+<!-- login required -->
+<!-- -2 -->
+<!-- replace 1 -->
+<div class="row col-12 justify-content-center">
+	<div class="col-sm-6 col-md-6 col-lg-4">
+		<h1>Добавить ИТИ</h1>
+		<form onsubmit="year_add(this); return false">
+			<p>Год: <input type="text" name="year"></p>
+			<input type="submit" value="Добавить">
+		</form>
+		<br>
+		<h1>Удалить ИТИ</h1>
+		<form onsubmit="year_delete(this); return false;">
+			<p>Год: <input type="text" name="year"></p>
+			<input type="submit" value="Удалить">
+		</form>
+		<br>
+		<h1>Загрузить данные</h1>
+		<form action="load_data_from_excel" method="post" enctype=multipart/form-data>
+			<p>Год: <input type="text" name="year"></p>
+			<p>Таблица: <input type="file" name="file"></p>
+			<p><input type="radio" name="type" value="1" checked>Всё</p>
+			<p><input type="radio" name="type" value="2">Список школьников</p>
+			{% raw %}{% if error5 %} <p class="error-msg">[ {{ error5 }} ]</p>{% endif %}{% endraw %}
+			<input type="submit" value="Загрузить">
+		</form>
+		<br>
+		<form action="load_data_from_excel" method="get">
+			<input type="submit" value="Обновить">
+		</form>
+	</div>
+	<div class="col-sm-6 col-md-6 col-lg-4">
+		<h1>Добавить предмет</h1>
+		<form onsubmit="subject_add(this); return false;">
+			<p>Название: <input type="text" name="name"></p>
+			<p>Короткое название: <input type="text" name="short_name"></p>
+			<p>Тип (i / g / a): <input type="text" name="type"></p>
+			<p>Текст диплома: <textarea type="text" id="diploma" name="diploma" class="slim" oninput="textInput(document, 'diploma')"></textarea></p>
+			<p>Текст новости: <textarea type="text" id="msg" name="msg" class="slim" oninput="textInput(document, 'msg')"></textarea></p>
+			<script>textInput(document, 'diploma'); textInput(document, 'msg');</script>
+			<input type="submit" value="Добавить">
+		</form>
+		<h1>Редактировать предмет</h1>
+		<form onsubmit="subject_edit(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			<p>Название: <input type="text" name="name"></p>
+			<p>Короткое название: <input type="text" name="short_name"></p>
+			<p>Тип (i / g / a): <input type="text" name="type"></p>
+			<p>Текст диплома: <textarea type="text" id="new_diploma" name="diploma" class="slim" oninput="textInput(document, 'new_diploma')"></textarea></p>
+			<p>Текст новости: <textarea type="text" id="new_msg" name="msg" class="slim" oninput="textInput(document, 'new_msg')"></textarea></p>
+			<script>textInput(document, 'new_diploma');textInput(document, 'new_msg');</script>
+			Если оставить поле пустым, то данные не изменятся.
+			<input type="submit" value="Сохранить">
+		</form>
+		<h1>Удалить предмет</h1>
+		<form onsubmit="subject_delete(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			<input type="submit" value="Удалить">
+		</form>
+	</div>
+	<div class="w-100"></div>
+	<div class="col-sm-12 col-md-10 col-lg-6">
+		<h1>Список предметов</h1>
+		<table width="100%" border="1">
+			<tr>
+				<td width="5%">Тип</td>
+				<td width="5%">ID</td>
+				<td width="15%">Название</td>
+				<td width="10%">Короткое название</td>
+				<td width="15%">Текст диплома</td>
+				<td width="15%">Текст новости</td>
+			</tr>
+			{% for subject in subjects %}
+				<tr>
+					<td>{{ subject.type }}</td>
+					<td>{{ subject.id }}</td>
+					<td>{{ subject.name }}</td>
+					<td>{{ subject.short_name }}</td>
+					<td>{{ subject.diplomas_br() }}</td>
+					<td>{{ subject.msg_br() }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</div>
+</div>
+<!-- replace 2 -->

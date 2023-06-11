@@ -1,13 +1,14 @@
+from flask import render_template
+from flask_cors import cross_origin
+from flask_login import login_required, current_user
 from backend import app
 from .help import check_status, check_block_year
 from ..database import Message
-from flask import render_template
-from flask_cors import cross_origin
-from flask_login import login_required
-
-
-def page_args(year: int):
-    return {'year': abs(year), 'messages': Message.select_by_year(year)}
+from ..help import ConfigMail
+'''
+    /<year>/subjects_for_year.html          Возвращает страницу с настройками года (admin).
+    /settings.html                          Возвращает страницу с настройками пользователя.
+'''
 
 
 @app.route("/<year:year>/subjects_for_year.html")
@@ -16,4 +17,15 @@ def page_args(year: int):
 @check_status('admin')
 @check_block_year()
 def subjects_for_year(year: int):
-    return render_template(str(year) + '/subjects_for_year.html', **page_args(year))
+    return render_template(str(year) + '/subjects_for_year.html', year=abs(year), messages=Message.select_by_year(year))
+
+
+@app.route("/settings.html")
+@cross_origin()
+@login_required
+@check_block_year()
+def settings():
+    params = {'password': 'Уже введён' if ConfigMail.MAIL_PASSWORD else 'Отсутствует',
+              'email': ConfigMail.MAIL_USERNAME, 'admins': str(ConfigMail.ADMINS)} \
+        if current_user.can_do(-2) else {}
+    return render_template('settings.html', **params)

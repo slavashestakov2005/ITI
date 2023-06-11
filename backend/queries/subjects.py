@@ -2,12 +2,10 @@ from backend import app
 from .help import check_status, check_block_year
 from .messages_help import message_timetable_public
 from ..database import Message, Year
-from flask import render_template, request
+from flask import render_template
 from flask_cors import cross_origin
-from flask_login import login_required, current_user
+from flask_login import login_required
 '''
-    /<year>/subject_year                    subject_year(year)          Сопоставляет ИТИ и предметы.
-    /<path1>/<path3>/max_score              max_score(...)              Сохраняет максимальные баллы по предмету.
     /<year>/subject_description             subject_description(...)    Сохраняет описание предмета (время и место).
 '''
 

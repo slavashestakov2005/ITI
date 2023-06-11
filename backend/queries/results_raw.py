@@ -1,6 +1,5 @@
 import re
 from ..database import Result, StudentCode, User, YearSubject
-# from ..help.log import Log
 '''
     prepare_results(res: str)       Получает данные из введённой строки результатов
     save_result_(...)               Возвращает код попытки сохранения или обновление результата.
@@ -38,10 +37,8 @@ def save_result_(user: User, year: int, subject: int, user_id: int, res: str):
             return 4
         else:
             Result.update(r)
-            # Log.log('result:update', user, year, subject, user_id, old_r.text_result, text_result)
     else:
         Result.insert(r)
-        # Log.log('result:save', user, year, subject, user_id, text_result)
     return 0
 
 
@@ -53,5 +50,4 @@ def delete_result_(user: User, year: int, subject: int, user_id: int):
     if old_r is None:
         return 1
     Result.delete_by_people(r)
-    # Log.log('result:delete', user, year, subject, user_id, old_r.text_result)
     return 0

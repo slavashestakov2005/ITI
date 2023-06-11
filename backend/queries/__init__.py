@@ -1,8 +1,6 @@
 import backend.queries.simple
 import backend.queries.files_edit
-import backend.queries.users
 import backend.queries.help
-import backend.queries.messages
 import backend.queries.messages_help
 import backend.queries.pages
 import backend.queries.full

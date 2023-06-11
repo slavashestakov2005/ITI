@@ -1,9 +1,8 @@
 from backend import app
-from .help import SplitFile
 from ..help import forbidden_error
 from ..excel import ExcelResultsReader
 from ..database import GroupResult, Result, Student, StudentCode, Subject, Team, YearSubject, Year
-from flask import render_template, request, redirect
+from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from .help import check_status, check_block_year, path_to_subject, compare, pref_year, \
@@ -18,18 +17,12 @@ from .messages_help import message_results_public, message_ratings_public, messa
     appeal_page_params(path1, path2, path3)                     Возвращает параметры для страницы 'add_appeal.html'
     group_page_params(path1, path2, path3)                      Возвращает параметры для '<year>/add_result.html'.
     chose_params(path1, path2, path3)                           Выбирает между page_params() и group_page_params().
-    /<year>/history                                             Обновляет историю операций и делает redirect (admin).
-    /<year>/revert                                              Отменяет операцию из истории (admin).
     /<path1>/<path2>/<path3>/add_result     add_result(...)     redirect на страницу редактирования (для предметников).
-    /<path1>/<path2>/<path3>/save_result    save_result(...)    Сохранение результатов (для предметников).
     /<path1>/<path2>/<path3>/load_result    load_result(...)    Загружает результаты (для предметников).
-    /<path1>/<path2>/<path3>/delete_result  delete_result(...)  Удаляет один результат (admin).
     /<path1>/<path2>/<path3>/share_results  share_results(...)  Генерирует таблицу с результатами (admin).
     /<year>/ratings_update                  ratings_update(...) Обновляет рейтинги (admin).
-    /<path1>/<path2>/<path3>/save_group_results      <...>      Сохранение групповых результатов (для предметников).
     /<path1>/share_all_results                       <...>
     /<path1>/<path2>/<path3>/share_group_results     <...>      Генерирует таблицу с групповыми результатами (admin).
-    /<path1>/<path2>/<path3>/add_appeal     add_appeal(...)     Сохранение апелляций и redirect на эту страницу.
 '''
 
 
@@ -113,36 +106,6 @@ def group_page_params(year: int, path3):
 
 def chose_params(p1: int, p2: str, p3: str):
     return group_page_params(p1, p3) if p2 == 'group' or p2 == 'team' else page_params(p1, p2, p3)
-
-
-@app.route('/<year:year>/history')
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_year()
-def history(year: int):
-    data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year) + '/history.html')
-    # data.insert_after_comment(' list of actions ', Logger.print(year))
-    data.save_file()
-    return redirect('history.html')
-
-
-# @app.route('/<year:year>/revert')
-# @cross_origin()
-# @login_required
-# @check_status('admin')
-# @check_block_year()
-# def revert(year: int):
-#     try:
-#         history_id = request.args.get('i')
-#     except Exception:
-#         return render_template('history.html')
-#
-#     history = HistoriesTable.select(history_id)
-#     if history is None:
-#         return render_template('history.html')
-#     Logger.revert(history, current_user)
-#     return redirect('history')
 
 
 @app.route('/<year:year>/<path:path3>/add_result')
@@ -284,35 +247,3 @@ def share_all_results(year: int):
     else:
         message_all_ratings_public(year, subjects)
         return render_template(url, **params, error='Рейтинги обновлены')
-
-
-# TODO: апелляции
-# @app.route('/<year:year>/<path:path2>/<path:path3>/add_appeal', methods=['GET', 'POST'])
-# @cross_origin()
-# @login_required
-# @check_block_year()
-# def add_appeal(year: int, path2, path3):
-#     params = appeal_page_params(year, path2, path3)
-#     try:
-#         subject = path_to_subject(path3)
-#     except Exception:
-#         return render_template('add_appeal.html', **params, error1='Некорректные данные')
-#
-#     ys = YearsSubjectsTable.select(year, subject)
-#     if ys is None:
-#         return render_template('add_appeal.html', **params, error1='Такого предмета нет в этом году.')
-#     if request.method == 'POST':
-#         try:
-#             code = int(request.form['code'])
-#             tasks = request.form['tasks']
-#             description = correct_new_line(request.form['description'])
-#             empty_checker(tasks, description)
-#         except Exception:
-#             params['error1'] = 'Некорректные данные'
-#         else:
-#             if StudentCode.select_by_code(year, code, ys.n_d) is None:
-#                 params['error1'] = 'Некорректный код'
-#             else:
-#                 AppealsTable.insert(Appeal([year, subject, code, tasks, description]))
-#                 params['error1'] = 'Апелляция подана'
-#     return render_template('add_appeal.html', **params)

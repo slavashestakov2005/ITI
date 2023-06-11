@@ -1,0 +1,68 @@
+<!-- login required -->
+<!-- -2 -->
+<!-- replace 1 -->
+<center><h1>{{ class_number }} класс</h1></center>
+
+<div class="row col-12 justify-content-center">
+    <div class="col t-3">
+        <table width="100%" border="1">
+            <tr>
+                <td width="5%">ID</td>
+                <td width="10%">Фамилия</td>
+                <td width="10%">Имя</td>
+                <td width="5%">Класс</td>
+                <td width="5%">Пол</td>
+            </tr>
+            {% for student in students1 %}
+                <tr>
+                    <td>{{ student.id }}</td>
+                    <td>{{ student.name_1 }}</td>
+                    <td>{{ student.name_2 }}</td>
+                    <td>{{ student.class_name() }}</td>
+                    <td>{{ student.get_gender() }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="col t-3">
+        <table width="100%" border="1">
+            <tr>
+                <td width="5%">ID</td>
+                <td width="10%">Фамилия</td>
+                <td width="10%">Имя</td>
+                <td width="5%">Класс</td>
+                <td width="5%">Пол</td>
+            </tr>
+            {% for student in students2 %}
+                <tr>
+                    <td>{{ student.id }}</td>
+                    <td>{{ student.name_1 }}</td>
+                    <td>{{ student.name_2 }}</td>
+                    <td>{{ student.class_name() }}</td>
+                    <td>{{ student.get_gender() }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="col t-3">
+        <table width="100%" border="1">
+            <tr>
+                <td width="5%">ID</td>
+                <td width="10%">Фамилия</td>
+                <td width="10%">Имя</td>
+                <td width="5%">Класс</td>
+                <td width="5%">Пол</td>
+            </tr>
+            {% for student in students3 %}
+                <tr>
+                    <td>{{ student.id }}</td>
+                    <td>{{ student.name_1 }}</td>
+                    <td>{{ student.name_2 }}</td>
+                    <td>{{ student.class_name() }}</td>
+                    <td>{{ student.get_gender() }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+<!-- replace 2 -->

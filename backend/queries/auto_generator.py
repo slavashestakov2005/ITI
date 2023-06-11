@@ -1,5 +1,5 @@
 from .help import SplitFile, all_templates, tr_format, compare, class_min, class_max, team_cnt, is_in_team, \
-    individual_days_count, class_cnt
+    individual_days_count, class_cnt, html_render
 from backend.excel.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter, ExcelDiplomaWriter
 from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, User, Year, YearSubject
 from backend.config import Config
@@ -92,6 +92,8 @@ class Generator:
             data.insert_after_comment(' list of group tours (2) ', type5 + ' ' * 8)
             data.insert_after_comment(' list of another tours (2) ', type6 + ' ' * 8)
             data.save_file()
+        html_render('subjects_and_years.html', 'subjects_and_years.html',
+                    subjects=sorted(subjects, key=Subject.sort_by_type))
 
     @staticmethod
     def gen_years_subjects_list(year: int):
@@ -135,64 +137,27 @@ class Generator:
             data.save_file()
 
     @staticmethod
-    def gen_students_list_1(student: Student):
-        return tr_format(student.name_1, student.name_2, student.class_name(), student.get_gender())
-
-    @staticmethod
     def gen_students_list(class_n: int):
-        file_name = Config.TEMPLATES_FOLDER + '/students_' + str(class_n) + '.html'
         students = Student.select_by_class_n(class_n)
         students = sorted(students, key=compare(lambda x: Student.sort_by_class(x), lambda x: x.name_1,
                                                 lambda x: x.name_2, field=True))
         length = len(students)
         m1 = length - length * 2 // 3
         m2 = length - length // 3
-        text1 = text2 = text3 = '\n'
-        for i in range(0, m1):
-            text1 += Generator.gen_students_list_1(students[i])
-        for i in range(m1, m2):
-            text2 += Generator.gen_students_list_1(students[i])
-        for i in range(m2, length):
-            text3 += Generator.gen_students_list_1(students[i])
-        data = SplitFile(file_name)
-        data.insert_after_comment(' students_table 1 ', text1)
-        data.insert_after_comment(' students_table 2 ', text2)
-        data.insert_after_comment(' students_table 3 ', text3)
-        data.save_file()
-
-    @staticmethod
-    def gen_codes_1(s):
-        return tr_format(s[0].class_name(), s[0].name_1, s[0].name_2, *s[1]), \
-               [s[0].name_1, s[0].name_2, s[0].class_name(), *s[1]]
+        html_render('students_table.html', 'students_' + str(class_n) + '.html', class_number=class_n,
+                    students1=students[:m1], students2=students[m1:m2], students3=students[m2:])
 
     @staticmethod
     def gen_codes(year: int):
-        file_name = Config.TEMPLATES_FOLDER + "/" + str(year) + "/codes.html"
         students = Generator.get_inv_codes(year)
         students = sorted(students.items(), key=compare(lambda x: Student.sort_by_class(x[0]),
                                                         lambda x: Student.sort_by_name(x[0]), field=True))
         length = len(students)
         m1 = length - length * 2 // 3
         m2 = length - length // 3
-        text1 = text2 = text3 = '\n'
-        arr = []
-        for i in range(0, m1):
-            t, a = Generator.gen_codes_1(students[i])
-            text1 += t
-            arr.append(a)
-        for i in range(m1, m2):
-            t, a = Generator.gen_codes_1(students[i])
-            text2 += t
-            arr.append(a)
-        for i in range(m2, length):
-            t, a = Generator.gen_codes_1(students[i])
-            text3 += t
-            arr.append(a)
-        data = SplitFile(file_name)
-        data.insert_after_comment(' codes_table 1 ', text1)
-        data.insert_after_comment(' codes_table 2 ', text2)
-        data.insert_after_comment(' codes_table 3 ', text3)
-        data.save_file()
+        html_render('codes_table.html', str(year) + "/codes.html", codes1=students[:m1], codes2=students[m1:m2],
+                    codes3=students[m2:])
+        arr = [[s[0].name_1, s[0].name_2, s[0].class_name(), *s[1]] for s in students]
         ExcelCodesWriter(year).write(Config.DATA_FOLDER + '/codes_{}.xlsx'.format(year), arr)
 
     @staticmethod
