@@ -4,15 +4,11 @@ from .__db_session import sa, SqlAlchemyBase, Table
 
 class YearSubject(SqlAlchemyBase, Table):
     __tablename__ = 'years_subjects'
-    fields = ['year', 'subject', 'score_5', 'score_6', 'score_7', 'score_8', 'score_9', 'start', 'end', 'classes', 'place', 'n_d']
+    fields = ['id', 'year', 'subject', 'start', 'end', 'classes', 'place', 'n_d']
 
-    year = sa.Column(sa.Integer, nullable=False, primary_key=True)
-    subject = sa.Column(sa.Integer, nullable=False, primary_key=True)
-    score_5 = sa.Column(sa.Integer, nullable=False)
-    score_6 = sa.Column(sa.Integer, nullable=False)
-    score_7 = sa.Column(sa.Integer, nullable=False)
-    score_8 = sa.Column(sa.Integer, nullable=False)
-    score_9 = sa.Column(sa.Integer, nullable=False)
+    id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
+    year = sa.Column(sa.Integer, nullable=False)
+    subject = sa.Column(sa.Integer, nullable=False)
     start = sa.Column(sa.Integer, nullable=False)
     end = sa.Column(sa.Integer, nullable=False)
     classes = sa.Column(sa.String, nullable=False)

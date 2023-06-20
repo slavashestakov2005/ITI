@@ -1,7 +1,6 @@
-from .help import SplitFile, all_templates, tr_format, compare, class_min, class_max, team_cnt, is_in_team, \
-    individual_days_count, class_cnt, html_render
+from .help import SplitFile, all_templates, tr_format, compare, is_in_team, html_render
 from backend.excel.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter, ExcelDiplomaWriter
-from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, User, Year, YearSubject
+from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, User, Year, YearSubject, YearSubjectScore
 from backend.config import Config
 import glob
 #TODO: убрать повторы коды в генерации результатов
@@ -161,12 +160,10 @@ class Generator:
         ExcelCodesWriter(year).write(Config.DATA_FOLDER + '/codes_{}.xlsx'.format(year), arr)
 
     @staticmethod
-    def get_net_score(maximum: int, best_score: int, score: int, year: int) -> int:
-        if year > 0:
-            if 2 * best_score >= maximum:
-                return int(0.5 + score * 100 / best_score)
-            return int(0.5 + score * 200 / maximum)
-        return score  # НШ хочет баллы [0;30], у максимума не 100%
+    def get_net_score(maximum: int, best_score: int, score: int) -> int:
+        if 2 * best_score >= maximum:
+            return int(0.5 + score * 100 / best_score)
+        return int(0.5 + score * 200 / maximum)
 
     @staticmethod
     def get_inv_codes(year):
@@ -203,8 +200,12 @@ class Generator:
     @staticmethod
     def get_results(year: int, subject: int = None):
         if not subject:
-            return Result.select_by_year(year)
-        return Result.select_by_year_and_subject(year, subject)
+            data = {}
+            for ys in YearSubject.select_by_year(year):
+                data[ys.subject] = Result.select_by_year_subject(ys.id)
+            return data
+        ys = YearSubject.select(year, subject)
+        return ys, Result.select_by_year_subject(ys.id)
 
     @staticmethod
     def get_student_team(year):
@@ -217,11 +218,12 @@ class Generator:
         return ans
 
     @staticmethod
-    def get_all_data_from_results(year: int):
+    def get_all_data_from_results(year_info: Year):
+        year = year_info.year
+        zeros = {day: 0 for day in range(1, year_info.ind_days + 1)}
         results = Generator.get_results(year)
-        decode = Generator.get_codes(year)
         student_team = Generator.get_student_team(year)
-        ys = Generator.get_subjects_days(year)
+        ys = {_.id: _ for _ in YearSubject.select_by_year(year)}
         students = Generator.get_students(year)
         subjects = {_.id: _ for _ in Subject.select_all()}
         subjects_students_0, subjects_students = SubjectStudent.select_by_year(year), {}
@@ -230,189 +232,86 @@ class Generator:
                 subjects_students[s.student] = []
             subjects_students[s.student].append(s.subject)
         temp_results, all_students_results, diploma = {}, {}, []
-        class_results, team_results, student_result = {}, {_.id: {1: 0, 2: 0, 3: 0, 4: 0} for _ in Team.select_by_year(year)}, {}
-        for day in decode:
-            for code in decode[day]:
-                class_results[decode[day][code].class_name()] = 0
-
-        for r in results:
-            day = ys[r.subject]
-            student = decode[day][r.user]
-            if student.id not in temp_results:
-                temp_results[student.id] = {}
-            if day not in temp_results[student.id]:
-                temp_results[student.id][day] = []
-            temp_results[student.id][day].append(r.net_score)
-            if student.id not in all_students_results:
-                all_students_results[student.id] = {}
-            if r.subject not in all_students_results[student.id]:
-                all_students_results[student.id][r.subject] = r.net_score, r.position
-            if r.position < 4:
-                diploma.append([student, r.position, subjects[r.subject]])
+        class_results, team_results, student_result = {}, {_.id: zeros.copy() for _ in Team.select_by_year(year)}, {}
+        for subject_id in results:
+            for r in results[subject_id]:
+                day = ys[r.year_subject].n_d
+                student = students[r.student_id]
+                if student.id not in temp_results:
+                    temp_results[student.id] = {}
+                if day not in temp_results[student.id]:
+                    temp_results[student.id][day] = []
+                temp_results[student.id][day].append(r.net_score)
+                if student.id not in all_students_results:
+                    all_students_results[student.id] = {}
+                if ys[r.year_subject].id not in all_students_results[student.id]:
+                    all_students_results[student.id][ys[r.year_subject].id] = r.net_score, r.position
+                if r.position < 4:
+                    diploma.append([student, r.position, subjects[subject_id]])
 
         for student in temp_results:
             student_info = students[student]
-            student_sum, stud_res = 0, {1: 0, 2: 0, 3: 0, 4: 0}
+            student_sum, stud_res = 0, zeros.copy()
             for day in temp_results[student]:
                 temp_results[student][day].sort(reverse=True)
                 current_sum = sum(temp_results[student][day][:2])
                 student_sum += current_sum
                 stud_res[day] = current_sum
             student_result[student] = student_sum
-            class_results[student_info.class_name()] += student_sum
-            if student in student_team:
-                if student not in subjects_students or -1 not in subjects_students[student]:
-                    stud_res[1] = 0
-                if student not in subjects_students or -2 not in subjects_students[student]:
-                    stud_res[2] = 0
-                if student not in subjects_students or -3 not in subjects_students[student]:
-                    stud_res[3] = 0
-                team_results[student_team[student]][1] += stud_res[1]
-                team_results[student_team[student]][2] += stud_res[2]
-                team_results[student_team[student]][3] += stud_res[3]
-                team_results[student_team[student]][4] += stud_res[4]
+            if student_info.class_name() not in class_results:
+                class_results[student_info.class_name()] = [0, 0]
+            class_results[student_info.class_name()][0] += student_sum
+            if student_sum:
+                class_results[student_info.class_name()][1] += 1
+            if student in student_team and year_info.sum_individual:
+                for day in range(1, year_info.ind_days + 1):
+                    if day not in stud_res:
+                        stud_res[day] = 0
+                    team_results[student_team[student]][day] += stud_res[day]
         return student_result, class_results, team_results, all_students_results, diploma
 
     @staticmethod
-    def gen_results_main(results: list, codes: map, maximum: int, year: int):
+    def gen_results_row(result: Result, people: Student):
+        return [result.position, people.name_1, people.name_2, people.class_name(), result.result, result.net_score]
+
+    @staticmethod
+    def gen_results_table(results: list, students: map, maximum: int):
         if len(results) == 0:
-            return None
-        text = '''
-        <table width="100%" border="1">
-            <tr>
-                <td width="10%">Место</td>
-                <td width="30%">Фамилия</td>
-                <td width="30%">Имя</td>
-                <td width="10%">Класс</td>
-                <td width="10%">Балл</td>
-                <td width="10%">Балл в рейтинг</td>
-            </tr>\n'''
+            return []
         cnt, last_pos, last_result = 1, 0, None
+        data = []
         for result in results:
             if result.result > maximum:
                 raise ValueError("Bad results are saved")
-            people = codes[result.user]
-            result.net_score = Generator.get_net_score(maximum, results[0].result, result.result, year)
-            # if cnt < 20: # на сайте захотели все результаты
+            people = students[result.student_id]
+            result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
             if last_result != result.result:
                 last_pos, last_result = cnt, result.result
             result.position = last_pos
-            text += tr_format(result.position, people.name_1, people.name_2, people.class_name(), result.result,
-                              result.net_score, color=last_pos, tabs=3)
+            row = Generator.gen_results_row(result, people)
+            data.append(row)
             Result.update(result)
             cnt += 1
-        text += ' ' * 8 + '</table>'
-        return text
+        return data
 
     @staticmethod
-    def gen_results_protocol(results: list, codes: map, file_name: str, args: map):
-        arr = []
-        txt = '''
-        <table border="1" class="td-1">
-            <tr>
-                <td width="5%">Место</td>
-                <td width="15%">Фамилия</td>
-                <td width="15%">Имя</td>
-                <td width="10%">Класс</td>'''
-        r_split = []
-        ln = len(results)
-        tasks_cnt = 0
-        for result in results:
-            r_split.append(result.text_result.split())
-            tasks_cnt = max(tasks_cnt, len(r_split[-1]))
-        for i in range(tasks_cnt):
-            txt += '\n' + ' ' * 16 + '<td width="5%">№ {0}</td>'.format(i + 1)
-        txt += '''
-                <td width="5%">Балл</td>
-                <td width="5%">Балл в рейтинг</td>
-            </tr>\n'''
-        last_pos, last_result = 0, None
-        for i in range(ln):
-            people = codes[results[i].user]
-            if last_result != results[i].result:
-                last_pos, last_result = i + 1, results[i].result
-            row = [last_pos, people.name_1, people.name_2, people.class_name()]
-            for x in range(tasks_cnt):
-                if x < len(r_split[i]):
-                    row.append(r_split[i][x])
-                else:
-                    row.append('—')
-            txt += tr_format(*row, results[i].result, results[i].net_score, color=last_pos, tabs=3)
-            arr.append([last_pos, people.name_1, people.name_2, people.class_name(), results[i].result, results[i].net_score])
-        txt += ' ' * 8 + '</table>\n' + ' ' * 4
-        data = SplitFile(Config.HTML_FOLDER + "/protocol.html")
-        data.insert_after_comment(' results table ', txt)
-        for arg in args:
-            data.replace_comment(arg, args[arg])
-        data.save_file(file_name)
-        return arr
-
-    @staticmethod
-    def gen_results_2(results: list, codes: map, class_n: int, maximum: int, file_name: str, args: map, year: int):
-        txt, arr = Generator.gen_results_main(results, codes, maximum, year), None
-        if txt:
-            txt = '''    <div class="col t-3">
-        <center>
-            <h3>{0} класс</h3>
-            <p>(Максимум: {1} баллов)</p>
-        </center>{2}
-    </div>\n'''.format(class_n, maximum, txt)
-            args[' {class} '] = str(class_n)
-            arr = Generator.gen_results_protocol(results, codes, file_name, args)
-        return txt, arr
-
-    @staticmethod
-    def gen_results(year: int, subject: int, file_name: str):
-        results = Generator.get_results(year, subject)
-        year_subject = YearSubject.select(year, subject)
-        codes = Generator.get_codes(year)[year_subject.n_d]
-        sorted_results = [[] for _ in range(class_cnt(year))]
+    def gen_results(year: Year, subject: int, file_name: str):
+        subject_info = Subject.select(subject)
+        year_subject, results = Generator.get_results(year.year, subject)
+        scores = {x.class_n: x.max_value for x in YearSubjectScore.select_by_year_subject(year_subject.id)}
+        students = Generator.get_students(year.year)
+        sorted_results = {int(cls): [] for cls in year.classes}
         for r in results:
-            sorted_results[codes[r.user].class_n - class_min(year)].append(r)
-        for lst in sorted_results:
-            lst.sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: codes[x.user].class_l,
-                                 lambda x: Student.sort_by_name(codes[x.user]), field=True))
-        pth = Config.TEMPLATES_FOLDER + '/' + str(year) + '/' + str(subject) + '/protocol'
-        params = {' {year} ': str(abs(year)), ' {subject_id} ': str(subject),
-                  ' {subject} ': Subject.select(subject).name}
-        if year > 0:
-            txt5, arr5 = Generator.gen_results_2(sorted_results[0], codes, 5, year_subject.score_5, pth + '_5.html', params, year)
-            txt6, arr6 = Generator.gen_results_2(sorted_results[1], codes, 6, year_subject.score_6, pth + '_6.html', params, year)
-            txt7, arr7 = Generator.gen_results_2(sorted_results[2], codes, 7, year_subject.score_7, pth + '_7.html', params, year)
-            txt8, arr8 = Generator.gen_results_2(sorted_results[3], codes, 8, year_subject.score_8, pth + '_8.html', params, year)
-            txt9, arr9 = Generator.gen_results_2(sorted_results[4], codes, 9, year_subject.score_9, pth + '_9.html', params, year)
-        else:
-            txt2, arr2 = Generator.gen_results_2(sorted_results[0], codes, 2, year_subject.score_5, pth + '_2.html', params, year)
-            txt3, arr3 = Generator.gen_results_2(sorted_results[1], codes, 3, year_subject.score_6, pth + '_3.html', params, year)
-            txt4, arr4 = Generator.gen_results_2(sorted_results[2], codes, 4, year_subject.score_7, pth + '_4.html', params, year)
-        txt = '\n<center><h2>Результаты</h2></center>\n<div class="row col-12 justify-content-center">\n'
-        protocols = '<center><h2>Протоколы</h2></center>\n'
-        prot_start = '<p><a href="{0}/protocol_'.format(subject)
-        if year > 0:
-            protocols += prot_start + '5.html">5 класс</a></p>\n' if txt5 else ''
-            protocols += prot_start + '6.html">6 класс</a></p>\n' if txt6 else ''
-            protocols += prot_start + '7.html">7 класс</a></p>\n' if txt7 else ''
-            protocols += prot_start + '8.html">8 класс</a></p>\n' if txt8 else ''
-            protocols += prot_start + '9.html">9 класс</a></p>\n' if txt9 else ''
-            txt += txt5 if txt5 else ''
-            txt += txt6 if txt6 else ''
-            txt += txt7 if txt7 else ''
-            txt += txt8 if txt8 else ''
-            txt += txt9 if txt9 else ''
-        else:
-            protocols += prot_start + '2.html">2 класс</a></p>\n' if txt2 else ''
-            protocols += prot_start + '3.html">3 класс</a></p>\n' if txt3 else ''
-            protocols += prot_start + '4.html">4 класс</a></p>\n' if txt4 else ''
-            txt += txt2 if txt2 else ''
-            txt += txt3 if txt3 else ''
-            txt += txt4 if txt4 else ''
-        txt += '</div>\n' + protocols
-        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
-        data.insert_after_comment(' results table ', txt)
-        data.save_file()
-        ExcelSubjectWriter(Subject.select(subject).name, year).write(
-            Config.DATA_FOLDER + '/data_{}_{}.xlsx'.format(year, subject),
-            [arr5, arr6, arr7, arr8, arr9] if year > 0 else [arr2, arr3, arr4])
+            if r.student_id not in students:
+                raise ValueError('Неизвестный школьник code: {}, id: {}'.format(r.student_code, r.student_id))
+            sorted_results[students[r.student_id].class_n].append(r)
+        for cls in sorted_results:
+            sorted_results[cls].sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: students[x.student_id].class_l,
+                                 lambda x: Student.sort_by_name(students[x.student_id]), field=True))
+        data = {}
+        for cls in year.classes:
+            data[int(cls)] = Generator.gen_results_table(sorted_results[int(cls)], students, scores[int(cls)])
+        html_render('1.html', file_name, subject_name=subject_info.name, results=data, scores=scores)
 
     @staticmethod
     def gen_group_results(year: int, subject: int, file_name: str):
@@ -797,70 +696,99 @@ class Generator:
         return txt, group_diploma, team_diploma
 
     @staticmethod
+    def get_teams_results(team_results):
+        results = {}
+        for team in team_results:
+            results[team] = {}
+            for r in team_results[team]:
+                results[team][-r] = team_results[team][r]
+            for r in GroupResult.select_by_team(team):
+                results[team][r.subject] = r.result
+        return results
+
+    @staticmethod
     def gen_ratings(year: int):
-        student_results, class_results, team_results, all_res, dip1 = Generator.get_all_data_from_results(year)
+        year_info = Year.select(year)
+        student_results, class_results, team_results, all_res, dip1 = Generator.get_all_data_from_results(year_info)
+        students = {_.id: [_.name_1, _.name_2, _.class_name()] for _ in Student.select_all(year)}
+        subjects = [Subject.select(x.subject) for x in YearSubject.select_by_year(year)]
+        ind_subjects = {x.id: x.short_name for x in subjects if x.type == 'i'}
+        group_subjects = {x.id: x.short_name for x in subjects if x.type != 'i'}
+        for day in range(1, 1 + year_info.ind_days):
+            group_subjects[-day] = 'Инд.&nbsp;{}'.format(day)
+        # TODO: sort subjects!!!
+        all_team_results = Generator.get_teams_results(team_results)
+        teams = {_.id: _.name for _ in Team.select_by_year(year)}
+        team_student = {team: [ts.student for ts in TeamStudent.select_by_team(team)] for team in teams}
+        html_render('rating_students.html', str(year) + '/rating_students.html', results=all_res, students=students,
+                    subjects=ind_subjects, classes=class_results.keys())
+        html_render('rating_classes.html', str(year) + '/rating_classes.html', classes=class_results.keys(),
+                    results=[(_[0], *_[1]) for _ in class_results.items()])
+        html_render('rating_teams.html', str(year) + '/rating_teams.html', team_results=all_team_results,
+                    ind_subjects=ind_subjects, team_subjects=group_subjects, team_student=team_student,
+                    teams=teams, students=students, student_results=all_res)
         codes = Generator.get_students(year)
         for _ in student_results:
             codes[_].result = student_results[_]
         codes = sorted(codes.items(), key=compare(lambda x: -x[1].class_n, lambda x: -x[1].result,
                                                   lambda x: x[1].class_l, lambda x: Student.sort_by_name(x[1]),
                                                   field=True))
-        class_results = sorted(class_results.items(), key=compare(lambda x: -x[1], lambda x: x[0], field=True))
-        index = 0
-        tpl, tmn = is_in_team(year)
-        tpl = set(_.student for _ in TeamStudent.select_by_team(tpl))
-        tmn = set(_.student for _ in TeamStudent.select_by_team(tmn))
-        if year > 0:
-            best_9, index, best_sum_9 = Generator.gen_ratings_parallel(codes, index, 9, tpl, tmn)
-            best_8, index, best_sum_8 = Generator.gen_ratings_parallel(codes, index, 8, tpl, tmn)
-            best_7, index, best_sum_7 = Generator.gen_ratings_parallel(codes, index, 7, tpl, tmn)
-            best_6, index, best_sum_6 = Generator.gen_ratings_parallel(codes, index, 6, tpl, tmn)
-            best_5, index, best_sum_5 = Generator.gen_ratings_parallel(codes, index, 5, tpl, tmn)
-        else:
-            best_4, index, best_sum_4 = Generator.gen_ratings_parallel(codes, index, 4, tpl, tmn)
-            best_3, index, best_sum_3 = Generator.gen_ratings_parallel(codes, index, 3, tpl, tmn)
-            best_2, index, best_sum_2 = Generator.gen_ratings_parallel(codes, index, 2, tpl, tmn)
-        best_class = Generator.gen_ratings_best_class(class_results)
-        best_team, tems_info = Generator.gen_ratings_best_team(year, team_results)
-        best_student, dip2, dip3 = Generator.gen_ratings_best_student(year, codes)
-        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating.html')
-        data.insert_after_comment(' rating_teams ', best_team)
-        data.insert_after_comment(' rating_class ', best_class)
-        data.insert_after_comment(' rating_student ', best_student)
-        if year > 0:
-            data.insert_after_comment(' rating_parallel_5 ', best_5)
-            data.insert_after_comment(' rating_parallel_6 ', best_6)
-            data.insert_after_comment(' rating_parallel_7 ', best_7)
-            data.insert_after_comment(' rating_parallel_8 ', best_8)
-            data.insert_after_comment(' rating_parallel_9 ', best_9)
-            data.insert_after_comment(' rating_parallel_sum_5 ', best_sum_5)
-            data.insert_after_comment(' rating_parallel_sum_6 ', best_sum_6)
-            data.insert_after_comment(' rating_parallel_sum_7 ', best_sum_7)
-            data.insert_after_comment(' rating_parallel_sum_8 ', best_sum_8)
-            data.insert_after_comment(' rating_parallel_sum_9 ', best_sum_9)
-        else:
-            data.insert_after_comment(' rating_parallel_2 ', best_2)
-            data.insert_after_comment(' rating_parallel_3 ', best_3)
-            data.insert_after_comment(' rating_parallel_4 ', best_4)
-            data.insert_after_comment(' rating_parallel_sum_2 ', best_sum_2)
-            data.insert_after_comment(' rating_parallel_sum_3 ', best_sum_3)
-            data.insert_after_comment(' rating_parallel_sum_4 ', best_sum_4)
-        data.save_file()
-        arr, arr_a = [], []
-        for i in range(class_min(year), class_max(year)):
-            filename = Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating_' + str(i) + '.html'
-            now = Generator.gen_ratings_in_class(codes, i, filename, year, all_res, tpl, tmn, tems_info)
-            arr.append([[y for y in x] for x in now])
-            arr_a.extend(now)
-        arr_a.sort(key=lambda x: -x[2])
-        arr_a[0][0] = 1
-        for i in range(1, len(arr_a)):
-            if arr_a[i][2] == arr_a[i - 1][2]:
-                arr_a[i][0] = arr_a[i - 1][0]
-            else:
-                arr_a[i][0] = i + 1
-        ExcelClassesWriter(year).write(Config.DATA_FOLDER + '/classes_{}.xlsx'.format(year), arr, arr_a)
-        ExcelDiplomaWriter(year).write(Config.DATA_FOLDER + '/diploma_{}.xlsx'.format(year), dip1, dip2, dip3)
+        # class_results = sorted(class_results.items(), key=compare(lambda x: -x[1], lambda x: x[0], field=True))
+        # index = 0
+        # tpl, tmn = is_in_team(year)
+        # tpl = set(_.student for _ in TeamStudent.select_by_team(tpl))
+        # tmn = set(_.student for _ in TeamStudent.select_by_team(tmn))
+        # if year > 0:
+        #     best_9, index, best_sum_9 = Generator.gen_ratings_parallel(codes, index, 9, tpl, tmn)
+        #     best_8, index, best_sum_8 = Generator.gen_ratings_parallel(codes, index, 8, tpl, tmn)
+        #     best_7, index, best_sum_7 = Generator.gen_ratings_parallel(codes, index, 7, tpl, tmn)
+        #     best_6, index, best_sum_6 = Generator.gen_ratings_parallel(codes, index, 6, tpl, tmn)
+        #     best_5, index, best_sum_5 = Generator.gen_ratings_parallel(codes, index, 5, tpl, tmn)
+        # else:
+        #     best_4, index, best_sum_4 = Generator.gen_ratings_parallel(codes, index, 4, tpl, tmn)
+        #     best_3, index, best_sum_3 = Generator.gen_ratings_parallel(codes, index, 3, tpl, tmn)
+        #     best_2, index, best_sum_2 = Generator.gen_ratings_parallel(codes, index, 2, tpl, tmn)
+        # best_class = Generator.gen_ratings_best_class(class_results)
+        # best_team, tems_info = Generator.gen_ratings_best_team(year, team_results)
+        # best_student, dip2, dip3 = Generator.gen_ratings_best_student(year, codes)
+        # data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating.html')
+        # data.insert_after_comment(' rating_teams ', best_team)
+        # data.insert_after_comment(' rating_class ', best_class)
+        # data.insert_after_comment(' rating_student ', best_student)
+        # if year > 0:
+        #     data.insert_after_comment(' rating_parallel_5 ', best_5)
+        #     data.insert_after_comment(' rating_parallel_6 ', best_6)
+        #     data.insert_after_comment(' rating_parallel_7 ', best_7)
+        #     data.insert_after_comment(' rating_parallel_8 ', best_8)
+        #     data.insert_after_comment(' rating_parallel_9 ', best_9)
+        #     data.insert_after_comment(' rating_parallel_sum_5 ', best_sum_5)
+        #     data.insert_after_comment(' rating_parallel_sum_6 ', best_sum_6)
+        #     data.insert_after_comment(' rating_parallel_sum_7 ', best_sum_7)
+        #     data.insert_after_comment(' rating_parallel_sum_8 ', best_sum_8)
+        #     data.insert_after_comment(' rating_parallel_sum_9 ', best_sum_9)
+        # else:
+        #     data.insert_after_comment(' rating_parallel_2 ', best_2)
+        #     data.insert_after_comment(' rating_parallel_3 ', best_3)
+        #     data.insert_after_comment(' rating_parallel_4 ', best_4)
+        #     data.insert_after_comment(' rating_parallel_sum_2 ', best_sum_2)
+        #     data.insert_after_comment(' rating_parallel_sum_3 ', best_sum_3)
+        #     data.insert_after_comment(' rating_parallel_sum_4 ', best_sum_4)
+        # data.save_file()
+        # arr, arr_a = [], []
+        # for i in range(class_min(year), class_max(year)):
+        #     filename = Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating_' + str(i) + '.html'
+        #     now = Generator.gen_ratings_in_class(codes, i, filename, year, all_res, tpl, tmn, tems_info)
+        #     arr.append([[y for y in x] for x in now])
+        #     arr_a.extend(now)
+        # arr_a.sort(key=lambda x: -x[2])
+        # arr_a[0][0] = 1
+        # for i in range(1, len(arr_a)):
+        #     if arr_a[i][2] == arr_a[i - 1][2]:
+        #         arr_a[i][0] = arr_a[i - 1][0]
+        #     else:
+        #         arr_a[i][0] = i + 1
+        # ExcelClassesWriter(year).write(Config.DATA_FOLDER + '/classes_{}.xlsx'.format(year), arr, arr_a)
+        # ExcelDiplomaWriter(year).write(Config.DATA_FOLDER + '/diploma_{}.xlsx'.format(year), dip1, dip2, dip3)
 
     @staticmethod
     def gen_teams(year: int):
@@ -888,7 +816,6 @@ class Generator:
     @staticmethod
     def gen_teams_students(year: int):
         codes = Generator.get_students(year)
-        decode = Generator.get_codes(year)
         result = Generator.get_results(year)
         subjects0, subjects, ys = YearSubject.select_by_year(year), [], {}
         for x in subjects0:
@@ -897,14 +824,15 @@ class Generator:
                 subjects.append(subject)
                 ys[subject.id] = x.n_d
         student_result = {}
-        for r in result:
-            day = ys[r.subject]
-            student = decode[day][r.user]
-            if student.id not in student_result:
-                student_result[student.id] = {}
-            if day not in student_result[student.id]:
-                student_result[student.id][day] = {}
-            student_result[student.id][day][r.subject] = r.net_score
+        for subject_id in result:
+            for r in result[subject_id]:
+                day = ys[subject_id]
+                student_id = r.student_id
+                if student_id not in student_result:
+                    student_result[student_id] = {}
+                if day not in student_result[student_id]:
+                    student_result[student_id][day] = {}
+                student_result[student_id][day][subject_id] = r.net_score
         teams = Team.select_by_year(year)
         teams.sort(key=Team.sort_by_later)
         template = '''

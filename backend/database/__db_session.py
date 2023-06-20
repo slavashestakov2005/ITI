@@ -89,9 +89,14 @@ class Table:
     # select_last
 
     @classmethod
-    def insert(cls, row) -> None:
+    def insert(cls, row, return_id=False):
         session = create_session()
         session.add(row)
+        if return_id:
+            session.flush()
+            value = getattr(row, cls.id_field)
+            session.commit()
+            return value
         session.commit()
 
     @classmethod

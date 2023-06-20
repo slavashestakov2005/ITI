@@ -8,7 +8,7 @@ import os
 from .help import check_status, check_block_year, path_to_subject, is_in_team
 from ..help import init_mail_messages, FileManager, AsyncWorker
 from ..excel import ExcelFullWriter
-from ..database import execute_sql, GroupResult, Message, Result, StudentCode, Subject, SubjectStudent, Team, TeamStudent, Year, YearSubject
+from ..database import execute_sql, GroupResult, Message, Result, StudentCode, Subject, SubjectStudent, Team, TeamStudent, Year, YearSubject, YearSubjectScore
 from .auto_generator import Generator
 from .file_creator import FileCreator
 from ..config import Config
@@ -32,11 +32,10 @@ from ..config import Config
 
 
 def _delete_year(year: int):
-    # AppealsTable.delete_by_year(year)
-    # HistoriesTable.delete_by_year(year)
-    Result.delete_by_year(year)
+    for ys in YearSubject.select_all():
+        YearSubjectScore.delete_by_year_subject(ys.id)
+        Result.delete_by_year_subject(ys.id)
     StudentCode.delete_by_year(year)
-    # SubjectsFilesTable.delete_by_year(year)
     SubjectStudent.delete_by_year(year)
     Year.delete(year)
     YearSubject.delete_by_year(year)
@@ -138,14 +137,14 @@ def load_data_from_excel():
 
     if qtype == 1:
         _delete_year(year)
-        Year.insert(Year.build(year, '', 1))
+        year_id = Year.insert(Year.build(year, '', 1), return_id=True)
         FileCreator.create_year(year)
         Generator.gen_years_lists()
         Generator.gen_years_subjects_list(year)
 
     file.save(filename)
     FileManager.save(filename)
-    AsyncWorker.call(filename, year, qtype)
+    AsyncWorker.call(filename, Year.select(year_id), qtype)
 
     if qtype == 2:
         os.remove(filename)

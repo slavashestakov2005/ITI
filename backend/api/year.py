@@ -43,7 +43,7 @@ class YearListResource(Resource):
             return False, {'message': 'Некорректный год'}
         if Year.select(value):
             return False, {'message': 'Год уже существует'}
-        year = Year.build(value, 0)
+        year = Year.build(None, value, '56789', 2, 30, 8, 4, 0, 0)
         Year.insert(year)
         FileCreator.create_year(value)
         Generator.gen_years_lists()

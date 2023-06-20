@@ -1,12 +1,11 @@
 from backend import app
 from ..help import forbidden_error
 from ..excel import ExcelResultsReader
-from ..database import GroupResult, Result, Student, StudentCode, Subject, Team, YearSubject, Year
+from ..database import GroupResult, Result, Subject, Team, Year, YearSubject, YearSubjectScore
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
-from .help import check_status, check_block_year, path_to_subject, compare, pref_year, \
-    class_min, class_cnt
+from .help import check_status, check_block_year, path_to_subject, compare
 from .auto_generator import Generator
 from ..config import Config
 from .messages_help import message_results_public, message_ratings_public, message_all_ratings_public
@@ -47,20 +46,17 @@ def page_params(year: int, path2, path3):
     try:
         params['subject'] = subject = path_to_subject(path3)
         sub = YearSubject.select(year, subject)
-        appeals = [] # AppealsTable.select_by_year_and_subject(year, subject)
-        appeals = [(_, Student.select(
-            StudentCode.select_by_code(year, _.student, sub.n_d).student
-        )) for _ in appeals]
-        params.update({'h_sub_name': Subject.select(subject).name, 's2': sub.score_5, 's3': sub.score_6,
-                       's4': sub.score_7, 's5': sub.score_5, 's6': sub.score_6, 's7': sub.score_7, 's8': sub.score_8,
-                       's9': sub.score_9, 'appeals': appeals})
+        scores = YearSubjectScore.select_by_year_subject(sub.id)
+        params.update({'h_sub_name': Subject.select(subject).name, 'scores': scores})
         results = Result.select_by_year_and_subject(year, subject)
         codes = Generator.get_codes(year)[sub.n_d]
-        sorted_results = [[] for _ in range(class_cnt(year))]
-        top = []
+        year_info = Year.select(year)
+        sorted_results = {int(cls): [] for cls in year_info.classes}
+        top = {}
         for r in results:
-            sorted_results[codes[r.user].class_n - class_min(year)].append(r)
-        for lst in sorted_results:
+            sorted_results[codes[r.user].class_n].append(r)
+        for cls in sorted_results:
+            lst = sorted_results[cls]
             lst.sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: codes[x.user].class_l,
                                  lambda x: codes[x.user].name_1, lambda x: codes[x.user].name_2, field=True))
             t, last_pos, last_result = [], 0, None
@@ -71,7 +67,7 @@ def page_params(year: int, path2, path3):
                 #    break
                 # на сайте захотели все результаты
                 t.append([last_pos, lst[i].user, lst[i].result])
-            top.append(t)
+            top[cls] = t
         params['top'] = top
     except Exception:
         pass
@@ -126,7 +122,7 @@ def add_result(year: int, path3):
     params = chose_params(year, path2, path3)
     if path2 == 'group' or path2 == 'team':
         return render_template(str(year) + '/add_result.html', **params)
-    return render_template(pref_year(year) + 'add_result.html', **params)
+    return render_template('add_result.html', **params)
 
 
 @app.route('/<year:year>/<path:path3>/load_result', methods=['POST'])
@@ -135,7 +131,7 @@ def add_result(year: int, path3):
 @check_block_year()
 def load_result(year: int, path3):
     path2 = 'individual'
-    url = pref_year(year) + 'add_result.html'
+    url = 'add_result.html'
     try:
         subject = path_to_subject(path3)
         file = request.files['file']
@@ -162,7 +158,7 @@ def load_result(year: int, path3):
 def share_results(year: int, path3):
     path2 = 'individual'
     params = page_params(year, path2, path3)
-    url = pref_year(year) + 'add_result.html'
+    url = 'add_result.html'
     try:
         subject = path_to_subject(path3)
     except Exception:
@@ -171,7 +167,7 @@ def share_results(year: int, path3):
     if YearSubject.select(year, subject) is None:
         return render_template(url, **params, error3='Такого предмета нет в этом году.')
     try:
-        Generator.gen_results(year, subject, str(year) + '/' + path3)
+        Generator.gen_results(Year.select(year), subject, str(year) + '/' + path3)
     except ValueError:
         return render_template(url, **params, error3='Сохранены некорректные результаты (есть участник с количеством '
                                                      'баллов большим максимального)')
@@ -236,7 +232,7 @@ def share_all_results(year: int):
         try:
             suf = str(subject.id) + '.html'
             if subject.type == 'i':
-                Generator.gen_results(year, subject.id, str(year) + '/' + suf)
+                Generator.gen_results(Year.select(year), subject.id, str(year) + '/' + suf)
             else:
                 Generator.gen_group_results(year, subject.id, str(year) + '/' + suf)
         except ValueError:

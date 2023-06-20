@@ -129,32 +129,32 @@ def current_year():
     return datetime.now().year
 
 
-def pref_year(year: int):
-    return '_' if year < 0 else ''
-
-
-def class_min(year: int):
-    return 2 if year < 0 else 5
-
-
-def class_max(year: int):
-    return 5 if year < 0 else 10
-
-
-def class_cnt(year: int):
-    return 3 if year < 0 else 5
-
-
-def team_cnt(year: int):
-    return 10 if year < 0 else 6
+# def pref_year(year: int):
+#     return '_' if year < 0 else ''
+#
+#
+# def class_min(year: int):
+#     return 2 if year < 0 else 5
+#
+#
+# def class_max(year: int):
+#     return 5 if year < 0 else 10
+#
+#
+# def class_cnt(year: int):
+#     return 3 if year < 0 else 5
+#
+#
+# def team_cnt(year: int):
+#     return 10 if year < 0 else 6
 
 
 def is_in_team(year: int):
     return -10 * abs(year) - (2 if year < 0 else 0), -10 * abs(year) - (3 if year < 0 else 1)
 
 
-def individual_days_count(year: int):
-    return 4 if year < 0 else 0
+# def individual_days_count(year: int):
+#     return 4 if year < 0 else 0
 
 
 def check_status(status: str):

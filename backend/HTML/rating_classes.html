@@ -1,0 +1,41 @@
+<!-- replace 1 -->
+
+<center>
+    <h1>Рейтинг классов</h1>
+    {% set ns = namespace(prev=none) %}
+    <button id="filter-all" onclick="setChecked(null, true)">Все классы</button>
+    <button onclick="setChecked(null, false)">Никакие классы</button>
+    <br>
+    {% for cls in classes | sort %}
+        {% set cur_class = cls[0] %}
+        {% if cur_class != ns.prev %}
+            {% if ns.prev is not none %}<br>{% endif %}
+            <button onclick="setChecked('{{ cur_class }}', true)">Все {{ cur_class }}</button>
+            <button onclick="setChecked('{{ cur_class }}', false)">Никакие {{ cur_class }}</button>
+            {% set ns.prev = cur_class %}
+        {% endif %}
+        <label><input type="checkbox" name="class_value" value="{{ cls }}">{{ cls }}</label>
+    {% endfor %}
+    <p><button id="filter-do" onclick="filterResults(1, 2)">Фильтровать</button></p>
+    <p><button onclick="TableToExcel.convert(document.getElementById('sorted-table'));">Скачать как Excel</button></p>
+</center>
+<div class="row col-12 justify-content-center">
+    <div class="col t-3">
+        <table width="100%" border="1" class="js-table-color-place" id="sorted-table" cellpadding=10>
+            <thead><tr>
+                <td width="10%">Место</td>
+                <td width="30%">Класс</td>
+                <td width="30%">Сумма</td>
+                <td width="10%">Результативных участников</td>
+            </tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<script>
+    let results = {{ results | tojson }};
+    let tableData = generateClassesTableData();
+    generateAllTable();
+</script>
+
+<!-- replace 2 -->

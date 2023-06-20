@@ -18,8 +18,6 @@ class SubjectStudentListResource(Resource):
         args = parser_simple.parse_args()
         subjects = set(args['subject'])
         old_subjects = set(args['old_subject'])
-        print(subjects)
-        print(old_subjects)
         different = subjects.symmetric_difference(old_subjects)
         for x in different:
             t = x.split('_')

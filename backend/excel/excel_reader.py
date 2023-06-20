@@ -21,7 +21,7 @@ class ExcelFullReader:
     CODES = ['name', 'cls', 'gender', 'code', 'team']
     STUDENTS = ['name', 'cls', 'gender']
 
-    def __init__(self, file: str, year: int, qtype: int):
+    def __init__(self, file: str, year: Year, qtype: int):
         self.file = file
         self.year = year
         self.qtype = qtype
@@ -71,20 +71,20 @@ class ExcelFullReader:
             self.subjects[subject] = all_map[all_names[f]]
 
         for subject in self.subjects:
-            ys = Year.build(self.year, self.subjects[subject], 30, 30, 30, 30, 30, 0, 0, '', '', 1)
+            ys = YearSubject.build(self.year.year, self.subjects[subject], 30, 30, 30, 30, 30, 0, 0, '', '', 1)
             YearSubject.insert(ys)
-        FileCreator.create_subjects(self.year, list(self.subjects.values()))
-        Generator.gen_years_subjects_list(self.year)
+        FileCreator.create_subjects(self.year.year, list(self.subjects.values()))
+        Generator.gen_years_subjects_list(self.year.year)
         self.all_subjects = {_.id: _ for _ in all_subject}
 
     def __gen_teams__(self):
         teams = [str(_) for _ in self.code[self.CODES[4]].unique().tolist() if str(_) != 'nan']
         for team in teams:
-            Team.insert(Team.build(None, 'Вертикаль ' + team, self.year, team))
+            Team.insert(Team.build(None, 'Вертикаль ' + team, self.year.year, team))
         self.teams = {}
         for team in teams:
-            self.teams[team] = Team.select_by_year_and_later(self.year, team).id
-        Generator.gen_teams(self.year)
+            self.teams[team] = Team.select_by_year_and_later(self.year.year, team).id
+        Generator.gen_teams(self.year.year)
 
     def __gen_students__(self):
         self.student = {}
@@ -102,7 +102,7 @@ class ExcelFullReader:
                 student.id = sid = st.id
                 Student.update(student)
             self.student[(row[0], row[1])] = sid
-            c = StudentCode.build(self.year, int(row[3]), int(row[3]), sid)
+            c = StudentCode.build(self.year.year, int(row[3]), int(row[3]), sid)
             StudentCode.insert(c)
             self.students_codes.append(int(row[3]))
             if str(row[4]) != 'nan':
@@ -113,15 +113,15 @@ class ExcelFullReader:
     def __gen_results__(self):
         for i, row in self.result.iterrows():
             if row[0] in self.subjects and int(row[1]) in self.students_codes and str(row[2]) != 'nan':
-                Result.replace(Result.build(self.year, self.subjects[row[0]], int(row[1]), row[2], 0, str(row[2]), 0))
+                Result.replace(Result.build(self.year.year, self.subjects[row[0]], int(row[1]), row[2], 0, str(row[2]), 0))
         for subject in self.subjects.values():
             t = self.all_subjects[subject].type_str()
-            Generator.gen_results(self.year, subject, str(self.year) + '/' + t + '/' + str(subject) + '.html')
+            Generator.gen_results(self.year, subject, str(self.year.year) + '/' + t + '/' + str(subject) + '.html')
 
     def __gen_pages__(self):
-        Generator.gen_ratings(self.year)
-        Generator.gen_timetable(self.year)
-        data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(self.year) + '/subjects_for_year.html')
+        Generator.gen_ratings(self.year.year)
+        Generator.gen_timetable(self.year.year)
+        data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(self.year.year) + '/subjects_for_year.html')
         data.insert_after_comment(' is_block ', '''
                     <p><input type="radio" name="is_block" value="0">Разблокировано</p>
                     <p><input type="radio" name="is_block" value="1" checked>Заблокировано</p>

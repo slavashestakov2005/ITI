@@ -1,12 +1,12 @@
 from backend.excel.excel_parent import ExcelParentWriter
-from backend.queries.help import class_min, compare
-from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent
+from backend.queries.help import compare
+from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, Year
 
 
 class ExcelSubjectWriter(ExcelParentWriter):
-    def __init__(self, subject, year):
+    def __init__(self, subject, year: Year):
         self.subject = subject
-        self.c = class_min(year)
+        self.c = year.class_min()
 
     def __gen_sheet__(self, worksheet, data: list, cls: int):
         self.__head__(worksheet, 'Место', 'Фамилия', 'Имя', 'Класс', 'Балл', 'Балл в рейтинг',

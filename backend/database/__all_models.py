@@ -10,3 +10,4 @@ from .team_student import *
 from .user import *
 from .year import *
 from .year_subject import *
+from .year_subject_score import *

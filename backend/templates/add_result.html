@@ -1,27 +1,15 @@
 <!-- login required -->
 {% extends "base.html" %}
 
-{% block header %}
-<a href="../../main.html">ИТИ-{{year}}</a>
-/
-<a href="../../{{h_type_1}}_tours.html">{{h_type_2}}</a>
-/
-<a href="../{{subject}}.html">{{h_sub_name}}</a>
-/
-Результаты
-{% endblock %}
-
 {% block content %}
 <h1>{{h_sub_name}}</h1>
 <div class="row col-12 justify-content-center">
 	<div class="col t-3"><center>
 		<h1>Максимальный балл</h1>
 		<form onsubmit="year_subject_edit(this, 'score'); return false;">
-			<p>5 класс: <input type="text" name="score_5" value="{{s5}}"></p>
-			<p>6 класс: <input type="text" name="score_6" value="{{s6}}"></p>
-			<p>7 класс: <input type="text" name="score_7" value="{{s7}}"></p>
-			<p>8 класс: <input type="text" name="score_8" value="{{s8}}"></p>
-			<p>9 класс: <input type="text" name="score_9" value="{{s9}}"></p>
+			{% for score in scores %}
+				<p>{{ score.class_n }} класс: <input type="text" name="score_{{ score.class_n }}" value="{{ score.max_value }}"></p>
+			{% endfor %}
 			<p>Если оставить поле пустыми (или поставить 0), то данного предмета для данного класса не будет.</p>
 			<input type="submit" value="Сохранить">
 		</form>
@@ -119,139 +107,34 @@
 		{% if error4 %} <p class="error-msg">[ {{ error4 }} ]</p>
 		{% endif %}
 	</center></div>
-	<div class="col td-2"><center>
-		<h1>Список апеллирующих</h1>
-		<table width="100%" border="1">
-			<tr>
-				<td width="5%">ID</td>
-				<td width="15%">Фамилия</td>
-				<td width="15%">Имя</td>
-				<td width="5%">Класс</td>
-				<td width="10%">Номер задачи</td>
-				<td width="50%">Причина апелляции</td>
-			</tr>
-			{% for x in appeals %}
-			<tr>
-				<td>{{ x[0].student }}</td>
-				<td>{{ x[1].name_1 }}</td>
-				<td>{{ x[1].name_2 }}</td>
-				<td>{{ x[1].class_name() }}</td>
-				<td>{{ x[0].tasks }}</td>
-				<td>{{ x[0].description }}</td>
-			</tr>
-			{% endfor %}
-		</table>
-	</center></div>
 </div>
 <br>
 {% if top %}
 <center><h1>Лучшие результаты</h1></center>
 <br>
 <div class="row col-12 justify-content-center">
-	{% if top[0].__len__() %}
-	<div class="col t-4"><center>
-		<h2>5 класс</h2>
-		<table width="100%" border="1">
-			<tr>
-				<td width="10%">Место</td>
-				<td width="10%">ID</td>
-				<td width="10%">Балл</td>
-			</tr>
-			{% for x in top[0] %}
-			<tr class="p{{ x[0] }}">
-				<td>{{ x[0] }}</td>
-				<td>{{ x[1] }}</td>
-				<td>{{ x[2] }}</td>
-			</tr>
-			{% endfor %}
-		</table>
-		Итого: {{ top[0].__len__() }} работ.
-	</center></div>
-	{% endif %}
-
-	{% if top[1].__len__() %}
-	<div class="col t-4"><center>
-		<h2>6 класс</h2>
-		<table width="100%" border="1">
-			<tr>
-				<td width="10%">Место</td>
-				<td width="10%">ID</td>
-				<td width="10%">Балл</td>
-			</tr>
-			{% for x in top[1] %}
-			<tr class="p{{ x[0] }}">
-				<td>{{ x[0] }}</td>
-				<td>{{ x[1] }}</td>
-				<td>{{ x[2] }}</td>
-			</tr>
-			{% endfor %}
-		</table>
-		Итого: {{ top[1].__len__() }} работ.
-	</center></div>
-	{% endif %}
-
-	{% if top[2].__len__() %}
-	<div class="col t-4"><center>
-		<h2>7 класс</h2>
-		<table width="100%" border="1">
-			<tr>
-				<td width="10%">Место</td>
-				<td width="10%">ID</td>
-				<td width="10%">Балл</td>
-			</tr>
-			{% for x in top[2] %}
-			<tr class="p{{ x[0] }}">
-				<td>{{ x[0] }}</td>
-				<td>{{ x[1] }}</td>
-				<td>{{ x[2] }}</td>
-			</tr>
-			{% endfor %}
-		</table>
-		Итого: {{ top[2].__len__() }} работ.
-	</center></div>
-	{% endif %}
-
-	{% if top[3].__len__() %}
-	<div class="col t-4"><center>
-		<h2>8 класс</h2>
-		<table width="100%" border="1">
-			<tr>
-				<td width="10%">Место</td>
-				<td width="10%">ID</td>
-				<td width="10%">Балл</td>
-			</tr>
-			{% for x in top[3] %}
-			<tr class="p{{ x[0] }}">
-				<td>{{ x[0] }}</td>
-				<td>{{ x[1] }}</td>
-				<td>{{ x[2] }}</td>
-			</tr>
-			{% endfor %}
-		</table>
-		Итого: {{ top[3].__len__() }} работ.
-	</center></div>
-	{% endif %}
-
-	{% if top[4].__len__() %}
-	<div class="col t-4"><center>
-		<h2>9 класс</h2>
-		<table width="100%" border="1">
-			<tr>
-				<td width="10%">Место</td>
-				<td width="10%">ID</td>
-				<td width="10%">Балл</td>
-			</tr>
-			{% for x in top[4] %}
-			<tr class="p{{ x[0] }}">
-				<td>{{ x[0] }}</td>
-				<td>{{ x[1] }}</td>
-				<td>{{ x[2] }}</td>
-			</tr>
-			{% endfor %}
-		</table>
-		Итого: {{ top[4].__len__() }} работ.
-	</center></div>
-	{% endif %}
+	{% for cls in top %}
+		{% if top[cls].__len__() %}
+			<div class="col t-4"><center>
+				<h2>{{ cls }} класс</h2>
+				<table width="100%" border="1">
+					<tr>
+						<td width="10%">Место</td>
+						<td width="10%">ID</td>
+						<td width="10%">Балл</td>
+					</tr>
+					{% for x in top[cls] %}
+					<tr class="p{{ x[0] }}">
+						<td>{{ x[0] }}</td>
+						<td>{{ x[1] }}</td>
+						<td>{{ x[2] }}</td>
+					</tr>
+					{% endfor %}
+				</table>
+				Итого: {{ top[cls].__len__() }} работ.
+			</center></div>
+		{% endif %}
+	{% endfor %}
 </div>
 {% endif %}
 <script>file_type();file_type2();cursor();</script>

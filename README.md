@@ -66,6 +66,7 @@
 + [Сайт](https://test-python-slava-shestakov.herokuapp.com/) ИТИ на `Heroku`.
 + [Сайт](https://slavashestakov2005.pythonanywhere.com/) ИТИ на `PythonAnywhere`.
 + [Чистовик](https://iti106.pythonanywhere.com/) сайта.
++ [Репозиторий](https://github.com/linways/table-to-excel) c JavaScript библиотекой для генерации Excel из HTML-таблицы.
 
 ## Поддержка Excel
 ### Загрузка ИТИ из таблицы
