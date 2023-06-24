@@ -1,0 +1,20 @@
+<!-- login required -->
+<!-- -1 -->
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-auto">
+        <h1>Excel таблицы ИТИ-{{ year | abs }}</h1>
+        <br>
+        <ol>
+            <li>Скачать результаты по индивидуальному предмету можно на<br>
+                странице с результатами по соответствующему предмету.</li>
+            <li>Скачать результаты классов можно на <a href="rating_classes.html">странице</a>.</li>
+            <li>Скачать кодировку школьников можно на <a href="codes.html">странице</a>.</li>
+            <li><a href="download_diploma">Скачать список грамот.</a></li>
+            <li><a href="download_excel">Скачать все данные за год.</a></li>
+        </ol>
+    </div>
+</div>
+{% endblock %}

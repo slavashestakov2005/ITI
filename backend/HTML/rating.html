@@ -1,0 +1,38 @@
+<!-- replace 1 -->
+
+<center>
+    <h1>Рейтинги</h1>
+    {% raw %}{% if adm %}{% endraw %}
+    <p><a href="share_all_results">Опубликовать результаты по всем предметам</a></p>
+    <p><a href="ratings_update">Обновить рейтинги</a></p>
+    {% raw %}{% if error %} <p class="error-msg">[ {{ error }} ]</p>{% endif %}
+    {% endif %}{% endraw %}
+    <br>
+    <p><a href="rating_students.html">Рейтинг школьников</a></p>
+    <p><a href="rating_classes.html">Рейтинг классов</a></p>
+    <p><a href="rating_teams.html">Рейтинг команд</a></p>
+    <br>
+    {% raw %}{% if adm %}{% endraw %}
+    <h2>Суперчемпион</h2>
+    <table class="js-table-color-place" id="sorted-table">
+        <thead><tr>
+            <th width="5%">Место</th>
+            <th width="5%">Класс</th>
+            <th width="10%">Фамилия</th>
+            <th width="10%">Имя</th>
+            <th width="5%">1&nbsp;места</th>
+            <th width="5%">2&nbsp;места</th>
+            <th width="5%">3&nbsp;места</th>
+            <th width="5%">Вместе</th>
+        </tr></thead>
+        <tbody></tbody>
+    </table>
+    {% raw %}{% endif %}{% endraw %}
+</center>
+<script>
+    let results = {{ results | tojson }}, students = {{ students | tojson }};
+    let tableData = generateSuperChampionTableData();
+    filterResults(null, -1);
+</script>
+
+<!-- replace 2 -->

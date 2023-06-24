@@ -22,7 +22,6 @@ class TeamResource(Resource):
         team ^= new
         Team.update(team)
         Generator.gen_teams(team.year)
-        Generator.gen_teams_students(team.year)
         return True, {'message': 'Данные обновлены'}
 
     @api_item(Team.select, 'admin')

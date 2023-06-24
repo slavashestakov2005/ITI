@@ -12,8 +12,6 @@ import os
 '''
     generate_filename...(...)               Генерирует имя для нового файла.
     /upload         upload()                Загружает файлы (admin).
-    /<path1>/<path2>/<path3>/main_uploader  Загружает файлы по предмету (предметник).
-    /<path1>/<path2>/<path3>/main_deleter   Удаляет файлы по предмету (предметник).
     /<path>/edit    edit(path)              redirect на страницу с редактированием (admin).
     /editor         editor()                Возвращает html-код редактируемойстраницы (admin | full).
     /save_file      save_file()             Сохраняет изменения html-страницы (admin | full).
@@ -86,76 +84,6 @@ def upload():
             FileManager.save(name)
             return redirect(filename)
     return render_template('upload.html')
-
-
-@app.route('/<year:year>/<path:path2>/<path:path3>/main_uploader', methods=['POST'])
-@cross_origin()
-@login_required
-@check_block_year()
-def main_uploader(year: int, path2, path3):
-    try:
-        subject = path_to_subject(path3)
-        file = request.files['file']
-        form_2 = request.form.get('is_sol') is not None
-        if form_2:
-            code = int(request.form['code'])
-            description = request.form['description']
-        else:
-            types = request.form.getlist('type')
-            classes = request.form.getlist('class_n')
-    except Exception:
-        return forbidden_error()
-
-    if not current_user.can_do(subject) or YearSubject.select(year, subject) is None:
-        return forbidden_error()
-    filename = generate_filename_by_student(year, subject, code, description) if form_2 \
-        else generate_filename_by_type(year, subject, types, classes)
-    filename = generate_filename(file.filename, str(year) + '/' + path2 + '/' + str(subject), filename)
-    if filename:
-        name = os.path.join(Config.UPLOAD_FOLDER, filename)
-        file.save(name)
-        FileManager.save(name)
-        # info = SubjectFile([year, subject, filename])
-        # if SubjectsFilesTable.select(info).__is_none__:
-        #     SubjectsFilesTable.insert(info)
-        Generator.gen_files_list(year, subject, path2 + '/' + path3)
-        return redirect('/' + filename)
-    return forbidden_error()
-
-
-@app.route('/<year:year>/<path:path2>/<path:path3>/main_deleter', methods=['POST'])
-@cross_origin()
-@login_required
-@check_block_year()
-def main_deleter(year: int, path2, path3):
-    params = chose_params(year, path2, path3)
-    try:
-        subject = path_to_subject(path3)
-        form_2 = request.form.get('is_sol2') is not None
-        if form_2:
-            code = int(request.form['code'])
-            description = request.form['description']
-        else:
-            types = request.form.getlist('type')
-            classes = request.form.getlist('class_n')
-        extension = request.form['extension']
-    except Exception:
-        return forbidden_error()
-
-    if not current_user.can_do(subject) or YearSubject.select(year, subject) is None:
-        return forbidden_error()
-    file = generate_filename_by_student(year, subject, code, description) if form_2 \
-        else generate_filename_by_type(year, subject, types, classes)
-    file = str(year) + '/' + path2 + '/' + str(subject) + '/' + file + '.' + extension
-    # info = SubjectFile([year, subject, file])
-    file = Config.UPLOAD_FOLDER + '/' + file
-    # if SubjectsFilesTable.select(info).__is_none__:
-    #     return render_template(pref_year(year) + 'add_result.html', **params, error4='Файла не существует')
-    os.remove(file)
-    # SubjectsFilesTable.delete(info)
-    FileManager.delete(file)
-    Generator.gen_files_list(year, subject, path2 + '/' + path3)
-    return render_template(pref_year(year) + 'add_result.html', **params, error4='Файл удалён')
 
 
 @app.route('/<path:path>/edit')

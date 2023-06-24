@@ -6,7 +6,7 @@ from flask import render_template
 from flask_cors import cross_origin
 from flask_login import login_required
 '''
-    /<year>/subject_description             subject_description(...)    Сохраняет описание предмета (время и место).
+    /<year>/public_description     public_description(...)    Публикует описание всех предметов одного года.
 '''
 
 

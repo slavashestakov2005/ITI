@@ -1,46 +1,6 @@
 from backend.excel.excel_parent import ExcelParentWriter
 from backend.queries.help import compare
-from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, Year
-
-
-class ExcelSubjectWriter(ExcelParentWriter):
-    def __init__(self, subject, year: Year):
-        self.subject = subject
-        self.c = year.class_min()
-
-    def __gen_sheet__(self, worksheet, data: list, cls: int):
-        self.__head__(worksheet, 'Место', 'Фамилия', 'Имя', 'Класс', 'Балл', 'Балл в рейтинг',
-                      title='{}, {} класс'.format(self.subject, cls), widths=[8, 20, 20, 10, 10, 10])
-        self.__write__(worksheet, data, 2, cols_cnt=5)
-
-    def write(self, filename: str, data: list):
-        self.__styles__(filename)
-        for x in data:
-            if x:
-                self.__gen_sheet__(self.workbook.add_worksheet('{} класс'.format(self.c)), x, self.c)
-            self.c += 1
-        self.workbook.close()
-
-
-class ExcelClassesWriter(ExcelParentWriter):
-    def __init__(self, year):
-        self.c = class_min(year)
-
-    def __gen_sheet__(self, worksheet, data: list, cls=None):
-        self.__head__(worksheet, 'Место', 'Класс', 'Сумма', 'Не 0',
-                      title=str(cls) + ' класс' if cls else 'Общий', widths=[10, 10, 10, 10])
-        self.__write__(worksheet, data, 2, cols_cnt=3)
-        sm1, sm2 = sum(x[2] for x in data), sum(x[3] for x in data)
-        self.__footer__(worksheet, ['Итого: ', sm1, sm2], [2], [self.head_style], len(data) + 3)
-
-    def write(self, filename: str, data: list, all: list):
-        self.__styles__(filename)
-        self.__gen_sheet__(self.workbook.add_worksheet('Общий'), all)
-        for x in data:
-            if x:
-                self.__gen_sheet__(self.workbook.add_worksheet('{} класс'.format(self.c)), x, self.c)
-            self.c += 1
-        self.workbook.close()
+from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, YearSubject
 
 
 class ExcelCodesWriter(ExcelParentWriter):
@@ -79,7 +39,18 @@ class ExcelDiplomaWriter(ExcelParentWriter):
             worksheet.set_column(3, sz - 1, 30)
             worksheet.merge_range(0, 3, 0, sz - 1, 'Предмет', self.center_style)
 
-    def write(self, filename: str, dip1: list, dip2: list, dip3: list):
+    def write(self, filename: str, diplomas: list, subjects: dict, students: dict):
+        dip1, dip2, dip3 = [], [], []
+        for diploma in diplomas:
+            student_id, subject_id, place = diploma
+            student, subject = students[student_id], subjects[subject_id]
+            line, tp = [student, place, subject], subject.type
+            if tp == 'i':
+                dip1.append(line)
+            elif tp == 'g':
+                dip2.append(line)
+            else:
+                dip3.append(line)
         cmp = [lambda x: x[2].id, lambda x: x[0].class_n, lambda x: x[1], lambda x: x[0].class_l, lambda x: x[0].name()]
         dip1.sort(key=compare(*cmp, field=True))
         cmp[1], cmp[2] = cmp[2], cmp[1]
@@ -115,10 +86,11 @@ class ExcelFullWriter(ExcelParentWriter):
         self.__write__(worksheet, data, cols_cnt=1)
 
     def __gen_results__(self, worksheet):
-        self.__head__(worksheet, 'Предмет', 'Код', 'Балл', 'Сумма', 'Чист. балл')
+        self.__head__(worksheet, 'Предмет', 'Код', 'Сумма', 'Чист. балл')
         data = []
-        for r in Result.select_by_year(self.year):
-            data.append([self.subjects[r.subject], r.user, r.text_result, r.result, r.net_score])
+        for ys in YearSubject.select_by_year(self.year):
+            for r in Result.select_by_year_subject(ys.id):
+                data.append([self.subjects[ys.subject], r.student_code, r.result, r.net_score])
         self.__write__(worksheet, data, cols_cnt=4)
 
     def __gen_group_results__(self, worksheet):

@@ -72,7 +72,7 @@ class Table:
 
     @classmethod
     def select_all(cls):
-        return create_session().query(cls).all()
+        return cls.__select_by_expr__()
 
     @classmethod
     def one_or_many(cls, data, one=False):
@@ -80,13 +80,16 @@ class Table:
 
     @classmethod
     def __select_by_expr__(cls, *exprs, one=False):
-        return cls.one_or_many(create_session().query(cls).filter(sa.and_(*exprs)), one)
+        session = create_session()
+        values = session.query(cls).filter(sa.and_(*exprs))
+        values = cls.one_or_many(values, one)
+        session.expunge_all()
+        session.commit()
+        return values
 
     @classmethod
     def select(cls, _id):
         return cls.__select_by_expr__(getattr(cls, cls.id_field) == _id, one=True)
-
-    # select_last
 
     @classmethod
     def insert(cls, row, return_id=False):

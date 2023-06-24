@@ -17,10 +17,6 @@ from .messages_help import message_teams_public
 def teams_page_params(user: User, year: int):
     try:
         teams, res, subjects, team_tour = user.teams_list(year), [], [], None
-        subjects.append(Subject.build(-1, 'Инд. 1', 'Инд. 1', 'g', 'diploma', 'msg'))
-        subjects.append(Subject.build(-2, 'Инд. 2', 'Инд. 2', 'g', 'diploma', 'msg'))
-        subjects.append(Subject.build(-3, 'Инд. 3', 'Инд. 3', 'g', 'diploma', 'msg'))
-        subjects.append(Subject.build(-4, 'Инд. 4', 'Инд. 4', 'g', 'diploma', 'msg'))
         for x in YearSubject.select_by_year(year):
             subject = Subject.select(x.subject)
             if subject.type == 'g':
@@ -88,6 +84,7 @@ def save_teams(year: int):
 @app.route("/<year:year>/team_edit")
 @cross_origin()
 @login_required
+@check_status('admin')
 @check_block_year()
 def team_edit(year: int):
     return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year))
@@ -102,7 +99,6 @@ def automatic_division(year: int):
     args = teams_page_params(current_user, year)
     good = Generator.gen_automatic_division(year)
     Generator.gen_teams(year)
-    Generator.gen_teams_students(year)
     if not good:
         return render_template(str(year) + '/teams_for_year.html', **args, error9='Остались свободные места')
     message_teams_public(year)

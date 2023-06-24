@@ -9,6 +9,7 @@ def send_message_to_telegram(title, content, year):
     bot = telebot.TeleBot(os.getenv('TELEGRAM_TOKEN'))
     msg = '<b>' + title + '</b>\n' + content
     msg = msg.replace('href="', 'href="{}{}/'.format(Config.HOST, year))
+    msg = msg.replace('<ul>', '').replace('</ul>', '').replace('<li>', '\n● ').replace('</li>', '')
     bot.send_message(os.getenv('TELEGRAM_CHAT'), msg, parse_mode='html')
 
 
@@ -32,10 +33,14 @@ def message_timetable_public(year):
 
 
 def message_ratings_public(year):
-    title = 'Рейтинг'
+    title = 'Рейтинги'
     was_old = len(Message.select_by_year_and_title(year, title))
-    content = 'Опубликован' if not was_old else 'Обновлен'
-    content += ' <a href="rating.html">рейтинг ИТИ.</a>'
+    content = 'Опубликованы' if not was_old else 'Обновлены'
+    content += ' рейтинги ИТИ:<ul>'\
+               '<li><a href="rating_students.html">Рейтинг школьников</a></li>' \
+               '<li><a href="rating_classes.html">Рейтинг классов</a></li>' \
+               '<li><a href="rating_teams.html">Рейтинг команд</a></li>' \
+               '<li><a href="rating.html">Все рейтинги</a></li></ul>'
     Message.insert(Message.build(None, year, title, content, int(datetime.now().timestamp())))
     send_message_to_telegram(title, content, year)
 

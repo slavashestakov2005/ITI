@@ -2,16 +2,16 @@
 
 <center>
     <h1>Рейтинг команд</h1>
-    <div class="row col-12 justify-content-center">
-        <div class="">
-            <table width="100%" border="1" class="js-table-color-place" id="sorted-table" cellpadding=10>
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <table class="js-table-color-place" id="sorted-table">
                 <thead><tr>
-                    <td width="10%">Место</td>
-                    <td width="30%">Команда</td>
+                    <th width="10%">Место</th>
+                    <th width="30%">Команда</th>
                     {% for subject in team_subjects %}
-                        <td width="5%">{{ team_subjects[subject] }}</td>
+                        <th width="5%">{{ team_subjects[subject] }}</th>
                     {% endfor %}
-                    <td width="30%">Сумма</td>
+                    <th width="30%">Сумма</th>
                 </tr></thead>
                 <tbody></tbody>
             </table>
@@ -20,15 +20,15 @@
     {% for team in teams %}
         <div class="w-100"></div>
         <h2>{{ teams[team] }}</h2>
-        <table width="100%" border="1" class="???" cellpadding="10">
+        <table>
             <thead><tr>
-                <td width="10%">Класс</td>
-                <td width="10%">Фамилия</td>
-                <td width="10%">Имя</td>
+                <th width="10%">Класс</th>
+                <th width="10%">Фамилия</th>
+                <th width="10%">Имя</th>
                 {% for subject in ind_subjects %}
-                    <td width="10%">{{ ind_subjects[subject] }}</td>
+                    <th width="10%">{{ ind_subjects[subject] }}</th>
                 {% endfor %}
-                <td width="10%">Сумма</td>
+                <th width="10%">Сумма</th>
             </tr></thead>
             <tbody>
                 {% for student in team_student[team] %}

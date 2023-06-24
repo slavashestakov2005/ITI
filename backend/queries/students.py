@@ -56,7 +56,7 @@ def get_codes(year: int):
     if Year.select(year) is None:
         return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
     filename = './data/codes_{}.xlsx'.format(year)
-    return send_file(filename, as_attachment=True, attachment_filename='Кодировка ИТИ {}.xlsx'.format(year))
+    return send_file(filename, as_attachment=True, download_name='ИТИ {}. Кодировка.xlsx'.format(year))
 
 
 @app.route("/create_students_lists")

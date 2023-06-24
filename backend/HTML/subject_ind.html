@@ -1,0 +1,46 @@
+<!-- replace 1 -->
+<center><h1>{{ subject_name }}</h1></center>
+
+<center>
+    <h2>Результаты</h2>
+    <a href="" onclick="getSubjectExcel({{ year }}, '{{ subject_name }}'); return false;">Скачать результаты в формате Excel</a>
+</center>
+<div class="row justify-content-center">
+    {% set classes = [] %}
+    {% for cls in results %}{% if results[cls].__len__() %}
+        <div class="col-auto">
+            <center>
+                {% set _ = classes.append(cls) %}
+                <h3>{{ cls }} класс</h3>
+                <p>(Максимум: {{ scores[cls] }} баллов)</p>
+            </center>
+            <table class="js-table-color-place" data-cols-width="8,20,20,10,10,10" id="table-c{{ cls }}">
+                <thead>
+                <tr class="js-table-for-excel-head-main"><th colspan="6">{{ subject_name }}, {{ cls }} класс</th></tr>
+                <tr class="js-table-for-excel-head-main"></tr>
+                <tr class="js-table-for-excel-head-sub">
+                    <th width="10%">Место</th>
+                    <th width="30%">Фамилия</th>
+                    <th width="30%">Имя</th>
+                    <th width="10%">Класс</th>
+                    <th width="10%">Балл</th>
+                    <th width="10%">Балл в рейтинг</th>
+                </tr></thead>
+                <tbody>{% for row in results[cls] %}
+                    <tr class="js-table-for-excel-body">
+                        {% for cell in row %}
+                            <td>{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}</tbody>
+            </table>
+    </div>
+    {% endif %}{% endfor %}
+</div>
+<script>
+    colorizePlaces();
+    preparePageForConvert();
+    let classes = {{ classes | tojson }};
+</script>
+
+<!-- replace 2 -->

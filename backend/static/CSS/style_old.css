@@ -46,9 +46,9 @@
     resize: none;
 }
 
-.current_year{ color: blue; }
-.p1{ background: #ffd700; }
-.p2{ background: #c0c0c0; }
+.current_year { color: blue; }
+.p1 { background: #ffd700; }
+.p2 { background: #c0c0c0; }
 .p3 { background: #efa540; }
 
 .td-1 {
@@ -94,4 +94,8 @@
     padding-left: 15px;
     padding-right: 15px;
     padding-bottom: 20px;
+}
+
+table {
+    width: max-content;
 }

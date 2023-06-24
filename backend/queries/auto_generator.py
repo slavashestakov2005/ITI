@@ -1,9 +1,14 @@
 from .help import SplitFile, all_templates, tr_format, compare, is_in_team, html_render
-from backend.excel.excel_writer import ExcelSubjectWriter, ExcelCodesWriter, ExcelClassesWriter, ExcelDiplomaWriter
+from backend.excel.excel_writer import ExcelCodesWriter, ExcelDiplomaWriter
 from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, User, Year, YearSubject, YearSubjectScore
 from backend.config import Config
 import glob
-#TODO: убрать повторы коды в генерации результатов
+
+
+# TODO: убрать повторы кодов в генерации результатов
+# TODO: вернуть галочки для автоматического распределения
+
+
 '''
     class Generator             Заменяет комментарии специального вида на код.
         gen_years_lists()                   Изменяет списки годов.
@@ -26,7 +31,6 @@ import glob
         gen_group_results(year, sub, file)  Генерирует таблицу групповых результатов по предмету sub.
         gen_ratings(year)                   Генерирует рейтинговые таблицы года year.
         gen_teams(year)                     Генерирует списки команд года year.
-        gen_teams_students(year)            Генерирует списки участников команд года year.
         gen_timetable(year)                 Генерирует расписание предметов года year.
         gen_files_list(year, sub, path)     Генерирует список предметных файлов.
         gen_users_list()                    Генерирует список пользователей.
@@ -311,11 +315,13 @@ class Generator:
         data = {}
         for cls in year.classes:
             data[int(cls)] = Generator.gen_results_table(sorted_results[int(cls)], students, scores[int(cls)])
-        html_render('1.html', file_name, subject_name=subject_info.name, results=data, scores=scores)
+        html_render('subject_ind.html', file_name, subject_name=subject_info.name, results=data, scores=scores,
+                   year=year.year)
 
     @staticmethod
     def gen_group_results(year: int, subject: int, file_name: str):
-        is_team = (Subject.select(subject).type == 'a')
+        subject_info = Subject.select(subject)
+        is_team = (subject_info.type == 'a')
         teams = Team.select_by_year(year)
         teams_set = set([_.id for _ in teams])
         if len(teams) == 0:
@@ -335,365 +341,55 @@ class Generator:
         for x in teams_student:
             students_count = max(students_count, len(teams_student[x]))
             teams_student[x].sort(key=compare(Student.sort_by_class, Student.sort_by_name, field=True))
-        txt = '''
-    <center>
-        <h2>Результаты</h2>
-        <div class="row col-12 justify-content-center">
-            <div class="col {0}">
-                <table border="1">
-                    <tr>
-                        <td width="5%">Место</td>
-                        <td width="15%">Команда</td>
-                        <td width="10%">Балл в рейтинг</td>'''.format('td-1' if not is_team else 't-3')
-        txt += '\n' + ' ' * 20 + '<td width="60%" colspan="{0}"><center>Участники</center></td>'.format(students_count) \
-            if not is_team else ''
-        txt += '''
-                    </tr>\n'''.format(students_count)
         i, last_pos, last_result = 1, 1, None
+        rows = []
         for result in results:
             if result[1].result != last_result:
                 last_pos, last_result = i, result[1].result
-            txt += tr_format(last_pos, result[0].name, result[1].result,
-                             *([_.name_1 + ' ' + _.name_2 + ' ' + _.class_name() for _ in teams_student[result[0].id]]
-                               if not is_team and result[0].id in teams_student else []), color=last_pos, tabs=5)
+            rows.append([last_pos, result[0].name, result[1].result,
+                         *([_.name_1 + ' ' + _.name_2 + ' ' + _.class_name() for _ in teams_student[result[0].id]]
+                           if not is_team and result[0].id in teams_student else [])])
             i += 1
-        txt += ' ' * 16 + '</table>\n' + ' ' * 12 + '</div>\n' + ' ' * 8 + '</div>\n' + ' ' * 4 + '</center>\n'
-        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + file_name)
-        data.insert_after_comment(' results table ', txt)
-        data.save_file()
+        html_render('subject_group.html', file_name, results=rows, subject_name=subject_info.name)
 
     @staticmethod
-    def gen_ratings_parallel(results: list, index: int, start: int, tpl: set, tmn: set):
-        radio = '''
-    {{% if adm %}}<td>
-        <input type="checkbox" name="t" value="{3}_0" id="{3}_0" {0}>-<input type="checkbox" name="ot" value="{3}_0" {0} hidden>
-        <input type="checkbox" name="t" value="{3}_1" id="{3}_1" {1}>?<input type="checkbox" name="ot" value="{3}_1" {1} hidden>
-        <input type="checkbox" name="t" value="{3}_2" id="{3}_2" {2}>+<input type="checkbox" name="ot" value="{3}_2" {2} hidden>
-    </td>{{% endif %}}'''
-        txt = '\n'
-        last_pos, last_result = 0, None
-        pl_cnt, mn_cnt = 0, 0
-        for i in range(min(40, len(results) - index)):
-            s = results[index + i][1]
-            if s.class_n != start:
-                break
-            if last_result != s.result:
-                last_result, last_pos = s.result, i
-            mn_cnt += s.id in tmn
-            pl_cnt += s.id in tpl
-            rad = radio.format('checked' if s.id in tmn else '',
-                               'checked' if s.id not in tmn and s.id not in tpl else '',
-                               'checked' if s.id in tpl else '', s.id)
-            txt += tr_format(last_pos + 1, s.class_name(), s.name_1, s.name_2, s.result, rad, color=last_pos + 1, skip_end=True)
-        while index < len(results) and results[index][1].class_n == start:
-            index += 1
-        return txt, index, '<p>Итого: + {} штук, - {} штук.</p>'.format(pl_cnt, mn_cnt)
+    def get_grouped_group_results(team_results):
+        subj_res, cop = {}, {}
+        for team_id, team_res in team_results.items():
+            for subject_id, result in team_res.items():
+                if subject_id > 0:
+                    if subject_id not in subj_res:
+                        subj_res[subject_id] = []
+                    subj_res[subject_id].append(result)
+        for subject_id, results in subj_res.items():
+            cop[subject_id] = sorted(set(results), reverse=True)
+        return cop
 
     @staticmethod
-    def gen_ratings_best_class(results: list):
-        txt = '\n'
-        i, last_pos, last_result = 0, 0, None
-        for x in results:
-            if x[1] != last_result:
-                last_pos, last_result = i, x[1]
-            txt += tr_format(last_pos + 1, x[0], x[1], color=last_pos + 1)
-            i += 1
-            if i == 20:
-                break
-        return txt
-
-    # Пока будем учитывать индивидуальные туры для НШ
-    @staticmethod
-    def gen_ratings_best_team(year: int, results: map):
-        subjects = []
-        team = None
-        new_results = []
-        ind_days = individual_days_count(year)
-        txt = '''
-    <table width="90%" border="1">
-        <tr>
-            <td width="5%">Место</td>
-            <td width="15%">Команда</td>\n'''
-        if ind_days > 0:
-            txt += '''            <td width="8%">Инд. 1</td>
-            <td width="8%">Инд. 2</td>
-            <td width="8%">Инд. 3</td>
-            <td width="8%">Инд. 4</td>
-            '''
-        for x in YearSubject.select_by_year(year):
-            subject = Subject.select(x.subject)
-            if subject.type == 'g':
-                subjects.append(subject)
-                txt += ' ' * 12 + '<td width="8%">{0}</td>\n'.format(subject.short_name)
-            elif subject.type == 'a':
-                team = subject
-        if team:
-            subjects.append(team)
-            txt += ' ' * 12 + '<td width="8%">{}</td>\n'.format(team.short_name)
-        txt += ' ' * 12 + '<td width="8%">Сумма</td>\n' + ' ' * 8 + '</tr>\n'
-        subject_ids = [_ for _ in range(-1, -ind_days - 1, -1)] + [_.id for _ in subjects]
-        cols_result = [[] for _ in range(len(subject_ids) + 1)]
-        returned_data, teams_ids = {}, []
-        for x in results:
-            summ = results[x][1] + results[x][2] + results[x][3] + results[x][4] if ind_days > 0 else 0
-            team_info = Team.select(x)
-            row = [team_info.id, team_info.name]
-            if ind_days > 0:
-                cols_result[0].append(results[x][1])
-                cols_result[1].append(results[x][2])
-                cols_result[2].append(results[x][3])
-                cols_result[3].append(results[x][4])
-                row.append(results[x][1])
-                row.append(results[x][2])
-                row.append(results[x][3])
-                row.append(results[x][4])
-            res = GroupResult.select_by_team(team_info.id)
-            res = {_.subject: _.result for _ in res} if res else {}
-            pos = ind_days
-            for subject in subject_ids[ind_days:]:
-                r = res[subject] if subject in res else 0
-                row.append(r)
-                summ += r
-                cols_result[pos].append(r)
-                pos += 1
-            row.append(summ)
-            new_results.append([row, summ])
-            cols_result[-1].append(summ)
-        new_results.sort(key=compare(lambda x: -x[1], lambda x: x[0][0], field=True))
-        teams_ids = [_[0][0] for _ in new_results]
-        new_results = [[_[0][1:], _[1]] for _ in new_results]
-        cols_result = [sorted(_, reverse=True) for _ in cols_result]
-        i, last_pos, last_result = 1, 1, None
-        for x in new_results:
-            if x[1] != last_result:
-                last_pos, last_result = i, x[1]
-            colors = [4, 4]
-            colors.extend([cols_result[i - 1].index(x[0][i]) + 1 for i in range(1, len(x[0]))])
-            txt += tr_format(last_pos, *x[0], tabs=2, color=colors)
-            i += 1
-
-            for j in range(1 + ind_days, len(x[0]) - 1):
-                team_id = teams_ids[i - 2]
-                subject_id = subject_ids[j - 1]
-                if team_id not in returned_data:
-                    returned_data[team_id] = {}
-                returned_data[team_id][subject_id] = cols_result[j - 1].index(x[0][j]) + 1
-        return txt + ' ' * 4 + '</table>\n', returned_data
-
-    # Добавили результаты по классам
-    @staticmethod
-    def gen_ratings_in_class(codes: map, class_n: int, filename: str, year: int, results: list, tpl: set, tmn: set, team_info: map):
-        class_results, class_sums = {}, {}
-        for x in codes:
-            student = x[1]
-            if student.class_n == class_n:
-                if student.class_l not in class_results:
-                    class_results[student.class_l] = []
-                    class_sums[student.class_l] = 0
-                class_results[student.class_l].append(student)
-                class_sums[student.class_l] += student.result
-        subjects_map = {}
-        subjects, txt = [], ''
-        template = '''
-        <div class="col t-2">
-            {{% if adm %}}
-                <form action="save_teams" method="post">
-                <input type="text" name="cl" value="2" hidden>
-                <input type="text" name="part" value="{1}" hidden>
-            {{% endif %}}
-            <center><h3>{0}</h3></center>
-            <table width="100%" border="1">
-                <tr>
-                    <td width="5%">Место</td>
-                    <td width="30%">Фамилия</td>
-                    <td width="30%">Имя</td>\n'''
-        for x in YearSubject.select_by_year(year):
-            subject = Subject.select(x.subject)
-            subjects_map[subject.id] = subject
-            if subject.type == 'i':
-                subjects.append(subject)
-                template += ' ' * 20 + '<td width="5%">{}</td>\n'.format(subject.short_name)
-        template += '''                    <td width="5%">Сумма</td>
-                    <td width="11$">Другие</td>
-                    {{% if adm %}}
-                    <td width="11%">Команда</td>
-                    {{% endif %}}
-                </tr>\n'''
-        radio = '''
-                    {{% if adm %}}<td>
-                        <input type="checkbox" name="t" value="{3}_0" id="{3}_0" {0}>-<input type="checkbox" name="ot" value="{3}_0" {0} hidden>
-                        <input type="checkbox" name="t" value="{3}_1" id="{3}_1" {1}>?<input type="checkbox" name="ot" value="{3}_1" {1} hidden>
-                        <input type="checkbox" name="t" value="{3}_2" id="{3}_2" {2}>+<input type="checkbox" name="ot" value="{3}_2" {2} hidden>
-                    </td>{{% endif %}}'''
-        class_sums = sorted(class_sums.items(), key=lambda x: -x[1])
-        classes_text = '''
-        <div class="col t-4">
-            <center><h3>Классы</h3></center>
-            <table width="100%" border="1">
-                <tr>
-                    <td width="10%">Место</td>
-                    <td width="40%">Класс</td>
-                    <td width="40%">Сумма</td>
-                    <td width="10%">Не 0</td>
-                </tr>\n'''
-        all_pos, all_res, gun_zero, gsum = 0, None, 0, 0
-        ret_data = []
-        teams = set([_.id for _ in Team.select_by_year(year)])
-
-        for r in class_sums:
-            if all_res != r[1]:
-                all_pos += 1
-                all_res = r[1]
-            sub_sums = {_.id: 0 for _ in subjects}
-            txt += template.format(str(class_n) + r[0], r[0])
-            position, last_pos, last_result, un_zero = 1, 1, None, 0
-            for x in class_results[r[0]]:
-                # TODO: починить строку ниже
-                x_team = list(set([_.team for _ in TeamStudent.select_by_student(x.id)]).intersection(teams))
-                x_subjects = SubjectStudent.select_by_student(year, x.id)
-                if len(x_subjects) and len(x_team) != 1:
-                    raise ValueError()
-                other_subjects_text = ''
-                for sub in x_subjects:
-                    if sub.subject < 0:
-                        continue
-                    gres = team_info[x_team[0]][sub.subject]
-                    other_subjects_text += subjects_map[sub.subject].name + ' ({})'.format(gres)
-
-                if x.result != last_result:
-                    last_pos, last_result = position, x.result
-                row = [last_pos, x.name_1, x.name_2]
-                for subject in subjects:
-                    if x.id in results and subject.id in results[x.id]:
-                        row.append('{} ({})'.format(*results[x.id][subject.id]))
-                        sub_sums[subject.id] += results[x.id][subject.id][0]
-                    else:
-                        row.append('—')
-                rad = radio.format('checked' if x.id in tmn else '',
-                                   'checked' if x.id not in tmn and x.id not in tpl else '',
-                                   'checked' if x.id in tpl else '', x.id)
-                txt += tr_format(*row, str(x.result) + ' ', other_subjects_text, rad, color=last_pos, tabs=4, skip_end=True)
-                if x.result > 0:
-                    un_zero += 1
-                position += 1
-            ret_data.append([all_pos, str(class_n) + r[0], r[1], un_zero])
-            classes_text += tr_format(all_pos, str(class_n) + r[0], r[1], un_zero, color=all_pos, tabs=4)
-            sub_sums = sub_sums.values()
-            txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, r[1],
-                                                                                            tr=False) + '</tr>\n'
-            error_idx = str(ord(r[0])) if r[0] else '0'
-            txt += '''            </table>
-            {% if adm %}
-                <center>
-                    {% if error''' + error_idx + ''' %} <p><font color="red">[ {{ error''' + error_idx + ''' }} ]</font></p>{% endif %}
-                    <p><input type="submit" value="Сохранить"></p>
-                </center></form>
-            {% endif %}
-        </div>'''
-            gun_zero += un_zero
-            gsum += r[1]
-        txt += '\n    '
-        classes_text += ' ' * 16 + '<tr><td colspan="2"><center>Итого</center></td>' + tr_format(gsum, gun_zero, tr=False) + '</tr>\n'
-        classes_text += ' ' * 12 + '</table>\n' + ' ' * 8 + '</div>\n' + ' ' * 4
-        data = SplitFile(filename)
-        data.insert_after_comment(' results ', txt)
-        data.insert_after_comment(' classes ', classes_text)
-        data.save_file()
-        return ret_data
-
-    @staticmethod
-    def gen_ratings_5_i(year: int, subject: int, decode: map, sp: map):
-        r = Result.select_by_year_and_subject(year, subject)
-        r.sort(key=compare(lambda x: decode[x.user].class_n, lambda x: Result.sort_by_result(x), field=True))
-        last_result, last_pos, last_class, i = None, 0, 0, 1
-        for x in r:
-            user = decode[x.user]
-            if last_class != user.class_n:
-                last_result, last_pos, last_class, i = None, 0, user.class_n, 1
-            if last_result != x.result:
-                last_result, last_pos = x.result, i
-            if last_pos < 4:
-                if user.id not in sp:
-                    sp[user.id] = [0, 0, 0]
-                sp[user.id][last_pos - 1] += 1
-            i += 1
-        return sp
-
-    @staticmethod
-    def gen_ratings_5_g(year: int, subject: int, teams: map, sp: map):
-        ts, diploma = set(teams.keys()), []
-        peoples = set([_.student for _ in SubjectStudent.select_by_subject(year, subject)])
-        r = [_ for _ in GroupResult.select_by_subject(subject) if _.team in ts]
-        r.sort(key=GroupResult.sort_by_result)
-        last_result, last_pos, i = None, 0, 1
-        for x in r:
-            if last_result != x.result:
-                last_result, last_pos = x.result, i
-            if last_pos > 3:
-                break
-            for user in peoples.intersection(set([_.student for _ in TeamStudent.select_by_team(x.team)])):
-                if user not in sp:
-                    sp[user] = [0, 0, 0]
-                sp[user][last_pos - 1] += 1
-                diploma.append([user, last_pos])
-            i += 1
-        return sp, diploma
-
-    @staticmethod
-    def gen_ratings_5_a(year: int, subject: int, teams: map, sp: map):
-        ts, diploma = set(teams.keys()), []
-        r = [_ for _ in GroupResult.select_by_subject(subject) if _.team in ts]
-        peoples = set([_.student for _ in SubjectStudent.select_by_subject(year, subject)])
-        r.sort(key=GroupResult.sort_by_result)
-        last_result, last_pos, i = None, 0, 1
-        for x in r:
-            if last_result != x.result:
-                last_result, last_pos = x.result, i
-            if last_pos > 3:
-                break
-            for user in TeamStudent.select_by_team(x.team):
-                if user.student in peoples:
-                    if user.student not in sp:
-                        sp[user.student] = [0, 0, 0]
-                    sp[user.student][last_pos - 1] += 1
-                    diploma.append([user.student, last_pos])
-            i += 1
-        return sp, diploma
-
-    @staticmethod
-    def gen_ratings_best_student(year: int, codes: map):
-        decode = Generator.get_codes(year)
-        teams = Generator.get_teams(year)
-        codes = {_[0]: _[1] for _ in codes}
-        codes = {_.id: _ for _ in codes.values()}
-        subjects = YearSubject.select_by_year(year)
-        res, group_diploma, team_diploma = {}, [], []
-        for subject in subjects:
-            day = subject.n_d
-            subject = Subject.select(subject.subject)
-            if subject.type == 'i':
-                res = Generator.gen_ratings_5_i(year, subject.id, decode[day], res)
-            elif subject.type == 'g':
-                res, diploma = Generator.gen_ratings_5_g(year, subject.id, teams, res)
-                for d in diploma:
-                    group_diploma.append([codes[d[0]], d[1], subject])
-            else:
-                res, diploma = Generator.gen_ratings_5_a(year, subject.id, teams, res)
-                for d in diploma:
-                    team_diploma.append([codes[d[0]], d[1], subject])
-        res = sorted(res.items(), key=compare(lambda x: -x[1][0], lambda x: -x[1][1], lambda x: -x[1][2],
-                                              lambda x: Student.sort_by_class(codes[x[0]]),
-                                              lambda x: codes[x[0]].name_1, lambda x: codes[x[0]].name_2, field=True))
-        txt, last_result, last_pos, i = '\n', None, 0, 1
-        for r in res:
-            user = codes[r[0]]
-            if last_result != r[1]:
-                last_result, last_pos = r[1], i
-            txt += tr_format(last_pos, user.class_name(), user.name_1, user.name_2, *r[1], color=last_pos)
-            if i == 20:
-                break
-            i += 1
-        return txt, group_diploma, team_diploma
+    def gen_super_champion(year: int, team_results, student_results, ys_index_2_subject):
+        diplomas = []
+        rating = {}
+        for student_id in student_results:
+            if student_id not in rating:
+                rating[student_id] = [0, 0, 0]
+            for subject, result in student_results[student_id].items():
+                if result[1] < 4:
+                    diplomas.append([student_id, ys_index_2_subject[subject], result[1]])
+                    rating[student_id][result[1] - 1] += 1
+        grouped_team_results = Generator.get_grouped_group_results(team_results)
+        for team_id in team_results:
+            students = [ts.student for ts in TeamStudent.select_by_team(team_id)]
+            for subject_id, result in team_results[team_id].items():
+                if subject_id > 0:
+                    place = grouped_team_results[subject_id].index(result)
+                    if place < 3:
+                        for student_id in students:
+                            if SubjectStudent.select_by_all(year, subject_id, student_id):
+                                if student_id not in rating:
+                                    rating[student_id] = [0, 0, 0]
+                                diplomas.append([student_id, subject_id, place + 1])
+                                rating[student_id][place] += 1
+        return rating, diplomas
 
     @staticmethod
     def get_teams_results(team_results):
@@ -710,173 +406,47 @@ class Generator:
     def gen_ratings(year: int):
         year_info = Year.select(year)
         student_results, class_results, team_results, all_res, dip1 = Generator.get_all_data_from_results(year_info)
-        students = {_.id: [_.name_1, _.name_2, _.class_name()] for _ in Student.select_all(year)}
-        subjects = [Subject.select(x.subject) for x in YearSubject.select_by_year(year)]
-        ind_subjects = {x.id: x.short_name for x in subjects if x.type == 'i'}
-        group_subjects = {x.id: x.short_name for x in subjects if x.type != 'i'}
+        students_raw = {_.id: _ for _ in Student.select_all(year)}
+        students = {_.id: [_.name_1, _.name_2, _.class_name()] for _id, _ in students_raw.items()}
+        subjects_raw = {_.id: _ for _ in Subject.select_all()}
+        subjects = {ys.id: Subject.select(ys.subject) for ys in YearSubject.select_by_year(year)}
+        ind_subjects = {ys: s.short_name for ys, s in subjects.items() if s.type == 'i'}
+        group_subjects = {s.id: s.short_name for ys, s in subjects.items() if s.type != 'i'}
         for day in range(1, 1 + year_info.ind_days):
             group_subjects[-day] = 'Инд.&nbsp;{}'.format(day)
         # TODO: sort subjects!!!
         all_team_results = Generator.get_teams_results(team_results)
         teams = {_.id: _.name for _ in Team.select_by_year(year)}
         team_student = {team: [ts.student for ts in TeamStudent.select_by_team(team)] for team in teams}
+        ys_index_2_subject = {ys.id: Subject.select(ys.subject).id for ys in YearSubject.select_by_year(year)}
+        rating, diplomas = Generator.gen_super_champion(year, all_team_results, all_res, ys_index_2_subject)
         html_render('rating_students.html', str(year) + '/rating_students.html', results=all_res, students=students,
                     subjects=ind_subjects, classes=class_results.keys())
         html_render('rating_classes.html', str(year) + '/rating_classes.html', classes=class_results.keys(),
-                    results=[(_[0], *_[1]) for _ in class_results.items()])
+                    results=[(_[0], *_[1]) for _ in class_results.items()], year=year)
         html_render('rating_teams.html', str(year) + '/rating_teams.html', team_results=all_team_results,
                     ind_subjects=ind_subjects, team_subjects=group_subjects, team_student=team_student,
                     teams=teams, students=students, student_results=all_res)
-        codes = Generator.get_students(year)
-        for _ in student_results:
-            codes[_].result = student_results[_]
-        codes = sorted(codes.items(), key=compare(lambda x: -x[1].class_n, lambda x: -x[1].result,
-                                                  lambda x: x[1].class_l, lambda x: Student.sort_by_name(x[1]),
-                                                  field=True))
-        # class_results = sorted(class_results.items(), key=compare(lambda x: -x[1], lambda x: x[0], field=True))
-        # index = 0
-        # tpl, tmn = is_in_team(year)
-        # tpl = set(_.student for _ in TeamStudent.select_by_team(tpl))
-        # tmn = set(_.student for _ in TeamStudent.select_by_team(tmn))
-        # if year > 0:
-        #     best_9, index, best_sum_9 = Generator.gen_ratings_parallel(codes, index, 9, tpl, tmn)
-        #     best_8, index, best_sum_8 = Generator.gen_ratings_parallel(codes, index, 8, tpl, tmn)
-        #     best_7, index, best_sum_7 = Generator.gen_ratings_parallel(codes, index, 7, tpl, tmn)
-        #     best_6, index, best_sum_6 = Generator.gen_ratings_parallel(codes, index, 6, tpl, tmn)
-        #     best_5, index, best_sum_5 = Generator.gen_ratings_parallel(codes, index, 5, tpl, tmn)
-        # else:
-        #     best_4, index, best_sum_4 = Generator.gen_ratings_parallel(codes, index, 4, tpl, tmn)
-        #     best_3, index, best_sum_3 = Generator.gen_ratings_parallel(codes, index, 3, tpl, tmn)
-        #     best_2, index, best_sum_2 = Generator.gen_ratings_parallel(codes, index, 2, tpl, tmn)
-        # best_class = Generator.gen_ratings_best_class(class_results)
-        # best_team, tems_info = Generator.gen_ratings_best_team(year, team_results)
-        # best_student, dip2, dip3 = Generator.gen_ratings_best_student(year, codes)
-        # data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating.html')
-        # data.insert_after_comment(' rating_teams ', best_team)
-        # data.insert_after_comment(' rating_class ', best_class)
-        # data.insert_after_comment(' rating_student ', best_student)
-        # if year > 0:
-        #     data.insert_after_comment(' rating_parallel_5 ', best_5)
-        #     data.insert_after_comment(' rating_parallel_6 ', best_6)
-        #     data.insert_after_comment(' rating_parallel_7 ', best_7)
-        #     data.insert_after_comment(' rating_parallel_8 ', best_8)
-        #     data.insert_after_comment(' rating_parallel_9 ', best_9)
-        #     data.insert_after_comment(' rating_parallel_sum_5 ', best_sum_5)
-        #     data.insert_after_comment(' rating_parallel_sum_6 ', best_sum_6)
-        #     data.insert_after_comment(' rating_parallel_sum_7 ', best_sum_7)
-        #     data.insert_after_comment(' rating_parallel_sum_8 ', best_sum_8)
-        #     data.insert_after_comment(' rating_parallel_sum_9 ', best_sum_9)
-        # else:
-        #     data.insert_after_comment(' rating_parallel_2 ', best_2)
-        #     data.insert_after_comment(' rating_parallel_3 ', best_3)
-        #     data.insert_after_comment(' rating_parallel_4 ', best_4)
-        #     data.insert_after_comment(' rating_parallel_sum_2 ', best_sum_2)
-        #     data.insert_after_comment(' rating_parallel_sum_3 ', best_sum_3)
-        #     data.insert_after_comment(' rating_parallel_sum_4 ', best_sum_4)
-        # data.save_file()
-        # arr, arr_a = [], []
-        # for i in range(class_min(year), class_max(year)):
-        #     filename = Config.TEMPLATES_FOLDER + "/" + str(year) + '/rating_' + str(i) + '.html'
-        #     now = Generator.gen_ratings_in_class(codes, i, filename, year, all_res, tpl, tmn, tems_info)
-        #     arr.append([[y for y in x] for x in now])
-        #     arr_a.extend(now)
-        # arr_a.sort(key=lambda x: -x[2])
-        # arr_a[0][0] = 1
-        # for i in range(1, len(arr_a)):
-        #     if arr_a[i][2] == arr_a[i - 1][2]:
-        #         arr_a[i][0] = arr_a[i - 1][0]
-        #     else:
-        #         arr_a[i][0] = i + 1
-        # ExcelClassesWriter(year).write(Config.DATA_FOLDER + '/classes_{}.xlsx'.format(year), arr, arr_a)
-        # ExcelDiplomaWriter(year).write(Config.DATA_FOLDER + '/diploma_{}.xlsx'.format(year), dip1, dip2, dip3)
+        html_render('rating.html', str(year) + '/rating.html', results=rating, students=students)
+        ExcelDiplomaWriter(year).write(Config.DATA_FOLDER + '/diploma_{}.xlsx'.format(year), diplomas, subjects_raw,
+                                       students_raw)
 
     @staticmethod
     def gen_teams(year: int):
         teams = Team.select_by_year(year)
-        text1, text2, text3 = '\n', '\n', '\n'
+        text1, text3 = '\n', '\n'
         for team in teams:
             row = [team.later, team.name]
             text1 += tr_format(team.id, *row, tabs=4)
-            text2 += tr_format(*row, tabs=3)
             text3 += ' ' * 16 + '<p>{0}: <input type="text" name="score_{1}" value="{{{{ t{1} }}}}"></p>\n'. \
                 format(team.name, team.id)
         text1 += ' ' * 12
-        text2 += ' ' * 8
         text3 += ' ' * 12
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams_for_year.html")
         data.insert_after_comment(' list of teams (full) ', text1)
         data.save_file()
-        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams.html")
-        data.insert_after_comment(' list of teams ', text2)
-        data.save_file()
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/add_result.html")
         data.insert_after_comment(' teams list for saving group results ', text3)
-        data.save_file()
-
-    @staticmethod
-    def gen_teams_students(year: int):
-        codes = Generator.get_students(year)
-        result = Generator.get_results(year)
-        subjects0, subjects, ys = YearSubject.select_by_year(year), [], {}
-        for x in subjects0:
-            subject = Subject.select(x.subject)
-            if subject.type == 'i':
-                subjects.append(subject)
-                ys[subject.id] = x.n_d
-        student_result = {}
-        for subject_id in result:
-            for r in result[subject_id]:
-                day = ys[subject_id]
-                student_id = r.student_id
-                if student_id not in student_result:
-                    student_result[student_id] = {}
-                if day not in student_result[student_id]:
-                    student_result[student_id][day] = {}
-                student_result[student_id][day][subject_id] = r.net_score
-        teams = Team.select_by_year(year)
-        teams.sort(key=Team.sort_by_later)
-        template = '''
-        <div class="col t-2"><center><h2>{0}</h2></center>
-            <table width="100%" border="1">
-                <tr>
-                    <td width="10%">Класс</td>
-                    <td width="45%">Фамилия</td>
-                    <td width="45%">Имя</td>\n'''
-        for subject in subjects:
-            template += ' ' * 20 + '<td width="5%">{0}</td>\n'.format(subject.short_name)
-        template += ' ' * 20 + '<td width="5%">Сумма</td>\n' + ' ' * 16 + '</tr>\n'
-        txt = ''
-        for team in teams:
-            students = TeamStudent.select_by_team(team.id)
-            students = [codes[_.student] for _ in students]
-            students.sort(key=compare(lambda x: x.class_name(), lambda x: x.name_1, lambda x: x.name_2, field=True))
-            sub_sums = {_.id: 0 for _ in subjects}
-            sum_of_sums = 0
-            if len(students) == 0:
-                continue
-            txt += template.format(team.name)
-            for student in students:
-                row = [student.class_name(), student.name_1, student.name_2]
-                for subject in subjects:
-                    if student.id in student_result and ys[subject.id] in student_result[student.id] \
-                            and subject.id in student_result[student.id][ys[subject.id]]:
-                        row.append(student_result[student.id][ys[subject.id]][subject.id])
-                        sub_sums[subject.id] += row[-1]
-                    else:
-                        row.append('—')
-                summ = 0
-                if student.id in student_result:
-                    for day in student_result[student.id]:
-                        summ += sum(sorted(student_result[student.id][day].values(), reverse=True)[:2])
-                txt += tr_format(*row, summ, tabs=4)
-                sum_of_sums += summ
-            sub_sums = sub_sums.values()
-            txt += ' ' * 16 + '<tr><td colspan="3"><center>Сумма</center></td>' + tr_format(*sub_sums, sum_of_sums,
-                                                                                            tr=False) + '</tr>\n'
-            txt += ' ' * 12 + '</table>\n' + ' ' * 8 + '</div>\n'
-        txt += ' ' * 4
-        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/teams.html")
-        data.insert_after_comment(' list of students_in_team ', txt)
         data.save_file()
 
     @staticmethod

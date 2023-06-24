@@ -24,6 +24,10 @@ class SubjectStudent(SqlAlchemyBase, Table):
         return cls.__select_by_expr__(cls.year == year, cls.subject == subject)
 
     @classmethod
+    def select_by_all(cls, year: int, subject: int, student: int):
+        return cls.__select_by_expr__(cls.year == year, cls.subject == subject, cls.student == student, one=True)
+
+    @classmethod
     def delete(cls, subject_student) -> None:
         return cls.__delete_by_expr__(cls.year == subject_student.year, cls.subject == subject_student.subject, cls.student == subject_student.student)
 

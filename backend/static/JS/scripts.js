@@ -25,34 +25,6 @@ function initTextArea(){
     }
 }
 
-function addResult(window) {
-    go(window.location + '/add_result');
-}
-
-function addAppeal(window) {
-    go(window.location + '/add_appeal');
-}
-
-function file_type() {
-    if (document.getElementById('is_sol').checked) {
-        document.getElementById('form_2').style.display = 'block';
-        document.getElementById('form_1').style.display = 'none';
-    } else {
-        document.getElementById('form_1').style.display = 'block';
-        document.getElementById('form_2').style.display = 'none';
-    }
-}
-
-function file_type2() {
-    if (document.getElementById('is_sol2').checked) {
-        document.getElementById('form_4').style.display = 'block';
-        document.getElementById('form_3').style.display = 'none';
-    } else {
-        document.getElementById('form_3').style.display = 'block';
-        document.getElementById('form_4').style.display = 'none';
-    }
-}
-
 function change_checkbox(element) {
     let box = element.srcElement;
     let s = box.id.substr(0, box.id.length - 1), t = box.id.substr(-1);
@@ -78,11 +50,6 @@ function find_checkboxes() {
 
 function cursor(){
     document.getElementById("results_for_focus").focus();
-}
-
-function show_alert(){
-    let text = document.getElementById('text_for_alert').textContent;
-    alert(text.substr(2, text.length - 4));
 }
 
 function convert(str) {
@@ -126,4 +93,11 @@ function chooseSubject(subject){
     let year = new URL(window.location).searchParams.get('year');
     if (!year) subject = null;
     go(adminPath(year, subject))
+}
+
+function tablesAttributes(){
+    for (let table of document.getElementsByTagName('table')) {
+        table.setAttribute('border', '1');
+        table.setAttribute('cellpadding', '10');
+    }
 }

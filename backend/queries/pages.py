@@ -20,6 +20,15 @@ def subjects_for_year(year: int):
     return render_template(str(year) + '/subjects_for_year.html', year=abs(year), messages=Message.select_by_year(year))
 
 
+@app.route("/<year:year>/excel.html")
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def excel_page_for_year(year: int):
+    return render_template('excel.html', year=year)
+
+
 @app.route("/settings.html")
 @cross_origin()
 @login_required

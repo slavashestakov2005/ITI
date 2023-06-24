@@ -1,0 +1,26 @@
+<!-- replace 1 -->
+<center><h1>{{ subject_name }}</h1></center>
+
+<center><h2>Результаты</h2></center>
+<div class="row justify-content-center">
+    <table class="js-table-color-place">
+        <thead>
+            <tr>
+                <th width="5%">Место</th>
+                <th width="15%">Команда</th>
+                <th width="10%">Балл в рейтинг</th>
+                <th width="60%" colspan="8"><center>Участники</center></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in results %}
+            <tr>
+                {% for cell in row %}<td>{{ cell }}</td>{% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>colorizePlaces();</script>
+
+<!-- replace 2 -->

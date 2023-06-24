@@ -159,7 +159,7 @@ def load_data_from_excel():
 def download_excel(year: int):
     ExcelFullWriter(year).write(Config.DATA_FOLDER + '/data_{}.xlsx'.format(year))
     filename = './data/data_{}.xlsx'.format(year)
-    return send_file(filename, as_attachment=True, attachment_filename='Данныe ИТИ {}.xlsx'.format(year))
+    return send_file(filename, as_attachment=True, download_name='ИТИ {}. Все данные.xlsx'.format(year))
 
 
 @app.route('/<year:year>/download_diploma', methods=['GET'])
@@ -168,27 +168,4 @@ def download_excel(year: int):
 @check_status('admin')
 def download_diploma(year: int):
     filename = './data/diploma_{}.xlsx'.format(year)
-    return send_file(filename, as_attachment=True, attachment_filename='Дипломы ИТИ {}.xlsx'.format(year))
-
-
-@app.route('/<year:year>/download_classes', methods=['GET'])
-@cross_origin()
-@login_required
-@check_status('admin')
-def download_classes(year: int):
-    filename = './data/classes_{}.xlsx'.format(year)
-    return send_file(filename, as_attachment=True, attachment_filename='Данныe классов ИТИ {}.xlsx'.format(year))
-
-
-@app.route('/<year:year>/<path:subject>/download_excel', methods=['GET'])
-@cross_origin()
-@login_required
-@check_status('admin')
-def download_excel2(year: int, subject: str):
-    try:
-        subject = path_to_subject(subject)
-    except Exception:
-        return redirect('add_result')
-    filename = 'data/data_{}_{}.xlsx'.format(year, subject)
-    name = Subject.select(subject).name
-    return send_file(filename, as_attachment=True, attachment_filename='ИТИ {}. {}.xlsx'.format(year, name))
+    return send_file(filename, as_attachment=True, download_name='ИТИ {}. Дипломы.xlsx'.format(year))

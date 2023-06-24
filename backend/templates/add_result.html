@@ -44,8 +44,6 @@
 		{% if error3 %} <p class="error-msg">[ {{ error3 }} ]</p>
 		{% endif %}
 		<br>
-		<h1><a href="download_excel">Скачать данные в формате Excel</a></h1>
-		<br>
 		<h1>Удаление результатов</h1>
 		<form onsubmit="result_delete(this); return false;">
 			<p>Код участника: <input type="text" name="code"></p>
@@ -53,60 +51,6 @@
 		</form>
 	</center></div>
 	{% endif %}
-
-	<div class="col t-3"><center>
-		<h1>Загрузка файлов</h1>
-		<form action="main_uploader" method="post" enctype=multipart/form-data>
-			<p>Файл: <input type="file" name="file"></p>
-			<p><input type="checkbox" id="is_sol" name="is_sol" value="is_sol" onclick="file_type();">Решение школьника</p>
-			<div id="form_1">
-				<p>Тип:
-					<input type="checkbox" name="type" value="task">Задания
-					<input type="checkbox" name="type" value="solution">Решения
-					<input type="checkbox" name="type" value="criteria">Критерии
-				</p>
-				<p>Класс:
-					<input type="checkbox" name="class_n" value="5">5
-					<input type="checkbox" name="class_n" value="6">6
-					<input type="checkbox" name="class_n" value="7">7
-					<input type="checkbox" name="class_n" value="8">8
-					<input type="checkbox" name="class_n" value="9">9
-				</p>
-			</div>
-			<div id="form_2">
-				<p>Код школьника: <input type="text" name="code"></p>
-				<p>Описание: <input type="text" name="description"></p>
-			</div>
-			<input type="submit" value="Загрузить">
-		</form>
-		<br>
-		<h1>Удаление файлов:</h1>
-		<form action="main_deleter" method="post">
-			<p><input type="checkbox" id="is_sol2" name="is_sol2" value="is_sol2" onclick="file_type2();">Решение школьника</p>
-			<div id="form_3">
-				<p>Тип:
-					<input type="checkbox" name="type" value="task">Задания
-					<input type="checkbox" name="type" value="solution">Решения
-					<input type="checkbox" name="type" value="criteria">Критерии
-				</p>
-				<p>Класс:
-					<input type="checkbox" name="class_n" value="5">5
-					<input type="checkbox" name="class_n" value="6">6
-					<input type="checkbox" name="class_n" value="7">7
-					<input type="checkbox" name="class_n" value="8">8
-					<input type="checkbox" name="class_n" value="9">9
-				</p>
-			</div>
-			<div id="form_4">
-				<p>Код школьника: <input type="text" name="code"></p>
-				<p>Описание: <input type="text" name="description"></p>
-			</div>
-			<p>Расширение файла: <input type="text" name="extension"></p>
-			<input type="submit" value="Удалить">
-		</form>
-		{% if error4 %} <p class="error-msg">[ {{ error4 }} ]</p>
-		{% endif %}
-	</center></div>
 </div>
 <br>
 {% if top %}
@@ -137,5 +81,5 @@
 	{% endfor %}
 </div>
 {% endif %}
-<script>file_type();file_type2();cursor();</script>
+<script>cursor();</script>
 {% endblock %}
