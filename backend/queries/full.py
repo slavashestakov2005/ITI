@@ -137,7 +137,8 @@ def load_data_from_excel():
 
     if qtype == 1:
         _delete_year(year)
-        year_id = Year.insert(Year.build(year, '', 1), return_id=True)
+        # TODO: добавить настройки
+        year_id = Year.insert(Year.build(None, year, '56789', 2, 30, 8, 4, 0, 1), return_id=True)
         FileCreator.create_year(year)
         Generator.gen_years_lists()
         Generator.gen_years_subjects_list(year)

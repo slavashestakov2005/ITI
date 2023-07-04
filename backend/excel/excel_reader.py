@@ -2,7 +2,8 @@ import pandas as pd
 from backend.queries.file_creator import FileCreator, SplitFile
 from backend.queries.auto_generator import Generator
 from backend.queries.help import split_class
-from ..database import Result, Student, StudentCode, Subject, Team, TeamStudent, Year, YearSubject
+from ..database import Result, Student, StudentClass, StudentCode, Subject, Team, TeamStudent, Year, YearSubject,\
+    get_student_by_params
 from backend.config import Config
 
 
@@ -92,15 +93,17 @@ class ExcelFullReader:
         for i, row in self.code.iterrows():
             names = row[0].split()
             class_ = split_class(row[1])
-            student = Student.build(None, names[0], names[1], class_[0], class_[1], 0)
+            student = Student.build(None, names[0], names[1], 0)
             student.set_gender(row[2])
-            st = Student.select_by_student(student)
+            st = get_student_by_params(self.year, names[0], names[1], class_[0], class_[1])
+            sc = StudentClass.build(0, self.year, class_[0], class_[1])
             if st is None:
-                Student.insert(student)
-                sid = Student.select_by_student(student).id
+                sc.student_id = sid = Student.insert(student, return_id=True)
+                StudentClass.insert(sc)
             else:
-                student.id = sid = st.id
+                sc.student_id = student.id = sid = st.id
                 Student.update(student)
+                StudentClass.update(sc)
             self.student[(row[0], row[1])] = sid
             c = StudentCode.build(self.year.year, int(row[3]), int(row[3]), sid)
             StudentCode.insert(c)
@@ -132,14 +135,17 @@ class ExcelFullReader:
         for i, row in self.student.iterrows():
             names = row[0].split()
             class_ = split_class(row[1])
-            student = Student.build(None, names[0], names[1], class_[0], class_[1], 0)
+            student = Student.build(None, names[0], names[1], 0)
             student.set_gender(row[2])
-            st = Student.select_by_student(student)
+            st = get_student_by_params(self.year, names[0], names[1], class_[0], class_[1])
+            sc = StudentClass.build(0, self.year, class_[0], class_[1])
             if st is None:
-                Student.insert(student)
+                sc.student_id = Student.insert(student, return_id=True)
+                StudentClass.insert(sc)
             else:
-                student.id = st.id
+                sc.student_id = student.id = st.id
                 Student.update(student)
+                StudentClass.update(sc)
 
     def read(self):
         self.sheet = pd.read_excel(self.file, sheet_name=None, engine="openpyxl")

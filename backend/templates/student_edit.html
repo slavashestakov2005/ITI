@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="row col-12 justify-content-center">
-	<div class="col t-3">
+	<div class="col-lg-4 col-md-6 col-sm-12">
 		<h1>Новый участник</h1>
 		<form onsubmit="student_registration(this); return false;">
 			<p>Имя: <input type="text" name="name2"></p>
@@ -15,7 +15,7 @@
 				Все остальные буквы — в нижний.</p>
 		</form>
 	</div>
-	<div class="col t-3">
+	<div class="col-lg-4 col-md-6 col-sm-12">
 		<h1>Изменить участника</h1>
 		<form onsubmit="student_edit(this); return false;">
 			<p>ID: <input type="text" name="id"></p>
@@ -27,48 +27,47 @@
 			<p>Если поля новых данных оставить пустыми, то информация не изменится.</p>
 		</form>
 	</div>
-	<div class="col t-3">
-		<h1>Удалить участника</h1>
+	<div class="col-lg-4 col-md-6 col-sm-12">
+		<h1>Удалить участника из класса</h1>
+		<form onsubmit="student_class_delete(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			<input type="submit" value="Удалить">
+		</form>
+		<br>
+		<h1>Удалить участника (совсем)</h1>
 		<form onsubmit="student_delete(this); return false;">
 			<p>ID: <input type="text" name="id"></p>
 			<input type="submit" value="Удалить">
 		</form>
 	</div>
-	<div class="col t-3">
+	<div class="w-100"></div>
+	<div class="col-auto"><center>
 		<h1>Списки участников</h1>
 		<p>Для просмотра списка всех участников перейдите по ссылкам:</p>
-		<table width="100%">
-			<tr>
-				<td width="50%"><center>НШ:</center></td>
-				<td width="50%"><center>ОШ:</center></td>
-			</tr>
-			<tr>
-				<td><center>
-					<p><a href="students_2.html">2 класс</a></p>
-					<p><a href="students_3.html">3 класс</a></p>
-					<p><a href="students_4.html">4 класс</a></p>
-				</center></td>
-				<td><center>
-					<p><a href="students_5.html">5 класс</a></p>
-					<p><a href="students_6.html">6 класс</a></p>
-					<p><a href="students_7.html">7 класс</a></p>
-					<p><a href="students_8.html">8 класс</a></p>
-					<p><a href="students_9.html">9 класс</a></p>
-				</center></td>
-			</tr>
-		</table>
-	</div>
-	<div class="col t-3">
-		<h1>Опции</h1>
+		<div class="row justify-content-center">
+			{% if year_info and year_info.school1() %}
+			<div class="col-auto">
+				<center>НШ:</center>
+				{% for c in '234' %}
+				{% if c in year_info.classes %}<p><a href="students_{{ c }}.html">{{ c }}&nbsp;класс</a></p>{% endif %}
+				{% endfor %}
+			</div>
+			{% endif %}
+			{% if year_info and year_info.school2() %}
+			<div class="col-auto">
+				<center>ОШ:</center>
+				{% for c in '56789' %}
+				{% if c in year_info.classes %}<p><a href="students_{{ c }}.html">{{ c }}&nbsp;класс</a></p>{% endif %}
+				{% endfor %}
+			</div>
+			{% endif %}
+		</div>
 		{% if adm %}
 		<p><a href="create_students_lists">Сгенерировать списки участников</a></p>
 		{% endif %}
-		{% if full %}
-		<p><a href="update_all_class_n">Перевести всех в следующий класс</a></p>
-		{% endif %}
 		{% if error4 %} <p class="error-msg">[ {{ error4 }} ]</p>
 		{% endif %}
-	</div>
+	</center></div>
 </div>
 
 {% endblock %}

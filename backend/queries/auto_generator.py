@@ -140,14 +140,14 @@ class Generator:
             data.save_file()
 
     @staticmethod
-    def gen_students_list(class_n: int):
-        students = Student.select_by_class_n(class_n)
+    def gen_students_list(year: int, class_n: int):
+        students = Student.select_by_class_n(year, class_n)
         students = sorted(students, key=compare(lambda x: Student.sort_by_class(x), lambda x: x.name_1,
                                                 lambda x: x.name_2, field=True))
         length = len(students)
         m1 = length - length * 2 // 3
         m2 = length - length // 3
-        html_render('students_table.html', 'students_' + str(class_n) + '.html', class_number=class_n,
+        html_render('students_table.html', str(year) + '/students_' + str(class_n) + '.html', class_number=class_n,
                     students1=students[:m1], students2=students[m1:m2], students3=students[m2:])
 
     @staticmethod
@@ -191,7 +191,7 @@ class Generator:
 
     @staticmethod
     def get_students(year):
-        return {_.id: _ for _ in Student.select_all(year)}
+        return {_.id: _ for _ in Student.select_by_year(year)}
 
     @staticmethod
     def get_teams(year):
@@ -337,7 +337,9 @@ class Generator:
                 raise ValueError
             if ts[0] not in teams_student:
                 teams_student[ts[0]] = []
-            teams_student[ts[0]].append(Student.select(now))
+            student = Student.select(now)
+            student.load_class(year)
+            teams_student[ts[0]].append(student)
         for x in teams_student:
             students_count = max(students_count, len(teams_student[x]))
             teams_student[x].sort(key=compare(Student.sort_by_class, Student.sort_by_name, field=True))
@@ -406,7 +408,7 @@ class Generator:
     def gen_ratings(year: int):
         year_info = Year.select(year)
         student_results, class_results, team_results, all_res, dip1 = Generator.get_all_data_from_results(year_info)
-        students_raw = {_.id: _ for _ in Student.select_all(year)}
+        students_raw = {_.id: _ for _ in Student.select_by_year(year)}
         students = {_.id: [_.name_1, _.name_2, _.class_name()] for _id, _ in students_raw.items()}
         subjects_raw = {_.id: _ for _ in Subject.select_all()}
         subjects = {ys.id: Subject.select(ys.subject) for ys in YearSubject.select_by_year(year)}

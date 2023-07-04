@@ -22,6 +22,12 @@ class Year(SqlAlchemyBase, Table):
     def class_min(self):
         return int(self.classes[0])
 
+    def school1(self):
+        return any(c in self.classes for c in '234')
+
+    def school2(self):
+        return any(c in self.classes for c in '56789')
+
     # Table
 
     @classmethod

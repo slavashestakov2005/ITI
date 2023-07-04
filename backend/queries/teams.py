@@ -34,6 +34,7 @@ def teams_page_params(user: User, year: int):
             peoples = TeamStudent.select_by_team(team.id)
             for x in peoples:
                 people = Student.select(x.student)
+                people.load_class(year)
                 subjects_for_people = set([_.subject for _ in SubjectStudent.select_by_student(year, people.id)])
                 p = [[None, people.class_name()], [None, people.name_1], [None, people.name_2]]
                 for subject in subjects:

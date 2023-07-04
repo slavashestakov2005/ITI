@@ -112,7 +112,7 @@ class ExcelFullWriter(ExcelParentWriter):
             worksheet.merge_range(0, 3, 0, max_len + 2, 'Участники', self.center_style)
 
     def write(self, filename: str):
-        self.students = {_.id: [_.name_1, _.name_2, _.class_name(), _.get_gender()] for _ in Student.select_all(self.year)}
+        self.students = {_.id: [_.name_1, _.name_2, _.class_name(), _.get_gender()] for _ in Student.select_by_year(self.year)}
         self.subjects = {_.id: _.name for _ in Subject.select_all()}
         self.full_teams = Team.select_by_year(self.year)
         self.later_teams = {_.id: _.later for _ in self.full_teams}

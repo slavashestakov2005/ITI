@@ -1,21 +1,30 @@
 from .__db_session import sa, SqlAlchemyBase, Table, execute_sql
-from .__config_db import ConfigDB
+from .student_class import StudentClass
 
 
 class Student(SqlAlchemyBase, Table):
     __tablename__ = 'student'
-    fields = ['id', 'name_1', 'name_2', 'class_n', 'class_l', 'gender']
+    fields = ['id', 'name_1', 'name_2', 'gender']
 
     id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     name_1 = sa.Column(sa.String, nullable=False)   # (Фамилия)
     name_2 = sa.Column(sa.String, nullable=False)   # (Имя)
-    class_n = sa.Column(sa.String, nullable=False)
-    class_l = sa.Column(sa.String, nullable=False)
     gender = sa.Column(sa.String, nullable=False)   # (0 - м, 1 - ж)
     result = 0
 
+    def load_class(self, year: int):
+        sc = StudentClass.select(year, self.id)
+        if not sc:
+            return False
+        self.class_l = sc.class_latter
+        self.class_n = sc.class_number
+        return True
+
     def class_name(self):
-        return str(self.class_n) + self.class_l
+        try:
+            return str(self.class_n) + self.class_l
+        except Exception:
+            raise ValueError("Not found class for {}, id: {}".format(self.name(), self.id))
 
     def name(self):
         return self.name_1 + ' ' + self.name_2
@@ -39,21 +48,22 @@ class Student(SqlAlchemyBase, Table):
     # Table
 
     @classmethod
-    def select_all(cls, year: int) -> list:
+    def select_all_by_year(cls, year: int) -> list:
+        students = Student.select_all()
+        students = [student for student in students if student.load_class(year)]
+        return students
+
+    @classmethod
+    def select_by_year(cls, year: int) -> list:
+        cls1, cls2 = 2, 4
         if year > 0:
-            return cls.__select_by_expr__(5 <= cls.class_n, cls.class_n <= 9)
-        return cls.__select_by_expr__(2 <= cls.class_n, cls.class_n <= 4)
+            cls1, cls2 = 5, 9
+        return [student for student in Student.select_all_by_year(year) if cls1 <= student.class_n <= cls2]
 
     @classmethod
-    def select_by_class_n(cls, class_n: int) -> list:
-        return cls.__select_by_expr__(cls.class_n == class_n)
+    def select_by_class_n(cls, year: int, class_n: int) -> list:
+        return [student for student in Student.select_all_by_year(year) if student.class_n == class_n]
 
     @classmethod
-    def select_by_student(cls, student):
-        return cls.__select_by_expr__(cls.name_1 == student.name_1, cls.name_2 == student.name_2,
-                                cls.class_n == student.class_n, cls.class_l == student.class_l, one=True)
-
-    @classmethod
-    def add_class(cls):
-        sql = 'UPDATE {0} SET {1} = {1} + 1'.format(cls.__tablename__, ConfigDB.DB_COLS_PREFIX + 'class_n')
-        return execute_sql(sql)
+    def select_by_name(cls, name1, name2) -> list:
+        return cls.__select_by_expr__(cls.name_1 == name1, cls.name_2 == name2)

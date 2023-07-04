@@ -56,6 +56,7 @@ def generate_filename_by_student(year: int, subject: int, code: int, desc: str):
     if student is None:
         return None
     student = Student.select(student.student)
+    student.load_class(year)
     if student is None:
         return None
     filename += subject.name + '. {} {} {}. '.format(student.name_1, student.name_2, student.class_name()) + desc

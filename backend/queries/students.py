@@ -7,11 +7,10 @@ from flask_cors import cross_origin
 from flask_login import login_required
 from random import sample
 '''
-    /<year>/create_codes    create_codes()              Создаёт коды для участников (admin).
-    /<year>/print_codes     print_codes()               Генерирует страницу с кодами всех участников (admin).
-    /<year>/get_codes       get_codes()                 Возвращает Excel таблицу с годовой кодировкой (admin).
-    /create_students_lists  create_students_lists()     Генерирует списки участников для всех классов (admin).
-    /update_all_class_n     update_all_class_n()        Переводит всех школьников в следующий класс (full).
+    /<year>/create_codes            create_codes()              Создаёт коды для участников (admin).
+    /<year>/print_codes             print_codes()               Генерирует страницу с кодами всех участников (admin).
+    /<year>/get_codes               get_codes()                 Возвращает Excel таблицу с годовой кодировкой (admin).
+    /<year>/create_students_lists   create_students_lists()     Генерирует списки участников для всех классов (admin).
 '''
 
 
@@ -23,7 +22,7 @@ from random import sample
 def create_codes(year: int):
     if Year.select(year) is None:
         return render_template(str(year) + '/codes.html', year=abs(year), error='Этого года нет.')
-    students = Student.select_all(year)
+    students = Student.select_by_year(year)
     length = len(students)
     codes1 = sample(range(1000, 10000), length)
     codes2 = codes1
@@ -59,22 +58,15 @@ def get_codes(year: int):
     return send_file(filename, as_attachment=True, download_name='ИТИ {}. Кодировка.xlsx'.format(year))
 
 
-@app.route("/create_students_lists")
+@app.route("/<year:year>/create_students_lists")
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_year()
-def create_students_lists():
-    for i in range(2, 10):
-        Generator.gen_students_list(i)
-    return render_template('student_edit.html', error4='Таблицы участников обновлены')
-
-
-@app.route('/update_all_class_n')
-@cross_origin()
-@login_required
-@check_status('full')
-@check_block_year()
-def update_all_class_n():
-    Student.add_class()
-    return render_template('student_edit.html', error4='Класс добавлен')
+def create_students_lists(year: int):
+    year_info = Year.select(year)
+    if year_info is None:
+        return render_template('student_edit.html', error4='Такого года ИТИ нет', year=year, year_info=year_info)
+    for class_num in year_info.classes:
+        Generator.gen_students_list(year, int(class_num))
+    return render_template('student_edit.html', error4='Таблицы участников обновлены', year=year, year_info=year_info)

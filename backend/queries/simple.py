@@ -4,7 +4,7 @@ from flask_cors import cross_origin
 from flask_login import current_user, login_required
 from ..help.errors import forbidden_error, not_found_error
 from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES, current_year, split_class
-from ..database import Message, Result, Student, StudentCode, Subject, Year, YearSubject
+from ..database import Message, Result, StudentCode, Subject, Year, YearSubject, get_student_by_params
 from jinja2 import TemplateNotFound
 from itertools import permutations
 import os
@@ -86,8 +86,7 @@ def search(year: int):
             res_student = None
             for x in permutations(q):
                 try:
-                    student = Student.build(0, x[0], x[1], *split_class(x[2]), 0)
-                    student = Student.select_by_student(student)
+                    student = get_student_by_params(year, x[0], x[1], *split_class(x[2]))
                     if student is not None:
                         if res_student:
                             res_student, res_per = None, q

@@ -150,12 +150,12 @@ function message_delete(form) {
 // student
 
 function student_registration(form) {
-    let data = parseForm(form);
+    let data = parseForm(form, {'year': urlYear()});
     makeRequest('student', 'post', data);
 }
 
 function student_edit(form) {
-    let data = parseForm(form);
+    let data = parseForm(form, {'year': urlYear()});
     makeRequest('student/' + data['id'], 'put', data);
 }
 
@@ -229,4 +229,11 @@ function team_student_add(form) {
 function team_student_delete(form) {
     let data = parseForm(form);
     makeRequest('team_student', 'delete', data);
+}
+
+// student_class
+
+function student_class_delete(form) {
+    let id = form['id'].value, year = urlYear();
+    makeRequest('student_class/' + year + '/' + id, 'delete');
 }

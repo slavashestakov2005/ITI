@@ -4,10 +4,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<center><h1>Настройки ИТИ</h1></center>
+<center><h1>Настройки предметов ИТИ</h1></center>
 
 <div class="row col-12 justify-content-center">
-    <div class="col t-3">
+    <div class="col-auto">
         <form onsubmit="year_subject_save(this); return false;"><center>
             <h2>Предметы:</h2>
             <table width="100%">
@@ -27,7 +27,7 @@
             <input type="submit" value="Сохранить">
         </center></form>
     </div>
-    <div class="col t-3"><center>
+    <div class="col-auto"><center>
         <h2>Расписание:</h2>
         <form onsubmit="year_subject_edit(this, 'description'); return false;"><center>
             <p>Предмет (номер): <input type="text" name="subject"></p>
@@ -58,55 +58,5 @@
         </center></form>
         {% endif %}
     </center></div>
-    <div class="col td-2"><center>
-        <h2>Объявления:</h2>
-        <table border="1">
-            <tr>
-                <td width="5%">ID</td>
-                <td width="20%">Заголовок</td>
-                <td width="50%">Содержимое</td>
-                <td width="15%">Время</td>
-            </tr>
-            {% for msg in messages %}
-            <tr>
-                <td>{{ msg.id }}</td>
-                <td>{{ msg.title }}</td>
-                <td>{{ msg.content }}</td>
-                <td>{{ msg.time_str(True) }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        <br>
-        <h3>Добавить:</h3>
-        <form onsubmit="message_add(this); return false;"><center>
-            <p><textarea name="title" class="js-textarea" placeholder="Заголовок"></textarea></p>
-            <p><textarea name="content" class="js-textarea" placeholder="Содержимое"></textarea></p>
-            <p>Время публикации (текущее по умолчанию):
-                <input type="date" name="date">
-                <input type="time" name="time">
-            </p>
-            <p><input type="submit" value="Добавить"></p>
-        </center></form>
-        <br>
-        <h3>Редактировать:</h3>
-        <form onsubmit="message_edit(this); return false;"><center>
-            <p>Номер: <input type="text" name="id"></p>
-            <p><textarea name="title" class="js-textarea" placeholder="Заголовок"></textarea></p>
-            <p><textarea name="content" class="js-textarea" placeholder="Содержимое"></textarea></p>
-            <p>Время публикации:
-                <input type="date" name="date">
-                <input type="time" name="time">
-            </p>
-            <p>Если поле оставить пустым, то измения этого параметра не произойдёт.</p>
-            <p><input type="submit" value="Сохранить"></p>
-        </center></form>
-        <br>
-        <h3>Удалить:</h3>
-        <form onsubmit="message_delete(this); return false;"><center>
-            <p>Номер: <input type="text" name="id"></p>
-            <p><input type="submit" value="Удалить"></p>
-        </center></form>
-    </center></div>
 </div>
-<script>initTextArea()</script>
 {% endblock %}
