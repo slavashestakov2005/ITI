@@ -1,0 +1,79 @@
+<!-- login required -->
+<!-- -2 -->
+<!-- replace 1 -->
+<div class="row col-12 justify-content-center">
+	<div class="col-sm-6 col-md-6 col-lg-4">
+		<h1>Добавить ИТИ</h1>
+		<form onsubmit="year_add(this); return false">
+			<p>Год: <input type="text" name="year"></p>
+			<p>Участвующие классы: <input type="text" name="classes"></p>
+			<p>Количество индивидуальных дней: <input type="text" name="ind_days"></p>
+			<p>Максимальный балл за индивидуальный тур: <input type="text" name="default_score"></p>
+			<p>Количество команд: <input type="text" name="teams"></p>
+			<p>Школьников в команде: <input type="text" name="students_in_team"></p>
+			<p>Индивидуальных предметов в зачёт за день: <input type="text" name="sum_individual"></p>
+			<input type="submit" value="Добавить">
+		</form>
+		<br>
+		<h1>Редактировать ИТИ</h1>
+		<form onsubmit="year_edit(this); return false">
+			<p>Год: <input type="text" name="year"></p>
+			<p>Участвующие классы: <input type="text" name="classes"></p>
+			<p>Количество индивидуальных дней: <input type="text" name="ind_days"></p>
+			<p>Максимальный балл за индивидуальный тур: <input type="text" name="default_score"></p>
+			<p>Количество команд: <input type="text" name="teams"></p>
+			<p>Школьников в команде: <input type="text" name="students_in_team"></p>
+			<p>Индивидуальных предметов в зачёт за день: <input type="text" name="sum_individual"></p>
+			<input type="submit" value="Сохранить">
+		</form>
+		<br>
+		<h1>Удалить ИТИ</h1>
+		<form onsubmit="year_delete(this); return false;">
+			<p>Год: <input type="text" name="year"></p>
+			<input type="submit" value="Удалить">
+		</form>
+		<br>
+		<h1>Загрузить данные</h1>
+		<form action="load_data_from_excel" method="post" enctype=multipart/form-data>
+			<p>Год: <input type="text" name="year"></p>
+			<p>Таблица: <input type="file" name="file"></p>
+			<p><input type="radio" name="type" value="1" checked>Всё</p>
+			<p><input type="radio" name="type" value="2">Список школьников</p>
+			{% if error5 %} <p class="error-msg">[ {{ error5 }} ]</p>{% endif %}
+			<input type="submit" value="Загрузить">
+		</form>
+		<br>
+		<form action="load_data_from_excel" method="get">
+			<input type="submit" value="Обновить">
+		</form>
+	</div>
+	<div class="w-100"></div>
+	<div class="col-auto"><center>
+		<h1>Список ИТИ</h1>
+		<table width="100%" border="1">
+			<tr>
+				<td width="10%">Год</td>
+				<td width="10%">Участвующие классы</td>
+				<td width="10%">Кол-во инд. дней</td>
+				<td width="10%">Макс. балл за инд. тур</td>
+				<td width="10%">Кол-во команд</td>
+				<td width="10%">Школьников в команде</td>
+				<td width="10%">Инд. предметов в зачёт за день</td>
+				<td width="10%">Заблокировано? (0 - нет, 1 - да)</td>
+			</tr>
+			{% for year in years %}
+			<tr>
+				<td>{{ year.year }}</td>
+				<td>{{ year.classes }}</td>
+				<td>{{ year.ind_days }}</td>
+				<td>{{ year.default_score }}</td>
+				<td>{{ year.teams }}</td>
+				<td>{{ year.students_in_team }}</td>
+				<td>{{ year.sum_individual }}</td>
+				<td>{{ year.block }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</center></div>
+</div>
+<!-- replace 2 -->

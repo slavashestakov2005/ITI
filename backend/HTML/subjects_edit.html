@@ -3,33 +3,6 @@
 <!-- replace 1 -->
 <div class="row col-12 justify-content-center">
 	<div class="col-sm-6 col-md-6 col-lg-4">
-		<h1>Добавить ИТИ</h1>
-		<form onsubmit="year_add(this); return false">
-			<p>Год: <input type="text" name="year"></p>
-			<input type="submit" value="Добавить">
-		</form>
-		<br>
-		<h1>Удалить ИТИ</h1>
-		<form onsubmit="year_delete(this); return false;">
-			<p>Год: <input type="text" name="year"></p>
-			<input type="submit" value="Удалить">
-		</form>
-		<br>
-		<h1>Загрузить данные</h1>
-		<form action="load_data_from_excel" method="post" enctype=multipart/form-data>
-			<p>Год: <input type="text" name="year"></p>
-			<p>Таблица: <input type="file" name="file"></p>
-			<p><input type="radio" name="type" value="1" checked>Всё</p>
-			<p><input type="radio" name="type" value="2">Список школьников</p>
-			{% raw %}{% if error5 %} <p class="error-msg">[ {{ error5 }} ]</p>{% endif %}{% endraw %}
-			<input type="submit" value="Загрузить">
-		</form>
-		<br>
-		<form action="load_data_from_excel" method="get">
-			<input type="submit" value="Обновить">
-		</form>
-	</div>
-	<div class="col-sm-6 col-md-6 col-lg-4">
 		<h1>Добавить предмет</h1>
 		<form onsubmit="subject_add(this); return false;">
 			<p>Название: <input type="text" name="name"></p>

@@ -68,6 +68,7 @@ class Generator:
             data.insert_after_comment(' list of years (-3) ', type_3 + '\t' * 7)
             data.insert_after_comment(' list of years (-4) ', type_4 + '\t' * 7)
             data.save_file()
+        html_render('years_edit.html', 'years_edit.html', years=Year.select_all())
 
     @staticmethod
     def gen_subjects_lists():
@@ -95,8 +96,7 @@ class Generator:
             data.insert_after_comment(' list of group tours (2) ', type5 + ' ' * 8)
             data.insert_after_comment(' list of another tours (2) ', type6 + ' ' * 8)
             data.save_file()
-        html_render('subjects_and_years.html', 'subjects_and_years.html',
-                    subjects=sorted(subjects, key=Subject.sort_by_type))
+        html_render('subjects_edit.html', 'subjects_edit.html', subjects=sorted(subjects, key=Subject.sort_by_type))
 
     @staticmethod
     def gen_years_subjects_list(year: int):

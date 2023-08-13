@@ -46,17 +46,6 @@
         <br>
         <h2><a href="public_description">Опубликовать расписание</a></h2>
         {% if error11 %} <p class="error-msg">[ {{ error11 }} ]</p>{% endif %}
-        <br>
-        {% if full %}
-        <h2>Блокировка:</h2>
-        <form onsubmit="year_block(this); return false;"><center>
-            <!-- is_block -->
-                <p><input type="radio" name="block" value="0" checked>Разблокировано</p>
-                <p><input type="radio" name="block" value="1">Заблокировано</p>
-            <!-- end -->
-            <p><input type="submit" value="Сохранить"></p>
-        </center></form>
-        {% endif %}
     </center></div>
 </div>
 {% endblock %}

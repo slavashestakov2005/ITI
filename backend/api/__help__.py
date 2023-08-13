@@ -73,3 +73,12 @@ def get_point(date: str, time: str, null=True):
     date = [int(_) for _ in date.split('-')]
     time = [int(_) for _ in time.split(':')]
     return int(datetime(*date, *time).timestamp())
+
+
+def str_or_int(value):
+    if value == '':
+        return ''
+    elif type(value) == str and value.isdigit() or type(value) == int:
+        return int(value)
+    else:
+        raise ValueError("Cannot parse argument {} as empty string or digit".format(value))

@@ -98,9 +98,17 @@ function user_settings(form) {
 // year
 
 function year_add(form) {
-    let year = form['year'].value;
+    let data = parseForm(form);
+    let year = data['year'];
     if (Math.abs(year) <= 2000 || Math.abs(year) >= 2100) { alert('Некорректный год'); return; }
-    makeRequest('year', 'post', {'year': year});
+    makeRequest('year', 'post', data);
+}
+
+function year_edit(form) {
+    let data = parseForm(form);
+    let year = data['year'];
+    if (Math.abs(year) <= 2000 || Math.abs(year) >= 2100) { alert('Некорректный год'); return; }
+    makeRequest('year','put', data);
 }
 
 function year_delete(form) {

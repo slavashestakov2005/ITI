@@ -109,7 +109,7 @@ def page_args(year: int):
 @login_required
 @check_status('full')
 def year_block(year: int):
-    return render_template(str(year) + '/subjects_for_year.html', **page_args(year))
+    return render_template(str(year) + '/year_block.html', **page_args(year))
 
 
 @app.route('/load_data_from_excel', methods=['POST', 'GET'])
@@ -120,8 +120,8 @@ def year_block(year: int):
 def load_data_from_excel():
     if request.method == 'GET':
         if AsyncWorker.is_alive():
-            return render_template('subjects_and_years.html',  error5='Сохраняется: {}'.format(AsyncWorker.cur_time()))
-        return render_template('subjects_and_years.html')
+            return render_template('years_edit.html',  error5='Сохраняется: {}'.format(AsyncWorker.cur_time()))
+        return render_template('years_edit.html')
     try:
         year = int(request.form['year']) if request.form['year'] else 0
         file = request.files['file']
@@ -131,9 +131,9 @@ def load_data_from_excel():
             raise ValueError
         filename = Config.DATA_FOLDER + '/sheet_' + str(year) + '.' + parts[1]
     except Exception:
-        return render_template('subjects_and_years.html',  error5='Некорректные данные')
+        return render_template('years_edit.html',  error5='Некорректные данные')
     if AsyncWorker.is_alive():
-        return render_template('subjects_and_years.html',  error5='Один процесс уже запущен')
+        return render_template('years_edit.html',  error5='Один процесс уже запущен')
 
     if qtype == 1:
         _delete_year(year)
@@ -150,7 +150,7 @@ def load_data_from_excel():
     if qtype == 2:
         os.remove(filename)
         FileManager.delete(filename)
-    return render_template('subjects_and_years.html',  error5='Сохранение...')
+    return render_template('years_edit.html',  error5='Сохранение...')
 
 
 @app.route('/<year:year>/download_excel', methods=['GET'])
