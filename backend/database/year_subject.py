@@ -31,6 +31,10 @@ class YearSubject(SqlAlchemyBase, Table):
     # Table
 
     @classmethod
+    def select_by_id(cls, id_: int):
+        return cls.__select_by_expr__(cls.id == id_, one=True)
+
+    @classmethod
     def select_by_year(cls, year: int) -> list:
         return cls.__select_by_expr__(cls.year == year)
 

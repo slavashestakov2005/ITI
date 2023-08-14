@@ -76,7 +76,10 @@ def static_file(path):
 @app.route('/<year:year>/main.html')
 @cross_origin()
 def search(year: int):
-    params, q = {'year': abs(year)}, request.args.get('q')
+    year_info = Year.select(year)
+    if not year_info:
+        return forbidden_error()
+    params, q = {'year': abs(year), 'year_sum_individual': year_info.sum_individual}, request.args.get('q')
     if year == 2019 or year == 2020:
         params['is_info'] = True
     if q and q != '':
@@ -96,17 +99,13 @@ def search(year: int):
                 except Exception:
                     pass
             if res_student:
-                user = StudentCode.select_by_student(year, res_student.id)
-                if user is not None:
-                    for subject in YearSubject.select_by_year(year):
-                        code = user.code1 if subject.n_d == 1 else user.code2
-                        r = Result.select_for_people(Result.build(year, subject.subject, code, 0, 0, '', 0))
-                        if r is not None and r.position > 0:
-                            data.append([Subject.select(subject.subject).name, r.position, r.text_result,
-                                         r.result, r.net_score])
-                            if subject.n_d not in days:
-                                days[subject.n_d] = []
-                            days[subject.n_d].append(r.net_score)
+                for r in Result.select_for_student(res_student.id):
+                    if r.position > 0:
+                        ys = YearSubject.select_by_id(r.year_subject)
+                        data.append([Subject.select(ys.subject).name, r.position, r.result, r.net_score])
+                        if ys.n_d not in days:
+                            days[ys.n_d] = []
+                        days[ys.n_d].append(r.net_score)
                 for x in days.values():
                     summ += sum(sorted(x, reverse=True)[:2])
         elif len(q) == 1:
@@ -118,8 +117,7 @@ def search(year: int):
                         for subject in YearSubject.select_by_year(year):
                             r = Result.select_for_people(Result.build(year, subject.subject, student_code, 0, 0, '', 0))
                             if r is not None and r.position > 0:
-                                data.append([Subject.select(subject.subject).name, r.position, r.text_result,
-                                             r.result, r.net_score])
+                                data.append([Subject.select(subject.subject).name, r.position, r.result, r.net_score])
                                 if subject.n_d not in days:
                                     days[subject.n_d] = []
                                 days[subject.n_d].append(r.net_score)

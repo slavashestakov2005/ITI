@@ -1,7 +1,7 @@
 from backend import app
 from ..help import forbidden_error
 from ..excel import ExcelResultsReader
-from ..database import GroupResult, Result, Subject, Team, Year, YearSubject, YearSubjectScore
+from ..database import GroupResult, Result, StudentClass, Subject, Team, Year, YearSubject, YearSubjectScore
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
@@ -13,7 +13,6 @@ from .messages_help import message_results_public, message_ratings_public, messa
     tour_type(name)                                             Переводит названия туров.
     tour_name(type)                                             Делает длинные названия туров из коротких.
     page_params(path1, path2, path3)                            Возвращает параметры для страницы 'add_result.html'.
-    appeal_page_params(path1, path2, path3)                     Возвращает параметры для страницы 'add_appeal.html'
     group_page_params(path1, path2, path3)                      Возвращает параметры для '<year>/add_result.html'.
     chose_params(path1, path2, path3)                           Выбирает между page_params() и group_page_params().
     /<path1>/<path2>/<path3>/add_result     add_result(...)     redirect на страницу редактирования (для предметников).
@@ -48,17 +47,21 @@ def page_params(year: int, path2, path3):
         sub = YearSubject.select(year, subject)
         scores = YearSubjectScore.select_by_year_subject(sub.id)
         params.update({'h_sub_name': Subject.select(subject).name, 'scores': scores})
-        results = Result.select_by_year_and_subject(year, subject)
-        codes = Generator.get_codes(year)[sub.n_d]
+        results = Result.select_by_year_subject(sub.id)
         year_info = Year.select(year)
         sorted_results = {int(cls): [] for cls in year_info.classes}
+        sorted_results['?'] = []
         top = {}
         for r in results:
-            sorted_results[codes[r.user].class_n].append(r)
+            if r.student_id:
+                sc = StudentClass.select(year, r.student_id)
+                if sc:
+                    sorted_results[sc.class_number].append(r)
+                    continue
+            sorted_results['?'].append(r)
         for cls in sorted_results:
             lst = sorted_results[cls]
-            lst.sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: codes[x.user].class_l,
-                                 lambda x: codes[x.user].name_1, lambda x: codes[x.user].name_2, field=True))
+            lst.sort(key=compare(lambda x: Result.sort_by_result(x), field=True))
             t, last_pos, last_result = [], 0, None
             for i in range(len(lst)):
                 if last_result != lst[i].result:
@@ -66,19 +69,9 @@ def page_params(year: int, path2, path3):
                 # if last_pos > 3:
                 #    break
                 # на сайте захотели все результаты
-                t.append([last_pos, lst[i].user, lst[i].result])
+                t.append([last_pos, lst[i].student_code, lst[i].result])
             top[cls] = t
         params['top'] = top
-    except Exception:
-        pass
-    return params
-
-
-def appeal_page_params(year: int, path2, path3):
-    params = {'year': abs(year), 'h_type_1': path2, 'h_type_2': tour_type(path2)}
-    try:
-        params['subject'] = subject = path_to_subject(path3)
-        params['h_sub_name'] = Subject.select(subject).name
     except Exception:
         pass
     return params
@@ -150,6 +143,30 @@ def load_result(year: int, path3):
     return render_template(url, **params, error6=['[ Сохранено ]'])
 
 
+@app.route('/<year:year>/<path:path3>/class_split_results')
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_year()
+def class_split_results(year: int, path3):
+    path2 = 'individual'
+    params = page_params(year, path2, path3)
+    url = 'add_result.html'
+    try:
+        subject = path_to_subject(path3)
+    except Exception:
+        return render_template(url, **params, error4='Некорректные данные')
+
+    ys = YearSubject.select(year, subject)
+    if not ys:
+        return render_template(url, **params, error4='Такого предмета нет в этом году.')
+    try:
+        Generator.get_results_0(year, ys.id)
+    except ValueError as ex:
+        return render_template(url, **params, error4=str(ex))
+    return render_template(url, **params, error4='Школьники разделены по классам')
+
+
 @app.route('/<year:year>/<path:path3>/share_results')
 @cross_origin()
 @login_required
@@ -168,9 +185,8 @@ def share_results(year: int, path3):
         return render_template(url, **params, error3='Такого предмета нет в этом году.')
     try:
         Generator.gen_results(Year.select(year), subject, str(year) + '/' + path3)
-    except ValueError:
-        return render_template(url, **params, error3='Сохранены некорректные результаты (есть участник с количеством '
-                                                     'баллов большим максимального)')
+    except ValueError as ex:
+        return render_template(url, **params, error3=str(ex))
     message_results_public(year, subject)
     return render_template(url, **params, error3='Результаты опубликованы')
 

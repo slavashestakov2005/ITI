@@ -40,6 +40,13 @@ def execute_sql(text: str):
 class Table:
     id_field, fields = 'id', []
 
+    def json(self):
+        cls = self.__class__
+        data = {}
+        for field in cls.fields:
+            data[field] = getattr(self, field)
+        return data
+
     def __xor__(self, other):
         row = []
         cls = self.__class__

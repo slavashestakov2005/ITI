@@ -250,7 +250,7 @@ TableToExcel.convert_many = function(file_name, data=[]) {
         wb = TableToExcel.tableToSheet(wb, table, opts);
     }
     TableToExcel.save(wb, opts.name);
-}
+};
 
 // subject_ind.html
 

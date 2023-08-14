@@ -1,0 +1,25 @@
+<!-- login required -->
+<!-- -1 -->
+{% extends "base.html" %}{% block content %}
+
+<center>
+    <h1>Загрузить штрих-коды участников</h1>
+    <div>
+        <p><input type="radio" onclick="changeCamera()" id="cam-user" name="web-cam-type" value="user"><label for="cam-user">Передняя</label></p>
+        <p><input type="radio" onclick="changeCamera()" id="cam-env" name="web-cam-type" value="environment" checked><label for="cam-env">Задняя</label></p>
+        <video onclick="snapshot(this);" id="web-cam-video" autoplay muted></video>
+        <canvas id="web-cam-canvas" hidden></canvas>
+        <p><button onclick="snapshot();">Скрин</button></p>
+    </div>
+    <div>
+        <table id="barcodes_table">
+        </table>
+        <p><button onclick="barcodes_table_add_row()">Добавить строку</button></p>
+        <p><button onclick="send_barcodes_table()">Сохранить данные</button></p>
+    </div>
+    <script>
+        init('web-cam-video', 'web-cam-canvas', 'web-cam-type', 'upload_barcodes');
+    </script>
+</center>
+
+{% endblock %}

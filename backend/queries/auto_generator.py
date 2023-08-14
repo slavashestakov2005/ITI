@@ -1,6 +1,7 @@
 from .help import SplitFile, all_templates, tr_format, compare, is_in_team, html_render
 from backend.excel.excel_writer import ExcelCodesWriter, ExcelDiplomaWriter
-from ..database import GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent, User, Year, YearSubject, YearSubjectScore
+from ..database import Barcode, GroupResult, Result, Student, StudentCode, Subject, SubjectStudent, Team, TeamStudent,\
+    User, Year, YearSubject, YearSubjectScore
 from backend.config import Config
 import glob
 
@@ -32,7 +33,6 @@ import glob
         gen_ratings(year)                   Генерирует рейтинговые таблицы года year.
         gen_teams(year)                     Генерирует списки команд года year.
         gen_timetable(year)                 Генерирует расписание предметов года year.
-        gen_files_list(year, sub, path)     Генерирует список предметных файлов.
         gen_users_list()                    Генерирует список пользователей.
         gen_rules()                         Генерирует страницу для правил группового тура.
         gen_automatic_division()            Генерирует автоматическое распределение по командам.
@@ -42,59 +42,25 @@ import glob
 class Generator:
     @staticmethod
     def gen_years_lists():
-        years = Year.select_all()
-        type1 = type2 = type3 = type4 = '\n'
-        type_1 = type_2 = type_3 = type_4 = '\n'
-        for year in years:
-            if year.year > 0:
-                type1 += '\t' * 7 + '<a class="dropdown-item" href="{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-                type2 += '\t' * 7 + '<a class="dropdown-item" href="../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-                type3 += '\t' * 7 + '<a class="dropdown-item" href="../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-                type4 += '\t' * 7 + '<a class="dropdown-item" href="../../../{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-            else:
-                year.year = abs(year.year)
-                type_1 += '\t' * 7 + '<a class="dropdown-item" href="-{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-                type_2 += '\t' * 7 + '<a class="dropdown-item" href="../-{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-                type_3 += '\t' * 7 + '<a class="dropdown-item" href="../../-{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-                type_4 += '\t' * 7 + '<a class="dropdown-item" href="../../../-{0}/main.html">ИТИ-{0}</a>\n'.format(year.year)
-        for file_name in all_templates():
-            data = SplitFile(file_name)
-            data.insert_after_comment(' list of years (1) ', type1 + '\t' * 7)
-            data.insert_after_comment(' list of years (2) ', type2 + '\t' * 7)
-            data.insert_after_comment(' list of years (3) ', type3 + '\t' * 7)
-            data.insert_after_comment(' list of years (4) ', type4 + '\t' * 7)
-            data.insert_after_comment(' list of years (-1) ', type_1 + '\t' * 7)
-            data.insert_after_comment(' list of years (-2) ', type_2 + '\t' * 7)
-            data.insert_after_comment(' list of years (-3) ', type_3 + '\t' * 7)
-            data.insert_after_comment(' list of years (-4) ', type_4 + '\t' * 7)
-            data.save_file()
         html_render('years_edit.html', 'years_edit.html', years=Year.select_all())
 
     @staticmethod
     def gen_subjects_lists():
         subjects = Subject.select_all()
-        type1 = type2 = type3 = type4 = type5 = type6 = '\n'
+        type1 = type2 = type3 = '\n'
         for subject in subjects:
             text1 = ' ' * 16 + '<p><input type="checkbox" name="status" value="{0}">{1}</p>\n'.format(subject.id, subject.name)
-            text2 = ' ' * 12 + '<p>[ {0} ] {1} ({2}) — {3} — {4}</p>\n'.format(subject.id, subject.name, subject.short_name,
-                                                                               subject.diplomas_br(), subject.msg_br())
             if subject.type == 'i':
                 type1 += text1
-                type4 += text2
             elif subject.type == 'g':
                 type2 += text1
-                type5 += text2
             else:
                 type3 += text1
-                type6 += text2
         for file_name in all_templates():
             data = SplitFile(file_name)
             data.insert_after_comment(' list of individual tours (1) ', type1 + ' ' * 12)
             data.insert_after_comment(' list of group tours (1) ', type2 + ' ' * 12)
             data.insert_after_comment(' list of another tours (1) ', type3 + ' ' * 12)
-            data.insert_after_comment(' list of individual tours (2) ', type4 + ' ' * 8)
-            data.insert_after_comment(' list of group tours (2) ', type5 + ' ' * 8)
-            data.insert_after_comment(' list of another tours (2) ', type6 + ' ' * 8)
             data.save_file()
         html_render('subjects_edit.html', 'subjects_edit.html', subjects=sorted(subjects, key=Subject.sort_by_type))
 
@@ -135,8 +101,6 @@ class Generator:
             data.insert_after_comment(' list of year_individual tours ', text1 + ' ' * 24)
             data.insert_after_comment(' list of year_group tours ', text2 + ' ' * 24)
             data.insert_after_comment(' list of year_another tours ', text3 + ' ' * 24)
-            data.insert_after_comment(' list of year_individual tour (main page) ', text4)
-            data.insert_after_comment(' list of year_group tour (main page) ', text5)
             data.save_file()
 
     @staticmethod
@@ -202,14 +166,25 @@ class Generator:
         return {_.subject: _.n_d for _ in YearSubject.select_by_year(year)}
 
     @staticmethod
+    def get_results_0(year: int, ys_id: int):
+        results = Result.select_by_year_subject(ys_id)
+        for result in results:
+            if not result.student_id:
+                barcode = Barcode.select(year, result.student_code)
+                if barcode:
+                    Result.update(result ^ Result.build(ys_id, barcode.code, barcode.student_id, None, None, None,
+                                                        allow_empty=True))
+        return Result.select_by_year_subject(ys_id)
+
+    @staticmethod
     def get_results(year: int, subject: int = None):
         if not subject:
             data = {}
             for ys in YearSubject.select_by_year(year):
-                data[ys.subject] = Result.select_by_year_subject(ys.id)
+                data[ys.subject] = Generator.get_results_0(year, ys.id)
             return data
         ys = YearSubject.select(year, subject)
-        return ys, Result.select_by_year_subject(ys.id)
+        return ys, Generator.get_results_0(year, ys.id)
 
     @staticmethod
     def get_student_team(year):
@@ -286,7 +261,8 @@ class Generator:
         data = []
         for result in results:
             if result.result > maximum:
-                raise ValueError("Bad results are saved")
+                raise ValueError('Сохранены некорректные результаты (есть участник с количеством '
+                                 'баллов большим максимального)')
             people = students[result.student_id]
             result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
             if last_result != result.result:
@@ -461,17 +437,6 @@ class Generator:
                              subject.classes, subject.start_str(), subject.end_str(), subject.place, tabs=3)
         data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/timetable.html")
         data.insert_after_comment(' timetable ', txt + ' ' * 8)
-        data.save_file()
-
-    @staticmethod
-    def gen_files_list(year: int, subject: int, path: str):
-        data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(year) + '/' + path)
-        # files = SubjectsFilesTable.select_by_subject(year, subject)
-        files = []
-        txt = '\n    <center><h2>Файлы</h2></center>\n' if len(files) != 0 else '\n'
-        # for file in files:
-        #     txt += '    <p><a href="/' + file.file + '">' + file.just_filename() + '</a></p>\n'
-        data.insert_after_comment(' files ', txt)
         data.save_file()
 
     @staticmethod
