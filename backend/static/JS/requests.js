@@ -44,7 +44,7 @@ function urlPart(part) {
     return null;
 }
 
-function urlYear() {
+function urlIti() {
     return urlPart(1);
 }
 
@@ -95,30 +95,26 @@ function user_settings(form) {
     makeRequest('user/' + id, 'put', {'status': [], 'password': password, 'password_old': password_old, 'type': 'password'});
 }
 
-// year
+// iti
 
-function year_add(form) {
+function iti_add(form) {
     let data = parseForm(form);
-    let year = data['year'];
-    if (Math.abs(year) <= 2000 || Math.abs(year) >= 2100) { alert('Некорректный год'); return; }
-    makeRequest('year', 'post', data);
+    makeRequest('iti', 'post', data);
 }
 
-function year_edit(form) {
+function iti_edit(form) {
     let data = parseForm(form);
-    let year = data['year'];
-    if (Math.abs(year) <= 2000 || Math.abs(year) >= 2100) { alert('Некорректный год'); return; }
-    makeRequest('year','put', data);
+    makeRequest('iti','put', data);
 }
 
-function year_delete(form) {
-    let year = form['year'].value;
-    makeRequest('year/' + year, 'delete');
+function iti_delete(form) {
+    let id = form['id'].value;
+    makeRequest('iti/' + id, 'delete');
 }
 
-function year_block(form) {
-    let block = form['block'].value, year = urlYear();
-    makeRequest('year/' + year, 'put', {'block': block})
+function iti_block(form) {
+    let block = form['block'].value, id = urlIti();
+    makeRequest('iti/' + id, 'put', {'block': block})
 }
 
 // subject
@@ -141,7 +137,7 @@ function subject_delete(form) {
 // message
 
 function message_add(form) {
-    let data = parseForm(form, {'year': urlYear()});
+    let data = parseForm(form, {'year': urlIti()});
     makeRequest('message', 'post', data);
 }
 
@@ -158,12 +154,12 @@ function message_delete(form) {
 // student
 
 function student_registration(form) {
-    let data = parseForm(form, {'year': urlYear()});
+    let data = parseForm(form, {'year': urlIti()});
     makeRequest('student', 'post', data);
 }
 
 function student_edit(form) {
-    let data = parseForm(form, {'year': urlYear()});
+    let data = parseForm(form, {'year': urlIti()});
     makeRequest('student/' + data['id'], 'put', data);
 }
 
@@ -175,45 +171,54 @@ function student_delete(form) {
 // result
 
 function result_save(form) {
-    let data = parseForm(form, {'year': urlYear(), 'subject': urlSubject()});
+    let data = parseForm(form, {'year': urlIti(), 'subject': urlSubject()});
     makeRequest('result', 'post', data);
 }
 
 function result_delete(form) {
-    let data = parseForm(form, {'year': urlYear(), 'subject': urlSubject()});
+    let data = parseForm(form, {'year': urlIti(), 'subject': urlSubject()});
     makeRequest('result', 'delete', data);
 }
 
 // group_result
 
 function group_results_save(form) {
-    let data = parseForm(form, {'year': urlYear(), 'subject': urlSubject()});
+    let data = parseForm(form, {'year': urlIti(), 'subject': urlSubject()});
     makeRequest('group_result', 'post', data);
 }
 
-// year_subject
+// iti_subject
 
 function year_subject_save(form) {
-    let data = parseForm(form, {'year': urlYear()});
-    makeRequest('year_subject', 'post', data);
+    let data = parseForm(form, {'year': urlIti()});
+    makeRequest('iti_subject', 'post', data);
 }
 
 function year_subject_edit(form, type) {
-    let data = parseForm(form, {'type': type, 'year': urlYear(), 'subject': urlSubject()});
-    makeRequest('year_subject/' + data['year'] + '/' + data['subject'], 'put', data);
+    let data = parseForm(form, {'type': type, 'year': urlIti(), 'subject': urlSubject()});
+    makeRequest('iti_subject/' + data['year'] + '/' + data['subject'], 'put', data);
 }
 
 // subject_student
 
 function subject_student_save(form) {
-    let data = parseForm(form, {'year': urlYear()});
+    let data = parseForm(form, {'year': urlIti()});
     makeRequest('subject_student', 'post', data);
+    let boxes = form.getElementsByTagName("input");
+    let last_value = null;
+    for (let box of boxes) {
+        let name = box.name;
+        if (name.indexOf('subject') >= 0) {
+            if (name.indexOf('old') >= 0) box.checked = last_value;
+            else last_value = box.checked;
+        }
+    }
 }
 
 // team
 
 function team_add(form) {
-    let data = parseForm(form, {'year': urlYear()});
+    let data = parseForm(form, {'year': urlIti()});
     makeRequest('team', 'post', data);
 }
 
@@ -242,6 +247,6 @@ function team_student_delete(form) {
 // student_class
 
 function student_class_delete(form) {
-    let id = form['id'].value, year = urlYear();
+    let id = form['id'].value, year = urlIti();
     makeRequest('student_class/' + year + '/' + id, 'delete');
 }

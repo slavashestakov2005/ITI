@@ -8,7 +8,7 @@
 </form></center>
 <br>
 {% if not search %}
-<h1>Новости <!-- {year} --></h1>
+<h1>Новости {{ iti.name_on_page }}</h1>
 <div class="message row col-12 justify-content-center">
     {% for message in messages[::-1] %}
     <div class="message-item row col-8">
@@ -26,11 +26,9 @@
 <br>
 <h1>Все ИТИ</h1>
 <ul>
-{% for year in years %}
-    {% if year.year < 0 %}<li><a href="/{{ year.year }}">ИТИ НШ {{ -year.year }}</a></li>
-    {% else %}<li><a href="/{{ year.year }}">ИТИ ОШ {{ year.year }}</a></li>
-    {% endif %}
-{% endfor %}
+    {% for i in itis %}
+        <li><a href="/{{ i.id }}">{{ i.name_in_list }}</a></li>
+    {% endfor %}
 </ul>
 {% else %}
 <center>
@@ -53,12 +51,12 @@
             </tr>
             {% endfor %}
             <tr>
-                <td colspan="4"><center>Сумма*</center></td>
+                <td colspan="3"><center>Сумма*</center></td>
                 <td>{{ summ }}</td>
             </tr>
         </table>
         <br>
-        <p>* В итоговый рейтинг идёт только {{ year_sum_individual }} лучших результата за каждый день.</p>
+        <p>* В итоговый рейтинг идёт только {{ iti.sum_ind_to_rating }} лучших результата за каждый день.</p>
     </div>
     {% endif %}
 </center>

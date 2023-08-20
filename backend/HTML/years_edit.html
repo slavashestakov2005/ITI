@@ -4,73 +4,90 @@
 <div class="row col-12 justify-content-center">
 	<div class="col-sm-6 col-md-6 col-lg-4">
 		<h1>Добавить ИТИ</h1>
-		<form onsubmit="year_add(this); return false">
-			<p>Год: <input type="text" name="year"></p>
+		<form onsubmit="iti_add(this); return false">
+			<p>Название в списке ИТИ: <input type="text" name="name_in_list"></p>
+			<p>Название на страницах: <input type="text" name="name_on_page"></p>
 			<p>Участвующие классы: <input type="text" name="classes"></p>
 			<p>Количество индивидуальных дней: <input type="text" name="ind_days"></p>
-			<p>Максимальный балл за индивидуальный тур: <input type="text" name="default_score"></p>
-			<p>Количество команд: <input type="text" name="teams"></p>
-			<p>Школьников в команде: <input type="text" name="students_in_team"></p>
-			<p>Индивидуальных предметов в зачёт за день: <input type="text" name="sum_individual"></p>
+			<p>Максимальный балл за индивидуальный тур: <input type="text" name="default_ind_score"></p>
+			<p>Формула вычисления балла в рейтинг за индивидуальный тур: <input type="text" name="net_score_formula"></p>
+			<p>Количество индивидуальных предметов из одного дня в рейтинг: <input type="text" name="sum_ind_to_rating"></p>
+			<p>Алгоритм расределения на команды: <input type="text" name="automatic_division"></p>
+			<p>Названия автоматических команд: <input type="text" name="auto_teams"></p>
+			<p>Суммировать индивидуальные предметы в рейтинг команд: <input type="text" name="sum_ind_to_team"></p>
+			<p>Количество команд: <input type="text" name="teams_count"></p>
+			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
+			<p>Описание, только для просмотра администраторами:</p>
+			<p><textarea type="text" id="description_1" name="description" class="slim" oninput="textInput(document, 'description_1')"></textarea></p>
+			<script>textInput(document, 'description_1');</script>
 			<input type="submit" value="Добавить">
 		</form>
 		<br>
 		<h1>Редактировать ИТИ</h1>
-		<form onsubmit="year_edit(this); return false">
-			<p>Год: <input type="text" name="year"></p>
+		<form onsubmit="iti_edit(this); return false">
+			<p>ID: <input type="text" name="id"></p>
+			<p>Название в списке ИТИ: <input type="text" name="name_in_list"></p>
+			<p>Название на страницах: <input type="text" name="name_on_page"></p>
 			<p>Участвующие классы: <input type="text" name="classes"></p>
 			<p>Количество индивидуальных дней: <input type="text" name="ind_days"></p>
-			<p>Максимальный балл за индивидуальный тур: <input type="text" name="default_score"></p>
-			<p>Количество команд: <input type="text" name="teams"></p>
-			<p>Школьников в команде: <input type="text" name="students_in_team"></p>
-			<p>Индивидуальных предметов в зачёт за день: <input type="text" name="sum_individual"></p>
+			<p>Максимальный балл за индивидуальный тур: <input type="text" name="default_ind_score"></p>
+			<p>Формула вычисления балла в рейтинг за индивидуальный тур: <input type="text" name="net_score_formula"></p>
+			<p>Количество индивидуальных предметов из одного дня в рейтинг: <input type="text" name="sum_ind_to_rating"></p>
+			<p>Алгоритм расределения на командыг: <input type="text" name="automatic_division"></p>
+			<p>Названия автоматических команд: <input type="text" name="auto_teams"></p>
+			<p>Суммировать индивидуальные предметы в рейтинг команд: <input type="text" name="sum_ind_to_team"></p>
+			<p>Количество команд: <input type="text" name="teams_count"></p>
+			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
+			<p>Описание, только для просмотра администраторами:</p>
+			<p><textarea type="text" id="description_2" name="description" class="slim" oninput="textInput(document, 'description_2')"></textarea></p>
+			<script>textInput(document, 'description_2');</script>
 			<input type="submit" value="Сохранить">
 		</form>
 		<br>
 		<h1>Удалить ИТИ</h1>
-		<form onsubmit="year_delete(this); return false;">
-			<p>Год: <input type="text" name="year"></p>
+		<form onsubmit="iti_delete(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
 			<input type="submit" value="Удалить">
-		</form>
-		<br>
-		<h1>Загрузить данные</h1>
-		<form action="load_data_from_excel" method="post" enctype=multipart/form-data>
-			<p>Год: <input type="text" name="year"></p>
-			<p>Таблица: <input type="file" name="file"></p>
-			<p><input type="radio" name="type" value="1" checked>Всё</p>
-			<p><input type="radio" name="type" value="2">Список школьников</p>
-			{% if error5 %} <p class="error-msg">[ {{ error5 }} ]</p>{% endif %}
-			<input type="submit" value="Загрузить">
-		</form>
-		<br>
-		<form action="load_data_from_excel" method="get">
-			<input type="submit" value="Обновить">
 		</form>
 	</div>
 	<div class="w-100"></div>
-	<div class="col-auto"><center>
+	<div class="col-12"><center>
 		<h1>Список ИТИ</h1>
-		<table width="100%" border="1">
+		<table width="100%" style="table-layout:fixed;">
+			<thead><tr>
+				<th width="5%">ID</th>
+				<th width="5%">Название в списке</th>
+				<th width="5%">Название на страницах</th>
+				<th width="5%">Участвующие классы</th>
+				<th width="5%">Кол-во инд. дней</th>
+				<th width="5%">Макс. балл за инд. тур</th>
+				<th width="5%">Фор-ла выч. балла в ретинг</th>
+				<th width="5%">Инд. предметов в зачёт за день</th>
+				<th width="5%">Распределение по командам</th>
+				<th width="5%">Названия для авт. команд</th>
+				<th width="5%">Сумм. инд. предметы командам</th>
+				<th width="5%">Кол-во команд</th>
+				<th width="5%">Школьников в команде</th>
+				<th width="5%">Описание</th>
+				<th width="5%">Заблокировано? (0 - нет, 1 - да)</th>
+			</tr></thead>
+			{% for iti in itis %}
 			<tr>
-				<td width="10%">Год</td>
-				<td width="10%">Участвующие классы</td>
-				<td width="10%">Кол-во инд. дней</td>
-				<td width="10%">Макс. балл за инд. тур</td>
-				<td width="10%">Кол-во команд</td>
-				<td width="10%">Школьников в команде</td>
-				<td width="10%">Инд. предметов в зачёт за день</td>
-				<td width="10%">Заблокировано? (0 - нет, 1 - да)</td>
-			</tr>
-			{% for year in years %}
-			<tr>
-				<td>{{ year.year }}</td>
-				<td>{{ year.classes }}</td>
-				<td>{{ year.ind_days }}</td>
-				<td>{{ year.default_score }}</td>
-				<td>{{ year.teams }}</td>
-				<td>{{ year.students_in_team }}</td>
-				<td>{{ year.sum_individual }}</td>
-				<td>{{ year.block }}</td>
+				<td>{{ iti.id }}</td>
+				<td>{{ iti.name_in_list }}</td>
+				<td>{{ iti.name_on_page }}</td>
+				<td>{{ iti.classes }}</td>
+				<td>{{ iti.ind_days }}</td>
+				<td>{{ iti.default_ind_score }}</td>
+				<td>{{ iti.net_score_formula }}</td>
+				<td>{{ iti.sum_ind_to_rating }}</td>
+				<td>{{ iti.automatic_division }}</td>
+				<td>{{ iti.auto_teams }}</td>
+				<td>{{ iti.sum_ind_to_team }}</td>
+				<td>{{ iti.teams_count }}</td>
+				<td>{{ iti.students_in_team }}</td>
+				<td>{{ iti.description }}</td>
+				<td>{{ iti.block }}</td>
 			</tr>
 			{% endfor %}
 		</table>

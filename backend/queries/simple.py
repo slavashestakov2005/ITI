@@ -3,8 +3,8 @@ from flask import render_template, redirect, request
 from flask_cors import cross_origin
 from flask_login import current_user, login_required
 from ..help.errors import forbidden_error, not_found_error
-from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES, current_year, split_class
-from ..database import Message, Result, StudentCode, Subject, Year, YearSubject, get_student_by_params
+from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES, split_class
+from ..database import Message, Result, Student, Subject, Iti, ItiSubject, get_student_by_params
 from jinja2 import TemplateNotFound
 from itertools import permutations
 import os
@@ -22,16 +22,14 @@ from ..config import Config
 @app.route('/')
 @cross_origin()
 def index():
-    y = current_year()
-    if os.path.exists(Config.TEMPLATES_FOLDER + '/' + str(y) + '/main.html'):
-        return redirect(str(y) + '/main.html')
-    elif os.path.exists(Config.TEMPLATES_FOLDER + '/-' + str(y) + '/main.html'):
-        return redirect('-' + str(y) + '/main.html')
+    iti = Iti.select_last()
+    if os.path.exists(Config.TEMPLATES_FOLDER + '/' + str(iti.id) + '/main.html'):
+        return redirect(str(iti.id) + '/main.html')
     else:
         return forbidden_error()
 
 
-@app.route('/<year:year>/')
+@app.route('/<int:year>/')
 @cross_origin()
 def main_year_page_redirect(year: int):
     return redirect('/{}/main.html'.format(year))
@@ -41,13 +39,14 @@ def main_year_page_redirect(year: int):
 @cross_origin()
 @login_required
 def admin_panel():
-    year, subject, sub = request.args.get('year'), request.args.get('subject'), []
+    iti, subject, sub = request.args.get('year'), request.args.get('subject'), []
     if subject:
         subject = Subject.select(subject)
-    if year:
-        for cur_sub in YearSubject.select_by_year(year):
-            sub.append(Subject.select(cur_sub.subject))
-    return render_template('admin_panel.html', year=year, subject=subject, years=Year.select_all(), subjects=sub)
+    if iti:
+        for cur_sub in ItiSubject.select_by_iti(iti):
+            sub.append(Subject.select(cur_sub.subject_id))
+        iti = Iti.select(iti)
+    return render_template('admin_panel.html', iti=iti, subject=subject, itis=Iti.select_all(), subjects=sub)
 
 
 @app.route('/<path:path>')
@@ -73,14 +72,29 @@ def static_file(path):
         return not_found_error()
 
 
-@app.route('/<year:year>/main.html')
+def get_info_for_student(student: Student, year: int):
+    data, days, summ = [], {}, 0
+    for r in Result.select_for_student(student.id):
+        if r.position > 0:
+            ys = ItiSubject.select_by_id(r.iti_subject_id)
+            if ys.iti_id == year:
+                data.append([Subject.select(ys.subject_id).name, r.position, r.result, r.net_score])
+                if ys.n_d not in days:
+                    days[ys.n_d] = []
+                days[ys.n_d].append(r.net_score)
+    for x in days.values():
+        summ += sum(sorted(x, reverse=True)[:2])
+    return data, days, summ
+
+
+@app.route('/<int:iti_id>/main.html')
 @cross_origin()
-def search(year: int):
-    year_info = Year.select(year)
-    if not year_info:
+def search(iti_id: int):
+    iti = Iti.select(iti_id)
+    if not iti:
         return forbidden_error()
-    params, q = {'year': abs(year), 'year_sum_individual': year_info.sum_individual}, request.args.get('q')
-    if year == 2019 or year == 2020:
+    params, q = {'iti': iti}, request.args.get('q')
+    if iti.id == 1 or iti.id == 2:
         params['is_info'] = True
     if q and q != '':
         q, data, days, summ = q.split(), [], {}, 0
@@ -89,7 +103,7 @@ def search(year: int):
             res_student = None
             for x in permutations(q):
                 try:
-                    student = get_student_by_params(year, x[0], x[1], *split_class(x[2]))
+                    student = get_student_by_params(iti.id, x[0], x[1], *split_class(x[2]))
                     if student is not None:
                         if res_student:
                             res_student, res_per = None, q
@@ -99,30 +113,13 @@ def search(year: int):
                 except Exception:
                     pass
             if res_student:
-                for r in Result.select_for_student(res_student.id):
-                    if r.position > 0:
-                        ys = YearSubject.select_by_id(r.year_subject)
-                        data.append([Subject.select(ys.subject).name, r.position, r.result, r.net_score])
-                        if ys.n_d not in days:
-                            days[ys.n_d] = []
-                        days[ys.n_d].append(r.net_score)
-                for x in days.values():
-                    summ += sum(sorted(x, reverse=True)[:2])
+                data, days, summ = get_info_for_student(res_student, iti.id)
         elif len(q) == 1:
             try:
                 student_code = int(q[0])
-                users = StudentCode.select_by_code(year, student_code)
-                for user in users:
-                    if user is not None:
-                        for subject in YearSubject.select_by_year(year):
-                            r = Result.select_for_people(Result.build(year, subject.subject, student_code, 0, 0, '', 0))
-                            if r is not None and r.position > 0:
-                                data.append([Subject.select(subject.subject).name, r.position, r.result, r.net_score])
-                                if subject.n_d not in days:
-                                    days[subject.n_d] = []
-                                days[subject.n_d].append(r.net_score)
-                        for x in days.values():
-                            summ += sum(sorted(x, reverse=True)[:2])
+                student = Student.select(student_code)
+                if student:
+                    data, days, summ = get_info_for_student(student, iti.id)
             except Exception:
                 pass
         params['search'] = ' '.join(res_per)
@@ -130,9 +127,9 @@ def search(year: int):
         params['empty'] = not bool(len(data))
         params['summ'] = summ
     else:
-        params['messages'] = sorted(Message.select_by_year(year), key=Message.sort_by_time)
-        params['years'] = Year.select_all()
+        params['messages'] = sorted(Message.select_by_iti(iti.id), key=Message.sort_by_time)
+        params['itis'] = Iti.select_all()
     try:
-        return render_template(str(year) + '/main.html', **params)
+        return render_template(str(iti.id) + '/main.html', **params)
     except TemplateNotFound:
         return not_found_error()

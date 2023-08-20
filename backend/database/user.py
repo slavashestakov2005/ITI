@@ -4,10 +4,6 @@ from .__db_session import sa, SqlAlchemyBase, Table
 from .team import Team
 
 
-def is_in_team(year: int):
-    return -10 * abs(year) - (2 if year < 0 else 0), -10 * abs(year) - (3 if year < 0 else 1)
-
-
 class User(SqlAlchemyBase, UserMixin, Table):
     __tablename__ = 'user'
     fields = ['id', 'login', 'password', 'status']
@@ -37,7 +33,7 @@ class User(SqlAlchemyBase, UserMixin, Table):
                status > 0 and (self.status >> status) % 2
 
     def teams_list(self, year: int):
-        return [_.id for _ in Team.select_by_year(year)] if self.can_do(-1) else []
+        return [_.id for _ in Team.select_by_iti(year)] if self.can_do(-1) else []
 
     def subjects_str(self, subjects):
         if self.status < 0:

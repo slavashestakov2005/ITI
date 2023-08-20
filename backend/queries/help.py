@@ -5,7 +5,7 @@ from glob import glob
 from jinja2 import Environment, FileSystemLoader
 from backend.config import Config
 from ..help import FileManager, correct_slash
-from ..database import Year
+from ..database import Iti
 import re
 import os
 from datetime import datetime
@@ -19,16 +19,8 @@ from datetime import datetime
     tr_format(*args)                Генерирует строку для HTML-таблицы.
     path_to_subject(path)           Извлекает id предмета из имени файла.
     parse_files()                   Проходит все файлы, генерирует списки доступа.
-    current_year()                  Возвращает актуальный год ИТИ.
-    pref_year(year)                 Возвращает начало фалов: '_' для НШ / '' для ОШ.
-    class_min(year)                 Возвращает минимальный класс ИТИ: 2 для НШ / 5 для ОШ.
-    class_max(year)                 Возвращает максимальный класс ИТИ: 5 для НШ / 10 для ОШ.
-    class_cnt(year)                 Возвращает количество классов ИТИ: 3 для НШ / 5 для ОШ.
-    team_cnt(year)                  Возвращает количество команд ИТИ: 10 для НШ / 6 для ОШ.
-    is_in_team(year)                Возвращает id команд для согласия и отказа ("+", "-").
-    individual_days_count(year)     Возвращает количество засчитываемых индивидуальны дней: 2 для НШ / 0 для ОШ.
     @check_status(status)           Проверяет открыт ли доступ для текущего пользователя.
-    @check_block_year()             Проверяет открыто ли редактирование года.
+    @check_block_iti()              Проверяет открыто ли редактирование ИТИ.
     class FilePart                  Один кусочек html-страницы (поля 'text' и 'is_comment').
     class SplitFile                 Связывает html-страницу и программное представление.
         __init__(file_name)                                 Парсит файл 'file_name'.
@@ -125,38 +117,6 @@ def parse_files():
     print("Status: " + str(STATUS_REQUIRED_FILES))
 
 
-def current_year():
-    return datetime.now().year
-
-
-# def pref_year(year: int):
-#     return '_' if year < 0 else ''
-#
-#
-# def class_min(year: int):
-#     return 2 if year < 0 else 5
-#
-#
-# def class_max(year: int):
-#     return 5 if year < 0 else 10
-#
-#
-# def class_cnt(year: int):
-#     return 3 if year < 0 else 5
-#
-#
-# def team_cnt(year: int):
-#     return 10 if year < 0 else 6
-
-
-def is_in_team(year: int):
-    return -10 * abs(year) - (2 if year < 0 else 0), -10 * abs(year) - (3 if year < 0 else 1)
-
-
-# def individual_days_count(year: int):
-#     return 4 if year < 0 else 0
-
-
 def check_status(status: str):
     def my_decorator(function_to_decorate):
 
@@ -177,19 +137,21 @@ def check_status(status: str):
     return my_decorator
 
 
-def check_block_year():
+def check_block_iti():
     def my_decorator(function_to_decorate):
 
         @wraps(function_to_decorate)
         def wrapped(*args, **kwargs):
             if len(kwargs):
                 try:
-                    year = int(str(list(kwargs.values())[0]).split('/')[0])
+                    iti_id = kwargs['iti_id']
                 except Exception:
                     return function_to_decorate(*args, **kwargs)
-                y = Year.select(year)
-                if y is None or y.block:
+                iti_info = Iti.select(iti_id)
+                if not iti_info or iti_info.block:
                     return forbidden_error()
+                kwargs['iti'] = iti_info
+                kwargs.pop('iti_id', None)
             return function_to_decorate(*args, **kwargs)
 
         return wrapped

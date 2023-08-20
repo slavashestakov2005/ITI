@@ -37,8 +37,8 @@ def api_item(method, status=None):
                 return make_response(jsonify(data), 200 if result else 404)
             except EmptyFieldException as ex:
                 return make_response(jsonify({'status': 'FAIL', 'message': 'Пустое поле ' + str(ex)}), 404)
-            except Exception:
-                return make_response(jsonify({'status': 'FAIL', 'message': 'Ошибка на сервере'}), 500)
+            except Exception as ex:
+                return make_response(jsonify({'status': 'FAIL', 'message': 'Ошибка на сервере ' + str(ex)}), 500)
 
         return wrapped
 
@@ -59,8 +59,8 @@ def api_group(status=None):
                 return make_response(jsonify(data), 200 if result else 404)
             except EmptyFieldException as ex:
                 return make_response(jsonify({'status': 'FAIL', 'message': 'Пустое поле ' + str(ex)}), 404)
-            except Exception:
-                return make_response(jsonify({'status': 'FAIL', 'message': 'Ошибка на сервере'}), 500)
+            except Exception as ex:
+                return make_response(jsonify({'status': 'FAIL', 'message': 'Ошибка на сервере ' + str(ex)}), 500)
 
         return wrapped
 

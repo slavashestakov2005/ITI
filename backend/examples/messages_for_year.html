@@ -10,18 +10,20 @@
    <div class="col-12"><center>
         <h2>Объявления:</h2>
         <table border="1">
-            <tr>
-                <td width="5%">ID</td>
-                <td width="20%">Заголовок</td>
-                <td width="50%">Содержимое</td>
-                <td width="15%">Время</td>
-            </tr>
+            <thead><tr>
+                <th width="5%">ID</th>
+                <th width="20%">Заголовок</th>
+                <th width="50%">Содержимое</th>
+                <th width="15%">Время</th>
+                <th width="10%">Приоритет</th>
+            </tr></thead>
             {% for msg in messages %}
             <tr>
                 <td>{{ msg.id }}</td>
                 <td>{{ msg.title }}</td>
                 <td>{{ msg.content }}</td>
                 <td>{{ msg.time_str(True) }}</td>
+                <td>{{ msg.priority }}</td>
             </tr>
             {% endfor %}
         </table>
@@ -36,6 +38,7 @@
                 <input type="date" name="date">
                 <input type="time" name="time">
             </p>
+            <p>Приоритет (чем больше, тем выше будет сообщение): <input type="text" name="priority" value="0"></p>
             <p><input type="submit" value="Добавить"></p>
         </center></form>
     </center></div>
@@ -49,6 +52,7 @@
                 <input type="date" name="date">
                 <input type="time" name="time">
             </p>
+            <p>Приоритет (чем больше, тем выше будет сообщение): <input type="text" name="priority"></p>
             <p>Если поле оставить пустым, то измения этого параметра не произойдёт.</p>
             <p><input type="submit" value="Сохранить"></p>
         </center></form>

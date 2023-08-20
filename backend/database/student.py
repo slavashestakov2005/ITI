@@ -1,23 +1,25 @@
-from .__db_session import sa, SqlAlchemyBase, Table, execute_sql
+from .__db_session import sa, SqlAlchemyBase, Table
 from .student_class import StudentClass
 
 
 class Student(SqlAlchemyBase, Table):
     __tablename__ = 'student'
-    fields = ['id', 'name_1', 'name_2', 'gender']
+    fields = ['id', 'name_1', 'name_2', 'name_3', 'gender']
 
     id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     name_1 = sa.Column(sa.String, nullable=False)   # (Фамилия)
     name_2 = sa.Column(sa.String, nullable=False)   # (Имя)
+    name_3 = sa.Column(sa.String, nullable=False)   # (Отчество)
     gender = sa.Column(sa.String, nullable=False)   # (0 - м, 1 - ж)
     result = 0
 
-    def load_class(self, year: int):
-        sc = StudentClass.select(year, self.id)
+    def load_class(self, iti_id: int):
+        sc = StudentClass.select(iti_id, self.id)
         if not sc:
             return False
         self.class_l = sc.class_latter
         self.class_n = sc.class_number
+        self.school_id = sc.school_id
         return True
 
     def class_name(self):
@@ -48,21 +50,19 @@ class Student(SqlAlchemyBase, Table):
     # Table
 
     @classmethod
-    def select_all_by_year(cls, year: int) -> list:
+    def select_all_by_iti(cls, iti_id: int) -> list:
         students = Student.select_all()
-        students = [student for student in students if student.load_class(year)]
+        students = [student for student in students if student.load_class(iti_id)]
         return students
 
     @classmethod
-    def select_by_year(cls, year: int) -> list:
-        cls1, cls2 = 2, 4
-        if year > 0:
-            cls1, cls2 = 5, 9
-        return [student for student in Student.select_all_by_year(year) if cls1 <= student.class_n <= cls2]
+    def select_by_iti(cls, iti_info) -> list:
+        return [student for student in Student.select_all_by_iti(iti_info.id)
+                if str(student.class_n) in iti_info.classes]
 
     @classmethod
-    def select_by_class_n(cls, year: int, class_n: int) -> list:
-        return [student for student in Student.select_all_by_year(year) if student.class_n == class_n]
+    def select_by_class_n(cls, iti_id: int, class_n: int) -> list:
+        return [student for student in Student.select_all_by_iti(iti_id) if student.class_n == class_n]
 
     @classmethod
     def select_by_name(cls, name1, name2) -> list:

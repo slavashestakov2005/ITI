@@ -3,7 +3,7 @@ from flask import render_template, request, redirect
 from flask_cors import cross_origin
 from flask_login import login_user, logout_user, current_user
 from ..database import User
-from backend.queries.help import check_block_year, empty_checker
+from backend.queries.help import empty_checker
 from ..eljur import EljurUser
 
 '''
@@ -24,7 +24,6 @@ def load_user(id):
 
 @app.route("/login", methods=['GET', 'POST'])
 @cross_origin()
-@check_block_year()
 def login():
     if current_user.is_authenticated:
         return redirect('/')
@@ -48,7 +47,6 @@ def login():
 
 @app.route("/eljur_login", methods=['POST'])
 @cross_origin()
-@check_block_year()
 def eljur_login():
     try:
         user_login = request.form['login']
@@ -65,7 +63,6 @@ def eljur_login():
 
 @app.route("/logout")
 @cross_origin()
-@check_block_year()
 def logout():
     logout_user()
     return redirect('/')

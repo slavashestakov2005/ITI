@@ -3,10 +3,10 @@ from .__db_session import sa, SqlAlchemyBase, Table
 
 class GroupResult(SqlAlchemyBase, Table):
     __tablename__ = 'group_results'
-    fields = ['team', 'subject', 'result']
+    fields = ['team_id', 'subject_id', 'result']
 
-    team = sa.Column(sa.Integer, nullable=False, primary_key=True)
-    subject = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    team_id = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    subject_id = sa.Column(sa.Integer, nullable=False, primary_key=True)
     result = sa.Column(sa.Integer, nullable=False)
 
     @staticmethod
@@ -16,21 +16,21 @@ class GroupResult(SqlAlchemyBase, Table):
     # Table
 
     @classmethod
-    def select_by_team(cls, team: int) -> list:
-        return cls.__select_by_expr__(cls.team == team)
+    def select_by_team(cls, team_id: int) -> list:
+        return cls.__select_by_expr__(cls.team_id == team_id)
 
     @classmethod
-    def select_by_subject(cls, subject: int) -> list:
-        return cls.__select_by_expr__(cls.subject == subject)
+    def select_by_subject(cls, subject_id: int) -> list:
+        return cls.__select_by_expr__(cls.subject_id == subject_id)
 
     @classmethod
-    def select_by_team_and_subject(cls, team: int, subject: int):
-        return cls.__select_by_expr__(cls.team == team, cls.subject == subject, one=True)
+    def select_by_team_and_subject(cls, team_id: int, subject_id: int):
+        return cls.__select_by_expr__(cls.team_id == team_id, cls.subject_id == subject_id, one=True)
 
     @classmethod
     def update(cls, row) -> None:
-        return cls.__update_by_expr__(row, cls.team == row.team, cls.subject == row.subject)
+        return cls.__update_by_expr__(row, cls.team_id == row.team_id, cls.subject_id == row.subject_id)
 
     @classmethod
-    def delete_by_team(cls, team: int) -> None:
-        return cls.__delete_by_expr__(cls.team == team)
+    def delete_by_team(cls, team_id: int) -> None:
+        return cls.__delete_by_expr__(cls.team_id == team_id)

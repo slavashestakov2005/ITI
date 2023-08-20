@@ -2,63 +2,69 @@ from flask import render_template
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend import app
-from .help import check_status, check_block_year
-from ..database import Message, Year
+from .help import check_status, check_block_iti
+from ..database import Message, Iti
 from ..help import ConfigMail
 '''
-    /<year>/subjects_for_year.html          Возвращает страницу с настройками года (admin).
-    /<year>/messages_for_year.html          Возвращает страницу с объявлениями года (admin).
-    /<year>/student_edit.html               Возвращает страницу со списком школьников (admin).
-    /<year>/excel.html                      Возвращает страницу со списком Excel таблиц (admin).
+    /<iti_id>/subjects_for_year.html        Возвращает страницу с настройками года (admin).
+    /<iti_id>/messages_for_year.html        Возвращает страницу с объявлениями года (admin).
+    /<iti_id>/student_edit.html             Возвращает страницу со списком школьников (admin).
+    /<iti_id>/excel.html                    Возвращает страницу со списком Excel таблиц (admin).
     /settings.html                          Возвращает страницу с настройками пользователя.
 '''
 
 
-@app.route("/<year:year>/subjects_for_year.html")
+@app.route("/<int:iti_id>/subjects_for_year.html")
 @cross_origin()
 @login_required
 @check_status('admin')
-@check_block_year()
-def subjects_for_year(year: int):
-    return render_template(str(year) + '/subjects_for_year.html', year=abs(year))
+@check_block_iti()
+def subjects_for_iti(iti: Iti):
+    return render_template(str(iti.id) + '/subjects_for_year.html')
 
 
-@app.route("/<year:year>/messages_for_year.html")
+@app.route("/<int:iti_id>/messages_for_year.html")
 @cross_origin()
 @login_required
 @check_status('admin')
-@check_block_year()
-def messages_for_year(year: int):
-    return render_template(str(year) + '/messages_for_year.html', messages=Message.select_by_year(year))
+@check_block_iti()
+def messages_for_iti(iti: Iti):
+    return render_template(str(iti.id) + '/messages_for_year.html', messages=Message.select_by_iti(iti.id))
 
 
-@app.route("/<year:year>/student_edit.html")
+@app.route("/<int:iti_id>/student_edit.html")
 @cross_origin()
 @login_required
 @check_status('admin')
-@check_block_year()
-def student_edit(year: int):
-    year_info = Year.select(year)
-    if year_info is None:
-        return render_template('student_edit.html', year=year, year_info=year_info)
-    return render_template('student_edit.html', year=year, year_info=year_info)
+@check_block_iti()
+def student_edit(iti: Iti):
+    return render_template('student_edit.html', iti=iti)
 
 
-@app.route("/<year:year>/excel.html")
+@app.route("/<int:iti_id>/excel.html")
 @cross_origin()
 @login_required
 @check_status('admin')
-@check_block_year()
-def excel_page_for_year(year: int):
-    return render_template('excel.html', year=year)
+@check_block_iti()
+def excel_page_for_iti(iti: Iti):
+    return render_template('excel.html', iti=iti)
 
 
 @app.route("/settings.html")
 @cross_origin()
 @login_required
-@check_block_year()
+@check_block_iti()
 def settings():
     params = {'password': 'Уже введён' if ConfigMail.MAIL_PASSWORD else 'Отсутствует',
               'email': ConfigMail.MAIL_USERNAME, 'admins': str(ConfigMail.ADMINS)} \
         if current_user.can_do(-2) else {}
     return render_template('settings.html', **params)
+
+
+@app.route("/<int:iti_id>/rating_students_check.html")
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_iti()
+def rating_students_check(iti: Iti):
+    return render_template(str(iti.id) + '/rating_students_check.html')

@@ -1,5 +1,5 @@
 import re
-from ..database import Result, User, YearSubject
+from ..database import Result, User, ItiSubject
 '''
     prepare_results(res: str)       Получает данные из введённой строки результатов
     save_result_(...)               Возвращает код попытки сохранения или обновление результата.
@@ -21,14 +21,14 @@ def save_result_(user: User, year: int, subject: int, student_code: int, res: st
         return -1
     if student_code == "" or res == "":
         return 1
-    ys = YearSubject.select(year, subject)
+    ys = ItiSubject.select(year, subject)
     if ys is None:
         return 3
     result_sum = prepare_results(res)
     if result_sum is None:
         return 5
     r = Result.build(ys.id, student_code, 0, result_sum, 0, 0)
-    old_r = Result.select_for_people(r)
+    old_r = Result.select_for_student_code(r)
     if old_r is not None:
         if not user.can_do(-1):
             return 4
@@ -43,8 +43,8 @@ def delete_result_(user: User, year_subject: int, student_code: int):
     if not user.can_do(-1):
         return -1
     r = Result.build(year_subject, student_code, 0, 0, 0, 0, allow_empty=True)
-    old_r = Result.select_for_people(r)
+    old_r = Result.select_for_student_code(r)
     if old_r is None:
         return 1
-    Result.delete_by_people(r)
+    Result.delete_by_student_code(r)
     return 0

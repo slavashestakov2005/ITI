@@ -3,34 +3,26 @@ from .__db_session import sa, SqlAlchemyBase, Table
 
 class SubjectStudent(SqlAlchemyBase, Table):
     __tablename__ = 'subjects_students'
-    fields = ['year', 'subject', 'student']
+    fields = ['iti_subject_id', 'student_id']
 
-    year = sa.Column(sa.Integer, nullable=False, primary_key=True)
-    subject = sa.Column(sa.Integer, nullable=False, primary_key=True)
-    student = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    iti_subject_id = sa.Column(sa.Integer, nullable=False, primary_key=True)
+    student_id = sa.Column(sa.Integer, nullable=False, primary_key=True)
 
     # Table
 
     @classmethod
-    def select_by_year(cls, year: int) -> list:
-        return cls.__select_by_expr__(cls.year == year)
+    def select_by_subject(cls, iti_subject_id: int) -> list:
+        return cls.__select_by_expr__(cls.iti_subject_id == iti_subject_id)
 
     @classmethod
-    def select_by_student(cls, year: int, student: int) -> list:
-        return cls.__select_by_expr__(cls.year == year, cls.student == student)
-
-    @classmethod
-    def select_by_subject(cls, year: int, subject: int) -> list:
-        return cls.__select_by_expr__(cls.year == year, cls.subject == subject)
-
-    @classmethod
-    def select_by_all(cls, year: int, subject: int, student: int):
-        return cls.__select_by_expr__(cls.year == year, cls.subject == subject, cls.student == student, one=True)
+    def select_by_all(cls, iti_subject_id: int, student_id: int):
+        return cls.__select_by_expr__(cls.iti_subject_id == iti_subject_id, cls.student_id == student_id, one=True)
 
     @classmethod
     def delete(cls, subject_student) -> None:
-        return cls.__delete_by_expr__(cls.year == subject_student.year, cls.subject == subject_student.subject, cls.student == subject_student.student)
+        return cls.__delete_by_expr__(cls.iti_subject_id == subject_student.iti_subject_id,
+                                      cls.student_id == subject_student.student_id)
 
     @classmethod
-    def delete_by_year(cls, year: int) -> None:
-        return cls.__delete_by_expr__(cls.year == year)
+    def delete_by_iti_subject(cls, iti_subject_id: int) -> None:
+        return cls.__delete_by_expr__(cls.iti_subject_id == iti_subject_id)

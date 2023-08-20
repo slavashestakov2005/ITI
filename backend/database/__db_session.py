@@ -82,6 +82,14 @@ class Table:
         return cls.__select_by_expr__()
 
     @classmethod
+    def select_last(cls):
+        session = create_session()
+        values = session.query(cls).order_by(cls.id.desc()).first()
+        session.expunge_all()
+        session.commit()
+        return values
+
+    @classmethod
     def one_or_many(cls, data, one=False):
         return data.one_or_none() if one else data.all()
 
@@ -136,4 +144,5 @@ class Table:
         cls.__delete_by_expr__(getattr(cls, cls.id_field) == attr)
 
 
+from .__all_models import *
 global_init(ConfigDB.DB)

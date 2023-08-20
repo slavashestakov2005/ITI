@@ -1,5 +1,4 @@
 import pandas as pd
-from ..database import StudentCode
 from backend.queries.results_raw import save_result_
 
 
@@ -35,19 +34,18 @@ class ExcelResultsReader:
         self.result = frame[frame[self.RES[0]].notna() & frame[self.RES[1]].notna()]
 
     def __gen_results__(self, user):
-        self.students_codes = [x.code for x in StudentCode.select_by_year(self.year)]
         ans = {}
         for i, row in self.result.iterrows():
             try:
-                user_id = int(row[0])
+                student_code = int(row[0])
             except Exception:
-                user_id = None
-            if not user_id or str(row[1]) == 'nan' or user_id not in self.students_codes:
+                student_code = None
+            if not student_code or str(row[1]) == 'nan':
                 if 0 not in ans:
                     ans[0] = []
                 ans[0].append(str(i + 1))
             else:
-                answer = save_result_(user, self.year, self.subject, user_id, str(row[1]))
+                answer = save_result_(user, self.year, self.subject, student_code, str(row[1]))
                 if answer:
                     if answer not in ans:
                         ans[answer] = []

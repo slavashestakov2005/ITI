@@ -8,7 +8,9 @@
 		<form onsubmit="student_registration(this); return false;">
 			<p>Имя: <input type="text" name="name2"></p>
 			<p>Фамилия: <input type="text" name="name1"></p>
+			<p>Отчество: <input type="text" name="name3"></p>
 			<p>Класс (номер и буква): <input type="text" name="class"></p>
+			<p>ID школы: <input type="text" name="school"></p>
 			<p>Пол: <input name="gender" type="radio" value="0" checked>М&nbsp;&nbsp;<input name="gender" type="radio" value="1">Ж</p>
 			<input type="submit" value="Создать">
 			<p>Первая буква имени, фамилии и буква класса автоматически переводятся в верхний регистр.
@@ -21,7 +23,9 @@
 			<p>ID: <input type="text" name="id"></p>
 			<p>Имя: <input type="text" name="name2"></p>
 			<p>Фамилия: <input type="text" name="name1"></p>
+			<p>Отчество: <input type="text" name="name3"></p>
 			<p>Класс (номер и буква): <input type="text" name="class"></p>
+			<p>ID школы: <input type="text" name="school"></p>
 			<p>Пол: <input name="gender" type="radio" value="0">М&nbsp;&nbsp;<input name="gender" type="radio" value="1">Ж</p>
 			<input type="submit" value="Изменить">
 			<p>Если поля новых данных оставить пустыми, то информация не изменится.</p>
@@ -45,19 +49,10 @@
 		<h1>Списки участников</h1>
 		<p>Для просмотра списка всех участников перейдите по ссылкам:</p>
 		<div class="row justify-content-center">
-			{% if year_info and year_info.school1() %}
+			{% if iti %}
 			<div class="col-auto">
-				<center>НШ:</center>
-				{% for c in '234' %}
-				{% if c in year_info.classes %}<p><a href="students_{{ c }}.html">{{ c }}&nbsp;класс</a></p>{% endif %}
-				{% endfor %}
-			</div>
-			{% endif %}
-			{% if year_info and year_info.school2() %}
-			<div class="col-auto">
-				<center>ОШ:</center>
-				{% for c in '56789' %}
-				{% if c in year_info.classes %}<p><a href="students_{{ c }}.html">{{ c }}&nbsp;класс</a></p>{% endif %}
+				{% for c in iti.classes %}
+				<p><a href="students_{{ c }}.html">{{ c }}&nbsp;класс</a></p>
 				{% endfor %}
 			</div>
 			{% endif %}

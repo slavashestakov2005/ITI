@@ -1,5 +1,4 @@
 import backend.queries.simple
-import backend.queries.files_edit
 import backend.queries.help
 import backend.queries.messages_help
 import backend.queries.pages
@@ -10,3 +9,5 @@ import backend.queries.results
 import backend.queries.students
 import backend.queries.teams
 import backend.queries.subjects
+import backend.queries.barcodes
+import backend.queries.excel

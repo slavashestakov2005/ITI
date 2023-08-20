@@ -26,8 +26,8 @@
                     <th width="30%">Фамилия</th>
                     <th width="30%">Имя</th>
                     <th width="10%">Класс</th>
-                    {% for subject_id in subjects %}
-                        <th width="5%">{{ subjects[subject_id] }}</th>
+                    {% for subject_id, subject_name in subjects %}
+                        <th width="5%">{{ subject_name }}</th>
                     {% endfor %}
                     <th width="10%">Сумма</th>
                 </tr></thead>

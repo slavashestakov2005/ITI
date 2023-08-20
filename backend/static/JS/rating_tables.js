@@ -112,14 +112,15 @@ function compareStudentsResults(a, b) {
     return 0;
 }
 
-function generateStudentsTableData() {
+function generateStudentsTableData(addCheckBoxes=false) {
     let lines = [];
     for (let student_id in students) {
         let line = [], sum = 0;
         let result = student_id in results ? results[student_id] : {};
         line.push(0);
         for (let data of students[student_id]) line.push(data);
-        for (let subject_id in subjects) {
+        for (let sub of subjects) {
+            let subject_id = sub[0];
             if (subject_id in result) {
                 let data = result[subject_id];
                 line.push(`${data[0]}&nbsp;(${data[1]})`);
@@ -127,11 +128,41 @@ function generateStudentsTableData() {
             }
             else line.push('-');
         }
+        if (addCheckBoxes) line.push(student_id);
         line.push(sum);
-        if (sum > 0) lines.push(line);
+        lines.push(line);
     }
     lines.sort(compareStudentsResults);
     return lines;
+}
+
+// rating_students_check.html
+
+function addCheckBoxes() {
+    let rating_table = getRatingTableElement();
+    for (let row of rating_table.rows) {
+        let n = row.cells.length;
+        let student_id = row.cells[n - 2].innerText;
+        let cell = document.createElement('td');
+        let template = '<input type="checkbox" name="t" value="000_0" id="000_0">-<input type="checkbox" name="ot" value="000_0" hidden>\n' +
+                         '<input type="checkbox" name="t" value="000_1" id="000_1">?<input type="checkbox" name="ot" value="000_1" hidden>\n' +
+                         '<input type="checkbox" name="t" value="000_2" id="000_2">+<input type="checkbox" name="ot" value="000_2" hidden>\n';
+        template = template.replace(/000/g, student_id);
+        cell.innerHTML = template;
+        if (student_id in checkMarks) {
+            if (checkMarks[student_id] === 1) {
+                cell.children[4].checked = true;
+                cell.children[5].checked = true;
+            } else {
+                cell.children[0].checked = true;
+                cell.children[1].checked = true;
+            }
+        } else {
+            cell.children[2].checked = true;
+            cell.children[3].checked = true;
+        }
+        row.appendChild(cell);
+    }
 }
 
 // rating_classes.html
@@ -167,7 +198,8 @@ function generateTeamsTableData() {
     let lines = [];
     for (let team_id in results) {
         let line = [0, teams[team_id]], sum = 0;
-        for (let subject in subjects) {
+        for (let sub of subjects) {
+            let subject = sub[0];
             if (subject in results[team_id]) {
                 line.push(results[team_id][subject]);
                 sum += results[team_id][subject];

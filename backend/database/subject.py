@@ -28,11 +28,13 @@ class Subject(SqlAlchemyBase, Table):
     @staticmethod
     def sort_by_type(subject):
         if subject.type == 'i':
-            return 0
+            return 0, subject.id
         elif subject.type == 'g':
-            return 1
+            return 1, subject.id
+        elif subject.type == 'a':
+            return 2, subject.id
         else:
-            return 2
+            return -1, -subject.id
 
     # Table
     @classmethod
@@ -62,6 +64,7 @@ class Subject(SqlAlchemyBase, Table):
         cls.insert(cls.build(None, 'Настольные игры', 'Наст.', 'g', 'в настольных играх', 'настольных игр'))
         cls.insert(cls.build(None, 'Бонус', 'Бонус', 'g', 'бонусном туре', 'выставления бонусных баллов за публичную защиту'))
         cls.insert(cls.build(None, '«Зри в корень»', '«Зри...»', 'g', 'в групповом туре\n«Зри в корень»', 'игры «Зри в корень»'))
+        cls.insert(cls.build(None, 'Групповой тур', 'Груп.', 'a', 'в групповом туре', 'группового тура'))
 
     @classmethod
     def select_by_name(cls, name: str):

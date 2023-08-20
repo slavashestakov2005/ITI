@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<center><h1>Загрузить Excel</h1></center>
+<div class="row col-12 justify-content-center">
+    <div class="col">
+        <h1>Загрузить все данные</h1>
+        <form action="load_data_from_excel_all" method="post" enctype=multipart/form-data>
+            <p>Таблица: <input type="file" name="file"></p>
+            <input type="submit" value="Загрузить">
+        </form>
+    </div>
+    <div class="col">
+        <h1>Загрузить список школьников</h1>
+        <form action="load_data_from_excel_students" method="post" enctype=multipart/form-data>
+            <p>Таблица: <input type="file" name="file"></p>
+            <input type="submit" value="Загрузить">
+        </form>
+    </div>
+</div>
+
+{% endblock %}

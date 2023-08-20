@@ -8,8 +8,8 @@
                 <thead><tr>
                     <th width="10%">Место</th>
                     <th width="30%">Команда</th>
-                    {% for subject in team_subjects %}
-                        <th width="5%">{{ team_subjects[subject] }}</th>
+                    {% for subject_id, subject_name in team_subjects %}
+                        <th width="5%">{{ subject_name }}</th>
                     {% endfor %}
                     <th width="30%">Сумма</th>
                 </tr></thead>
@@ -25,8 +25,8 @@
                 <th width="10%">Класс</th>
                 <th width="10%">Фамилия</th>
                 <th width="10%">Имя</th>
-                {% for subject in ind_subjects %}
-                    <th width="10%">{{ ind_subjects[subject] }}</th>
+                {% for subject_id, subject_name in ind_subjects %}
+                    <th width="10%">{{ subject_name }}</th>
                 {% endfor %}
                 <th width="10%">Сумма</th>
             </tr></thead>
@@ -37,7 +37,7 @@
                         <td>{{ students[student][0] }}</td>
                         <td>{{ students[student][1] }}</td>
                         {% set ns = namespace(sum=0) %}
-                        {% for subject in ind_subjects %}
+                        {% for subject, _ in ind_subjects %}
                             {% if student in student_results and subject in student_results[student] %}
                                 <td>{{ student_results[student][subject][0] }}</td>
                                 {% set ns.sum = ns.sum + student_results[student][subject][0] %}

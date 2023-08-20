@@ -1,6 +1,7 @@
 from backend import app
-from ..database import Student, Subject, SubjectStudent, Team, TeamStudent, YearSubject, User
-from .help import check_status, check_block_year, is_in_team, compare
+from ..database import Student, Subject, SubjectStudent, Team, TeamStudent, ItiSubject, User, TeamConsent, Iti,\
+    IndDayStudent
+from .help import check_status, compare, check_block_iti
 from .auto_generator import Generator
 from flask import render_template, request
 from flask_cors import cross_origin
@@ -14,93 +15,98 @@ from .messages_help import message_teams_public
 '''
 
 
-def teams_page_params(user: User, year: int):
+def teams_page_params(user: User, iti: Iti):
     try:
-        teams, res, subjects, team_tour = user.teams_list(year), [], [], None
-        for x in YearSubject.select_by_year(year):
-            subject = Subject.select(x.subject)
-            if subject.type == 'g':
+        teams, res, subjects = user.teams_list(iti.id), [], []
+        if iti.sum_ind_to_team:
+            for day in range(1, 1 + iti.ind_days):
+                name = 'Инд. {}'.format(day)
+                subjects.append(Subject.build(-day, name, name, 'q', 'diploma', 'msg'))
+        participants = set()
+        for x in ItiSubject.select_by_iti(iti.id):
+            subject = Subject.select(x.subject_id)
+            if subject.type == 'g' or subject.type == 'a':
                 subjects.append(subject)
-            if subject.type == 'a':
-                team_tour = subject
-        if team_tour:
-            subjects.append(team_tour)
-        teams = sorted(list(teams), key=compare(lambda x: -x // abs(x), lambda x: x, field=True))
+                for part in SubjectStudent.select_by_subject(x.id):
+                    participants.add('{} {}'.format(subject.id, part.student_id))
+        for val in IndDayStudent.select_by_iti(iti.id):
+            participants.add('{} {}'.format(-val.n_d, val.student_id))
+        subjects = sorted(subjects, key=Subject.sort_by_type)
+        teams = sorted(list(teams))
         for now in teams:
-            if now < 0:
-                team, t = Team.build(now, 'Отказ', None, None), []
-            else:
-                team, t = Team.select(now), []
+            team, t = Team.select(now), []
             peoples = TeamStudent.select_by_team(team.id)
             for x in peoples:
-                people = Student.select(x.student)
-                people.load_class(year)
-                subjects_for_people = set([_.subject for _ in SubjectStudent.select_by_student(year, people.id)])
+                people = Student.select(x.student_id)
+                people.load_class(iti.id)
                 p = [[None, people.class_name()], [None, people.name_1], [None, people.name_2]]
                 for subject in subjects:
-                    p.append([subject.id, people.id, subject.id in subjects_for_people])
+                    p.append([subject.id, people.id, '{} {}'.format(subject.id, people.id) in participants])
                 t.append(p)
             t.sort(key=compare(lambda x: x[0][1], lambda x: x[1][1], lambda x: x[2][1], field=True))
-            res.append([team.name, t])
-        return {'year': abs(year), 'teams': res, 'subjects': [_.short_name for _ in subjects]}
+            res.append([team, t])
+        rejection = []
+        for tc in TeamConsent.select_rejection_by_iti(iti.id):
+            people = Student.select(tc.student_id)
+            people.load_class(iti.id)
+            rejection.append(people)
+        return {'teams': res, 'subjects': [_.short_name for _ in subjects], 'rejection': rejection}
     except Exception:
         return {}
 
 
-@app.route("/<year:year>/save_teams", methods=['POST'])
+@app.route("/<int:iti_id>/save_teams", methods=['POST'])
 @cross_origin()
 @login_required
 @check_status('admin')
-@check_block_year()
-def save_teams(year: int):
+@check_block_iti()
+def save_teams(iti: Iti):
     t = set(request.form.getlist('t'))
     ot = set(request.form.getlist('ot'))
-    cl = request.form['cl']
-    if 'part' in request.form:
-        kw = {'error' + str(ord(request.form['part'])): 'Сохранено'}
-        url = '{}/rating_{}.html'.format(year, cl)
-    else:
-        kw = {'error' + cl: 'Сохранено'}
-        url = '{}/rating.html'.format(year)
     different = set(_[:-2] for _ in t.symmetric_difference(ot))
     for x in different:
         cnt = (x + '_0' in t) + (x + '_1' in t) + (x + '_2' in t)
         if cnt != 1:
-            return render_template(url, **teams_page_params(current_user, year), error='Некорректные данные')
-    pl, mn = is_in_team(year)
+            return render_template(url, **teams_page_params(current_user, iti), error='Некорректные данные')
     for x in different:
         st = int(x)
         if x + '_0' in ot:
-            TeamStudent.delete(TeamStudent.build(mn, st))
+            TeamConsent.delete(iti.id, st)
         if x + '_2' in ot:
-            TeamStudent.delete(TeamStudent.build(pl, st))
+            TeamConsent.delete(iti.id, st)
         if x + '_0' in t:
-            TeamStudent.insert(TeamStudent.build(mn, st))
+            TeamConsent.insert(TeamConsent.build(iti.id, st, -1))
         if x + '_2' in t:
-            TeamStudent.insert(TeamStudent.build(pl, st))
-    Generator.gen_ratings(year)
-    return render_template(url, **teams_page_params(current_user, year), **kw)
+            TeamConsent.insert(TeamConsent.build(iti.id, st, 1))
+    Generator.gen_ratings(iti)
+    return render_template(str(iti.id) + '/rating_students_check.html')
 
 
-@app.route("/<year:year>/team_edit")
+@app.route("/<int:iti_id>/team_edit")
 @cross_origin()
 @login_required
 @check_status('admin')
-@check_block_year()
-def team_edit(year: int):
-    return render_template(str(year) + '/teams_for_year.html', **teams_page_params(current_user, year))
+@check_block_iti()
+def team_edit(iti: Iti):
+    return render_template(str(iti.id) + '/teams_for_year.html', **teams_page_params(current_user, iti))
 
 
-@app.route("/<year:year>/automatic_division", methods=['GET'])
+@app.route("/<int:iti_id>/automatic_division", methods=['GET'])
 @cross_origin()
 @login_required
 @check_status('admin')
-@check_block_year()
-def automatic_division(year: int):
-    args = teams_page_params(current_user, year)
-    good = Generator.gen_automatic_division(year)
-    Generator.gen_teams(year)
+@check_block_iti()
+def automatic_division(iti: Iti):
+    args = teams_page_params(current_user, iti)
+    if iti.automatic_division == 0:
+        return render_template(str(iti.id) + '/teams_for_year.html', **args,
+                               error9='Автоматическое распределение отключено в настройках ИТИ')
+    if iti.automatic_division not in [1, 2]:
+        return render_template(str(iti.id) + '/teams_for_year.html', **args,
+                               error9='Задан неверный вариант автоматического распределения в настройках ИТИ')
+    good = Generator.gen_automatic_division(iti)
+    Generator.gen_teams(iti.id)
     if not good:
-        return render_template(str(year) + '/teams_for_year.html', **args, error9='Остались свободные места')
-    message_teams_public(year)
-    return render_template(str(year) + '/teams_for_year.html', **args, error9='Участники распределены')
+        return render_template(str(iti.id) + '/teams_for_year.html', **args, error9='Остались свободные места')
+    message_teams_public(iti.id)
+    return render_template(str(iti.id) + '/teams_for_year.html', **args, error9='Участники распределены')

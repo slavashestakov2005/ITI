@@ -1,0 +1,51 @@
+<!-- replace 1 -->
+
+<center>
+    <h1>Рейтинг школьников с галочками</h1>
+    {% set ns = namespace(prev=none) %}
+    <button id="filter-all" onclick="setChecked(null, true)">Все классы</button>
+    <button onclick="setChecked(null, false)">Никакие классы</button>
+    <br>
+    {% for cls in classes | sort %}
+        {% set cur_class = cls[0] %}
+        {% if cur_class != ns.prev %}
+            {% if ns.prev is not none %}<br>{% endif %}
+            <button onclick="setChecked('{{ cur_class }}', true)">Все {{ cur_class }}</button>
+            <button onclick="setChecked('{{ cur_class }}', false)">Никакие {{ cur_class }}</button>
+            {% set ns.prev = cur_class %}
+        {% endif %}
+        <label><input type="checkbox" name="class_value" value="{{ cls }}">{{ cls }}</label>
+    {% endfor %}
+    <p><button id="filter-do" onclick="filterResults(3, -1); addCheckBoxes(); find_checkboxes()">Фильтровать</button></p>
+    <p><button onclick="TableToExcel.convert(document.getElementById('sorted-table'));">Скачать как Excel</button></p>
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <form action="save_teams" method="post">
+                <table class="js-table-color-place" id="sorted-table">
+                    <thead><tr>
+                        <th width="10%">Место</th>
+                        <th width="30%">Фамилия</th>
+                        <th width="30%">Имя</th>
+                        <th width="10%">Класс</th>
+                        {% for subject_id, subject_name in subjects %}
+                            <th width="5%">{{ subject_name }}</th>
+                        {% endfor %}
+                        <th width="10%">ID</th>
+                        <th width="10%">Сумма</th>
+                        <th width="10%">Команда</th>
+                    </tr></thead>
+                    <tbody></tbody>
+                </table>
+                <p><input type="submit" value="Сохранить"></p>
+            </form>
+        </div>
+    </div>
+</center>
+<script>
+    let results = {{ results | tojson }}, subjects = {{ subjects | tojson }}, students = {{ students | tojson }}, checkMarks = {{ check_marks | tojson }};
+    let tableData = generateStudentsTableData(true);
+    console.log(tableData);
+    generateAllTable();
+</script>
+
+<!-- replace 2 -->

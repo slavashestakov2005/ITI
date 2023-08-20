@@ -1,6 +1,6 @@
 from flask_restful import reqparse, Resource
-from ..api import api_item, api_group
-from ..database import Student, StudentClass, get_student_by_params
+from ..api import api_item, api_group, str_or_int
+from ..database import School, Student, StudentClass, get_student_by_params
 from ..queries.auto_generator import Generator
 from ..queries.help import split_class
 
@@ -10,7 +10,9 @@ parser_full.add_argument('year', required=True, type=int)
 parser_full.add_argument('class', required=True, type=str)
 parser_full.add_argument('name1', required=True, type=str)
 parser_full.add_argument('name2', required=True, type=str)
+parser_full.add_argument('name3', required=True, type=str)
 parser_full.add_argument('gender', required=True, type=str)
+parser_full.add_argument('school', required=True, type=str_or_int)
 
 
 class StudentResource(Resource):
@@ -20,17 +22,20 @@ class StudentResource(Resource):
         student.load_class(args['year'])
         old_class_n = student.class_n
         class_ = split_class(args['class'])
-        name1, name2 = args['name1'].capitalize(), args['name2'].capitalize()
-        new = Student.build(None, name1, name2, args['gender'], allow_empty=True)
-        student ^= new
+        name1, name2, name3 = args['name1'].capitalize(), args['name2'].capitalize(), args['name3'].capitalize()
+        new = Student.build(None, name1, name2, name3, args['gender'], allow_empty=True)
         class_n = class_[0] or student.class_n
         class_l = class_[1].capitalize() or student.class_l
+        school_id = args['school'] or student.school_id
+        student ^= new
         if get_student_by_params(args['year'], name1, name2, class_n, class_l):
             return False, {'message': 'Такой участник уже есть'}
+        if not School.select(school_id):
+            return False, {'message': 'Такой школы нет'}
         Student.update(student)
-        StudentClass.update(StudentClass.build(student.id, args['year'], class_n, class_l))
+        StudentClass.update(StudentClass.build(student.id, args['year'], class_n, class_l, school_id))
         Generator.gen_students_list(args['year'], old_class_n)
-        Generator.gen_students_list(args['year'], student.class_n)
+        Generator.gen_students_list(args['year'], class_n)
         return True, {'message': 'Данные изменены'}
 
     @api_item(Student.select, 'admin')
@@ -45,12 +50,15 @@ class StudentListResource(Resource):
     def post(self):
         args = parser_full.parse_args()
         class_ = split_class(args['class'])
-        name1, name2 = args['name1'].capitalize(), args['name2'].capitalize()
-        student = Student.build(None, name1, name2, args['gender'])
+        name1, name2, name3 = args['name1'].capitalize(), args['name2'].capitalize(), args['name3'].capitalize()
+        school_id = args['school']
+        student = Student.build(None, name1, name2, name3, args['gender'])
         class_n, class_l = class_[0], class_[1].capitalize()
         if get_student_by_params(args['year'], name1, name2, class_n, class_l):
             return False, {'message': 'Такой участник уже есть'}
+        if not School.select(school_id):
+            return False, {'message': 'Такой школы нет'}
         student_id = Student.insert(student, return_id=True)
-        StudentClass.insert(StudentClass.build(student_id, args['year'], class_n, class_l))
+        StudentClass.insert(StudentClass.build(student_id, args['year'], class_n, class_l, school_id))
         Generator.gen_students_list(args['year'], class_n)
         return True, {'message': 'Участник добавлен'}

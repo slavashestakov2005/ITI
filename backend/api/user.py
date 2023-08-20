@@ -24,7 +24,7 @@ class UserResource(Resource):
                 return False, {'message': 'Доступ запрещён'}
             user.set_status(args['status'])
         elif args['type'] == 'password':
-            if not current_user.id != user.id:
+            if current_user.id != user.id:
                 return False, {'message': 'Доступ запрещён'}
             if not current_user.check_password(args['password_old']):
                 return False, {'message': 'Неверный старый пароль'}
