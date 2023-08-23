@@ -1,11 +1,8 @@
-from backend.excel.excel_parent import ExcelParentWriter
+from .__parent_writer__ import ExcelParentWriter
 from backend.queries.help import compare
 
 
 class ExcelDiplomaWriter(ExcelParentWriter):
-    def __init__(self, year):
-        self.year = year
-
     def __gen_sheet__(self, worksheet, data: list):
         self.__head__(worksheet, 'Класс', 'ФИО', 'Место', widths=[30, 30, 15])
         new_data, sz = [], 3

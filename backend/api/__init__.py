@@ -1,8 +1,8 @@
 from flask_restful import Api
 from backend import app
 from .__help__ import *
-from . import group_result, iti, iti_subject, message, result, student, student_class, subject, subject_student, team,\
-    team_student, user
+from . import group_result, iti, iti_subject, message, result, school, student, student_class, subject,\
+    subject_student, team, team_student, user
 
 
 api = Api(app)
@@ -14,6 +14,8 @@ api.add_resource(iti_subject.ItiSubjectResource, '/api/v1/iti_subject/<int:iti_i
 api.add_resource(message.MessageListResource, '/api/v1/message')
 api.add_resource(message.MessageResource, '/api/v1/message/<int:item_id>')
 api.add_resource(result.ResultListResource, '/api/v1/result')
+api.add_resource(school.SchoolListResource, '/api/v1/school')
+api.add_resource(school.SchoolResource, '/api/v1/school/<int:item_id>')
 api.add_resource(student.StudentListResource, '/api/v1/student')
 api.add_resource(student.StudentResource, '/api/v1/student/<int:item_id>')
 api.add_resource(student_class.StudentClassResource, '/api/v1/student_class/<int:iti_id>/<int:student_id>')

@@ -1,8 +1,4 @@
-<!-- login required -->
-<!-- -1 -->
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %}{% block content %}
 <div class="row col-12 justify-content-center">
 	<div class="col t-3">
 		<h1>Новый пользователь</h1>
@@ -30,29 +26,97 @@
 		</form>
 		<br>
 		<table border="1">
+			<thead><tr>
+				<th width="5%">ID</th>
+				<th width="10%">Логин</th>
+				<th width="10%">Статус</th>
+			</tr></thead>
+			
 			<tr>
-				<td width="5%">ID</td>
-				<td width="10%">Логин</td>
-				<td width="10%">Статус</td>
+				<td>2</td>
+				<td>савокина</td>
+				<td>admin</td>
 			</tr>
-			<!-- list of users -->
-                <tr><td>2</td><td>савокина</td><td>admin</td></tr>
-                <tr><td>3</td><td>проходский</td><td>admin</td></tr>
-                <tr><td>4</td><td>Мартынова</td><td>admin</td></tr>
-                <tr><td>5</td><td>Торганова</td><td>admin</td></tr>
-                <tr><td>6</td><td>Дербасова</td><td>Мат.</td></tr>
-                <tr><td>7</td><td>Ческидова</td><td>Рус.; Лит.</td></tr>
-                <tr><td>8</td><td>Ковалюк</td><td>ИЦН</td></tr>
-                <tr><td>9</td><td>Яценко</td><td>Анг.</td></tr>
-                <tr><td>10</td><td>Майоршин</td><td>Общ.</td></tr>
-                <tr><td>11</td><td>Лагута</td><td>Иск.; Иск.</td></tr>
-                <tr><td>13</td><td>Шатрова</td><td>Ест.</td></tr>
-                <tr><td>14</td><td>Иовщик</td><td>Ист.</td></tr>
-                <tr><td>15</td><td>Вахитова</td><td>Инф.</td></tr>
-                <tr><td>16</td><td>НШ</td><td>admin</td></tr>
-            <!-- end -->
+			
+			<tr>
+				<td>3</td>
+				<td>проходский</td>
+				<td>admin</td>
+			</tr>
+			
+			<tr>
+				<td>4</td>
+				<td>Мартынова</td>
+				<td>admin</td>
+			</tr>
+			
+			<tr>
+				<td>5</td>
+				<td>Торганова</td>
+				<td>admin</td>
+			</tr>
+			
+			<tr>
+				<td>6</td>
+				<td>Дербасова</td>
+				<td>Мат.</td>
+			</tr>
+			
+			<tr>
+				<td>7</td>
+				<td>Ческидова</td>
+				<td>Рус.; Лит.</td>
+			</tr>
+			
+			<tr>
+				<td>8</td>
+				<td>Ковалюк</td>
+				<td>ИЦН</td>
+			</tr>
+			
+			<tr>
+				<td>9</td>
+				<td>Яценко</td>
+				<td>Анг.</td>
+			</tr>
+			
+			<tr>
+				<td>10</td>
+				<td>Майоршин</td>
+				<td>Общ.</td>
+			</tr>
+			
+			<tr>
+				<td>11</td>
+				<td>Лагута</td>
+				<td>Иск.; Иск.</td>
+			</tr>
+			
+			<tr>
+				<td>13</td>
+				<td>Шатрова</td>
+				<td>Ест.</td>
+			</tr>
+			
+			<tr>
+				<td>14</td>
+				<td>Иовщик</td>
+				<td>Ист.</td>
+			</tr>
+			
+			<tr>
+				<td>15</td>
+				<td>Вахитова</td>
+				<td>Инф.</td>
+			</tr>
+			
+			<tr>
+				<td>16</td>
+				<td>НШ</td>
+				<td>admin</td>
+			</tr>
+			
 		</table>
 	</div>
 </div>
-
 {% endblock %}

@@ -8,10 +8,9 @@ from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from .messages_help import message_teams_public
 '''
-    teams_page_params(user, year)                               Параметры для страницы 'teams_for_year.html'
-    /<year>/save_teams              save_teams()                Список согласных / несогласных играть у команде.
-    /<year>/team_edit               team_edit()                 redirect с параметрами на страницу редактирования.
-    /<year>/automatic_division      automatic_division()        Генерирует автоматическое распределение школьников.
+    /<iti_id>/save_teams                    Список согласных / несогласных играть у команде (admin).
+    /<iti_id>/team_edit                     Redirect с параметрами на страницу редактирования (admin).
+    /<iti_id>/automatic_division            Генерирует автоматическое распределение школьников (admin).
 '''
 
 
@@ -27,7 +26,7 @@ def teams_page_params(user: User, iti: Iti):
             subject = Subject.select(x.subject_id)
             if subject.type == 'g' or subject.type == 'a':
                 subjects.append(subject)
-                for part in SubjectStudent.select_by_subject(x.id):
+                for part in SubjectStudent.select_by_iti_subject(x.id):
                     participants.add('{} {}'.format(subject.id, part.student_id))
         for val in IndDayStudent.select_by_iti(iti.id):
             participants.add('{} {}'.format(-val.n_d, val.student_id))

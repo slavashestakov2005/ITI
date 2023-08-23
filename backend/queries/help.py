@@ -8,7 +8,6 @@ from ..help import FileManager, correct_slash
 from ..database import Iti
 import re
 import os
-from datetime import datetime
 '''
     LOGIN_REQUIRED_FILES = []       Файлы, доступные после входа на сайт.
     STATUS_REQUIRED_FILES = {}      Отображение файла и доступа к нему.
@@ -16,7 +15,6 @@ from datetime import datetime
     correct_new_line(str)           Заменяет все переносы строк на '\n'.
     split_class(str)                Разбивает класс на букву и цифру.
     empty_checker(*args)            Проверяет аргументы на пустую строку и выбрасывает ValueError.
-    tr_format(*args)                Генерирует строку для HTML-таблицы.
     path_to_subject(path)           Извлекает id предмета из имени файла.
     parse_files()                   Проходит все файлы, генерирует списки доступа.
     @check_status(status)           Проверяет открыт ли доступ для текущего пользователя.
@@ -55,20 +53,6 @@ def empty_checker(*args):
     for x in args:
         if not x or not len(x):
             raise ValueError
-
-
-def tr_format(*args, color=None, tabs=0, tr=True, skip_end=False):
-    tr1, tr2, b = ('<tr', '</tr>\n', '>') if tr else ('', '', '')
-    if type(color) == list:
-        start = ' ' * 4 * tabs + tr1 + b
-        for i in range(len(args)):
-            start += '<td' + (' class="p{}"'.format(color[i]) if color[i] < 4 else '') + '>{}</td>'
-        return start.format(*args) + tr2
-    start = ' ' * 4 * tabs + tr1 + (' class="p{}"'.format(color) if color and color < 4 else '') + b
-    arr = ['<td>{{{0}}}</td>'.format(_) for _ in range(len(args))]
-    if skip_end:
-        arr[-1] = arr[-1][4:-5]
-    return ''.join([start, *arr, tr2]).format(*args)
 
 
 def path_to_subject(path: str) -> int:

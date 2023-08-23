@@ -1,0 +1,45 @@
+<!-- login required -->
+<!-- -2 -->
+{% extends "base.html" %}{% block content %}
+<div class="row col-12 justify-content-center">
+	<div class="col t-3">
+		<h1>Новая школа</h1>
+		<form onsubmit="school_add(this); return false;">
+			<p>Название (например "МАОУ «КУГ №1 - Универс»"): <input type="text" name="name"></p>
+			<p>Короткое название (например "Универс"): <input type="text" name="short_name"></p>
+			<input type="submit" value="Создать">
+		</form>
+	</div>
+	<div class="col t-3">
+		<h1>Изменить школу</h1>
+		<form onsubmit="school_edit(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			<p>Название (например "МАОУ «КУГ №1 - Универс»"): <input type="text" name="name"></p>
+			<p>Короткое название (например "Универс"): <input type="text" name="short_name"></p>
+			<input type="submit" value="Изменить">
+		</form>
+	</div>
+	<div class="col t-3">
+		<h1>Удалить школу</h1>
+		<form onsubmit="school_delete(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			<input type="submit" value="Удалить">
+		</form>
+		<br>
+		<table border="1">
+			<thead><tr>
+				<th width="5%">ID</th>
+				<th width="20%">Название</th>
+				<th width="10%">Короткое название</th>
+			</tr></thead>
+			{% for school in schools %}
+			<tr>
+				<td>{{ school.id }}</td>
+				<td>{{ school.name }}</td>
+				<td>{{ school.short_name }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+</div>
+{% endblock %}

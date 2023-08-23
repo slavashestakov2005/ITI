@@ -19,7 +19,6 @@ parser_simple.add_argument('sum_ind_to_rating', required=True, type=str_or_int)
 parser_simple.add_argument('automatic_division', required=True, type=str_or_int)
 parser_simple.add_argument('auto_teams', required=True, type=str)
 parser_simple.add_argument('sum_ind_to_team', required=True, type=str_or_int)
-parser_simple.add_argument('teams_count', required=True, type=str_or_int)
 parser_simple.add_argument('students_in_team', required=True, type=str_or_int)
 parser_simple.add_argument('description', required=True, type=str)
 parser_full = parser_simple.copy()
@@ -55,7 +54,7 @@ class ItiListResource(Resource):
         iti_info = Iti.build(None, args['name_in_list'], args['name_on_page'], args['classes'], args['ind_days'],
                              args['default_ind_score'], args['net_score_formula'], args['sum_ind_to_rating'],
                              args['automatic_division'], args['auto_teams'], args['sum_ind_to_team'],
-                             args['teams_count'], args['students_in_team'], args['description'], 0)
+                             args['students_in_team'], args['description'], 0)
         iti_id = Iti.insert(iti_info, return_id=True)
         FileCreator.create_iti(iti_id)
         Generator.gen_iti_lists()
@@ -70,7 +69,7 @@ class ItiListResource(Resource):
             return False, {'message': 'ИТИ не существует'}
         new = Iti.build(None, args['name_in_list'], args['name_on_page'], args['classes'], args['ind_days'],
                         args['default_ind_score'], args['net_score_formula'], args['sum_ind_to_rating'],
-                        args['automatic_division'], args['auto_teams'], args['sum_ind_to_team'], args['teams_count'],
+                        args['automatic_division'], args['auto_teams'], args['sum_ind_to_team'],
                         args['students_in_team'], args['description'], 0, allow_empty=True)
         iti_info ^= new
         Iti.update(iti_info)

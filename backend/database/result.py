@@ -9,7 +9,7 @@ class Result(SqlAlchemyBase, Table):
     student_code = sa.Column(sa.Integer, nullable=False, primary_key=True)
     student_id = sa.Column(sa.Integer, nullable=False)
     result = sa.Column(sa.Float, nullable=False)
-    net_score = sa.Column(sa.Integer, nullable=False)
+    net_score = sa.Column(sa.Float, nullable=False)
     position = sa.Column(sa.Integer, nullable=False)
 
     @staticmethod

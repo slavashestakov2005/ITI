@@ -12,6 +12,7 @@
 			<p>Класс (номер и буква): <input type="text" name="class"></p>
 			<p>ID школы: <input type="text" name="school"></p>
 			<p>Пол: <input name="gender" type="radio" value="0" checked>М&nbsp;&nbsp;<input name="gender" type="radio" value="1">Ж</p>
+			<p>ID личного дела: <input type="text" name="other_id"></p>
 			<input type="submit" value="Создать">
 			<p>Первая буква имени, фамилии и буква класса автоматически переводятся в верхний регистр.
 				Все остальные буквы — в нижний.</p>
@@ -27,6 +28,7 @@
 			<p>Класс (номер и буква): <input type="text" name="class"></p>
 			<p>ID школы: <input type="text" name="school"></p>
 			<p>Пол: <input name="gender" type="radio" value="0">М&nbsp;&nbsp;<input name="gender" type="radio" value="1">Ж</p>
+			<p>ID личного дела: <input type="text" name="other_id"></p>
 			<input type="submit" value="Изменить">
 			<p>Если поля новых данных оставить пустыми, то информация не изменится.</p>
 		</form>
@@ -51,7 +53,7 @@
 		<div class="row justify-content-center">
 			{% if iti %}
 			<div class="col-auto">
-				{% for c in iti.classes %}
+				{% for c in iti.classes_list() %}
 				<p><a href="students_{{ c }}.html">{{ c }}&nbsp;класс</a></p>
 				{% endfor %}
 			</div>

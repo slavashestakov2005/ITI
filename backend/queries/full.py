@@ -12,16 +12,9 @@ from ..database import execute_sql, GroupResult, Message, Result, Barcode, Subje
 from .auto_generator import Generator
 from ..config import Config
 '''
-    Функции ниже доступны только full, если не указано иного.
-    _delete_iti()                                           Функция для удаления ИТИ.
-    /add_year                       add_year()              Создаёт новый год ИТИ.
-    /delete_year                    delete_year()           Удаляет год ИТИ.
-    /add_subject                    add_subject()           Создаёт новый предмет.
-    /edit_subject                   edit_subject()          Редактирует предмет.
-    /delete_subject                 delete_subject()        Удаляет предмет.
-    /global_settings                global_settings()       Сохраняет глобальные настройки (пароль от почты).
-    /database                             database()                    Делает SQL запросы к базе данных.
-    /<year>/year_block              year_block()            Блокирует последующее редактирование года для всех.
+    /global_settings                        Сохраняет глобальные настройки (пароль от почты) (full).
+    /db                                     Делает SQL запросы к базе данных (full).
+    /<iti_id>/year_block                    Блокирует последующее редактирование года для всех (full).
 '''
 
 

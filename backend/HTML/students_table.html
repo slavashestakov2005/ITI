@@ -13,6 +13,7 @@
                 <td width="10%">Отчество</td>
                 <td width="5%">Класс</td>
                 <td width="5%">Пол</td>
+                <td width="10%">ID ЛД</td>
                 <td width="10%">Школа</td>
             </tr>
             {% for student in students1 %}
@@ -23,6 +24,7 @@
                     <td>{{ student.name_3 }}</td>
                     <td>{{ student.class_name() }}</td>
                     <td>{{ student.get_gender() }}</td>
+                    <td>{{ student.other_id }}</td>
                     <td>{{ schools[student.school_id].short_name }}</td>
                 </tr>
             {% endfor %}
@@ -37,6 +39,7 @@
                 <td width="10%">Отчество</td>
                 <td width="5%">Класс</td>
                 <td width="5%">Пол</td>
+                <td width="10%">ID ЛД</td>
                 <td width="10%">Школа</td>
             </tr>
             {% for student in students2 %}
@@ -47,6 +50,7 @@
                     <td>{{ student.name_3 }}</td>
                     <td>{{ student.class_name() }}</td>
                     <td>{{ student.get_gender() }}</td>
+                    <td>{{ student.other_id }}</td>
                     <td>{{ schools[student.school_id].short_name }}</td>
                 </tr>
             {% endfor %}

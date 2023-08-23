@@ -1,10 +1,5 @@
 import re
 from ..database import Result, User, ItiSubject
-'''
-    prepare_results(res: str)       Получает данные из введённой строки результатов
-    save_result_(...)               Возвращает код попытки сохранения или обновление результата.
-    delete_result_(...)             Возвращает код попытки удаления результата.
-'''
 
 
 def prepare_results(res: str):

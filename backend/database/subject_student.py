@@ -11,7 +11,7 @@ class SubjectStudent(SqlAlchemyBase, Table):
     # Table
 
     @classmethod
-    def select_by_subject(cls, iti_subject_id: int) -> list:
+    def select_by_iti_subject(cls, iti_subject_id: int) -> list:
         return cls.__select_by_expr__(cls.iti_subject_id == iti_subject_id)
 
     @classmethod

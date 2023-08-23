@@ -3,7 +3,7 @@ from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend import app
 from .help import check_status, check_block_iti
-from ..database import Message, Iti
+from ..database import Message, Iti, School
 from ..help import ConfigMail
 '''
     /<iti_id>/subjects_for_year.html        Возвращает страницу с настройками года (admin).
@@ -11,6 +11,8 @@ from ..help import ConfigMail
     /<iti_id>/student_edit.html             Возвращает страницу со списком школьников (admin).
     /<iti_id>/excel.html                    Возвращает страницу со списком Excel таблиц (admin).
     /settings.html                          Возвращает страницу с настройками пользователя.
+    /<iti_id>/rating_students_check.html    Возвращает страницу для простановки галочек на участие в командах (admin).
+    /school_edit.html                       Возвращает страницу с настройками школ.
 '''
 
 
@@ -68,3 +70,11 @@ def settings():
 @check_block_iti()
 def rating_students_check(iti: Iti):
     return render_template(str(iti.id) + '/rating_students_check.html')
+
+
+@app.route("/school_edit.html")
+@cross_origin()
+@login_required
+@check_status('admin')
+def school_edit():
+    return render_template('school_edit.html', schools=School.select_all())

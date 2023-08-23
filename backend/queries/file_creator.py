@@ -5,11 +5,6 @@ from backend.config import Config
 from .help import SplitFile, html_render
 from ..database import Subject, Iti
 from ..help import FileManager
-'''
-    class FileCreator           Создаёт необходимые файлы.
-        create_iti(year)                    Создаёт стандартные страницы ИТИ (копирует шаблоны).
-        create_subjects(year, subject)      Создаёт html-страницу для нужного года и предмета.
-'''
 
 
 class FileCreator:

@@ -1,0 +1,27 @@
+<!-- replace 1 -->
+<center>
+    <h1>Расписание</h1>
+    <table border="1" class="td-1">
+        <thead><tr>
+            <th width="6%">День</th>
+            <th width="14%">Дата</th>
+            <th width="21%">Предмет</th>
+            <th width="10%">Классы</th>
+            <th width="8%">Начало</th>
+            <th width="8%">Конец</th>
+            <th width="35%">Кабинеты</th>
+        </tr></thead>
+        {% for subject in iti_subjects %}
+            <tr>
+                <td>{{ subject.n_d }}</td>
+                <td>{{ subject.date_str() }}</td>
+                <td>{{ subjects[subject.subject_id].name }}</td>
+                <td>{{ subject.classes }}</td>
+                <td>{{ subject.start_str() }}</td>
+                <td>{{ subject.end_str() }}</td>
+                <td>{{ subject.place }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</center>
+<!-- replace 2 -->

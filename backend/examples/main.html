@@ -1,12 +1,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Поиск результатов</h1>
-<center><form>
-    <p><input type="search" name="q" placeholder="Фамилия Имя Класс">
-        <input type="submit" value="&#128269;"></p>
-</form></center>
-<br>
+<div class="row col-12 justify-content-center"><div class="col-auto">
+    {% if not search %}
+    <h1>Текущие ИТИ</h1>
+    <ul>
+        {% for i in itis %}{% if not i.block %}
+        <li><a href="/{{ i.id }}">{{ i.name_in_list }}</a></li>
+        {% endif %}{% endfor %}
+        <li><a href="#page_end">Все ИТИ</a></li>
+    </ul>
+    <br>
+    {% endif %}
+    <h1>Поиск результатов</h1>
+    <center><form>
+        <p><input type="search" name="q" placeholder="Фамилия Имя Класс">
+            <input type="submit" value="&#128269;"></p>
+    </form></center>
+    <br>
+</div></div>
 {% if not search %}
 <h1>Новости {{ iti.name_on_page }}</h1>
 <div class="message row col-12 justify-content-center">
@@ -24,7 +36,7 @@
     {% endfor %}
 </div>
 <br>
-<h1>Все ИТИ</h1>
+<h1 id="page_end">Все ИТИ</h1>
 <ul>
     {% for i in itis %}
         <li><a href="/{{ i.id }}">{{ i.name_in_list }}</a></li>

@@ -1,26 +1,19 @@
 from backend import app
 from ..help import forbidden_error
-from ..excel import ExcelResultsReader
 from ..database import GroupResult, Result, StudentClass, Subject, Team, Iti, ItiSubject, ItiSubjectScore
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from .help import check_status, check_block_iti, path_to_subject, compare
 from .auto_generator import Generator
-from ..config import Config
 from .messages_help import message_results_public, message_ratings_public, message_all_ratings_public
 '''
-    tour_type(name)                                             Переводит названия туров.
-    tour_name(type)                                             Делает длинные названия туров из коротких.
-    page_params(path1, path2, path3)                            Возвращает параметры для страницы 'add_result.html'.
-    group_page_params(path1, path2, path3)                      Возвращает параметры для '<year>/add_result.html'.
-    chose_params(path1, path2, path3)                           Выбирает между page_params() и group_page_params().
-    /<path1>/<path2>/<path3>/add_result     add_result(...)     redirect на страницу редактирования (для предметников).
-    /<path1>/<path2>/<path3>/load_result    load_result(...)    Загружает результаты (для предметников).
-    /<path1>/<path2>/<path3>/share_results  share_results(...)  Генерирует таблицу с результатами (admin).
-    /<year>/ratings_update                  ratings_update(...) Обновляет рейтинги (admin).
-    /<path1>/share_all_results                       <...>
-    /<path1>/<path2>/<path3>/share_group_results     <...>      Генерирует таблицу с групповыми результатами (admin).
+    /<iti_id>/<path>/add_result             redirect на страницу редактирования (для предметников).
+    /<iti_id>/<path>/class_split_results    Разбивает индивидуальные результаты по параллелям (admin).
+    /<iti_id>/<path>/share_results          Генерирует таблицу с индивидуальными результатами (admin).
+    /<iti_id>/ratings_update                Обновляет рейтинги (admin).
+    /<iti_id>/<path>/share_group_results    Генерирует таблицу с групповыми результатами (admin).
+    /<iti_id>/share_all_results             Обновляет таблицы по всем предметам (admin).
 '''
 
 
@@ -49,7 +42,7 @@ def page_params(year: int, path2, path3):
         params.update({'h_sub_name': Subject.select(subject).name, 'scores': scores})
         results = Result.select_by_iti_subject(sub.id)
         year_info = Iti.select(year)
-        sorted_results = {int(cls): [] for cls in year_info.classes}
+        sorted_results = {cls: [] for cls in year_info.classes_list()}
         sorted_results['?'] = []
         top = {}
         for r in results:

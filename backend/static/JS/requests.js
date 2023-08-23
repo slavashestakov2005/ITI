@@ -134,6 +134,23 @@ function subject_delete(form) {
     makeRequest('subject/' + id, 'delete');
 }
 
+// school
+
+function school_add(form) {
+    let data = parseForm(form);
+    makeRequest('school', 'post', data);
+}
+
+function school_edit(form) {
+    let data = parseForm(form);
+    makeRequest('school/' + data['id'], 'put', data);
+}
+
+function school_delete(form) {
+    let id = form['id'].value;
+    makeRequest('school/' + id, 'delete');
+}
+
 // message
 
 function message_add(form) {

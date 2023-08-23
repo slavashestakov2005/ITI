@@ -15,7 +15,6 @@
 			<p>Алгоритм расределения на команды: <input type="text" name="automatic_division"></p>
 			<p>Названия автоматических команд: <input type="text" name="auto_teams"></p>
 			<p>Суммировать индивидуальные предметы в рейтинг команд: <input type="text" name="sum_ind_to_team"></p>
-			<p>Количество команд: <input type="text" name="teams_count"></p>
 			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
 			<p>Описание, только для просмотра администраторами:</p>
 			<p><textarea type="text" id="description_1" name="description" class="slim" oninput="textInput(document, 'description_1')"></textarea></p>
@@ -36,7 +35,6 @@
 			<p>Алгоритм расределения на командыг: <input type="text" name="automatic_division"></p>
 			<p>Названия автоматических команд: <input type="text" name="auto_teams"></p>
 			<p>Суммировать индивидуальные предметы в рейтинг команд: <input type="text" name="sum_ind_to_team"></p>
-			<p>Количество команд: <input type="text" name="teams_count"></p>
 			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
 			<p>Описание, только для просмотра администраторами:</p>
 			<p><textarea type="text" id="description_2" name="description" class="slim" oninput="textInput(document, 'description_2')"></textarea></p>
@@ -66,7 +64,6 @@
 				<th width="5%">Распределение по командам</th>
 				<th width="5%">Названия для авт. команд</th>
 				<th width="5%">Сумм. инд. предметы командам</th>
-				<th width="5%">Кол-во команд</th>
 				<th width="5%">Школьников в команде</th>
 				<th width="5%">Описание</th>
 				<th width="5%">Заблокировано? (0 - нет, 1 - да)</th>
@@ -84,7 +81,6 @@
 				<td>{{ iti.automatic_division }}</td>
 				<td>{{ iti.auto_teams }}</td>
 				<td>{{ iti.sum_ind_to_team }}</td>
-				<td>{{ iti.teams_count }}</td>
 				<td>{{ iti.students_in_team }}</td>
 				<td>{{ iti.description }}</td>
 				<td>{{ iti.block }}</td>

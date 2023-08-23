@@ -1,5 +1,5 @@
-from .help import SplitFile, all_templates, tr_format, compare, html_render
-from backend.excel.excel_writer import ExcelDiplomaWriter
+from .help import SplitFile, all_templates, compare, html_render
+from backend.excel.diploma_writer import ExcelDiplomaWriter
 from ..database import Barcode, GroupResult, Result, Student, Subject, SubjectStudent, Team, TeamStudent, User, Iti,\
     ItiSubject, ItiSubjectScore, School, TeamConsent, IndDayStudent
 from backend.config import Config
@@ -8,27 +8,27 @@ import glob
 
 '''
     class Generator             Заменяет комментарии специального вида на код.
-        gen_years_lists()                   Изменяет списки годов.
-        gen_subjects_lists()                Изменяет глобальные списки предметов.
-        gen_years_subjects_list(year)       Изменяет списки предметов для одного года.
-        gen_students_list(class_n)          Изменяет таблицу учеников класса class_n.
+        gen_iti_lists()                             Изменяет списки ИТИ.
+        gen_subjects_lists()                        Изменяет глобальные списки предметов.
+        gen_iti_subjects_list(iti_id)               Изменяет списки предметов для одного ИТИ.
+        gen_students_list(iti_id, class_n)          Изменяет таблицу учеников класса class_n.
 
-        get_net_score(...)                  Генерирует балл в рейтинг.
-        get_students(year)                  student.id : student
-        get_teams(year)                     team.id : team
-        get_subjects_days(year)             subject.id : subject.day
-        get_results(year, subject)          Получает все результаты по указанному предмету.
-        get_student_team(year)              student.id : team.id.
-        get_all_data_from_results(year)     student_result, class_results, team_results, all_students_results, diploma
+        get_net_score(...)                          Генерирует балл в рейтинг.
+        get_students(iti)                           student.id : student
+        get_teams(iti_id)                           team.id : team
+        get_subjects_days(iti_id)                   subject.id : subject.day
+        get_results(iti_id, subject_id)             Получает все результаты по указанному предмету.
+        get_student_team(iti_id)                    student.id : team.id.
+        get_all_data_from_results(iti)              student_result, class_results, team_results, all_students_results, diploma
 
-        gen_results(year, sub, file)        Генерирует таблицу результатов по предмету sub.
-        gen_group_results(year, sub, file)  Генерирует таблицу групповых результатов по предмету sub.
-        gen_ratings(year)                   Генерирует рейтинговые таблицы года year.
-        gen_teams(year)                     Генерирует списки команд года year.
-        gen_timetable(year)                 Генерирует расписание предметов года year.
-        gen_users_list()                    Генерирует список пользователей.
-        gen_rules()                         Генерирует страницу для правил группового тура.
-        gen_automatic_division()            Генерирует автоматическое распределение по командам.
+        gen_results(iti, sub_id, file)              Генерирует таблицу результатов по предмету sub.
+        gen_group_results(iti_id, sub_id, file)     Генерирует таблицу групповых результатов по предмету sub.
+        gen_ratings(iti)                            Генерирует рейтинговые таблицы года year.
+        gen_teams(iti_id)                           Генерирует списки команд года year.
+        gen_timetable(iti_id)                       Генерирует расписание предметов года year.
+        gen_users_list()                            Генерирует список пользователей.
+        gen_rules(subject)                          Генерирует страницу для правил группового тура.
+        gen_automatic_division(iti)                 Генерирует автоматическое распределение по командам.
 '''
 
 
@@ -108,10 +108,15 @@ class Generator:
                     students1=students[:m1], students2=students[m1:], schools=schools)
 
     @staticmethod
-    def get_net_score(maximum: int, best_score: int, score: int) -> int:
-        if 2 * best_score >= maximum:
-            return int(0.5 + score * 100 / best_score)
-        return int(0.5 + score * 200 / maximum)
+    def get_net_score(maximum: int, best_score: float, score: float, net_score_formula: int) -> int:
+        if net_score_formula == 0:
+            if 2 * best_score >= maximum:
+                return int(0.5 + score * 100 / best_score)
+            return int(0.5 + score * 200 / maximum)
+        elif net_score_formula == 1:
+            return score
+        else:
+            raise ValueError('Неверная формула вычисления балла за индивидуальный тур')
 
     @staticmethod
     def get_students(iti: Iti):
@@ -167,7 +172,7 @@ class Generator:
         subjects = {_.id: _ for _ in Subject.select_all()}
         subjects_students_0, subjects_students = [], {}
         for y in ys:
-            subjects_students_0.extend(SubjectStudent.select_by_subject(y))
+            subjects_students_0.extend(SubjectStudent.select_by_iti_subject(y))
         for s in subjects_students_0:
             if s.student_id not in subjects_students:
                 subjects_students[s.student_id] = []
@@ -219,7 +224,7 @@ class Generator:
         return [result.position, people.name_1, people.name_2, people.class_name(), result.result, result.net_score]
 
     @staticmethod
-    def gen_results_table(results: list, students: map, maximum: int):
+    def gen_results_table(results: list, students: map, maximum: int, net_score_formula: int):
         if len(results) == 0:
             return []
         cnt, last_pos, last_result = 1, 0, None
@@ -229,7 +234,7 @@ class Generator:
                 raise ValueError('Сохранены некорректные результаты (есть участник с количеством '
                                  'баллов большим максимального)')
             people = students[result.student_id]
-            result.net_score = Generator.get_net_score(maximum, results[0].result, result.result)
+            result.net_score = Generator.get_net_score(maximum, results[0].result, result.result, net_score_formula)
             if last_result != result.result:
                 last_pos, last_result = cnt, result.result
             result.position = last_pos
@@ -245,7 +250,7 @@ class Generator:
         year_subject, results = Generator.get_results(iti.id, subject)
         scores = {x.class_n: x.max_value for x in ItiSubjectScore.select_by_iti_subject(year_subject.id)}
         students = Generator.get_students(iti)
-        sorted_results = {int(cls): [] for cls in iti.classes}
+        sorted_results = {cls: [] for cls in iti.classes_list()}
         for r in results:
             if r.student_id not in students:
                 raise ValueError('Неизвестный школьник code: {}, id: {}'.format(r.student_code, r.student_id))
@@ -254,8 +259,8 @@ class Generator:
             sorted_results[cls].sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: students[x.student_id].class_l,
                                  lambda x: Student.sort_by_name(students[x.student_id]), field=True))
         data = {}
-        for cls in iti.classes:
-            data[int(cls)] = Generator.gen_results_table(sorted_results[int(cls)], students, scores[int(cls)])
+        for cls in iti.classes_list():
+            data[cls] = Generator.gen_results_table(sorted_results[cls], students, scores[cls], iti.net_score_formula)
         html_render('subject_ind.html', file_name, subject_name=subject_info.name, results=data, scores=scores, iti=iti)
 
     @staticmethod
@@ -270,7 +275,7 @@ class Generator:
         results = {_: GroupResult.select_by_team_and_subject(_.id, subject) for _ in teams}
         results = sorted(results.items(), key=compare(GroupResult.sort_by_result, lambda x: x[1],
                                                       Team.sort_by_latter, lambda x: x[0]))
-        students = [_.student_id for _ in SubjectStudent.select_by_subject(ys.id)]
+        students = [_.student_id for _ in SubjectStudent.select_by_iti_subject(ys.id)]
         teams_student, students_count = {}, 0
         for now in students:
             ts = list(set([_.team_id for _ in TeamStudent.select_by_student(now)]).intersection(teams_set))
@@ -378,7 +383,7 @@ class Generator:
                     ind_subjects=ind_subjects, team_subjects=group_subjects, team_student=team_student,
                     teams=teams, students=students, student_results=all_res)
         html_render('rating.html', str(iti.id) + '/rating.html', results=rating, students=students)
-        ExcelDiplomaWriter(iti.id).write(Config.DATA_FOLDER + '/diploma_{}.xlsx'.format(iti.id), diplomas, subjects_raw,
+        ExcelDiplomaWriter().write(Config.DATA_FOLDER + '/diploma_{}.xlsx'.format(iti.id), diplomas, subjects_raw,
                                          students_raw)
 
     @staticmethod
@@ -395,30 +400,19 @@ class Generator:
 
     @staticmethod
     def gen_timetable(year: int):
-        subjects = [_ for _ in ItiSubject.select_by_iti(year) if _.start or _.end or _.place]
-        subjects.sort(key=ItiSubject.sort_by_start)
-        txt = '\n'
-        for subject in subjects:
-            txt += tr_format(subject.n_d, subject.date_str(), Subject.select(subject.subject_id).name,
-                             subject.classes, subject.start_str(), subject.end_str(), subject.place, tabs=3)
-        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/timetable.html")
-        data.insert_after_comment(' timetable ', txt + ' ' * 8)
-        data.save_file()
+        iti_subjects = [_ for _ in ItiSubject.select_by_iti(year) if _.start or _.end or _.place]
+        iti_subjects.sort(key=ItiSubject.sort_by_start)
+        subjects = {subject.id: subject for subject in Subject.select_all()}
+        html_render('timetable.html', str(year) + '/timetable.html', iti_subjects=iti_subjects, subjects=subjects)
 
     @staticmethod
     def gen_users_list():
-        txt, users = '\n', User.select_all()
+        users = User.select_all()
         subjects = {_.id: _.short_name for _ in Subject.select_all()}
-        for user in users:
-            if user.can_do(-2):
-                continue
-            txt += tr_format(user.id, user.login, user.subjects_str(subjects), tabs=4)
-        data = SplitFile(Config.TEMPLATES_FOLDER + '/user_edit.html')
-        data.insert_after_comment(' list of users ', txt + ' ' * 12)
-        data.save_file()
+        html_render('user_edit.html', 'user_edit.html', users=users, subjects=subjects)
 
     @staticmethod
-    def gen_rules(subject):
+    def gen_rules(subject: Subject):
         href = '<li><p><a href="{0}.html">{1}</a></p></li>\n'.format(subject.id, subject.name) + ' ' * 12
         data = SplitFile(Config.TEMPLATES_FOLDER + '/Info/rules.html')
         data.insert_after_comment(' tours rules ', href, append=True)
@@ -451,13 +445,12 @@ class Generator:
     # Изменили распределение по командам
     @staticmethod
     def gen_automatic_division(iti: Iti):
-        teams_names = iti.auto_teams.split(' ')
+        teams_names = iti.auto_teams_list()
         teams = Team.select_by_iti(iti.id)
         for team in teams:
             TeamStudent.delete_by_team(team.id)
         Team.delete_by_iti(iti.id)
-        for i in range(iti.teams_count):
-            vertical = teams_names[i]
+        for vertical in teams_names:
             Team.insert(Team.build(None, 'Команда {}'.format(vertical), iti.id, vertical))
         results, students = Generator.get_results(iti.id), Generator.get_students(iti)
         res_for_ord = {}
@@ -497,9 +490,10 @@ class Generator:
                                                               field=True))
 
         pos, good = 0, True
-        for i in range(len(iti.classes)):
-            teams = Generator.gen_automatic_division_list(i, iti.students_in_team * iti.teams_count, iti.teams_count,
-                                                          len(iti.classes), t0)
-            pos, g = Generator.gen_automatic_division_1(res_for_ord, pos, teams, ts, int(iti.classes[i]))
+        iti_classes = iti.classes_list()
+        for i in range(len(iti_classes)):
+            teams = Generator.gen_automatic_division_list(i, iti.students_in_team * len(teams_names), len(teams_names),
+                                                          len(iti_classes), t0)
+            pos, g = Generator.gen_automatic_division_1(res_for_ord, pos, teams, ts, iti_classes[i])
             good = good and g
         return good

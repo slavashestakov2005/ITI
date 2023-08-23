@@ -10,14 +10,17 @@
             <li><a href="user_edit.html">Пользователи (учителя)</a></li>
             <li><a href="years_edit.html">Создать ИТИ</a></li>
             <li><a href="subjects_edit.html">Создать предмет</a></li>
+            <li><a href="school_edit.html">Создать школу</a></li>
             <li><a href="settings.html">Настройки пользователя (и сайта)</a></li>
             <li><a href="upload_excel.html">Загрзить Excel на сайт</a></li>
             {% elif adm %}
             <li><a href="user_edit.html">Пользователи (учителя)</a></li>
+            <li><a href="school_edit.html">Создать школу</a></li>
             <li><a href="settings.html">Настройки пользователя</a></li>
             {% else %}
             <li><a href="settings.html">Настройки пользователя</a></li>
             {% endif %}
+            <li><a target="_blank" href="https://drive.google.com/drive/folders/1WF8ALf5ctRKGO5r7q5AP5IopGNHC8Va5?usp=drive_link">Приложение «ИТИ-сканер»</a></li>
         </ul>
     </div>
     <div class="col">
@@ -33,7 +36,6 @@
             <li><a href="{{ iti.id }}/student_edit.html">Участники ИТИ (школьники)</a></li>
             <li><a href="{{ iti.id }}/team_edit">Команды ИТИ</a></li>
             <li><a href="{{ iti.id }}/codes.html">Коды участников</a></li>
-            <li><a href="{{ iti.id }}/barcodes.html">Загрузить штрих-коды участников</a></li>
             <li><a href="{{ iti.id }}/excel.html">Excel таблицы с данными</a></li>
             {% else %}
             <li><a href="{{ iti.id }}/team_edit">Команды ИТИ</a></li>

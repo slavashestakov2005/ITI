@@ -4,8 +4,8 @@ from .__db_session import sa, SqlAlchemyBase, Table
 class Iti(SqlAlchemyBase, Table):
     __tablename__ = 'iti'
     fields = ['id', 'name_in_list', 'name_on_page', 'classes', 'ind_days', 'default_ind_score', 'net_score_formula',
-              'sum_ind_to_rating', 'automatic_division', 'auto_teams', 'sum_ind_to_team', 'teams_count',
-              'students_in_team', 'description', 'block']
+              'sum_ind_to_rating', 'automatic_division', 'auto_teams', 'sum_ind_to_team', 'students_in_team',
+              'description', 'block']
 
     id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     name_in_list = sa.Column(sa.String, nullable=False)
@@ -18,16 +18,15 @@ class Iti(SqlAlchemyBase, Table):
     automatic_division = sa.Column(sa.Integer, nullable=False)
     auto_teams = sa.Column(sa.String, nullable=False)
     sum_ind_to_team = sa.Column(sa.Integer, nullable=False)
-    teams_count = sa.Column(sa.Integer, nullable=False)
     students_in_team = sa.Column(sa.Integer, nullable=False)
     description = sa.Column(sa.String, nullable=False)
     block = sa.Column(sa.Integer, nullable=False)
 
-    def class_cnt(self):
-        return len(self.classes)
+    def classes_list(self):
+        return list(map(int, self.classes.split(' ')))
 
-    def class_min(self):
-        return int(self.classes[0])
+    def auto_teams_list(self):
+        return self.auto_teams.split(' ')
 
     # Table
 

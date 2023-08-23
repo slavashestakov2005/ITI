@@ -54,9 +54,9 @@ class ItiSubjectResource(Resource):
         elif args['type'] == 'score':
             if not current_user.can_do(iti_subjects.subject_id):
                 return False, {'message': 'Доступ запрещён'}
-            for cls in iti_info.classes:
-                score = args['score_' + cls]
-                ItiSubjectScore.update(ItiSubjectScore.build(iti_subjects.id, int(cls), score))
+            for cls in iti_info.classes_list():
+                score = args['score_{}'.format(cls)]
+                ItiSubjectScore.update(ItiSubjectScore.build(iti_subjects.id, cls, score))
         else:
             return False, {'message': 'Неизвестный тип запроса'}
         return True, {'message': 'Сохранено'}
@@ -81,8 +81,8 @@ class ItiSubjectListResource(Resource):
             if x not in old_sub_sub:
                 iti_subject_id = ItiSubject.insert(ItiSubject.build(None, iti_info.id, x, 0, 0, iti_info.classes, '', 0,
                                                                     allow_empty=True), return_id=True)
-                for cls in iti_info.classes:
-                    ItiSubjectScore.insert(ItiSubjectScore.build(iti_subject_id, int(cls), iti_info.default_ind_score))
+                for cls in iti_info.classes_list():
+                    ItiSubjectScore.insert(ItiSubjectScore.build(iti_subject_id, cls, iti_info.default_ind_score))
         FileCreator.create_subjects(iti_info, subjects)
         Generator.gen_iti_subjects_list(iti_info.id)
         return True, {'message': 'Сохранено'}

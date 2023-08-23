@@ -13,9 +13,13 @@
     <div class="col">
         <h1>Загрузить список школьников</h1>
         <form action="load_data_from_excel_students" method="post" enctype=multipart/form-data>
+            <p>Номер ИТИ: <input type="text" name="iti_id"></p>
             <p>Таблица: <input type="file" name="file"></p>
             <input type="submit" value="Загрузить">
         </form>
+    </div>
+    <div class="col">
+        <h1><a href="download_db">Скачать все данные</a></h1>
     </div>
 </div>
 
