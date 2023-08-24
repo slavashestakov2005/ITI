@@ -24,7 +24,7 @@
         </ul>
     </div>
     <div class="col">
-        <h2>Настройки {{ iti.name_on_page if iti else '' }}</h2>
+        <h2>Настройки {% if iti %} {{ iti.name_on_page }}, ID: {{ iti.id }} {% endif %}</h2>
         {% if not iti %}<p>Год ИТИ не выбран</p>
         {% else %}<ul>
             {% if full %}
@@ -50,7 +50,7 @@
         {% endfor %}
     </div>
     <div class="col">
-        <h2>Настройки предмета {{ subject.name if subject else '' }}</h2>
+        <h2>Настройки предмета {% if subject %} {{ subject.name }}, ID: {{ subject.id }} {% endif %}</h2>
         {% if not subject %}<p>Предмет не выбран (для выбора предмета должен быть выбран год)</p>
         {% elif not anon and current_user.can_do(subject.id) %}<ul>
             <li><a href="{{ iti.id }}/{{ subject.id }}.html">Результаты</a></li>

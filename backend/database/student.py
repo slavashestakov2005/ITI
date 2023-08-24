@@ -23,6 +23,7 @@ class Student(SqlAlchemyBase, Table):
 
     def load_class(self, iti_id: int):
         sc = StudentClass.select(iti_id, self.id)
+        self.class_l, self.class_n, self.school_id = None, None, None
         if not sc:
             return False
         self.class_l = sc.class_latter

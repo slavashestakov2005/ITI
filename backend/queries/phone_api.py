@@ -1,11 +1,14 @@
 from backend import app
 from ..database import Barcode, Iti, Student, StudentClass, User
 from .help import check_block_iti
+from .results_raw import save_result_
 from flask import render_template, send_file, request, jsonify
 from flask_cors import cross_origin
+import json
 '''
     /<iti_id>/student_info                  Возвращает информацию по ID школьника (admin).
     /<iti_id>/save_barcodes                 Сохраняет таблицу с штрих-кодами (admin).
+    /<iti_id>/<subject_id>/save_results     Сохраняет результаты по предмету (предметник).
 '''
 
 
@@ -64,6 +67,44 @@ def save_barcodes(iti: Iti):
             for barcode in line[1:]:
                 if not Barcode.select(iti.id, barcode):
                     Barcode.insert(Barcode.build(iti.id, barcode, student_id))
+    except Exception as ex:
+        return jsonify({'status': 'Error', 'msg': str(ex)})
+    return jsonify({'status': 'OK'})
+
+
+@app.route("/<int:iti_id>/<int:subject_id>/save_results", methods=['POST'])
+@cross_origin()
+@check_block_iti()
+def save_subject_results(iti: Iti, subject_id: int):
+    try:
+        data = request.json['data']
+        user_login = request.json['user_login']
+        user_password = request.json['user_password']
+        user = User.select_by_login(user_login)
+        if not user:
+            raise ValueError("Неверные логин пользователя")
+        if not user.check_password(user_password):
+            raise ValueError("Неверные пароль пользователя")
+        if not user.can_do(subject_id):
+            raise ValueError("Пользователь не может редактировать этот предмет")
+        value = json.loads(data)
+        ans = {}
+        for i, line in enumerate(value):
+            student_code, result = line
+            answer = save_result_(user, iti.id, subject_id, int(student_code), str(result))
+            if answer:
+                if answer not in ans:
+                    ans[answer] = []
+                ans[answer].append(str(i + 1))
+        decode = {-1: 'Вам запрещено редактирование',
+                  0: 'Несуществующий шифр в строках: ' + (','.join(ans[0]) if 0 in ans else ''),
+                  1: 'Пустые ячеёки в строках: ' + (','.join(ans[1]) if 1 in ans else ''),
+                  3: ('Такого предмета нет в этом году',),
+                  4: 'Повтор кодов в строках: ' + (','.join(ans[4]) if 4 in ans else ''),
+                  5: 'Неправильный формат для результата в строках: ' + (','.join(ans[5]) if 5 in ans else '')}
+        txt = [decode[key] for key in decode if key in ans]
+        if len(txt):
+            raise ValueError('\n'.joib(txt))
     except Exception as ex:
         return jsonify({'status': 'Error', 'msg': str(ex)})
     return jsonify({'status': 'OK'})

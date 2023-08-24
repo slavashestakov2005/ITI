@@ -1,15 +1,16 @@
 import os
 import shutil
-import glob
 from backend.config import Config
-from .help import SplitFile, html_render
+from .help import html_render
+from .messages_help import message_save
 from ..database import Subject, Iti
 from ..help import FileManager
+import json
 
 
 class FileCreator:
     @staticmethod
-    def __render_defaul_pages__(year: int):
+    def __render_default_pages__(year: int):
         html_render('rating_students.html', str(year) + '/rating_students.html', results={}, students={}, subjects={},
                     classes=[])
         html_render('rating_students_check.html', str(year) + '/rating_students_check.html', results={}, students={},
@@ -20,6 +21,13 @@ class FileCreator:
         html_render('rating.html', str(year) + '/rating.html', results={}, students={})
 
     @staticmethod
+    def __create_default_messages__(year: int):
+        with open(Config.DATA_FOLDER + '/default_iti_messages.json', 'r', encoding='UTF-8') as f:
+            data = json.load(f)
+        for line in data:
+            message_save(line['title'], line['content'], year, line['priority'])
+
+    @staticmethod
     def create_iti(year: int):
         directory = Config.TEMPLATES_FOLDER + "/" + str(year)
         if os.path.exists(directory):
@@ -27,13 +35,8 @@ class FileCreator:
             FileManager.delete_dir(directory)
         shutil.copytree(Config.EXAMPLES_FOLDER, directory)
         FileManager.save_dir(directory)
-        files = glob.glob(directory + '/**/*.html', recursive=True)
-        text = 'ИТИ-' + str(abs(year))
-        for file_name in files:
-            data = SplitFile(file_name)
-            data.replace_comment(' {year} ', text)
-            data.save_file()
-        FileCreator.__render_defaul_pages__(year)
+        FileCreator.__render_default_pages__(year)
+        FileCreator.__create_default_messages__(year)
 
     @staticmethod
     def create_subjects(iti: Iti, subjects: list):

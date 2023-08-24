@@ -15,8 +15,6 @@ from docx import Document
 from docxcompose.composer import Composer
 import barcode
 from barcode.writer import ImageWriter
-from docx2pdf import convert
-import pythoncom
 '''
     /<iti_id>/create_barcodes               Создаёт PDF-документ с штрих-кодами участников (admin).
     /<iti_id>/get_codes                     Возвращает PDF-документ с бланками участников (admin).
@@ -76,7 +74,6 @@ def create_barcodes(iti: Iti):
         composer.append(doc)
     main_doc = Config.DATA_FOLDER + "/barcodes_{}.docx".format(iti.id)
     composer.save(main_doc)
-    convert(main_doc)
 
     for file in glob(Config.WORDS_FOLDER + '/*.*'):
         os.remove(file)
@@ -89,5 +86,5 @@ def create_barcodes(iti: Iti):
 @check_status('admin')
 @check_block_iti()
 def get_codes(iti: Iti):
-    filename = './data/barcodes_{}.pdf'.format(iti.id)
-    return send_file(filename, as_attachment=True, download_name='{}. Бланки для кодировки.pdf'.format(iti.name_in_list))
+    filename = './data/barcodes_{}.docx'.format(iti.id)
+    return send_file(filename, as_attachment=True, download_name='{}. Бланки для кодировки.docx'.format(iti.name_in_list))

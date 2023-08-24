@@ -33,10 +33,17 @@ class StudentResource(Resource):
             return False, {'message': 'Такой участник уже есть'}
         if not School.select(school_id):
             return False, {'message': 'Такой школы нет'}
+        student_id = student.id
         Student.update(student)
-        StudentClass.update(StudentClass.build(student.id, args['year'], class_n, class_l, school_id))
-        Generator.gen_students_list(args['year'], old_class_n)
-        Generator.gen_students_list(args['year'], class_n)
+        sc = StudentClass.build(student_id, args['year'], class_n, class_l, school_id)
+        if StudentClass.select(args['year'], student_id):
+            StudentClass.update(sc)
+        else:
+            StudentClass.insert(sc)
+        if old_class_n:
+            Generator.gen_students_list(args['year'], old_class_n)
+        if class_n:
+            Generator.gen_students_list(args['year'], class_n)
         return True, {'message': 'Данные изменены'}
 
     @api_item(Student.select, 'admin')
