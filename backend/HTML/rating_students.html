@@ -29,6 +29,7 @@
                     {% for subject_id, subject_name in subjects %}
                         <th width="5%">{{ subject_name }}</th>
                     {% endfor %}
+                    <th width="10%">Другие</th>
                     <th width="10%">Сумма</th>
                 </tr></thead>
                 <tbody></tbody>
@@ -38,6 +39,8 @@
 </center>
 <script>
     let results = {{ results | tojson }}, subjects = {{ subjects | tojson }}, students = {{ students | tojson }};
+    let students_group_result = {{ student_group_results | tojson }};
+    let subjects_days = {{ subjects_days | tojson }}, ind_res_per_day = {{ ind_res_per_day | tojson }};
     let tableData = generateStudentsTableData();
     console.log(tableData);
     generateAllTable();

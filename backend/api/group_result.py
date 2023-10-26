@@ -22,7 +22,7 @@ class GroupResultListResource(Resource):
         teams = Team.select_by_iti(year)
         for team in teams:
             try:
-                gr = GroupResult.build(team.id, subject, int(request.json['score_' + str(team.id)]))
+                gr = GroupResult.build(team.id, subject, int(request.json['score_' + str(team.id)]), 0)
             except Exception:
                 return False, {'message': 'Некорректные данные'}
             if not GroupResult.select_by_team_and_subject(team.id, subject):

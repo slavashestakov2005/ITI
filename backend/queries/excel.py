@@ -1,10 +1,13 @@
 from backend import app
-from flask import render_template, request, send_file, redirect
+from flask import render_template, request, send_file
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
+from .auto_generator import Generator
+from .file_creator import FileCreator
+from .full import _delete_iti
 from .help import check_status, check_block_iti, path_to_subject
 from .results import page_params
-from ..database import Iti
+from ..database import Iti, ItiSubject, Subject
 from ..excel import ExcelFullReader, ExcelItiWriter, ExcelResultsReader, ExcelFullWriter, ExcelStudentsReader
 from ..config import Config
 '''
@@ -23,7 +26,30 @@ def load_data_from_excel_all():
     file = request.files['file']
     filename = Config.DATA_FOLDER + '/sheet_all.' + file.filename.rsplit('.', 1)[1]
     file.save(filename)
-    ExcelFullReader(filename).read()
+    itis_id = ExcelFullReader(filename).read(_delete_iti)
+    Generator.gen_iti_lists()
+    Generator.gen_subjects_lists()
+    subjects = {_.id: _ for _ in Subject.select_all()}
+    input('Stop ....')
+    for iti_id in itis_id:
+        iti = Iti.select(iti_id)
+        FileCreator.create_iti(iti_id, False)
+        Generator.gen_iti_subjects_list(iti_id)
+        Generator.gen_teams(iti_id)
+        Generator.gen_timetable(iti_id)
+        Generator.gen_iti_block_page(iti)
+        for class_num in iti.classes_list():
+            Generator.gen_students_list(iti.id, int(class_num))
+        iti_subjects = ItiSubject.select_by_iti(iti_id)
+        FileCreator.create_subjects(iti, [sub.subject_id for sub in iti_subjects])
+        for iti_subject in iti_subjects:
+            subject = subjects[iti_subject.subject_id]
+            filename = '{}/{}.html'.format(iti_id, iti_subject.subject_id)
+            if subject.type == 'i':
+                Generator.gen_results(iti, iti_subject.subject_id, filename)
+            elif subject.type == 'g' or subject.type == 'a':
+                Generator.gen_group_results(iti_id, iti_subject.subject_id, filename)
+        Generator.gen_ratings(iti)
     return 'OK'
 
 

@@ -115,7 +115,7 @@ function compareStudentsResults(a, b) {
 function generateStudentsTableData(addCheckBoxes=false) {
     let lines = [];
     for (let student_id in students) {
-        let line = [], sum = 0;
+        let line = [], sum = {};
         let result = student_id in results ? results[student_id] : {};
         line.push(0);
         for (let data of students[student_id]) line.push(data);
@@ -124,12 +124,25 @@ function generateStudentsTableData(addCheckBoxes=false) {
             if (subject_id in result) {
                 let data = result[subject_id];
                 line.push(`${data[0]}&nbsp;(${data[1]})`);
-                sum += data[0];
+                let day = subjects_days[subject_id];
+                if (!(day in sum)) {
+                    sum[day] = [];
+                }
+                sum[day].push(data[0]);
             }
-            else line.push('-');
+            else line.push('—');
         }
+        if (student_id in students_group_result) line.push(students_group_result[student_id]);
+        else line.push('');
         if (addCheckBoxes) line.push(student_id);
-        line.push(sum);
+        let all_sum = 0;
+        for (day in sum) {
+            let sorted = sum[day].sort((a, b) => (b - a)).splice(0, ind_res_per_day);
+            let day_sum = sorted.reduce((partialSum, a) => partialSum + a, 0);
+            console.log(day_sum);
+            all_sum += day_sum
+        }
+        line.push(all_sum);
         lines.push(line);
     }
     lines.sort(compareStudentsResults);
@@ -201,8 +214,8 @@ function generateTeamsTableData() {
         for (let sub of subjects) {
             let subject = sub[0];
             if (subject in results[team_id]) {
-                line.push(results[team_id][subject]);
-                sum += results[team_id][subject];
+                line.push(results[team_id][subject][0]);
+                sum += results[team_id][subject][0];
             } else line.push('-');
         }
         line.push(sum);
@@ -216,16 +229,19 @@ function generateTeamsTableData() {
 
 function compareSuperChampionResults(a, b) {
     let n = a.length;
-    return b[n - 1] - a[n - 1];
+    if (a[n - 1] !== b[n - 1]) return b[n - 1] - a[n - 1];
+    if (a[3] !== b[3]) return a[3].localeCompare(b[3]);
+    if (a[1] !== b[1]) return a[1].localeCompare(b[1]);
+    return a[2].localeCompare(b[2]);
 }
 
 function generateSuperChampionTableData() {
     let lines = [];
     for (let student_id in results) {
-        let line = [0], sum = 0;
+        let line = [0], sum = '';
         for (let data of students[student_id]) line.push(data);
         for (let data of results[student_id]) {
-            sum = sum * 10 + data;
+            sum += data;
             line.push(data);
         }
         line.push(sum);

@@ -8,7 +8,6 @@ from flask_login import login_required
 
 from glob import glob
 import os
-from PIL import Image
 from docxtpl import DocxTemplate, InlineImage
 from docx.shared import Mm
 from docx import Document
@@ -35,11 +34,7 @@ def create_barcode_blank(doc, student: Student, schools: list):
     sample_barcode = barcode.get('ean8', sid, writer=ImageWriter())
     sample_barcode.save(file_name)
     file_name += '.png'
-    img = Image.open(file_name)
-    cropped_img = img.crop((75, 0, 340, 240))
-    cropped_img.save(file_name)
-
-    img = InlineImage(doc, file_name, width=Mm(13))
+    img = InlineImage(doc, file_name, width=Mm(40))
     st['id_barcode'] = img
     return st
 
@@ -54,27 +49,25 @@ def create_barcodes(iti: Iti):
         os.makedirs(Config.WORDS_FOLDER)
     students = Student.select_by_iti(iti)
     cnt = len(students)
-    doc = DocxTemplate(Config.DATA_FOLDER + '/8_barcodes_template.docx')
+    barcodes_on_page = 6
+    doc = DocxTemplate(Config.DATA_FOLDER + '/{}_barcodes_template.docx'.format(barcodes_on_page))
     schools = {_.id: _ for _ in School.select_all()}
-    for i in range(0, cnt, 8):
+    for i in range(0, cnt, barcodes_on_page):
         context = {'st': []}
-        for j in range(i, min(i + 8, cnt)):
+        for j in range(i, min(i + barcodes_on_page, cnt)):
             context['st'].append(create_barcode_blank(doc, students[j], schools))
-        if cnt < i + 8:
-            for j in range(cnt, i + 8):
+        if cnt < i + barcodes_on_page:
+            for j in range(cnt, i + barcodes_on_page):
                 context['st'].append(create_empty_barcode_blank())
         doc.render(context)
-        doc.save(Config.WORDS_FOLDER + '/bar-{}.docx'.format(i // 8))
-
-    pythoncom.CoInitialize()
+        doc.save(Config.WORDS_FOLDER + '/bar-{}.docx'.format(i // barcodes_on_page))
     master = Document(Config.WORDS_FOLDER + '/bar-0.docx')
     composer = Composer(master)
-    for i in range(8, cnt, 8):
-        doc = Document(Config.WORDS_FOLDER + '/bar-{}.docx'.format(i // 8))
+    for i in range(barcodes_on_page, cnt, barcodes_on_page):
+        doc = Document(Config.WORDS_FOLDER + '/bar-{}.docx'.format(i // barcodes_on_page))
         composer.append(doc)
     main_doc = Config.DATA_FOLDER + "/barcodes_{}.docx".format(iti.id)
     composer.save(main_doc)
-
     for file in glob(Config.WORDS_FOLDER + '/*.*'):
         os.remove(file)
     return render_template(str(iti.id) + '/codes.html', error='Штрих-коды сгенерированы')

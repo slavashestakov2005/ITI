@@ -12,9 +12,11 @@
 			<p>Максимальный балл за индивидуальный тур: <input type="text" name="default_ind_score"></p>
 			<p>Формула вычисления балла в рейтинг за индивидуальный тур: <input type="text" name="net_score_formula"></p>
 			<p>Количество индивидуальных предметов из одного дня в рейтинг: <input type="text" name="sum_ind_to_rating"></p>
-			<p>Алгоритм расределения на команды: <input type="text" name="automatic_division"></p>
+			<p>Обязательно ли есть все призовые места: <input type="text" name="ind_prize_policy"></p>
+			<p>Алгоритм распределения на команды: <input type="text" name="automatic_division"></p>
 			<p>Названия автоматических команд: <input type="text" name="auto_teams"></p>
 			<p>Суммировать индивидуальные предметы в рейтинг команд: <input type="text" name="sum_ind_to_team"></p>
+			<p>Суммировать групповые предметы в рейтинг суперчемпиона: <input type="text" name="sum_gr_to_super"></p>
 			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
 			<p>Описание, только для просмотра администраторами:</p>
 			<p><textarea type="text" id="description_1" name="description" class="slim" oninput="textInput(document, 'description_1')"></textarea></p>
@@ -32,9 +34,11 @@
 			<p>Максимальный балл за индивидуальный тур: <input type="text" name="default_ind_score"></p>
 			<p>Формула вычисления балла в рейтинг за индивидуальный тур: <input type="text" name="net_score_formula"></p>
 			<p>Количество индивидуальных предметов из одного дня в рейтинг: <input type="text" name="sum_ind_to_rating"></p>
-			<p>Алгоритм расределения на командыг: <input type="text" name="automatic_division"></p>
+			<p>Обязательно ли есть все призовые места: <input type="text" name="ind_prize_policy"></p>
+			<p>Алгоритм распределения на команды: <input type="text" name="automatic_division"></p>
 			<p>Названия автоматических команд: <input type="text" name="auto_teams"></p>
 			<p>Суммировать индивидуальные предметы в рейтинг команд: <input type="text" name="sum_ind_to_team"></p>
+			<p>Суммировать групповые предметы в рейтинг суперчемпиона: <input type="text" name="sum_gr_to_super"></p>
 			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
 			<p>Описание, только для просмотра администраторами:</p>
 			<p><textarea type="text" id="description_2" name="description" class="slim" oninput="textInput(document, 'description_2')"></textarea></p>
@@ -61,9 +65,11 @@
 				<th width="5%">Макс. балл за инд. тур</th>
 				<th width="5%">Фор-ла выч. балла в ретинг</th>
 				<th width="5%">Инд. предметов в зачёт за день</th>
+				<th width="5%">Обяз. ли все приз. места</th>
 				<th width="5%">Распределение по командам</th>
 				<th width="5%">Названия для авт. команд</th>
 				<th width="5%">Сумм. инд. предметы командам</th>
+				<th width="5%">Сумм. гр. дни суперчемпиону</th>
 				<th width="5%">Школьников в команде</th>
 				<th width="5%">Описание</th>
 				<th width="5%">Заблокировано? (0 - нет, 1 - да)</th>
@@ -78,9 +84,11 @@
 				<td>{{ iti.default_ind_score }}</td>
 				<td>{{ iti.net_score_formula }}</td>
 				<td>{{ iti.sum_ind_to_rating }}</td>
+				<td>{{ iti.ind_prize_policy }}</td>
 				<td>{{ iti.automatic_division }}</td>
 				<td>{{ iti.auto_teams }}</td>
 				<td>{{ iti.sum_ind_to_team }}</td>
+				<td>{{ iti.sum_gr_to_super }}</td>
 				<td>{{ iti.students_in_team }}</td>
 				<td>{{ iti.description }}</td>
 				<td>{{ iti.block }}</td>

@@ -22,7 +22,7 @@ from ..config import Config
 @cross_origin()
 def index():
     iti = Iti.select_last()
-    if os.path.exists(Config.TEMPLATES_FOLDER + '/' + str(iti.id) + '/main.html'):
+    if iti and os.path.exists(Config.TEMPLATES_FOLDER + '/' + str(iti.id) + '/main.html'):
         return redirect(str(iti.id) + '/main.html')
     else:
         return forbidden_error()

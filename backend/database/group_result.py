@@ -3,11 +3,12 @@ from .__db_session import sa, SqlAlchemyBase, Table
 
 class GroupResult(SqlAlchemyBase, Table):
     __tablename__ = 'group_results'
-    fields = ['team_id', 'subject_id', 'result']
+    fields = ['team_id', 'subject_id', 'result', 'position']
 
     team_id = sa.Column(sa.Integer, nullable=False, primary_key=True)
     subject_id = sa.Column(sa.Integer, nullable=False, primary_key=True)
     result = sa.Column(sa.Integer, nullable=False)
+    position = sa.Column(sa.Integer, nullable=False)
 
     @staticmethod
     def sort_by_result(result):

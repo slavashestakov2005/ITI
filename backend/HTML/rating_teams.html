@@ -31,22 +31,50 @@
                 <th width="10%">Сумма</th>
             </tr></thead>
             <tbody>
+                {% set gns = namespace(rows=[], row=[]) %}
                 {% for student in team_student[team] %}
+                    {% set _ = gns.row.append(students[student][2]) %}
+                    {% set _ = gns.row.append(students[student][0]) %}
+                    {% set _ = gns.row.append(students[student][1]) %}
+                    {% set ns = namespace(sum={}, all_sum=0) %}
+                    {% for subject, _ in ind_subjects %}
+                        {% if student in student_results and subject in student_results[student] %}
+                            {% set student_result = student_results[student][subject][0] %}
+                            {% set _ = gns.row.append(student_result) %}
+                            {% set day = subjects_days[subject] %}
+                            {% if day not in ns.sum %}
+                                {% set _ = ns.sum.__setitem__(day, []) %}
+                            {% endif %}
+                            {% set _ = ns.sum[day].append(student_result) %}
+                        {% else %} {% set _ = gns.row.append("—") %}
+                        {% endif %}
+                    {% endfor %}
+                    {% for day, res in ns.sum.items() %}
+                        {% set ns.all_sum = ns.all_sum + ((res | sort(reverse=True)) [:ind_res_per_day] | sum) %}
+                    {% endfor %}
+                    {% set _ = gns.row.append(ns.all_sum) %}
+                    {% set _ = gns.rows.append(gns.row) %}
+                    {% set gns.row = [] %}
+                {% endfor %}
+                {% for row in gns.rows|sort() %}
                     <tr>
-                        <td>{{ students[student][2] }}</td>
-                        <td>{{ students[student][0] }}</td>
-                        <td>{{ students[student][1] }}</td>
+                        {% for item in row %}
+                            <td>{{ item }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="3"><center>Сумма</center></td>
+                    {% for i in range(ind_subjects.__len__() + 1) %}
                         {% set ns = namespace(sum=0) %}
-                        {% for subject, _ in ind_subjects %}
-                            {% if student in student_results and subject in student_results[student] %}
-                                <td>{{ student_results[student][subject][0] }}</td>
-                                {% set ns.sum = ns.sum + student_results[student][subject][0] %}
-                            {% else %} <td>-</td>
+                        {% for j in gns.rows %}
+                            {% if j[i + 3] != "—" %}
+                                {% set ns.sum = ns.sum + j[i + 3] %}
                             {% endif %}
                         {% endfor %}
                         <td>{{ ns.sum }}</td>
-                    </tr>
-                {% endfor %}
+                    {% endfor %}
+                </tr>
             </tbody>
         </table>
     {% endfor %}

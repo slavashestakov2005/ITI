@@ -11,6 +11,7 @@ import glob
         gen_iti_lists()                             Изменяет списки ИТИ.
         gen_subjects_lists()                        Изменяет глобальные списки предметов.
         gen_iti_subjects_list(iti_id)               Изменяет списки предметов для одного ИТИ.
+        gen_iti_block_page(iti)                     Изменяет страницы блокировки ИТИ.
         gen_students_list(iti_id, class_n)          Изменяет таблицу учеников класса class_n.
 
         get_net_score(...)                          Генерирует балл в рейтинг.
@@ -95,6 +96,15 @@ class Generator:
             data.insert_after_comment(' list of year_group tours ', text2 + ' ' * 24)
             data.insert_after_comment(' list of year_another tours ', text3 + ' ' * 24)
             data.save_file()
+
+    @staticmethod
+    def gen_iti_block_page(iti: Iti):
+        data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(iti.id) + '/year_block.html')
+        data.insert_after_comment(' is_block ', '''
+                    <p><input type="radio" name="block" value="0" {0}>Разблокировано</p>
+                    <p><input type="radio" name="block" value="1" {1}>Заблокировано</p>
+                '''.format('checked' if iti.block == 0 else '', 'checked' if iti.block == 1 else ''))
+        data.save_file()
 
     @staticmethod
     def gen_students_list(year: int, class_n: int):
@@ -224,7 +234,7 @@ class Generator:
         return [result.position, people.name_1, people.name_2, people.class_name(), result.result, result.net_score]
 
     @staticmethod
-    def gen_results_table(results: list, students: map, maximum: int, net_score_formula: int):
+    def gen_results_table(results: list, students: map, maximum: int, net_score_formula: int, ind_prize_policy: int):
         if len(results) == 0:
             return []
         cnt, last_pos, last_result = 1, 0, None
@@ -235,13 +245,16 @@ class Generator:
                                  'баллов большим максимального)')
             people = students[result.student_id]
             result.net_score = Generator.get_net_score(maximum, results[0].result, result.result, net_score_formula)
+            inc_cnt = 1
             if last_result != result.result:
                 last_pos, last_result = cnt, result.result
+            elif last_pos <= 3 and ind_prize_policy == 1:
+                inc_cnt = 0
             result.position = last_pos
             row = Generator.gen_results_row(result, people)
             data.append(row)
             Result.update(result)
-            cnt += 1
+            cnt += inc_cnt
         return data
 
     @staticmethod
@@ -260,7 +273,8 @@ class Generator:
                                  lambda x: Student.sort_by_name(students[x.student_id]), field=True))
         data = {}
         for cls in iti.classes_list():
-            data[cls] = Generator.gen_results_table(sorted_results[cls], students, scores[cls], iti.net_score_formula)
+            data[cls] = Generator.gen_results_table(sorted_results[cls], students, scores[cls], iti.net_score_formula,
+                                                    iti.ind_prize_policy)
         html_render('subject_ind.html', file_name, subject_name=subject_info.name, results=data, scores=scores, iti=iti)
 
     @staticmethod
@@ -294,6 +308,8 @@ class Generator:
         for result in results:
             if result[1].result != last_result:
                 last_pos, last_result = i, result[1].result
+            result[1].position = last_pos
+            GroupResult.update(result[1])
             rows.append([last_pos, result[0].name, result[1].result,
                          *([_.name_1 + ' ' + _.name_2 + ' ' + _.class_name() for _ in teams_student[result[0].id]]
                            if not is_team and result[0].id in teams_student else [])])
@@ -301,22 +317,10 @@ class Generator:
         html_render('subject_group.html', file_name, results=rows, subject_name=subject_info.name)
 
     @staticmethod
-    def get_grouped_group_results(team_results):
-        subj_res, cop = {}, {}
-        for team_id, team_res in team_results.items():
-            for subject_id, result in team_res.items():
-                if subject_id > 0:
-                    if subject_id not in subj_res:
-                        subj_res[subject_id] = []
-                    subj_res[subject_id].append(result)
-        for subject_id, results in subj_res.items():
-            cop[subject_id] = sorted(set(results), reverse=True)
-        return cop
-
-    @staticmethod
-    def gen_super_champion(year: int, team_results, student_results, ys_index_2_subject):
+    def gen_super_champion(iti: Iti, team_results, student_results, ys_index_2_subject):
         diplomas = []
         rating = {}
+        student_group_subject_diploma = {}
         for student_id in student_results:
             if student_id not in rating:
                 rating[student_id] = [0, 0, 0]
@@ -324,21 +328,25 @@ class Generator:
                 if result[1] < 4:
                     diplomas.append([student_id, ys_index_2_subject[subject], result[1]])
                     rating[student_id][result[1] - 1] += 1
-        grouped_team_results = Generator.get_grouped_group_results(team_results)
         for team_id in team_results:
             students = [ts.student_id for ts in TeamStudent.select_by_team(team_id)]
             for subject_id, result in team_results[team_id].items():
                 if subject_id > 0:
-                    place = grouped_team_results[subject_id].index(result)
-                    if place < 3:
-                        for student_id in students:
-                            ys = ItiSubject.select(year, subject_id)
-                            if SubjectStudent.select_by_all(ys.id, student_id):
-                                if student_id not in rating:
-                                    rating[student_id] = [0, 0, 0]
-                                diplomas.append([student_id, subject_id, place + 1])
-                                rating[student_id][place] += 1
-        return rating, diplomas
+                    print(result)
+                    value, place = result
+                    for student_id in students:
+                        ys = ItiSubject.select(iti.id, subject_id)
+                        if SubjectStudent.select_by_all(ys.id, student_id):
+                            if place <= 3:
+                                diplomas.append([student_id, subject_id, place])
+                                if iti.sum_gr_to_super:
+                                    if student_id not in rating:
+                                        rating[student_id] = [0, 0, 0]
+                                    rating[student_id][place - 1] += 1
+                            if student_id not in student_group_subject_diploma:
+                                student_group_subject_diploma[student_id] = {}
+                            student_group_subject_diploma[student_id][subject_id] = place
+        return rating, diplomas, student_group_subject_diploma
 
     @staticmethod
     def get_teams_results(team_results):
@@ -346,9 +354,9 @@ class Generator:
         for team in team_results:
             results[team] = {}
             for r in team_results[team]:
-                results[team][-r] = team_results[team][r]
+                results[team][-r] = (team_results[team][r], 0)
             for r in GroupResult.select_by_team(team):
-                results[team][r.subject_id] = r.result
+                results[team][r.subject_id] = (r.result, r.position)
         return results
 
     @staticmethod
@@ -358,9 +366,11 @@ class Generator:
         students = {_.id: [_.name_1, _.name_2, _.class_name()] for _id, _ in students_raw.items()}
         subjects_raw = {_.id: _ for _ in Subject.select_all()}
         subjects = {ys.id: Subject.select(ys.subject_id) for ys in ItiSubject.select_by_iti(iti.id)}
+        just_subjects = {subject.id: subject.name for subject in Subject.select_all()}
         ind_subjects = {ys: s.short_name for ys, s in subjects.items() if s.type == 'i'}
+        subjects_days = {ys.id: ys.n_d for ys in ItiSubject.select_by_iti(iti.id)}
         group_subjects = {s.id: s.short_name for ys, s in subjects.items() if s.type != 'i'}
-        subject_priority = {s.id: Subject.sort_by_type(s) for ys, s in subjects.items()}
+        subject_priority = {s.id: (0, Subject.sort_by_type(s)) for ys, s in subjects.items()}
         if iti.sum_ind_to_team:
             for day in range(1, 1 + iti.ind_days):
                 group_subjects[-day] = 'Инд.&nbsp;{}'.format(day)
@@ -371,17 +381,25 @@ class Generator:
         teams = {_.id: _.name for _ in Team.select_by_iti(iti.id)}
         team_student = {team: [ts.student_id for ts in TeamStudent.select_by_team(team)] for team in teams}
         ys_index_2_subject = {ys.id: Subject.select(ys.subject_id).id for ys in ItiSubject.select_by_iti(iti.id)}
-        rating, diplomas = Generator.gen_super_champion(iti.id, all_team_results, all_res, ys_index_2_subject)
+        rating, diplomas, groups_res_for_student = Generator.gen_super_champion(iti, all_team_results, all_res, ys_index_2_subject)
+        students_groups_res = {}
+        for student, st_res in groups_res_for_student.items():
+            students_diplomas = '<br>'.join('{} ({})'.format(just_subjects[subject_id], place) for subject_id, place in st_res.items())
+            students_groups_res[student] = students_diplomas
         html_render('rating_students.html', str(iti.id) + '/rating_students.html', results=all_res, students=students,
-                    subjects=ind_subjects, classes=class_results.keys())
+                    subjects=ind_subjects, classes=class_results.keys(), student_group_results=students_groups_res,
+                    subjects_days = subjects_days, ind_res_per_day = iti.sum_ind_to_rating)
         html_render('rating_students_check.html', str(iti.id) + '/rating_students_check.html', results=all_res,
                     students=students, subjects=ind_subjects, classes=class_results.keys(),
-                    check_marks={_.student_id: _.status for _ in TeamConsent.select_by_iti(iti.id)})
+                    check_marks={_.student_id: _.status for _ in TeamConsent.select_by_iti(iti.id)},
+                    student_group_results=students_groups_res,
+                    subjects_days=subjects_days, ind_res_per_day=iti.sum_ind_to_rating)
         html_render('rating_classes.html', str(iti.id) + '/rating_classes.html', classes=class_results.keys(),
                     results=[(_[0], *_[1]) for _ in class_results.items()], year=iti.id)
         html_render('rating_teams.html', str(iti.id) + '/rating_teams.html', team_results=all_team_results,
                     ind_subjects=ind_subjects, team_subjects=group_subjects, team_student=team_student,
-                    teams=teams, students=students, student_results=all_res)
+                    teams=teams, students=students, student_results=all_res, subjects_days=subjects_days,
+                    ind_res_per_day=iti.sum_ind_to_rating)
         html_render('rating.html', str(iti.id) + '/rating.html', results=rating, students=students)
         ExcelDiplomaWriter().write(Config.DATA_FOLDER + '/diploma_{}.xlsx'.format(iti.id), diplomas, subjects_raw,
                                          students_raw)
