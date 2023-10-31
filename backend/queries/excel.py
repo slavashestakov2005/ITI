@@ -30,7 +30,6 @@ def load_data_from_excel_all():
     Generator.gen_iti_lists()
     Generator.gen_subjects_lists()
     subjects = {_.id: _ for _ in Subject.select_all()}
-    input('Stop ....')
     for iti_id in itis_id:
         iti = Iti.select(iti_id)
         FileCreator.create_iti(iti_id, False)

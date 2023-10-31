@@ -69,36 +69,68 @@ function generateRatingTable(lines, result_col, colorize=true, clss=[]) {
     if (colorize) colorizePlaces();
 }
 
-function filterResults(class_col, result_col, colorize=true, clss=[]) {
+function filterResults(school_col, class_col, result_col, do_filter=true, colorize=true, clss=[]) {
     if (tableData.length) {
         let n = tableData[0].length;
+        if (school_col < 0) school_col += n;
         if (class_col < 0) class_col += n;
         if (result_col < 0) result_col += n;
     }
-    let classes = new Set();
-    let checkboxes = document.getElementsByName('class_value');
-    for (let checkbox of checkboxes) {
-        if (checkbox.checked) classes.add(checkbox.value);
-    }
     let new_lines = [];
-    for (let line of tableData) {
-        let cell = line[class_col];
-        if (class_col === null || classes.has(cell)) new_lines.push(line);
+    if (do_filter) {
+        let classes = new Set();
+        let checkboxes = document.getElementsByName('class_value');
+        for (let checkbox of checkboxes) {
+            if (checkbox.checked) classes.add(checkbox.value);
+        }
+        for (let line of tableData) {
+            let cell_school = line[school_col];
+            let cell_class = line[class_col];
+            let cell_data = cell_school + '|' + cell_class[0] + '|' + cell_class.slice(1);
+            if (classes.has(cell_data)) new_lines.push(line);
+        }
+    } else {
+        new_lines = tableData;
     }
     generateRatingTable(new_lines, result_col, colorize, clss);
 }
 
-function setChecked(cls, newChecked) {
+function setChecked(school, number, letter, newChecked) {
     let checkboxes = document.getElementsByName('class_value');
     for (let checkbox of checkboxes) {
-        let value = checkbox.value;
-        if (cls === null || value.includes(cls)) checkbox.checked = newChecked;
+        let data = checkbox.value.split('|');
+        if ((school === null || school === data[0]) &&
+            (number === null || number === data[1]) &&
+            (letter === null || letter === data[2])) {
+                checkbox.checked = newChecked;
+        }
     }
+    doAutoFilter();
 }
 
 function generateAllTable() {
     document.getElementById('filter-all').click();
     document.getElementById('filter-do').click();
+}
+
+function generateNoneTable() {
+    document.getElementById('filter-none').click();
+    document.getElementById('filter-do').click();
+}
+
+function doAutoFilter() {
+    if (pre_filter) pre_filter();
+    document.getElementById('filter-do').click();
+}
+
+function initAutoFilter(class_name) {
+    let elements = document.getElementsByTagName('input');
+    for (let pos in elements){
+        let current = elements[pos];
+        if (current.type === 'checkbox' && current.name === class_name) {
+            current.addEventListener('click', doAutoFilter);
+        }
+    }
 }
 
 // rating_students.html
@@ -107,6 +139,7 @@ function compareStudentsResults(a, b) {
     let n = a.length;
     if (a[n - 1] !== b[n - 1]) return b[n - 1] - a[n - 1];
     if (a[3] !== b[3]) return a[3].localeCompare(b[3]);
+    if (a[4] !== b[4]) return a[4].localeCompare(b[4]);
     if (a[1] !== b[1]) return a[1].localeCompare(b[1]);
     if (a[2] !== b[2]) return a[2].localeCompare(b[2]);
     return 0;
@@ -139,7 +172,6 @@ function generateStudentsTableData(addCheckBoxes=false) {
         for (day in sum) {
             let sorted = sum[day].sort((a, b) => (b - a)).splice(0, ind_res_per_day);
             let day_sum = sorted.reduce((partialSum, a) => partialSum + a, 0);
-            console.log(day_sum);
             all_sum += day_sum
         }
         line.push(all_sum);
@@ -153,20 +185,23 @@ function generateStudentsTableData(addCheckBoxes=false) {
 
 function addCheckBoxes() {
     let rating_table = getRatingTableElement();
+    let plus_count = 0, minus_count = 0;
     for (let row of rating_table.rows) {
         let n = row.cells.length;
         let student_id = row.cells[n - 2].innerText;
         let cell = document.createElement('td');
-        let template = '<input type="checkbox" name="t" value="000_0" id="000_0">-<input type="checkbox" name="ot" value="000_0" hidden>\n' +
-                         '<input type="checkbox" name="t" value="000_1" id="000_1">?<input type="checkbox" name="ot" value="000_1" hidden>\n' +
-                         '<input type="checkbox" name="t" value="000_2" id="000_2">+<input type="checkbox" name="ot" value="000_2" hidden>\n';
+        let template = '<input class="js-rating-check" type="checkbox" name="t" value="000_0" id="000_0">-<input type="checkbox" name="ot" value="000_0" id="000_0_old" hidden>\n' +
+                         '<input class="js-rating-check" type="checkbox" name="t" value="000_1" id="000_1">?<input type="checkbox" name="ot" value="000_1" id="000_1_old" hidden>\n' +
+                         '<input class="js-rating-check" type="checkbox" name="t" value="000_2" id="000_2">+<input type="checkbox" name="ot" value="000_2" id="000_2_old" hidden>\n';
         template = template.replace(/000/g, student_id);
         cell.innerHTML = template;
         if (student_id in checkMarks) {
             if (checkMarks[student_id] === 1) {
+                ++plus_count;
                 cell.children[4].checked = true;
                 cell.children[5].checked = true;
             } else {
+                ++minus_count;
                 cell.children[0].checked = true;
                 cell.children[1].checked = true;
             }
@@ -176,14 +211,17 @@ function addCheckBoxes() {
         }
         row.appendChild(cell);
     }
+    document.getElementById("rating_students_check_plus").innerHTML = plus_count;
+    document.getElementById("rating_students_check_minus").innerHTML = minus_count;
 }
 
 // rating_classes.html
 
 function compareClassesResults(a, b) {
-    if (a[2] !== b[2]) return b[2] - a[2];
+    if (a[2] !== b[2]) return b[3] - a[3];
     if (a[1] !== b[1]) return a[1].localeCompare(b[1]);
-    if (a[3] !== b[3]) return a[3] - b[3];
+    if (a[2] !== b[2]) return a[2].localeCompare(b[2]);
+    if (a[3] !== b[3]) return a[4] - b[4];
     return 0;
 }
 
@@ -231,6 +269,7 @@ function compareSuperChampionResults(a, b) {
     let n = a.length;
     if (a[n - 1] !== b[n - 1]) return b[n - 1] - a[n - 1];
     if (a[3] !== b[3]) return a[3].localeCompare(b[3]);
+    if (a[4] !== b[4]) return a[4].localeCompare(b[4]);
     if (a[1] !== b[1]) return a[1].localeCompare(b[1]);
     return a[2].localeCompare(b[2]);
 }
@@ -329,11 +368,11 @@ function getClassesExcel(year) {
         let name = cls + ' класс';
         table_name.innerHTML = name;
         filter_none.click();
-        setChecked(cls, true);
-        filter_do.click();
+        setChecked(null, cls, null, true);
         data.push([name, getClassTable()]);
     }
     filter_all.click();
     filter_do.click();
     TableToExcel.convert_many(file_name, data);
+    table_name.innerHTML = '';
 }

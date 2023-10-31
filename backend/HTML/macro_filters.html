@@ -1,0 +1,59 @@
+{% macro filter_classes(classes) %}
+    {% set cls_nums = [] | set  %}
+    {% set schools_names = [] | set %}
+    {% for sch_cls in classes %}
+        {% set _ = cls_nums.add(sch_cls[1][0]) %}
+        {% set _ = schools_names.add(sch_cls[0]) %}
+    {% endfor %}
+    {% set cls_nums = cls_nums | list | sort %}
+    {% set schools_names = schools_names | list | sort %}
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    Класс
+                    <br>
+                    <button id="filter-all" onclick="setChecked(null, null, null, true, pre_filter)">+</button>
+                    <button id="filter-none" onclick="setChecked(null, null, null, false, pre_filter)">-</button>
+                </th>
+                {% for school in schools_names %}
+                    <th>
+                        {{ school }}
+                        <br>
+                        <button onclick="setChecked('{{ school }}', null, null, true, pre_filter)">+</button>
+                        <button onclick="setChecked('{{ school }}', null, null, false, pre_filter)">-</button>
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for cls_num in cls_nums %}
+                <tr>
+                    <td>
+                        {{ cls_num }}
+                        <br>
+                        <button onclick="setChecked(null, '{{ cls_num }}', null, true, pre_filter)">+</button>
+                        <button onclick="setChecked(null, '{{ cls_num }}', null, false, pre_filter)">-</button>
+                    </td>
+                    {% for school in schools_names %}
+                        {% set cur_cls = [] %}
+                        {% for sch_cls in classes %}
+                            {% if sch_cls[0] == school and sch_cls[1][0] == cls_num %}
+                               {% set _ = cur_cls.append(sch_cls[1]) %}
+                            {% endif %}
+                        {% endfor %}
+                        <td>
+                            {% for cls in cur_cls | sort %}
+                                <label><input type="checkbox" name="class_value" value="{{ school }}|{{ cls_num }}|{{ cls[1:] }}">{{ cls }}</label>
+                            {% endfor %}
+                            <br>
+                            <button onclick="setChecked('{{ school }}', '{{ cls_num }}', null, true, pre_filter)">+</button>
+                            <button onclick="setChecked('{{ school }}', '{{ cls_num }}', null, false, pre_filter)">-</button>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script>let classes = {{ cls_nums | tojson }};</script>
+{% endmacro %}

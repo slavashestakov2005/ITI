@@ -82,7 +82,7 @@
 <script>
     let results = {{ team_results | tojson }}, teams = {{ teams | tojson }}, subjects = {{ team_subjects | tojson }};
     let tableData = generateTeamsTableData();
-    filterResults(null, -1, false);
+    filterResults(null, null, -1, false, false);
     let cols = [];
     for(let row of tableData) {
         for(let i = 2; i < row.length; ++i) cols.push(i);

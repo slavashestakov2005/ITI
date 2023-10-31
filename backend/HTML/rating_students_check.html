@@ -1,31 +1,33 @@
 <!-- replace 1 -->
 
+<script>
+    let pre_filter = () => {
+        let form = document.getElementById("form_save_student_teams");
+        student_team_save(form);
+    };
+</script>
+{% from "macro_filters.html" import filter_classes %}
+
 <center>
     <h1>Рейтинг школьников с галочками</h1>
-    {% set ns = namespace(prev=none) %}
-    <button id="filter-all" onclick="setChecked(null, true)">Все классы</button>
-    <button onclick="setChecked(null, false)">Никакие классы</button>
+    {{ filter_classes(classes) }}
     <br>
-    {% for cls in classes | sort %}
-        {% set cur_class = cls[0] %}
-        {% if cur_class != ns.prev %}
-            {% if ns.prev is not none %}<br>{% endif %}
-            <button onclick="setChecked('{{ cur_class }}', true)">Все {{ cur_class }}</button>
-            <button onclick="setChecked('{{ cur_class }}', false)">Никакие {{ cur_class }}</button>
-            {% set ns.prev = cur_class %}
-        {% endif %}
-        <label><input type="checkbox" name="class_value" value="{{ cls }}">{{ cls }}</label>
-    {% endfor %}
-    <p><button id="filter-do" onclick="filterResults(3, -1); addCheckBoxes(); find_checkboxes()">Фильтровать</button></p>
+    <p class="invisible"><button id="filter-do" onclick="filterResults(3, 4, -1); addCheckBoxes(); find_checkboxes('js-rating-check')">Фильтровать</button></p>
     <p><button onclick="TableToExcel.convert(document.getElementById('sorted-table'));">Скачать как Excel</button></p>
     <div class="row justify-content-center">
         <div class="col-auto">
-            <form action="save_teams" method="post">
+            <form id="form_save_student_teams" onsubmit="pre_filter(); return false;">
+                <p>
+                    <input type="submit" value="Сохранить"> (автосохранение при новом фильтре)
+                    <br>
+                    Итого: + <span id="rating_students_check_plus">j</span> штук, - <span id="rating_students_check_minus">n</span> штук.
+                </p>
                 <table class="js-table-color-place" id="sorted-table">
                     <thead><tr>
                         <th width="10%">Место</th>
                         <th width="30%">Фамилия</th>
                         <th width="30%">Имя</th>
+                        <th width="10%">Школа</th>
                         <th width="10%">Класс</th>
                         {% for subject_id, subject_name in subjects %}
                             <th width="5%">{{ subject_name }}</th>
@@ -37,7 +39,6 @@
                     </tr></thead>
                     <tbody></tbody>
                 </table>
-                <p><input type="submit" value="Сохранить"></p>
             </form>
         </div>
     </div>
@@ -47,8 +48,8 @@
     let students_group_result = {{ student_group_results | tojson }};
     let subjects_days = {{ subjects_days | tojson }}, ind_res_per_day = {{ ind_res_per_day | tojson }};
     let tableData = generateStudentsTableData(true);
-    console.log(tableData);
-    generateAllTable();
+    generateNoneTable();
+    initAutoFilter('class_value');
 </script>
 
 <!-- replace 2 -->

@@ -261,6 +261,52 @@ function team_student_delete(form) {
     makeRequest('team_student', 'delete', data);
 }
 
+function setsSymmetricDifference(setA, setB) {
+    const _difference = new Set(setA);
+    for (const elem of setB) {
+        if (_difference.has(elem)) {
+            _difference.delete(elem);
+        } else {
+            _difference.add(elem);
+        }
+  }
+  return _difference;
+}
+
+function student_team_save(form) {
+    let data = parseForm(form, {'iti_id': urlIti()});
+    let old_value = new Set(data['ot']);
+    let new_value = new Set(data['t']);
+    let diff = new Set();
+    for (let item of setsSymmetricDifference(old_value, new_value)) {
+        diff.add(item.split('_')[0]);
+    }
+    let old = [], new_plus = [], new_minus = [];
+    for (let item of diff) {
+        if (old_value.has(item + '_0') || old_value.has(item + '_2')) old.push(item);
+        if (new_value.has(item + '_0')) new_minus.push(item);
+        if (new_value.has(item + '_2')) new_plus.push(item);
+    }
+    delete data['ot'];
+    delete data['t'];
+    data['old'] = old;
+    data['new +'] = new_plus;
+    data['new -'] = new_minus;
+    if (old.length + new_minus.length + new_plus.length === 0) return;
+    makeRequest('team_student', 'put', data);
+    for (const element of new_value) {
+        let split = element.split('_');
+        let student_id = split[0], value = split[1];
+        document.getElementById(student_id + "_0_old").checked = false;
+        document.getElementById(student_id + "_1_old").checked = false;
+        document.getElementById(student_id + "_2_old").checked = false;
+        document.getElementById(student_id + "_" + value + "_old").checked = true;
+        if (value === '0') checkMarks[student_id] = -1;
+        if (value === '1') delete checkMarks[student_id];
+        if (value === '2') checkMarks[student_id] = 1;
+    }
+}
+
 // student_class
 
 function student_class_delete(form) {

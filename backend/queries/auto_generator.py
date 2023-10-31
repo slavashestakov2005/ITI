@@ -172,7 +172,7 @@ class Generator:
         return ans
 
     @staticmethod
-    def get_all_data_from_results(iti: Iti):
+    def get_all_data_from_results(iti: Iti, schools: dict):
         year = iti.id
         zeros = {day: 0 for day in range(1, iti.ind_days + 1)}
         results = Generator.get_results(year)
@@ -214,11 +214,12 @@ class Generator:
                 student_sum += current_sum
                 stud_res[day] = current_sum
             student_result[student] = student_sum
-            if student_info.class_name() not in class_results:
-                class_results[student_info.class_name()] = [0, 0]
-            class_results[student_info.class_name()][0] += student_sum
+            student_class = student_info.school_class(schools)
+            if student_class not in class_results:
+                class_results[student_class] = [0, 0]
+            class_results[student_class][0] += student_sum
             if student_sum:
-                class_results[student_info.class_name()][1] += 1
+                class_results[student_class][1] += 1
             if student in student_team and iti.sum_ind_to_team:
                 sum_days = {_.n_d for _ in IndDayStudent.select_by_iti_and_student(iti.id, student)}
                 for day in range(1, iti.ind_days + 1):
@@ -230,11 +231,13 @@ class Generator:
         return student_result, class_results, team_results, all_students_results, diploma
 
     @staticmethod
-    def gen_results_row(result: Result, people: Student):
-        return [result.position, people.name_1, people.name_2, people.class_name(), result.result, result.net_score]
+    def gen_results_row(result: Result, people: Student, schools: dict):
+        return [result.position, people.name_1, people.name_2, people.school_name(schools), people.class_name(),
+                result.result, result.net_score]
 
     @staticmethod
-    def gen_results_table(results: list, students: map, maximum: int, net_score_formula: int, ind_prize_policy: int):
+    def gen_results_table(results: list, students: map, maximum: int, net_score_formula: int, ind_prize_policy: int,
+                          schools: dict):
         if len(results) == 0:
             return []
         cnt, last_pos, last_result = 1, 0, None
@@ -251,7 +254,7 @@ class Generator:
             elif last_pos <= 3 and ind_prize_policy == 1:
                 inc_cnt = 0
             result.position = last_pos
-            row = Generator.gen_results_row(result, people)
+            row = Generator.gen_results_row(result, people, schools)
             data.append(row)
             Result.update(result)
             cnt += inc_cnt
@@ -272,9 +275,10 @@ class Generator:
             sorted_results[cls].sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: students[x.student_id].class_l,
                                  lambda x: Student.sort_by_name(students[x.student_id]), field=True))
         data = {}
+        schools = {_.id: _ for _ in School.select_all()}
         for cls in iti.classes_list():
             data[cls] = Generator.gen_results_table(sorted_results[cls], students, scores[cls], iti.net_score_formula,
-                                                    iti.ind_prize_policy)
+                                                    iti.ind_prize_policy, schools)
         html_render('subject_ind.html', file_name, subject_name=subject_info.name, results=data, scores=scores, iti=iti)
 
     @staticmethod
@@ -361,9 +365,10 @@ class Generator:
 
     @staticmethod
     def gen_ratings(iti: Iti):
-        student_results, class_results, team_results, all_res, dip1 = Generator.get_all_data_from_results(iti)
+        schools = {_.id: _ for _ in School.select_all()}
+        student_results, class_results, team_results, all_res, dip1 = Generator.get_all_data_from_results(iti, schools)
         students_raw = {_.id: _ for _ in Student.select_by_iti(iti)}
-        students = {_.id: [_.name_1, _.name_2, _.class_name()] for _id, _ in students_raw.items()}
+        students = {_.id: [_.name_1, _.name_2, *_.school_class(schools)] for _id, _ in students_raw.items()}
         subjects_raw = {_.id: _ for _ in Subject.select_all()}
         subjects = {ys.id: Subject.select(ys.subject_id) for ys in ItiSubject.select_by_iti(iti.id)}
         just_subjects = {subject.id: subject.name for subject in Subject.select_all()}
@@ -386,6 +391,10 @@ class Generator:
         for student, st_res in groups_res_for_student.items():
             students_diplomas = '<br>'.join('{} ({})'.format(just_subjects[subject_id], place) for subject_id, place in st_res.items())
             students_groups_res[student] = students_diplomas
+        for student in students:
+            student_class = (students[student][2], students[student][3])
+            if student_class not in class_results:
+                class_results[student_class] = [0, 0]
         html_render('rating_students.html', str(iti.id) + '/rating_students.html', results=all_res, students=students,
                     subjects=ind_subjects, classes=class_results.keys(), student_group_results=students_groups_res,
                     subjects_days = subjects_days, ind_res_per_day = iti.sum_ind_to_rating)
@@ -395,7 +404,7 @@ class Generator:
                     student_group_results=students_groups_res,
                     subjects_days=subjects_days, ind_res_per_day=iti.sum_ind_to_rating)
         html_render('rating_classes.html', str(iti.id) + '/rating_classes.html', classes=class_results.keys(),
-                    results=[(_[0], *_[1]) for _ in class_results.items()], year=iti.id)
+                    results=[(*_[0], *_[1]) for _ in class_results.items()], year=iti.id)
         html_render('rating_teams.html', str(iti.id) + '/rating_teams.html', team_results=all_team_results,
                     ind_subjects=ind_subjects, team_subjects=group_subjects, team_student=team_student,
                     teams=teams, students=students, student_results=all_res, subjects_days=subjects_days,

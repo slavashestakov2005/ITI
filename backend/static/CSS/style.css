@@ -91,3 +91,10 @@ h4{ font-size: 12pt; }
     margin: 0 auto;
     resize: none;
 }
+
+
+/* invisible elements */
+.invisible {
+    display: none;
+    visibility: hidden;
+}

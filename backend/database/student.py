@@ -9,7 +9,7 @@ class Student(SqlAlchemyBase, Table):
     id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     name_1 = sa.Column(sa.String, nullable=False)   # (Фамилия)
     name_2 = sa.Column(sa.String, nullable=False)   # (Имя)
-    name_3 = sa.Column(sa.String, nullable=False)   # (Отчество)
+    name_3 = sa.Column(sa.String, nullable=True)    # (Отчество)
     gender = sa.Column(sa.String, nullable=False)   # (0 - м, 1 - ж)
     other_id = sa.Column(sa.String, nullable=False) # ID личного дела
     result = 0
@@ -33,9 +33,20 @@ class Student(SqlAlchemyBase, Table):
 
     def class_name(self):
         try:
+            if self.class_l is None:
+                return str(self.class_n)
             return str(self.class_n) + self.class_l
         except Exception:
             raise ValueError("Not found class for {}, id: {}".format(self.name(), self.id))
+
+    def school_name(self, schools: dict):
+        try:
+            return schools[self.school_id].short_name
+        except Exception:
+            raise ValueError("Not found school for {}, id: {}".format(self.name(), self.id))
+
+    def school_class(self, schools: dict):
+        return (self.school_name(schools), self.class_name())
 
     def name(self):
         return self.name_1 + ' ' + self.name_2
@@ -55,6 +66,10 @@ class Student(SqlAlchemyBase, Table):
     @staticmethod
     def sort_by_name(student):
         return student.name()
+
+    @staticmethod
+    def sort_by_all(student):
+        return student.school_id, student.class_name(), student.name_1, student.name_2, student.name_3, student.id
 
     # Table
 

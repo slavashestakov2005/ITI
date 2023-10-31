@@ -8,7 +8,6 @@ from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from .messages_help import message_teams_public
 '''
-    /<iti_id>/save_teams                    Список согласных / несогласных играть у команде (admin).
     /<iti_id>/team_edit                     Redirect с параметрами на страницу редактирования (admin).
     /<iti_id>/automatic_division            Генерирует автоматическое распределение школьников (admin).
 '''
@@ -52,33 +51,6 @@ def teams_page_params(user: User, iti: Iti):
         return {'teams': res, 'subjects': [_.short_name for _ in subjects], 'rejection': rejection}
     except Exception:
         return {}
-
-
-@app.route("/<int:iti_id>/save_teams", methods=['POST'])
-@cross_origin()
-@login_required
-@check_status('admin')
-@check_block_iti()
-def save_teams(iti: Iti):
-    t = set(request.form.getlist('t'))
-    ot = set(request.form.getlist('ot'))
-    different = set(_[:-2] for _ in t.symmetric_difference(ot))
-    for x in different:
-        cnt = (x + '_0' in t) + (x + '_1' in t) + (x + '_2' in t)
-        if cnt != 1:
-            return render_template(url, **teams_page_params(current_user, iti), error='Некорректные данные')
-    for x in different:
-        st = int(x)
-        if x + '_0' in ot:
-            TeamConsent.delete(iti.id, st)
-        if x + '_2' in ot:
-            TeamConsent.delete(iti.id, st)
-        if x + '_0' in t:
-            TeamConsent.insert(TeamConsent.build(iti.id, st, -1))
-        if x + '_2' in t:
-            TeamConsent.insert(TeamConsent.build(iti.id, st, 1))
-    Generator.gen_ratings(iti)
-    return render_template(str(iti.id) + '/rating_students_check.html')
 
 
 @app.route("/<int:iti_id>/team_edit")

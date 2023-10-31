@@ -1,38 +1,25 @@
 <!-- replace 1 -->
 
+<script>let pre_filter = false;</script>
+{% from "macro_filters.html" import filter_classes %}
+
 <center>
     <h1>Рейтинг классов</h1>
-    {% set ns = namespace(prev=none) %}
-    <button id="filter-all" onclick="setChecked(null, true)">Все классы</button>
-    <button id="filter-none" onclick="setChecked(null, false)">Никакие классы</button>
+    {{ filter_classes(classes) }}
     <br>
-    {% set cls_nums = [] %}
-    {% for cls in classes | sort %}
-        {% set cur_class = cls[0] %}
-        {% if cur_class != ns.prev %}
-            {% set _ = cls_nums.append(cur_class) %}
-            {% if ns.prev is not none %}<br>{% endif %}
-            <button onclick="setChecked('{{ cur_class }}', true)">Все {{ cur_class }}</button>
-            <button onclick="setChecked('{{ cur_class }}', false)">Никакие {{ cur_class }}</button>
-            {% set ns.prev = cur_class %}
-        {% endif %}
-        <label><input type="checkbox" name="class_value" value="{{ cls }}">{{ cls }}</label>
-    {% endfor %}
-    <br>
-    <p>
-        <button id="filter-do" onclick="filterResults(1, 2, true, ['js-table-for-excel-body'])">Фильтровать</button>
-        <button onclick="TableToExcel.convert(document.getElementById('sorted-table'));">Скачать таблицу как Excel</button>
-    </p>
+    <p class="invisible"><button id="filter-do" onclick="filterResults(1, 2, 3, true, true, ['js-table-for-excel-body'])">Фильтровать</button></p>
+    <p><button onclick="TableToExcel.convert(document.getElementById('sorted-table'));">Скачать таблицу как Excel</button></p>
     <p><a href="" onclick="getClassesExcel({{ year }}); return false;">Скачать данные по параллелям</a></p>
     <div class="row justify-content-center">
         <div class="col-auto">
             <table class="js-table-color-place" id="sorted-table" data-cols-width="10,10,10,18">
                 <thead>
-                    <tr class="js-table-for-excel-head-main"><th colspan="4" id="table-head-content"></th></tr>
+                    <tr class="js-table-for-excel-head-main"><th colspan="5" id="table-head-content"></th></tr>
                     <tr class="js-table-for-excel-head-main"></tr>
                     <tr class="js-table-for-excel-head-sub">
                         <th width="10%">Место</th>
-                        <th width="30%">Класс</th>
+                        <th width="10%">Школа</th>
+                        <th width="10%">Класс</th>
                         <th width="30%">Сумма</th>
                         <th width="10%">Результативных участников</th>
                     </tr>
@@ -43,10 +30,11 @@
     </div>
 </center>
 <script>
-    let results = {{ results | tojson }}, classes = {{ cls_nums | tojson }};
+    let results = {{ results | tojson }};
     let tableData = generateClassesTableData();
     generateAllTable();
     preparePageForConvert();
+    initAutoFilter('class_value');
 </script>
 
 <!-- replace 2 -->

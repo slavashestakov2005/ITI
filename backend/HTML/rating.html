@@ -20,6 +20,7 @@
             <th width="5%">Место</th>
             <th width="10%">Фамилия</th>
             <th width="10%">Имя</th>
+            <th width="5%">Школа</th>
             <th width="5%">Класс</th>
             <th width="5%">1&nbsp;места</th>
             <th width="5%">2&nbsp;места</th>
@@ -33,7 +34,7 @@
 <script>
     let results = {{ results | tojson }}, students = {{ students | tojson }};
     let tableData = generateSuperChampionTableData();
-    filterResults(null, -1);
+    filterResults(null, null, -1, false);
 </script>
 
 <!-- replace 2 -->

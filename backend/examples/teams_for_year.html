@@ -72,15 +72,22 @@
         {% for team in teams %}
             <form onsubmit="subject_student_save(this); return false;"><center>
                 <h3>{{ team[0].name }}</h3>
-                <table border="1">
-                    <tr>
-                        <td width="10%">Класс</td>
-                        <td width="45%">Фамилия</td>
-                        <td width="45%">Имя</td>
+                {% set current_table_name = "students_in_team_table_number_" + (loop.index0 | string) %}
+                <table border="1" id="{{ current_table_name }}">
+                    <thead><tr>
+                        <th width="10%">Класс</th>
+                        <th width="45%">Фамилия</th>
+                        <th width="45%">Имя</th>
                         {% for subject in subjects %}
-                            <td width="5%">{{subject}}</td>
+                            <th width="5%">
+                                {{ subject }}
+                                <br>
+                                <button onclick="setCheckboxesInColumn('{{ current_table_name }}', {{ loop.index0 + 3 }}, true); return false;">+</button>
+                                <button onclick="setCheckboxesInColumn('{{ current_table_name }}', {{ loop.index0 + 3 }}, false); return false;">-</button>
+                            </th>
                         {% endfor %}
-                    </tr>
+                    </tr></thead>
+                    <tbody>
                     {% for x in team[1] %}
                         <tr>
                             {% for y in x %}<td>
@@ -95,6 +102,7 @@
                             </td>{% endfor %}
                         </tr>
                     {% endfor %}
+                    </tbody>
                 </table>
                 <br>
                 <input type="submit" value="Сохранить">

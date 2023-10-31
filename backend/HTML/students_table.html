@@ -21,7 +21,7 @@
                     <td>{{ student.id }}</td>
                     <td>{{ student.name_1 }}</td>
                     <td>{{ student.name_2 }}</td>
-                    <td>{{ student.name_3 }}</td>
+                    <td>{% if student.name_3 is not none %}{{ student.name_3 }}{% endif %}</td>
                     <td>{{ student.class_name() }}</td>
                     <td>{{ student.get_gender() }}</td>
                     <td>{{ student.other_id }}</td>

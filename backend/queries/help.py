@@ -46,7 +46,7 @@ def split_class(class_):
         return ['', '']
     if len(class_) == 1:
         return int(class_), ''
-    return int(class_[:-1]), class_[-1],
+    return int(class_[:-1]), class_[-1].capitalize()
 
 
 def empty_checker(*args):
@@ -219,11 +219,16 @@ default_replace = [['<!-- replace 1 -->', '{% extends "base.html" %}{% block con
                    ['<!-- replace 2 -->', '{% endblock %}\n']]
 
 
+def set_filter(seq):
+    return set(seq)
+
+
 def html_render(template_name: str, output_name: str, template_folder: str = Config.HTML_FOLDER,
                 output_folder: str = Config.TEMPLATES_FOLDER, replaced: list = None, **data):
     if replaced is None:
         replaced = []
     env = Environment(loader=FileSystemLoader(template_folder))
+    env.filters['set'] = set_filter
     template = env.get_template(template_name)
     data = template.render(**data)
     for rep in default_replace:

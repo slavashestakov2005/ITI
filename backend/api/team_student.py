@@ -1,14 +1,32 @@
 from flask_restful import reqparse, Resource
 from ..api import api_group
-from ..database import Student, Team, TeamStudent
+from ..database import Student, Team, TeamStudent, TeamConsent
 
 
 parser_simple = reqparse.RequestParser()
 parser_simple.add_argument('team', required=True, type=int)
 parser_simple.add_argument('student', required=True, type=int)
 
+parser_checkboxes = reqparse.RequestParser()
+parser_checkboxes.add_argument('iti_id', required=True, type=int)
+parser_checkboxes.add_argument('old', required=False, type=int, action='append', default=list)
+parser_checkboxes.add_argument('new +', required=False, type=int, action='append', default=list)
+parser_checkboxes.add_argument('new -', required=False, type=int, action='append', default=list)
+
 
 class TeamStudentListResource(Resource):
+    @api_group('admin')
+    def put(self):
+        args = parser_checkboxes.parse_args()
+        iti_id, old, new_plus, new_minus = args['iti_id'], args['old'], args['new +'], args['new -']
+        for student_id in old:
+            TeamConsent.delete(iti_id, student_id)
+        for student_id in new_plus:
+            TeamConsent.insert(TeamConsent.build(iti_id, student_id, 1))
+        for student_id in new_minus:
+            TeamConsent.insert(TeamConsent.build(iti_id, student_id, -1))
+        return True, {'message': 'Данные сохранены'}
+
     @api_group('admin')
     def post(self):
         args = parser_simple.parse_args()

@@ -2,7 +2,7 @@ from backend import app
 from .. import Config
 from ..database import Student, Iti, School
 from .help import check_status, check_block_iti
-from flask import render_template, send_file, request, jsonify
+from flask import render_template, send_file
 from flask_cors import cross_origin
 from flask_login import login_required
 
@@ -24,7 +24,7 @@ def create_empty_barcode_blank():
     return {}
 
 
-def create_barcode_blank(doc, student: Student, schools: list):
+def create_barcode_blank(doc, student: Student, schools: dict):
     sid = str(student.id)
     st = {'name1': student.name_1, 'name2': student.name_2, 'class_number': student.class_n,
           'class_latter': student.class_l, 'school': schools[student.school_id].short_name, 'id': sid}
@@ -47,7 +47,7 @@ def create_barcode_blank(doc, student: Student, schools: list):
 def create_barcodes(iti: Iti):
     if not os.path.exists(Config.WORDS_FOLDER):
         os.makedirs(Config.WORDS_FOLDER)
-    students = Student.select_by_iti(iti)
+    students = sorted(Student.select_by_iti(iti), key=Student.sort_by_all)
     cnt = len(students)
     barcodes_on_page = 6
     doc = DocxTemplate(Config.DATA_FOLDER + '/{}_barcodes_template.docx'.format(barcodes_on_page))

@@ -8,7 +8,7 @@ class StudentClass(SqlAlchemyBase, Table):
     student_id = sa.Column(sa.Integer, nullable=False, primary_key=True)
     iti_id = sa.Column(sa.Integer, nullable=False, primary_key=True)
     class_number = sa.Column(sa.Integer, nullable=False)
-    class_latter = sa.Column(sa.String, nullable=False)
+    class_latter = sa.Column(sa.String, nullable=True)
     school_id = sa.Column(sa.Integer, nullable=False)
 
     # Table
