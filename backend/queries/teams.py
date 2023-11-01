@@ -1,9 +1,9 @@
 from backend import app
 from ..database import Student, Subject, SubjectStudent, Team, TeamStudent, ItiSubject, User, TeamConsent, Iti,\
-    IndDayStudent
+    IndDayStudent, School
 from .help import check_status, compare, check_block_iti
 from .auto_generator import Generator
-from flask import render_template, request
+from flask import render_template
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from .messages_help import message_teams_public
@@ -15,6 +15,7 @@ from .messages_help import message_teams_public
 
 def teams_page_params(user: User, iti: Iti):
     try:
+        schools = {_.id: _ for _ in School.select_all()}
         teams, res, subjects = user.teams_list(iti.id), [], []
         if iti.sum_ind_to_team:
             for day in range(1, 1 + iti.ind_days):
@@ -37,7 +38,7 @@ def teams_page_params(user: User, iti: Iti):
             for x in peoples:
                 people = Student.select(x.student_id)
                 people.load_class(iti.id)
-                p = [[None, people.class_name()], [None, people.name_1], [None, people.name_2]]
+                p = [[None, people.school_name(schools)], [None, people.class_name()], [None, people.name_1], [None, people.name_2]]
                 for subject in subjects:
                     p.append([subject.id, people.id, '{} {}'.format(subject.id, people.id) in participants])
                 t.append(p)
@@ -48,7 +49,8 @@ def teams_page_params(user: User, iti: Iti):
             people = Student.select(tc.student_id)
             people.load_class(iti.id)
             rejection.append(people)
-        return {'teams': res, 'subjects': [_.short_name for _ in subjects], 'rejection': rejection}
+        rejection.sort(key=Student.sort_by_all)
+        return {'teams': res, 'subjects': [_.short_name for _ in subjects], 'rejection': rejection, 'schools': schools}
     except Exception:
         return {}
 

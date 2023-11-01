@@ -34,7 +34,6 @@ function change_checkbox(element) {
     let box0 = document.getElementById(s + '0');
     let box1 = document.getElementById(s + '1');
     let box2 = document.getElementById(s + '2');
-    console.log(count_minus, count_plus);
     if (!box.checked) {         // zero checked values
         if (t === '0') --count_minus;
         if (t === '2') --count_plus;
@@ -49,8 +48,6 @@ function change_checkbox(element) {
         if (t === '0') ++count_minus;
         if (t === '2') ++count_plus;
     }
-    console.log(count_minus, count_plus);
-    console.log(t, t === '0', t === '2');
     rating_plus.innerHTML = count_plus;
     rating_minus.innerHTML = count_minus;
 }

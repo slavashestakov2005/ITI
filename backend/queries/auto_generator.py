@@ -5,6 +5,7 @@ from ..database import Barcode, GroupResult, Result, Student, Subject, SubjectSt
 from backend.config import Config
 import glob
 
+from ..help import FileNames
 
 '''
     class Generator             Заменяет комментарии специального вида на код.
@@ -410,8 +411,8 @@ class Generator:
                     teams=teams, students=students, student_results=all_res, subjects_days=subjects_days,
                     ind_res_per_day=iti.sum_ind_to_rating)
         html_render('rating.html', str(iti.id) + '/rating.html', results=rating, students=students)
-        ExcelDiplomaWriter().write(Config.DATA_FOLDER + '/diploma_{}.xlsx'.format(iti.id), diplomas, subjects_raw,
-                                         students_raw)
+        ExcelDiplomaWriter().write(Config.DATA_FOLDER + '/' + FileNames.diploma_excel(iti)[0], diplomas, subjects_raw,
+                                   students_raw)
 
     @staticmethod
     def gen_teams(year: int):

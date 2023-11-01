@@ -2,6 +2,9 @@
 import os
 import glob
 import re
+
+from backend.database import Iti
+
 '''
     correct_slash(str)              Заменяет все слэши на '/'.
     class FileManager               Управляет файлами внутри БД.
@@ -15,6 +18,25 @@ import re
 
 def correct_slash(s: str):
     return re.sub(r'[/\\]+', '/', s)
+
+
+# returns paths from ./data/ folder
+class FileNames:
+    @staticmethod
+    def diploma_excel(iti: Iti):
+        return '{}/diploma.xlsx'.format(iti.id), 'ИТИ {}. Дипломы.xlsx'.format(iti.id)
+
+    @staticmethod
+    def data_excel(iti: Iti):
+        return '{}/data.xlsx'.format(iti.id), 'ИТИ {}. Все данные.xlsx'.format(iti.id)
+
+    @staticmethod
+    def data_all_excel():
+        return 'data_all.xlsx', 'ИТИ. Все данные.xlsx'
+
+    @staticmethod
+    def barcodes_word(iti: Iti):
+        return '{}/barcodes.docx'.format(iti.id), 'ИТИ {}. Бланки для кодировки.docx'.format(iti.id)
 
 
 class FileManager:

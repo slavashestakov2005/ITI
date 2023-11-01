@@ -10,6 +10,8 @@ from .results import page_params
 from ..database import Iti, ItiSubject, Subject
 from ..excel import ExcelFullReader, ExcelItiWriter, ExcelResultsReader, ExcelFullWriter, ExcelStudentsReader
 from ..config import Config
+from ..help import FileNames
+
 '''
     /load_data_from_excel_all               Загружает все данные из Excel (full).
     /load_data_from_excel_students          Загружает список школьников ИТИ (admin).
@@ -73,9 +75,10 @@ def load_data_from_excel_students():
 @login_required
 @check_status('admin')
 def download_db():
-    ExcelFullWriter(Config.DATA_FOLDER + '/data_all.xlsx').write()
-    filename = './data/data_all.xlsx'
-    return send_file(filename, as_attachment=True, download_name='ИТИ. Все данные.xlsx')
+    store_name, send_name = FileNames.data_all_excel()
+    ExcelFullWriter(Config.DATA_FOLDER + '/' + store_name).write()
+    filename = './data/' + store_name
+    return send_file(filename, as_attachment=True, download_name=send_name)
 
 
 @app.route('/<int:iti_id>/download_iti', methods=['GET'])
@@ -84,9 +87,10 @@ def download_db():
 @check_status('admin')
 @check_block_iti()
 def download_iti(iti: Iti):
-    ExcelItiWriter(Config.DATA_FOLDER + '/data_{}.xlsx'.format(iti.id), iti.id).write()
-    filename = './data/data_{}.xlsx'.format(iti.id)
-    return send_file(filename, as_attachment=True, download_name='ИТИ {}. Все данные.xlsx'.format(iti.id))
+    store_name, send_name = FileNames.data_excel(iti)
+    ExcelItiWriter(Config.DATA_FOLDER + '/' + store_name, iti.id).write()
+    filename = './data/' + store_name
+    return send_file(filename, as_attachment=True, download_name=send_name)
 
 
 @app.route('/<int:iti_id>/download_diploma', methods=['GET'])
@@ -95,8 +99,9 @@ def download_iti(iti: Iti):
 @check_status('admin')
 @check_block_iti()
 def download_diploma(iti: Iti):
-    filename = './data/diploma_{}.xlsx'.format(iti.id)
-    return send_file(filename, as_attachment=True, download_name='ИТИ {}. Дипломы.xlsx'.format(iti.id))
+    store_name, send_name = FileNames.diploma_excel(iti)
+    filename = './data/' + store_name
+    return send_file(filename, as_attachment=True, download_name=send_name)
 
 
 @app.route('/<int:iti_id>/<path:path3>/load_result', methods=['POST'])

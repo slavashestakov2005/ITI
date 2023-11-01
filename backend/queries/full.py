@@ -37,6 +37,7 @@ def _delete_iti(year: int):
 
     Generator.gen_iti_lists()
     dir1, dir2 = Config.UPLOAD_FOLDER + '/' + str(year), Config.TEMPLATES_FOLDER + '/' + str(year)
+    dir3 = Config.DATA_FOLDER + '/' + str(year)
     simple_dirs = ['/sheet_', '/data_', '/codes_', '/classes_', '/diploma_', '/barcodes_']
     hard_dirs = ['/data_', '/load_']
     for d in simple_dirs:
@@ -47,16 +48,16 @@ def _delete_iti(year: int):
         for file in glob.glob(Config.DATA_FOLDER + d + str(year) + '_*.*'):
             FileManager.delete(file)
             os.remove(file)
-    FileManager.delete_dir(dir1)
-    FileManager.delete_dir(dir2)
-    try:
-        shutil.rmtree(dir1)
-    except FileNotFoundError:
-        pass
-    try:
-        shutil.rmtree(dir2)
-    except FileNotFoundError:
-        pass
+    for file in glob.glob(Config.DATA_FOLDER + '/{}/'.format(year) + "*.*"):
+        FileManager.delete(file)
+        os.remove(file)
+    dirs = [dir1, dir2, dir3]
+    for cur_dir in dirs:
+        FileManager.delete_dir(cur_dir)
+        try:
+            shutil.rmtree(cur_dir)
+        except FileNotFoundError:
+            pass
 
 
 @app.route("/global_settings", methods=['POST'])

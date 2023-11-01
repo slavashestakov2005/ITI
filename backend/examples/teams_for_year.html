@@ -75,6 +75,7 @@
                 {% set current_table_name = "students_in_team_table_number_" + (loop.index0 | string) %}
                 <table border="1" id="{{ current_table_name }}">
                     <thead><tr>
+                        <th width="10%">Школа</th>
                         <th width="10%">Класс</th>
                         <th width="45%">Фамилия</th>
                         <th width="45%">Имя</th>
@@ -82,8 +83,8 @@
                             <th width="5%">
                                 {{ subject }}
                                 <br>
-                                <button onclick="setCheckboxesInColumn('{{ current_table_name }}', {{ loop.index0 + 3 }}, true); return false;">+</button>
-                                <button onclick="setCheckboxesInColumn('{{ current_table_name }}', {{ loop.index0 + 3 }}, false); return false;">-</button>
+                                <button onclick="setCheckboxesInColumn('{{ current_table_name }}', {{ loop.index0 + 4 }}, true); return false;">+</button>
+                                <button onclick="setCheckboxesInColumn('{{ current_table_name }}', {{ loop.index0 + 4 }}, false); return false;">-</button>
                             </th>
                         {% endfor %}
                     </tr></thead>
@@ -114,6 +115,7 @@
         <h2>Отказались:</h2>
         <table>
             <thead><tr>
+                <th width="10%">Школа</th>
                 <th width="10%">Класс</th>
                 <th width="45%">Фамилия</th>
                 <th width="45%">Имя</th>
@@ -121,6 +123,7 @@
             <tbody>
             {% for stud in rejection %}
             <tr>
+                <td>{{ stud.school_name(schools) }}</td>
                 <td>{{ stud.class_name() }}</td>
                 <td>{{ stud.name_1 }}</td>
                 <td>{{ stud.name_2 }}</td>
