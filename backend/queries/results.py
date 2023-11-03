@@ -1,7 +1,7 @@
 from backend import app
 from ..help import forbidden_error
 from ..database import GroupResult, Result, StudentClass, Subject, Team, Iti, ItiSubject, ItiSubjectScore
-from flask import render_template, request
+from flask import render_template
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from .help import check_status, check_block_iti, path_to_subject, compare

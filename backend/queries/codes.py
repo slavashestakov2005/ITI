@@ -26,7 +26,7 @@ def create_codes(iti: Iti):
     codes = [code for code in range(1000, 10000)]
     shuffle(codes)
     data = []
-    schools = {_.id: _ for _ in School.select_all()}
+    schools = School.select_id_dict()
     for student, code in zip(students, codes):
         Code.insert(Code.build(iti.id, student.id, code))
         data.append([student.name_1, student.name_2, student.name_3, student.school_name(schools), student.class_name(),

@@ -15,7 +15,7 @@ from .messages_help import message_teams_public
 
 def teams_page_params(user: User, iti: Iti):
     try:
-        schools = {_.id: _ for _ in School.select_all()}
+        schools = School.select_id_dict()
         teams, res, subjects = user.teams_list(iti.id), [], []
         if iti.sum_ind_to_team:
             for day in range(1, 1 + iti.ind_days):

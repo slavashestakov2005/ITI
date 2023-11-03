@@ -88,6 +88,6 @@ def db():
 @app.route('/<int:iti_id>/year_block')
 @cross_origin()
 @login_required
-@check_status('full')
+@check_status('admin')
 def year_block(iti_id: int):
     return render_template(str(iti_id) + '/year_block.html')

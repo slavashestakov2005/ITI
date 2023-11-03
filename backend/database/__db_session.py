@@ -37,6 +37,10 @@ def execute_sql(text: str):
     return create_session().execute(sa.text(text))
 
 
+def convert_to_dict(data):
+    return {item.id: item for item in data}
+
+
 class Table:
     id_field, fields = 'id', []
 
@@ -76,6 +80,10 @@ class Table:
     @classmethod
     def select_all(cls):
         return cls.__select_by_expr__()
+
+    @classmethod
+    def select_id_dict(cls):
+        return convert_to_dict(cls.select_all())
 
     @classmethod
     def select_last(cls):

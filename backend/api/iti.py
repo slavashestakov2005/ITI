@@ -29,12 +29,12 @@ parser_block.add_argument('block', required=True, type=int)
 
 
 class ItiResource(Resource):
-    @api_item(Iti.select, 'full')
+    @api_item(Iti.select, 'admin')
     def delete(self, iti: Iti):
         _delete_iti(iti.id)
         return True, {'message': 'ИТИ удалены'}
 
-    @api_item(Iti.select, 'full')
+    @api_item(Iti.select, 'admin')
     def put(self, iti: Iti):
         args = parser_block.parse_args()
         iti.block = args['block']
@@ -44,7 +44,7 @@ class ItiResource(Resource):
 
 
 class ItiListResource(Resource):
-    @api_group('full')
+    @api_group('admin')
     def post(self):
         args = parser_simple.parse_args()
         iti_info = Iti.build(None, args['name_in_list'], args['name_on_page'], args['classes'], args['ind_days'],
@@ -58,7 +58,7 @@ class ItiListResource(Resource):
         Generator.gen_iti_subjects_list(iti_id)
         return True, {'message': 'ИТИ добавлены'}
 
-    @api_group('full')
+    @api_group('admin')
     def put(self):
         args = parser_full.parse_args()
         iti_info = Iti.select(args['id'])

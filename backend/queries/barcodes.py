@@ -54,7 +54,7 @@ def create_barcodes(iti: Iti):
     cnt = len(students)
     barcodes_on_page = 6
     doc = DocxTemplate(Config.DATA_FOLDER + '/{}_barcodes_template.docx'.format(barcodes_on_page))
-    schools = {_.id: _ for _ in School.select_all()}
+    schools = School.select_id_dict()
     for i in range(0, cnt, barcodes_on_page):
         context = {'st': []}
         for j in range(i, min(i + barcodes_on_page, cnt)):

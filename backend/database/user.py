@@ -11,7 +11,7 @@ class User(SqlAlchemyBase, UserMixin, Table):
     id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     login = sa.Column(sa.String, nullable=False, unique=True)
     password = sa.Column(sa.String, nullable=False)
-    status = sa.Column(sa.Integer, nullable=False)      # -2 = 'full', -1 = 'admin', x = ...100100... (subjects)
+    status = sa.Column(sa.String, nullable=False)      # -2 = 'full', -1 = 'admin', x = ...100100... (subjects)
 
     def check_password(self, password) -> bool:
         return check_password_hash(self.password, password)
@@ -20,28 +20,32 @@ class User(SqlAlchemyBase, UserMixin, Table):
         self.password = generate_password_hash(password)
 
     def set_status(self, status: list) -> None:
-        if '-1' in status:
-            self.status = -1
+        print(status)
+        if '-2' in status:
+            self.status = '-2'
+        elif '-1' in status:
+            self.status = '-1'
         else:
-            self.status = 0
-            for now in status:
-                self.status += 1 << int(now)
+            self.status = ' '.join(map(str, sorted(status)))
 
     def can_do(self, status: int):
-        return self.status == -2 or \
-               self.status == -1 and status != -2 or \
-               status > 0 and (self.status >> status) % 2
+        status = str(status)
+        return self.status == '-2' or \
+               self.status == '-1' and status != '-2' or \
+               str(status) in self.status
 
     def teams_list(self, year: int):
         return [_.id for _ in Team.select_by_iti(year)] if self.can_do(-1) else []
 
     def subjects_str(self, subjects):
-        if self.status < 0:
+        if '-2' in self.status:
+            return 'full'
+        if '-1' in self.status:
             return 'admin'
         t = ''
-        for subject in subjects:
-            if (self.status >> subject) % 2 == 1:
-                t += subjects[subject] + '; '
+        for subject in self.status.split(' '):
+            if subject:
+                t += subjects[int(subject)] + '; '
         return t[:-2] or '—'
 
     # Table

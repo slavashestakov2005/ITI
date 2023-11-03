@@ -2,7 +2,7 @@ from backend import app
 from ..database import Iti
 from .help import check_status, check_block_iti
 from .auto_generator import Generator
-from flask import render_template, send_file, request, jsonify
+from flask import render_template
 from flask_cors import cross_origin
 from flask_login import login_required
 '''

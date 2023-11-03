@@ -108,7 +108,7 @@ class Generator:
 
     @staticmethod
     def gen_students_list(year: int, class_n: int):
-        schools = {_.id: _ for _ in School.select_all()}
+        schools = School.select_id_dict()
         students = Student.select_by_class_n(year, class_n)
         students = sorted(students, key=compare(lambda x: Student.sort_by_class(x), lambda x: x.name_1,
                                                 lambda x: x.name_2, field=True))
@@ -179,7 +179,7 @@ class Generator:
         student_team = Generator.get_student_team(year)
         ys = {_.id: _ for _ in ItiSubject.select_by_iti(year)}
         students = Generator.get_students(iti)
-        subjects = {_.id: _ for _ in Subject.select_all()}
+        subjects = Subject.select_id_dict()
         subjects_students_0, subjects_students = [], {}
         for y in ys:
             subjects_students_0.extend(SubjectStudent.select_by_iti_subject(y))
@@ -275,7 +275,7 @@ class Generator:
             sorted_results[cls].sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: students[x.student_id].class_l,
                                  lambda x: Student.sort_by_name(students[x.student_id]), field=True))
         data = {}
-        schools = {_.id: _ for _ in School.select_all()}
+        schools = School.select_id_dict()
         for cls in iti.classes_list():
             data[cls] = Generator.gen_results_table(sorted_results[cls], students, scores[cls], iti.net_score_formula,
                                                     iti.ind_prize_policy, schools)
@@ -365,11 +365,11 @@ class Generator:
 
     @staticmethod
     def gen_ratings(iti: Iti):
-        schools = {_.id: _ for _ in School.select_all()}
+        schools = School.select_id_dict()
         student_results, class_results, team_results, all_res, dip1 = Generator.get_all_data_from_results(iti, schools)
         students_raw = {_.id: _ for _ in Student.select_by_iti(iti)}
         students = {_.id: [_.name_1, _.name_2, *_.school_class(schools)] for _id, _ in students_raw.items()}
-        subjects_raw = {_.id: _ for _ in Subject.select_all()}
+        subjects_raw = Subject.select_id_dict()
         subjects = {ys.id: Subject.select(ys.subject_id) for ys in ItiSubject.select_by_iti(iti.id)}
         just_subjects = {subject.id: subject.name for subject in Subject.select_all()}
         ind_subjects = {ys: s.short_name for ys, s in subjects.items() if s.type == 'i'}

@@ -32,7 +32,7 @@ def load_data_from_excel_all():
     itis_id = ExcelFullReader(filename).read(_delete_iti)
     Generator.gen_iti_lists()
     Generator.gen_subjects_lists()
-    subjects = {_.id: _ for _ in Subject.select_all()}
+    subjects = Subject.select_id_dict()
     for iti_id in itis_id:
         iti = Iti.select(iti_id)
         FileCreator.create_iti(iti_id, False)
@@ -55,7 +55,7 @@ def load_data_from_excel_all():
         students = {_.id: _ for _ in Student.select_by_iti(iti)}
         codes = Code.select_by_iti(iti_id)
         data = []
-        schools = {_.id: _ for _ in School.select_all()}
+        schools = School.select_id_dict()
         for code in codes:
             stud = students[code.student_id]
             data.append([stud.name_1, stud.name_2, stud.name_3, stud.school_name(schools), stud.class_name(), code.code])

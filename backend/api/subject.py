@@ -14,7 +14,7 @@ parser_full.add_argument('msg', required=True, type=str)
 
 
 class SubjectResource(Resource):
-    @api_item(Subject.select, 'full')
+    @api_item(Subject.select, 'admin')
     def put(self, subject: Subject):
         args = parser_full.parse_args()
         args['diploma'], args['msg'] = correct_new_line(args['diploma']), correct_new_line(args['msg'])
@@ -29,7 +29,7 @@ class SubjectResource(Resource):
         Generator.gen_subjects_lists()
         return True, {'message': 'Предмет обновлён'}
 
-    @api_item(Subject.select, 'full')
+    @api_item(Subject.select, 'admin')
     def delete(self, subject: Subject):
         Subject.delete(subject)
         Generator.gen_subjects_lists()
@@ -37,7 +37,7 @@ class SubjectResource(Resource):
 
 
 class SubjectListResource(Resource):
-    @api_group('full')
+    @api_group('admin')
     def post(self):
         args = parser_full.parse_args()
         args['diploma'], args['msg'] = correct_new_line(args['diploma']), correct_new_line(args['msg'])
