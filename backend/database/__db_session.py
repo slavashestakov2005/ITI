@@ -60,10 +60,6 @@ class Table:
         return cls.build(*row, allow_empty=True)
 
     @classmethod
-    def default_init(cls):
-        pass
-
-    @classmethod
     def build(cls, *row, allow_empty=False):
         if len(row) == 0:
             return None

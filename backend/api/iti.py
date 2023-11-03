@@ -1,11 +1,9 @@
 from flask_restful import reqparse, Resource
 from ..api import api_item, api_group, str_or_int
-from ..config import Config
 from ..database import Iti
 from ..queries.auto_generator import Generator
 from ..queries.file_creator import FileCreator
 from ..queries.full import _delete_iti
-from ..queries.help import SplitFile
 
 
 parser_simple = reqparse.RequestParser()
@@ -22,6 +20,7 @@ parser_simple.add_argument('auto_teams', required=True, type=str)
 parser_simple.add_argument('sum_ind_to_team', required=True, type=str_or_int)
 parser_simple.add_argument('sum_gr_to_super', required=True, type=str_or_int)
 parser_simple.add_argument('students_in_team', required=True, type=str_or_int)
+parser_simple.add_argument('encoding_type', required=True, type=str_or_int)
 parser_simple.add_argument('description', required=True, type=str)
 parser_full = parser_simple.copy()
 parser_full.add_argument('id', required=True, type=int)
@@ -52,7 +51,7 @@ class ItiListResource(Resource):
                              args['default_ind_score'], args['net_score_formula'], args['sum_ind_to_rating'],
                              args['ind_prize_policy'], args['automatic_division'], args['auto_teams'],
                              args['sum_ind_to_team'], args['sum_gr_to_super'], args['students_in_team'],
-                             args['description'], 0)
+                             args['encoding_type'], args['description'], 0)
         iti_id = Iti.insert(iti_info, return_id=True)
         FileCreator.create_iti(iti_id)
         Generator.gen_iti_lists()
@@ -68,8 +67,8 @@ class ItiListResource(Resource):
         new = Iti.build(None, args['name_in_list'], args['name_on_page'], args['classes'], args['ind_days'],
                         args['default_ind_score'], args['net_score_formula'], args['sum_ind_to_rating'],
                         args['ind_prize_policy'], args['automatic_division'], args['auto_teams'],
-                        args['sum_ind_to_team'], args['sum_gr_to_super'], args['students_in_team'], args['description'],
-                        0, allow_empty=True)
+                        args['sum_ind_to_team'], args['sum_gr_to_super'], args['students_in_team'],
+                        args['encoding_type'], args['description'], 0, allow_empty=True)
         iti_info ^= new
         Iti.update(iti_info)
         Generator.gen_iti_lists()

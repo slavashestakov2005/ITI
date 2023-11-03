@@ -1,10 +1,9 @@
 from .help import SplitFile, all_templates, compare, html_render
 from backend.excel.diploma_writer import ExcelDiplomaWriter
-from ..database import Barcode, GroupResult, Result, Student, Subject, SubjectStudent, Team, TeamStudent, User, Iti,\
-    ItiSubject, ItiSubjectScore, School, TeamConsent, IndDayStudent
+from ..database import GroupResult, Result, Student, Subject, SubjectStudent, Team, TeamStudent, User, Iti, ItiSubject,\
+    ItiSubjectScore, School, TeamConsent, IndDayStudent, decode_result
 from backend.config import Config
 import glob
-
 from ..help import FileNames
 
 '''
@@ -142,25 +141,25 @@ class Generator:
         return {_.subject_id: _.n_d for _ in ItiSubject.select_by_iti(year)}
 
     @staticmethod
-    def get_results_0(year: int, ys_id: int):
+    def get_results_0(iti: Iti, ys_id: int):
         results = Result.select_by_iti_subject(ys_id)
         for result in results:
             if not result.student_id:
-                barcode = Barcode.select(year, result.student_code)
-                if barcode:
-                    Result.update(result ^ Result.build(ys_id, barcode.code, barcode.student_id, None, None, None,
+                student_id = decode_result(iti, result.student_code)
+                if student_id:
+                    Result.update(result ^ Result.build(ys_id, result.student_code, student_id, None, None, None,
                                                         allow_empty=True))
         return Result.select_by_iti_subject(ys_id)
 
     @staticmethod
-    def get_results(year: int, subject: int = None):
+    def get_results(iti: Iti, subject: int = None):
         if not subject:
             data = {}
-            for ys in ItiSubject.select_by_iti(year):
-                data[ys.subject_id] = Generator.get_results_0(year, ys.id)
+            for ys in ItiSubject.select_by_iti(iti.id):
+                data[ys.subject_id] = Generator.get_results_0(iti, ys.id)
             return data
-        ys = ItiSubject.select(year, subject)
-        return ys, Generator.get_results_0(year, ys.id)
+        ys = ItiSubject.select(iti.id, subject)
+        return ys, Generator.get_results_0(iti, ys.id)
 
     @staticmethod
     def get_student_team(year):
@@ -176,7 +175,7 @@ class Generator:
     def get_all_data_from_results(iti: Iti, schools: dict):
         year = iti.id
         zeros = {day: 0 for day in range(1, iti.ind_days + 1)}
-        results = Generator.get_results(year)
+        results = Generator.get_results(iti)
         student_team = Generator.get_student_team(year)
         ys = {_.id: _ for _ in ItiSubject.select_by_iti(year)}
         students = Generator.get_students(iti)
@@ -264,7 +263,7 @@ class Generator:
     @staticmethod
     def gen_results(iti: Iti, subject: int, file_name: str):
         subject_info = Subject.select(subject)
-        year_subject, results = Generator.get_results(iti.id, subject)
+        year_subject, results = Generator.get_results(iti, subject)
         scores = {x.class_n: x.max_value for x in ItiSubjectScore.select_by_iti_subject(year_subject.id)}
         students = Generator.get_students(iti)
         sorted_results = {cls: [] for cls in iti.classes_list()}
@@ -480,7 +479,7 @@ class Generator:
         Team.delete_by_iti(iti.id)
         for vertical in teams_names:
             Team.insert(Team.build(None, 'Команда {}'.format(vertical), iti.id, vertical))
-        results, students = Generator.get_results(iti.id), Generator.get_students(iti)
+        results, students = Generator.get_results(iti), Generator.get_students(iti)
         res_for_ord = {}
         student_result = {}
         t0 = [_.id for _ in Team.select_by_iti(iti.id)]

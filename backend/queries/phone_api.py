@@ -2,7 +2,7 @@ from backend import app
 from ..database import Barcode, Iti, Student, StudentClass, User
 from .help import check_block_iti
 from .results_raw import save_result_
-from flask import render_template, send_file, request, jsonify
+from flask import request, jsonify
 from flask_cors import cross_origin
 import json
 '''
@@ -104,7 +104,7 @@ def save_subject_results(iti: Iti, subject_id: int):
                   5: 'Неправильный формат для результата в строках: ' + (','.join(ans[5]) if 5 in ans else '')}
         txt = [decode[key] for key in decode if key in ans]
         if len(txt):
-            raise ValueError('\n'.joib(txt))
+            raise ValueError('\n'.join(txt))
     except Exception as ex:
         return jsonify({'status': 'Error', 'msg': str(ex)})
     return jsonify({'status': 'OK'})

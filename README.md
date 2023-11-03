@@ -65,7 +65,8 @@
 + [Форма](https://docs.google.com/forms/d/e/1FAIpQLSd7FopqmHoR5Ugcg_-ZAs-guy8NHS5PSvvDsx_rYetaPMKxjw/viewform?usp=sf_link) обратной связи.
 + [Сайт](https://test-python-slava-shestakov.herokuapp.com/) ИТИ на `Heroku`.
 + [Сайт](https://slavashestakov2005.pythonanywhere.com/) ИТИ на `PythonAnywhere`.
-+ [Чистовик](https://iti106.pythonanywhere.com/) сайта.
++ [Бесплатный чистовик](https://iti106.pythonanywhere.com/) сайта.
++ [Платный чистовик](http://iti.univers.su/) сайта.
 + [Репозиторий](https://github.com/linways/table-to-excel) c JavaScript библиотекой для генерации Excel из HTML-таблицы.
 + [Репозитория](https://github.com/slavashestakov2005/ITI-scaner) с приложением для Android.
 + [Папка](https://drive.google.com/drive/folders/1WF8ALf5ctRKGO5r7q5AP5IopGNHC8Va5?usp=drive_link) с APK файлом приложения для Android.
@@ -77,6 +78,10 @@
   + `iti_id` (номер ИТИ)
   + `code` (штрих-код)
   + `student_id` (номер школьника)
++ `code` (обычный вариант кодировки школьников)
+  + `iti_id` (номер ИТИ)
+  + `student_id` (номер школьника)
+  + `code` (код школьника)
 + `group_results` (результаты команд)
   + `team_id` (номер команды)
   + `subject_id` (номер предмета)
@@ -101,6 +106,7 @@
   + `sum_ind_to_team` (суммировать индивидуальные предметы в рейтинг команд, `0` - нет, `1` - да)
   + `sum_gr_to_super` (суммировать групповые и командные дни в рейтинг суперчемпиона, `0` - нет, `1` - да)
   + `students_in_team` (школьников с одной параллели в команде)
+  + `encoding_type` (тип используемой кодировки, `0` - у каждого школьника один код, `1` - у каждой работы свой штрих-код)
   + `description` (описание, только для просмотра администраторами)
   + `block` (блокировка ИТИ, `0` - нет, `1` - да)
 + `iti_subjects` (предметы ИТИ)

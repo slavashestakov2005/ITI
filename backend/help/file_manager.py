@@ -38,6 +38,14 @@ class FileNames:
     def barcodes_word(iti: Iti):
         return '{}/barcodes.docx'.format(iti.id), 'ИТИ {}. Бланки для кодировки.docx'.format(iti.id)
 
+    @staticmethod
+    def codes_excel(iti: Iti):
+        return '{}/codes.xlsx'.format(iti.id), 'ИТИ {}. Кодировка.xlsx'.format(iti.id)
+
+    @staticmethod
+    def students_excel(iti: Iti):
+        return '{}/students.xlsx'.format(iti.id), 'ИТИ {}. Список школьников'.format(iti.id)
+
 
 class FileManager:
     @staticmethod

@@ -7,8 +7,9 @@ from .file_creator import FileCreator
 from .full import _delete_iti
 from .help import check_status, check_block_iti, path_to_subject
 from .results import page_params
-from ..database import Iti, ItiSubject, Subject
-from ..excel import ExcelFullReader, ExcelItiWriter, ExcelResultsReader, ExcelFullWriter, ExcelStudentsReader
+from ..database import Iti, ItiSubject, Subject, Student, Code, School
+from ..excel import ExcelFullReader, ExcelItiWriter, ExcelResultsReader, ExcelFullWriter, ExcelStudentsReader,\
+    ExcelCodesWriter
 from ..config import Config
 from ..help import FileNames
 
@@ -51,6 +52,15 @@ def load_data_from_excel_all():
             elif subject.type == 'g' or subject.type == 'a':
                 Generator.gen_group_results(iti_id, iti_subject.subject_id, filename)
         Generator.gen_ratings(iti)
+        students = {_.id: _ for _ in Student.select_by_iti(iti)}
+        codes = Code.select_by_iti(iti_id)
+        data = []
+        schools = {_.id: _ for _ in School.select_all()}
+        for code in codes:
+            stud = students[code.student_id]
+            data.append([stud.name_1, stud.name_2, stud.name_3, stud.school_name(schools), stud.class_name(), code.code])
+        store_name, send_name = FileNames.codes_excel(iti)
+        ExcelCodesWriter().write(Config.DATA_FOLDER + '/' + store_name, data)
     return 'OK'
 
 
@@ -62,12 +72,14 @@ def load_data_from_excel_students():
     try:
         file = request.files['file']
         iti_id = int(request.form['iti_id'])
-        filename = Config.DATA_FOLDER + '/students_{}.'.format(iti_id) + file.filename.rsplit('.', 1)[1]
+        iti = Iti.select(iti_id)
+        store_name, send_name = FileNames.students_excel(iti)
+        filename = Config.DATA_FOLDER + '/' + store_name
         file.save(filename)
-        ExcelStudentsReader(file, iti_id).read()
+        answer = ExcelStudentsReader(filename, iti_id).read()
+        return answer or 'OK'
     except Exception as ex:
         return 'Error: ' + str(ex)
-    return 'OK'
 
 
 @app.route('/download_db', methods=['GET'])

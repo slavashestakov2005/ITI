@@ -1,5 +1,5 @@
 from backend import app
-from flask import render_template, request, send_file, redirect
+from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required
 import shutil
@@ -8,7 +8,7 @@ import os
 from .help import check_status
 from ..help import init_mail_messages, FileManager, ConfigMail
 from ..database import execute_sql, GroupResult, Message, Result, Barcode, SubjectStudent, Team, TeamStudent, Iti,\
-    ItiSubject, ItiSubjectScore, TeamConsent
+    ItiSubject, ItiSubjectScore, TeamConsent, Code
 from .auto_generator import Generator
 from ..config import Config
 '''
@@ -24,6 +24,7 @@ def _delete_iti(year: int):
         Result.delete_by_iti_subject(ys.id)
         SubjectStudent.delete_by_iti_subject(ys.id)
     Barcode.delete_by_iti(year)
+    Code.delete_by_iti(year)
     Iti.delete(year)
     ItiSubject.delete_by_iti(year)
     Message.delete_by_iti(year)

@@ -33,6 +33,7 @@ class ExcelItiWriter(ExcelParentWriter):
             team_student.extend(TeamStudent.select_by_team(team.id))
 
         self.parse_data(Barcode, Barcode.select_by_iti(self.iti_id))
+        self.parse_data(Code, Code.select_by_iti(self.iti_id))
         self.parse_data(GroupResult, group_result)
         self.parse_data(IndDayStudent, IndDayStudent.select_by_iti(self.iti_id))
         self.parse_data(Iti, [Iti.select(self.iti_id)])

@@ -10,7 +10,3 @@ class School(SqlAlchemyBase, Table):
     short_name = sa.Column(sa.String, nullable=False)
 
     # Table
-
-    @classmethod
-    def default_init(cls):
-        cls.insert(cls.build(None, 'МАОУ «КУГ №1 - Универс»', 'Универс'))

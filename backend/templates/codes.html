@@ -1,0 +1,17 @@
+<!-- login required -->
+<!-- -1 -->
+{% extends "base.html" %}{% block content %}
+
+<center>
+    <h1>Коды участников</h1>
+    {% if iti.encoding_type == 0 %}
+        <p><a href="create_codes">Сгенерировать коды для школьников</a></p>
+        <p><a href="get_codes">Скачать Excel со всеми кодами</a></p>
+    {% elif iti.encoding_type == 1 %}
+        <p><a href="create_barcodes">Сгенерировать WORD с штрих-кодами</a></p>
+        <p><a href="get_barcodes">Скачать штрих-коды в WORD</a></p>
+    {% endif %}
+    {% if error %} <p class="error-msg">[ {{ error }} ]</p> {% endif %}
+</center>
+
+{% endblock %}

@@ -47,18 +47,6 @@ class User(SqlAlchemyBase, UserMixin, Table):
     # Table
 
     @classmethod
-    def default_init(cls):
-        u = cls.build(None, 'slava', '', -2)
-        u.set_password('123')
-        cls.insert(u)
-        u = cls.build(None, 'Савокина', '', -1)
-        u.set_password('1')
-        cls.insert(u)
-        u = cls.build(None, 'Проходский', '', -1)
-        u.set_password('1')
-        cls.insert(u)
-
-    @classmethod
     def select_by_login(cls, login: str):
         return cls.__select_by_expr__(cls.login == login, one=True)
 

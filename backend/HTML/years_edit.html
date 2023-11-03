@@ -18,6 +18,7 @@
 			<p>Суммировать индивидуальные предметы в рейтинг команд: <input type="text" name="sum_ind_to_team"></p>
 			<p>Суммировать групповые предметы в рейтинг суперчемпиона: <input type="text" name="sum_gr_to_super"></p>
 			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
+			<p>Тип кодировки: <input type="text" name="encoding_type"></p>
 			<p>Описание, только для просмотра администраторами:</p>
 			<p><textarea type="text" id="description_1" name="description" class="slim" oninput="textInput(document, 'description_1')"></textarea></p>
 			<script>textInput(document, 'description_1');</script>
@@ -40,6 +41,7 @@
 			<p>Суммировать индивидуальные предметы в рейтинг команд: <input type="text" name="sum_ind_to_team"></p>
 			<p>Суммировать групповые предметы в рейтинг суперчемпиона: <input type="text" name="sum_gr_to_super"></p>
 			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
+			<p>Тип кодировки: <input type="text" name="encoding_type"></p>
 			<p>Описание, только для просмотра администраторами:</p>
 			<p><textarea type="text" id="description_2" name="description" class="slim" oninput="textInput(document, 'description_2')"></textarea></p>
 			<script>textInput(document, 'description_2');</script>
@@ -71,6 +73,7 @@
 				<th width="5%">Сумм. инд. предметы командам</th>
 				<th width="5%">Сумм. гр. дни суперчемпиону</th>
 				<th width="5%">Школьников в команде</th>
+				<th width="5%">Тип кодировки</th>
 				<th width="5%">Описание</th>
 				<th width="5%">Заблокировано? (0 - нет, 1 - да)</th>
 			</tr></thead>
@@ -90,6 +93,7 @@
 				<td>{{ iti.sum_ind_to_team }}</td>
 				<td>{{ iti.sum_gr_to_super }}</td>
 				<td>{{ iti.students_in_team }}</td>
+				<td>{{ iti.encoding_type }}</td>
 				<td>{{ iti.description }}</td>
 				<td>{{ iti.block }}</td>
 			</tr>

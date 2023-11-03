@@ -129,7 +129,7 @@ def class_split_results(iti: Iti, path3):
     if not ys:
         return render_template(url, **params, error4='Такого предмета нет в этом году.')
     try:
-        Generator.get_results_0(iti.id, ys.id)
+        Generator.get_results_0(iti, ys.id)
     except ValueError as ex:
         return render_template(url, **params, error4=str(ex))
     return render_template(url, **params, error4='Школьники разделены по классам')

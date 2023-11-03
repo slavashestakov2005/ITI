@@ -13,6 +13,7 @@ from ..help import ConfigMail
     /settings.html                          Возвращает страницу с настройками пользователя.
     /<iti_id>/rating_students_check.html    Возвращает страницу для простановки галочек на участие в командах (admin).
     /school_edit.html                       Возвращает страницу с настройками школ.
+    /<iti_id>/codes.html                    Возвращает страницу с данными о кодировке школьников.
 '''
 
 
@@ -78,3 +79,12 @@ def rating_students_check(iti: Iti):
 @check_status('admin')
 def school_edit():
     return render_template('school_edit.html', schools=School.select_all())
+
+
+@app.route("/<int:iti_id>/codes.html")
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_iti()
+def iti_codes_page(iti: Iti):
+    return render_template('codes.html', iti=iti)

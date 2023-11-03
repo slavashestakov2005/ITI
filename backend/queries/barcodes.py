@@ -18,8 +18,8 @@ from barcode.writer import ImageWriter
 from ..help import FileNames
 
 '''
-    /<iti_id>/create_barcodes               Создаёт PDF-документ с штрих-кодами участников (admin).
-    /<iti_id>/get_codes                     Возвращает PDF-документ с бланками участников (admin).
+    /<iti_id>/create_barcodes               Создаёт WORD-документ с штрих-кодами участников (admin).
+    /<iti_id>/get_barcodes                  Возвращает WORD-документ с бланками участников (admin).
 '''
 
 
@@ -73,15 +73,15 @@ def create_barcodes(iti: Iti):
     composer.save(main_doc)
     for file in glob(Config.WORDS_FOLDER + '/*.*'):
         os.remove(file)
-    return render_template(str(iti.id) + '/codes.html', error='Штрих-коды сгенерированы')
+    return render_template(str(iti.id) + '/codes.html', error='Документ с листочками сгенерирован')
 
 
-@app.route("/<int:iti_id>/get_codes")
+@app.route("/<int:iti_id>/get_barcodes")
 @cross_origin()
 @login_required
 @check_status('admin')
 @check_block_iti()
-def get_codes(iti: Iti):
+def get_barcodes(iti: Iti):
     store_name, send_name = FileNames.barcodes_word(iti)
     filename = './data/' + store_name
     return send_file(filename, as_attachment=True, download_name=send_name)

@@ -17,7 +17,7 @@ class Student(SqlAlchemyBase, Table):
     @classmethod
     def build(cls, *row, allow_empty=False):
         val = super().build(*row, allow_empty=allow_empty)
-        if val and val.gender != 0 and val.gender != 1:
+        if val and val.gender != '0' and val.gender != '1':
             val.set_gender(val.gender)
         return val
 
@@ -52,12 +52,12 @@ class Student(SqlAlchemyBase, Table):
         return self.name_1 + ' ' + self.name_2
 
     def get_gender(self):
-        return 'Ж' if self.gender else 'М'
+        return 'Ж' if self.gender == '1' else 'М'
 
     def set_gender(self, s):
-        self.gender = 0
+        self.gender = '0'
         if s == 'Ж' or s == 'ж':
-            self.gender = 1
+            self.gender = '1'
 
     @staticmethod
     def sort_by_class(student):
