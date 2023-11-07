@@ -13,10 +13,8 @@ class Message(SqlAlchemyBase, Table):
     time = sa.Column(sa.Integer, nullable=False)
     priority = sa.Column(sa.Integer, nullable=False)
 
-    def time_str(self, show=False):
-        if not show and self.priority:
-            return ''
-        return datetime.fromtimestamp(self.time + 25200).strftime('%Y-%m-%d %H:%M')
+    def get_time(self):
+        return datetime.utcfromtimestamp(self.time)
 
     @staticmethod
     def sort_by_time(message):

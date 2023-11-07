@@ -54,7 +54,7 @@ def static_file(path):
     parts = [x.lower() for x in path.rsplit('.', 1)]
     if path in LOGIN_REQUIRED_FILES and (not current_user.is_authenticated
                                          or path in STATUS_REQUIRED_FILES
-                                         and current_user.status not in STATUS_REQUIRED_FILES[path]):
+                                         and all(not current_user.can_do(_) for _ in str(STATUS_REQUIRED_FILES[path]))):
         return forbidden_error()
     try:
         if len(parts) >= 2 and parts[1] == 'html':

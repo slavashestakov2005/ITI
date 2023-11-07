@@ -1,11 +1,13 @@
 # from ..database import FilesTable, File
-import os
 import glob
+from datetime import datetime
 import re
 
 from backend.database import Iti
 
 '''
+    get_timestamp(*args)            Возвращает int - временную точку вычисленную от аргументов (UTC now, если нет аргументов).
+    krsk_time(utc_time)             Возвращает время в Красноярске для заднного времени в UTC/
     correct_slash(str)              Заменяет все слэши на '/'.
     class FileManager               Управляет файлами внутри БД.
         save(file_name)             Добавляет файл в БД.
@@ -14,6 +16,18 @@ from backend.database import Iti
         delete_dir(dir_name)        Удаляет все файлы из dir в БД.
         restore_all()               Создаёт все файлы, записанные в БД.
 '''
+
+
+def get_timestamp(*args):
+    if not len(args):
+        point = datetime.utcnow()
+    else:
+        point = datetime(*args)
+    return int(point.timestamp())
+
+
+def krsk_time(point: int):
+    return datetime.utcfromtimestamp(point + 25200)
 
 
 def correct_slash(s: str):

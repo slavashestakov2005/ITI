@@ -1,5 +1,5 @@
 from ..database import Message, Subject
-from datetime import datetime
+from ..help import get_timestamp
 from ..config import Config
 import telebot
 import os
@@ -17,7 +17,7 @@ def send_message_to_telegram(title, content, year):
 
 
 def message_save(title, content, year, priority=0):
-    Message.insert(Message.build(None, year, title, content, int(datetime.now().timestamp()), priority))
+    Message.insert(Message.build(None, year, title, content, get_timestamp(), priority))
     send_message_to_telegram(title, content, year)
 
 

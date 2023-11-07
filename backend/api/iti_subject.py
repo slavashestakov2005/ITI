@@ -18,6 +18,7 @@ parser_full.add_argument('n_d', required=False, type=int)
 parser_full.add_argument('date', required=False, type=str)
 parser_full.add_argument('start', required=False, type=str)
 parser_full.add_argument('end', required=False, type=str)
+parser_full.add_argument('timezone', required=False, type=int)
 parser_full.add_argument('score_2', required=False, type=int)
 parser_full.add_argument('score_3', required=False, type=int)
 parser_full.add_argument('score_4', required=False, type=int)
@@ -43,8 +44,8 @@ class ItiSubjectResource(Resource):
                 return False, {'message': 'Доступ запрещён'}
             if args['n_d'] and args['n_d'] <= 0:
                 return False, {'message': 'Отрицательный номер дня'}
-            start = get_point(args['date'], args['start'])
-            end = get_point(args['date'], args['end'])
+            start = get_point(args['date'], args['start'], args['timezone'])
+            end = get_point(args['date'], args['end'], args['timezone'])
             new = ItiSubject.build(iti_subjects.id, iti_subjects.iti_id, iti_subjects.subject_id, start, end,
                                    args['classes'], args['place'], args['n_d'], allow_empty=True)
             iti_subjects ^= new

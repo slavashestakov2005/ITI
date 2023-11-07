@@ -4,7 +4,7 @@ from functools import wraps, cmp_to_key
 from glob import glob
 from jinja2 import Environment, FileSystemLoader
 from backend.config import Config
-from ..help import FileManager, correct_slash
+from ..help import FileManager, correct_slash, krsk_time
 from ..database import Iti
 import re
 import os
@@ -230,6 +230,7 @@ def html_render(template_name: str, output_name: str, template_folder: str = Con
     env = Environment(loader=FileSystemLoader(template_folder))
     env.filters['set'] = set_filter
     template = env.get_template(template_name)
+    data['krsk_moment'] = krsk_time
     data = template.render(**data)
     for rep in default_replace:
         data = data.replace(rep[0], rep[1])

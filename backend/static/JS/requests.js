@@ -52,6 +52,10 @@ function urlSubject() {
     return urlPart(2).split('.')[0];
 }
 
+function timezone() {
+    return new Date().getTimezoneOffset();
+}
+
 function parseForm(form, data={}) {
     for (const  element of form.getElementsByTagName('input')) {
         if (element.name) {
@@ -154,12 +158,12 @@ function school_delete(form) {
 // message
 
 function message_add(form) {
-    let data = parseForm(form, {'year': urlIti()});
+    let data = parseForm(form, {'year': urlIti(), 'timezone': timezone()});
     makeRequest('message', 'post', data);
 }
 
 function message_edit(form) {
-    let data = parseForm(form);
+    let data = parseForm(form, {'timezone': timezone()});
     makeRequest('message/' + data['id'], 'put', data);
 }
 
@@ -207,12 +211,12 @@ function group_results_save(form) {
 // iti_subject
 
 function year_subject_save(form) {
-    let data = parseForm(form, {'year': urlIti()});
+    let data = parseForm(form, {'year': urlIti(), 'timezone': timezone()});
     makeRequest('iti_subject', 'post', data);
 }
 
 function year_subject_edit(form, type) {
-    let data = parseForm(form, {'type': type, 'year': urlIti(), 'subject': urlSubject()});
+    let data = parseForm(form, {'type': type, 'year': urlIti(), 'subject': urlSubject(), 'timezone': timezone()});
     makeRequest('iti_subject/' + data['year'] + '/' + data['subject'], 'put', data);
 }
 

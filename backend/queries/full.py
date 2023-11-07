@@ -14,7 +14,8 @@ from ..config import Config
 '''
     /global_settings                        Сохраняет глобальные настройки (пароль от почты) (full).
     /db                                     Делает SQL запросы к базе данных (full).
-    /<iti_id>/year_block                    Блокирует последующее редактирование года для всех (full).
+    /<iti_id>/year_block                    Блокирует последующее редактирование года для всех (admin).
+    /restart                                Перезагружает сайт (full).
 '''
 
 
@@ -91,3 +92,13 @@ def db():
 @check_status('admin')
 def year_block(iti_id: int):
     return render_template(str(iti_id) + '/year_block.html')
+
+
+@app.route('/restart')
+@cross_origin()
+@login_required
+@check_status('full')
+def restart():
+    with open('.restart-app', 'w') as f:
+        pass
+    return 'Файл перезагрузки создан, ожидайте'

@@ -1,9 +1,8 @@
-from datetime import datetime
 from flask import make_response, jsonify
 from flask_cors import cross_origin
 from flask_login import current_user
 from functools import wraps
-from ..help import EmptyFieldException
+from ..help import EmptyFieldException, get_timestamp
 
 
 def check_status(status):
@@ -67,12 +66,12 @@ def api_group(status=None):
     return my_decorator
 
 
-def get_point(date: str, time: str, null=True):
+def get_point(date: str, time: str, timezone_minutes: int, null=True):
     if not date or not time:
-        return None if null else int(datetime.now().timestamp())
+        return None if null else get_timestamp()
     date = [int(_) for _ in date.split('-')]
     time = [int(_) for _ in time.split(':')]
-    return int(datetime(*date, *time).timestamp())
+    return get_timestamp(*date, *time) + timezone_minutes * 60
 
 
 def str_or_int(value):

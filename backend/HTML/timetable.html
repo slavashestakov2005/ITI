@@ -14,14 +14,15 @@
         {% for subject in iti_subjects %}
             <tr>
                 <td>{{ subject.n_d }}</td>
-                <td>{{ subject.date_str() }}</td>
+                <td>{{ krsk_moment(subject.start).strftime('%Y-%m-%d') }}</td>
                 <td>{{ subjects[subject.subject_id].name }}</td>
                 <td>{{ subject.classes }}</td>
-                <td>{{ subject.start_str() }}</td>
-                <td>{{ subject.end_str() }}</td>
+                <td>{{ krsk_moment(subject.start).strftime('%H:%M') }}</td>
+                <td>{{ krsk_moment(subject.end).strftime('%H:%M') }}</td>
                 <td>{{ subject.place }}</td>
             </tr>
         {% endfor %}
     </table>
+    <p>Время в таблице указано красноярское.</p>
 </center>
 <!-- replace 2 -->

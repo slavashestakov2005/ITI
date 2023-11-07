@@ -20,7 +20,6 @@ class User(SqlAlchemyBase, UserMixin, Table):
         self.password = generate_password_hash(password)
 
     def set_status(self, status: list) -> None:
-        print(status)
         if '-2' in status:
             self.status = '-2'
         elif '-1' in status:

@@ -1,4 +1,3 @@
-from datetime import datetime
 from .__db_session import sa, SqlAlchemyBase, Table
 
 
@@ -18,15 +17,6 @@ class ItiSubject(SqlAlchemyBase, Table):
     @staticmethod
     def sort_by_start(year_subject):
         return year_subject.start
-
-    def date_str(self) -> str:
-        return datetime.fromtimestamp(self.start).strftime('%Y-%m-%d')
-
-    def start_str(self) -> str:
-        return datetime.fromtimestamp(self.start).strftime('%H:%M')
-
-    def end_str(self) -> str:
-        return datetime.fromtimestamp(self.end).strftime('%H:%M')
 
     # Table
 

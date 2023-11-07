@@ -22,7 +22,7 @@
                 <td>{{ msg.id }}</td>
                 <td>{{ msg.title }}</td>
                 <td>{{ msg.content }}</td>
-                <td>{{ msg.time_str(True) }}</td>
+                <td>{{ moment(msg.get_time()).format('Y-MM-D HH:mm') }}</td>
                 <td>{{ msg.priority }}</td>
             </tr>
             {% endfor %}
