@@ -14,6 +14,7 @@ from ..help import ConfigMail
     /<iti_id>/rating_students_check.html    Возвращает страницу для простановки галочек на участие в командах (admin).
     /school_edit.html                       Возвращает страницу с настройками школ.
     /<iti_id>/codes.html                    Возвращает страницу с данными о кодировке школьников.
+    /<iti_id>/barcodes_edit.html            Возвращает страницу для редактирования информации штрих-код -- школьник (admin).
 '''
 
 
@@ -88,3 +89,12 @@ def school_edit():
 @check_block_iti()
 def iti_codes_page(iti: Iti):
     return render_template('codes.html', iti=iti)
+
+
+@app.route("/<int:iti_id>/barcodes_edit.html")
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_iti()
+def iti_barcodes_edit_page(iti: Iti):
+    return render_template('barcodes_edit.html', iti=iti)

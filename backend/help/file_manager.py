@@ -1,6 +1,6 @@
 # from ..database import FilesTable, File
 import glob
-from datetime import datetime
+from datetime import datetime, timezone
 import re
 
 from backend.database import Iti
@@ -22,7 +22,7 @@ def get_timestamp(*args):
     if not len(args):
         point = datetime.utcnow()
     else:
-        point = datetime(*args)
+        point = datetime(*args, tzinfo=timezone.utc)
     return int(point.timestamp())
 
 
@@ -58,7 +58,12 @@ class FileNames:
 
     @staticmethod
     def students_excel(iti: Iti):
-        return '{}/students.xlsx'.format(iti.id), 'ИТИ {}. Список школьников'.format(iti.id)
+        return '{}/students.xlsx'.format(iti.id), 'ИТИ {}. Список школьников.xlsx'.format(iti.id)
+
+    @staticmethod
+    def barcodes_excel(iti: Iti, start_code: int, end_code: int):
+        args = iti.id, start_code, end_code
+        return '{}/barcodes_{}_{}.xlsx'.format(*args), 'ИТИ {}. Штрих-коды {}-{}.xlsx'.format(*args)
 
 
 class FileManager:

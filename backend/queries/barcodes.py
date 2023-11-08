@@ -1,8 +1,9 @@
 from backend import app
 from .. import Config
 from ..database import Student, Iti, School
+from ..excel import ExcelBarcodesWriter
 from .help import check_status, check_block_iti
-from flask import render_template, send_file
+from flask import render_template, send_file, request
 from flask_cors import cross_origin
 from flask_login import login_required
 
@@ -83,5 +84,29 @@ def create_barcodes(iti: Iti):
 @check_block_iti()
 def get_barcodes(iti: Iti):
     store_name, send_name = FileNames.barcodes_word(iti)
+    filename = './data/' + store_name
+    return send_file(filename, as_attachment=True, download_name=send_name)
+
+
+@app.route("/<int:iti_id>/get_excel_with_barcodes", methods=['POST'])
+@cross_origin()
+@login_required
+@check_status('admin')
+@check_block_iti()
+def get_excel_with_barcodes(iti: Iti):
+    MOD = 10 ** 12
+    try:
+        start_barcode = int(request.form['start_barcode']) % MOD
+        end_barcode = int(request.form['end_barcode']) % MOD
+    except Exception:
+        return render_template('codes.html', error='Не переданы начальные и конечные коды')
+    store_name, send_name = FileNames.barcodes_excel(iti, start_barcode, end_barcode)
+    data = []
+    for code in range(start_barcode, end_barcode + 1):
+        bar = '0' * (12 - len(str(code))) + str(code)
+        full_bar = barcode.get('ean13', bar)
+        data.append([str(full_bar)])
+        data.append([str(full_bar)])
+    ExcelBarcodesWriter().write(Config.DATA_FOLDER + '/' + store_name, data)
     filename = './data/' + store_name
     return send_file(filename, as_attachment=True, download_name=send_name)

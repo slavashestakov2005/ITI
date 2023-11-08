@@ -29,10 +29,10 @@ def student_info(iti: Iti):
             raise ValueError("Пользователь не является администратором")
         student = Student.select(student_id)
         if not student:
-            raise ValueError("Такого школника нет")
+            raise ValueError("Такого школьника нет")
         student_class = StudentClass.select(iti.id, student_id)
         if not student_class:
-            raise ValueError("Школник не участвует в этом ИТИ")
+            raise ValueError("Школьник не участвует в этом ИТИ")
         return jsonify({'status': 'OK', 'student': student.json(), 'student_class': student_class.json()})
     except Exception as ex:
         return jsonify({'status': 'Error', 'msg': str(ex)})

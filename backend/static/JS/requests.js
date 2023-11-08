@@ -317,3 +317,15 @@ function student_class_delete(form) {
     let id = form['id'].value, year = urlIti();
     makeRequest('student_class/' + year + '/' + id, 'delete');
 }
+
+// barcode
+
+function barcode_add(form) {
+    let data = parseForm(form), year = urlIti();
+    makeRequest('barcode/' + year, 'post', data);
+}
+
+function barcode_delete(form) {
+    let data = parseForm(form), year = urlIti();
+    makeRequest('barcode/' + year, 'delete', data);
+}

@@ -1,11 +1,12 @@
 from flask_restful import Api
 from backend import app
 from .__help__ import *
-from . import group_result, iti, iti_subject, message, result, school, student, student_class, subject,\
+from . import barcode, group_result, iti, iti_subject, message, result, school, student, student_class, subject,\
     subject_student, team, team_student, user
 
 
 api = Api(app)
+api.add_resource(barcode.BarcodeListResource, '/api/v1/barcode/<int:iti_id>')
 api.add_resource(group_result.GroupResultListResource, '/api/v1/group_result')
 api.add_resource(iti.ItiListResource, '/api/v1/iti')
 api.add_resource(iti.ItiResource, '/api/v1/iti/<int:item_id>')

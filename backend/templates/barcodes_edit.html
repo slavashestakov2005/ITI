@@ -1,0 +1,27 @@
+<!-- login required -->
+<!-- -1 -->
+{% extends "base.html" %}{% block content %}
+
+<center>
+    <h1>Штрих-коды работ участников</h1>
+    {% if iti.encoding_type == 0 %}
+        <p>У этого ИТИ нет штрих-кодов.</p>
+    {% elif iti.encoding_type == 1 %}
+        <h2>Добавить (изменить) штрих-код </h2>
+        <form onsubmit="barcode_add(this); return false;">
+			<p>Штрих-код: <input type="text" name="barcode"></p>
+			<p>ID школьника: <input type="text" name="student_id"></p>
+			<input type="submit" value="Добавить или изменить">
+		</form>
+        <br>
+        <h2>Удалить штрих-код </h2>
+        <form onsubmit="barcode_delete(this); return false;">
+			<p>Штрих-код: <input type="text" name="barcode"></p>
+			<p>ID школьника: <input type="text" name="student_id"></p>
+			<input type="submit" value="Удалить">
+		</form>
+    {% endif %}
+    {% if error %} <p class="error-msg">[ {{ error }} ]</p> {% endif %}
+</center>
+
+{% endblock %}

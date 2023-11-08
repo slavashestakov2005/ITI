@@ -13,4 +13,4 @@ class Config:
     TEMPLATES_AUTO_RELOAD = True
 
     HEROKU = True if os.getenv('HEROKU') else False
-    HOST = 'http://iti106.pythonanywhere.com/'
+    HOST = 'http://iti.univers.su/'

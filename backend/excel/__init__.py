@@ -5,3 +5,4 @@ from .full import *
 from .iti_writer import *
 from .results_reader import *
 from .students_reader import *
+from .barcodes_writer import *

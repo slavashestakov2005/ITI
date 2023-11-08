@@ -31,6 +31,7 @@
             <li><a href="{{ iti.id }}/student_edit.html">Участники ИТИ (школьники)</a></li>
             <li><a href="{{ iti.id }}/team_edit">Команды ИТИ</a></li>
             <li><a href="{{ iti.id }}/codes.html">Коды участников</a></li>
+            {% if iti.encoding_type == 1 %}<li><a href="{{ iti.id }}/barcodes_edit.html">Редактирование штрих-кодов работ</a></li>{% endif %}
             <li><a href="{{ iti.id }}/excel.html">Excel таблицы с данными</a></li>
             {% else %}
             <li><a href="{{ iti.id }}/team_edit">Команды ИТИ</a></li>
