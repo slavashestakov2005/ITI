@@ -7,7 +7,7 @@ def get_student_by_params(year: int, name1: str, name2: str, class_n: str, class
     students = Student.select_by_name(name1, name2)
     for student in students:
         cls = StudentClass.select(year, student.id)
-        if cls.class_latter == class_l and cls.class_number == class_n:
+        if cls is None or cls.class_latter == class_l and cls.class_number == class_n:
             return student
     return None
 

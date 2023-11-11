@@ -33,8 +33,13 @@ def create_session() -> Session:
     return __factory()
 
 
-def execute_sql(text: str):
-    return create_session().execute(sa.text(text))
+def execute_sql(text: str, ret=False):
+    if ret:
+        return list(create_session().execute(sa.text(text)))
+    session = create_session()
+    session.execute(sa.text(text))
+    session.commit()
+    return None
 
 
 def convert_to_dict(data):

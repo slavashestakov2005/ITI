@@ -6,14 +6,14 @@ from .help import check_status, check_block_iti
 from ..database import Message, Iti, School
 from ..help import ConfigMail
 '''
-    /<iti_id>/subjects_for_year.html        Возвращает страницу с настройками года (admin).
-    /<iti_id>/messages_for_year.html        Возвращает страницу с объявлениями года (admin).
+    /<iti_id>/subjects_for_year.html        Возвращает страницу с настройками ИТИ (admin).
+    /<iti_id>/messages_for_year.html        Возвращает страницу с новостями ИТИ (admin).
     /<iti_id>/student_edit.html             Возвращает страницу со списком школьников (admin).
     /<iti_id>/excel.html                    Возвращает страницу со списком Excel таблиц (admin).
     /settings.html                          Возвращает страницу с настройками пользователя.
     /<iti_id>/rating_students_check.html    Возвращает страницу для простановки галочек на участие в командах (admin).
-    /school_edit.html                       Возвращает страницу с настройками школ.
-    /<iti_id>/codes.html                    Возвращает страницу с данными о кодировке школьников.
+    /school_edit.html                       Возвращает страницу с настройками школ (admin).
+    /<iti_id>/codes.html                    Возвращает страницу с данными о кодировке школьников (admin).
     /<iti_id>/barcodes_edit.html            Возвращает страницу для редактирования информации штрих-код -- школьник (admin).
 '''
 

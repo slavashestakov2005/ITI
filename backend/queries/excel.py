@@ -25,6 +25,8 @@ from ..help import FileNames
 
 @app.route('/load_data_from_excel_all', methods=['POST'])
 @cross_origin()
+@login_required
+@check_status('full')
 def load_data_from_excel_all():
     file = request.files['file']
     filename = Config.DATA_FOLDER + '/sheet_all.' + file.filename.rsplit('.', 1)[1]

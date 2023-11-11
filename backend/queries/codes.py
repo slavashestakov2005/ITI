@@ -1,7 +1,7 @@
 from backend import app
 from ..database import Student, Iti, School, Code
 from .help import check_status, check_block_iti
-from flask import render_template, send_file
+from flask import render_template, send_file, request
 from flask_cors import cross_origin
 from flask_login import login_required
 from ..help import FileNames
@@ -21,16 +21,26 @@ from ..config import Config
 @check_status('admin')
 @check_block_iti()
 def create_codes(iti: Iti):
-    Code.delete_by_iti(iti.id)
-    students = sorted(Student.select_by_iti(iti), key=Student.sort_by_all)
-    codes = [code for code in range(1000, 10000)]
+    only_new = request.args.get('new') == '1'
+    codes = {code for code in range(1000, 10000)}
+    if only_new:
+        Code.delete_by_iti(iti.id)
+        students = Student.select_by_iti(iti)
+    else:
+        have_codes = Code.select_by_iti(iti.id)
+        students_with_codes = {code.student_id for code in have_codes}
+        students = [student for student in Student.select_by_iti(iti) if student.id not in students_with_codes]
+        codes -= {code.code for code in have_codes}
+    students = sorted(students, key=Student.sort_by_all)
+    codes = list(codes)
     shuffle(codes)
-    data = []
     schools = School.select_id_dict()
     for student, code in zip(students, codes):
         Code.insert(Code.build(iti.id, student.id, code))
-        data.append([student.name_1, student.name_2, student.name_3, student.school_name(schools), student.class_name(),
-                     code])
+    data = []
+    for stud in sorted(Student.select_by_iti(iti), key=Student.sort_by_all):
+        code = Code.select_by_student(iti.id, stud.id)
+        data.append([stud.name_1, stud.name_2, stud.name_3, stud.school_name(schools), stud.class_name(), code.code])
     store_name, send_name = FileNames.codes_excel(iti)
     ExcelCodesWriter().write(Config.DATA_FOLDER + '/' + store_name, data)
     return render_template('codes.html', iti=iti, error='Кодировка сгенерирована')

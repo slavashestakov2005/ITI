@@ -8,8 +8,8 @@ from .help import check_status, check_block_iti, path_to_subject, compare
 from .auto_generator import Generator
 from .messages_help import message_results_public, message_ratings_public, message_all_ratings_public
 '''
-    /<iti_id>/<path>/add_result             redirect на страницу редактирования (для предметников).
-    /<iti_id>/<path>/class_split_results    Разбивает индивидуальные результаты по параллелям (admin).
+    /<iti_id>/<path>/add_result             Возвращает страницу редактирования по предмету (предметник).
+    /<iti_id>/<path>/class_split_results    Разделяет индивидуальные результаты по параллелям (admin).
     /<iti_id>/<path>/share_results          Генерирует таблицу с индивидуальными результатами (admin).
     /<iti_id>/ratings_update                Обновляет рейтинги (admin).
     /<iti_id>/<path>/share_group_results    Генерирует таблицу с групповыми результатами (admin).

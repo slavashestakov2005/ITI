@@ -16,6 +16,10 @@ class Code(SqlAlchemyBase, Table):
         return cls.__select_by_expr__(cls.iti_id == iti_id, cls.code == code, one=True)
 
     @classmethod
+    def select_by_student(cls, iti_id: int, student_id: int):
+        return cls.__select_by_expr__(cls.iti_id == iti_id, cls.student_id == student_id, one=True)
+
+    @classmethod
     def select_by_iti(cls, iti_id: int) -> list:
         return cls.__select_by_expr__(cls.iti_id == iti_id)
 

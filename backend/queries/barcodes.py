@@ -21,6 +21,7 @@ from ..help import FileNames
 '''
     /<iti_id>/create_barcodes               Создаёт WORD-документ с штрих-кодами участников (admin).
     /<iti_id>/get_barcodes                  Возвращает WORD-документ с бланками участников (admin).
+    /<iti_id>/get_excel_with_barcodes       Возвращает EXCEL-документ со штрих-кодами из заданного диапазона (admin).
 '''
 
 
@@ -70,11 +71,12 @@ def create_barcodes(iti: Iti):
     for i in range(barcodes_on_page, cnt, barcodes_on_page):
         doc = Document(Config.WORDS_FOLDER + '/bar-{}.docx'.format(i // barcodes_on_page))
         composer.append(doc)
-    main_doc = Config.DATA_FOLDER + "/barcodes_{}.docx".format(iti.id)
+    store_name, send_name = FileNames.barcodes_word(iti)
+    main_doc = Config.DATA_FOLDER + "/" + store_name
     composer.save(main_doc)
     for file in glob(Config.WORDS_FOLDER + '/*.*'):
         os.remove(file)
-    return render_template(str(iti.id) + '/codes.html', error='Документ с листочками сгенерирован')
+    return render_template('codes.html', error='Документ с листочками сгенерирован', iti=iti)
 
 
 @app.route("/<int:iti_id>/get_barcodes")
@@ -96,6 +98,7 @@ def get_barcodes(iti: Iti):
 def get_excel_with_barcodes(iti: Iti):
     MOD = 10 ** 12
     try:
+        add_checksum = 'add_checksum' in request.form
         start_barcode = int(request.form['start_barcode']) % MOD
         end_barcode = int(request.form['end_barcode']) % MOD
     except Exception:
@@ -104,9 +107,12 @@ def get_excel_with_barcodes(iti: Iti):
     data = []
     for code in range(start_barcode, end_barcode + 1):
         bar = '0' * (12 - len(str(code))) + str(code)
-        full_bar = barcode.get('ean13', bar)
-        data.append([str(full_bar)])
-        data.append([str(full_bar)])
+        if add_checksum:
+            full_bar = str(barcode.get('ean13', bar))
+        else:
+            full_bar = bar
+        data.append([full_bar])
+        data.append([full_bar])
     ExcelBarcodesWriter().write(Config.DATA_FOLDER + '/' + store_name, data)
     filename = './data/' + store_name
     return send_file(filename, as_attachment=True, download_name=send_name)
