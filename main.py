@@ -9,6 +9,10 @@ from backend.help import start_debug, init_mail_messages
 from backend.queries.help import parse_files
 from backend.config import Config
 
+import logging
+
+logging.basicConfig(filename="logs.log", level=logging.DEBUG)
+
 
 parse_files()
 start_debug()
