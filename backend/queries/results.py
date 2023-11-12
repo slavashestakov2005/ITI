@@ -114,7 +114,6 @@ def add_result(iti: Iti, path3):
 @app.route('/<int:iti_id>/<path:path3>/class_split_results')
 @cross_origin()
 @login_required
-@check_status('admin')
 @check_block_iti()
 def class_split_results(iti: Iti, path3):
     path2 = 'individual'
@@ -124,7 +123,8 @@ def class_split_results(iti: Iti, path3):
         subject = path_to_subject(path3)
     except Exception:
         return render_template(url, **params, error4='Некорректные данные')
-
+    if not current_user.can_do(subject):
+        return render_template(url, **params, error4='У вас не доступа к этому предмету')
     ys = ItiSubject.select(iti.id, subject)
     if not ys:
         return render_template(url, **params, error4='Такого предмета нет в этом году.')

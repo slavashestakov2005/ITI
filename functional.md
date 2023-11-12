@@ -66,11 +66,11 @@
 | school_edit.html                      | GET       | queries/pages.py     | Возвращает страницу с настройками школ                                         | admin       |
 | <iti_id>/codes.html                   | GET       | queries/pages.py     | Возвращает страницу с данными о кодировке школьников                           | admin       |
 | <iti_id>/barcodes_edit.html           | GET       | queries/pages.py     | Возвращает страницу для редактирования информации штрих-код -- школьник        | admin       |
-| <iti_id>/student_info                 | POST      | queries/phone_api.py | Возвращает информацию по ID школьника                                          | admin       |
-| <iti_id>/save_barcodes                | POST      | queries/phone_api.py | Сохраняет таблицу с штрих-кодами                                               | admin       |
+| <iti_id>/student_info                 | POST      | queries/phone_api.py | Возвращает информацию по ID школьника                                          | scaner      |
+| <iti_id>/save_barcodes                | POST      | queries/phone_api.py | Сохраняет таблицу с штрих-кодами                                               | scaner      |
 | <iti_id>/<subject_id>/save_results    | GET       | queries/phone_api.py | Сохраняет результаты по предмету                                               | Предметник  |
 | <iti_id>/<s_path>/add_result          | GET       | queries/results.py   | Возвращает страницу редактирования результатов по предмету                     | Предметник  |
-| <iti_id>/<s_path>/class_split_results | GET       | queries/results.py   | Разделяет индивидуальные результаты по параллелям                              | admin       |
+| <iti_id>/<s_path>/class_split_results | GET       | queries/results.py   | Разделяет индивидуальные результаты по параллелям                              | Предметник  |
 | <iti_id>/<s_path>/share_results       | GET       | queries/results.py   | Генерирует таблицу с индивидуальными результатами                              | admin       |
 | <iti_id>/ratings_update               | GET       | queries/results.py   | Обновляет рейтинги                                                             | admin       |
 | <iti_id>/<s_path>/share_group_results | GET       | queries/results.py   | Генерирует таблицу с групповыми результатами                                   | admin       |

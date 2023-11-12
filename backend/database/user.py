@@ -31,7 +31,7 @@ class User(SqlAlchemyBase, UserMixin, Table):
         status = str(status)
         return self.status == '-2' or \
                self.status == '-1' and status != '-2' or \
-               str(status) in self.status
+               str(status) in self.status.split()
 
     def teams_list(self, year: int):
         return [_.id for _ in Team.select_by_iti(year)] if self.can_do(-1) else []
@@ -44,7 +44,10 @@ class User(SqlAlchemyBase, UserMixin, Table):
         t = ''
         for subject in self.status.split(' '):
             if subject:
-                t += subjects[int(subject)] + '; '
+                if subject == "-3":
+                    t += "scaner; "
+                else:
+                    t += subjects[int(subject)] + '; '
         return t[:-2] or '—'
 
     # Table

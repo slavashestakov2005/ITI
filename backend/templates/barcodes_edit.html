@@ -20,6 +20,28 @@
 			<p>ID школьника: <input type="text" name="student_id"></p>
 			<input type="submit" value="Удалить">
 		</form>
+        <br>
+        <table border="1">
+            <thead><tr>
+                <th>Штрих-код</th>
+                <th>ID Школьника</th>
+                <th>Имя</th>
+                <th>Школа</th>
+                <th>Класс</th>
+            </tr></thead>
+            <tbody>
+                {% for barcode in barcodes %}
+                    <tr>
+                        <td>{{ barcode.code }}</td>
+                        <td>{{ barcode.student_id }}</td>
+                        {% set student = students[barcode.student_id] %}
+                        <td>{{ student.name_1 }} {{ student.name_2 }} {{ student.name_3 }}</td>
+                        <td>{{ student.school_name(schools) }}</td>
+                        <td>{{ student.class_name() }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% endif %}
     {% if error %} <p class="error-msg">[ {{ error }} ]</p> {% endif %}
 </center>

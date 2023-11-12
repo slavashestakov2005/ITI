@@ -2,7 +2,7 @@ from flask_login import current_user
 from flask_restful import reqparse, Resource
 from ..api import api_group
 from ..queries.results_raw import save_result_, delete_result_
-from ..database import ItiSubject
+from ..database import ItiSubject, Result
 
 
 parser_simple = reqparse.RequestParser()
@@ -13,10 +13,18 @@ parser_full = parser_simple.copy()
 parser_full.add_argument('result', required=True, type=str)
 
 
+# TODO: переделать строку Сохранён результат больше 30
+# TODO: переделать строку По этому штрих-коду результат уже сохранён
 class ResultListResource(Resource):
     @api_group()
     def post(self):
         args = parser_full.parse_args()
+        if float(args['result']) > 30:
+            return False, {'message': 'Пытались сохранить результат больше 30'}
+        result = Result.select_by_code(args['code'])
+        ys = ItiSubject.select(args['year'], args['subject'])
+        if result and result.iti_subject_id != ys.id:
+            return False, {'message': 'По этому штрих-коду результат уже сохранён'}
         code = save_result_(current_user, args['year'], args['subject'], args['code'], args['result'])
         if code == -1:
             return False, {'message': 'Доступ запрещён'}

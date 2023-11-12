@@ -145,10 +145,10 @@ class Generator:
         results = Result.select_by_iti_subject(ys_id)
         for result in results:
             if not result.student_id:
-                student_id = decode_result(iti, result.student_code)
-                if student_id:
-                    Result.update(result ^ Result.build(ys_id, result.student_code, student_id, None, None, None,
-                                                        allow_empty=True))
+                decoded_student = decode_result(iti, result.student_code)
+                if decoded_student:
+                    Result.update(result ^ Result.build(ys_id, result.student_code, decoded_student.student_id, None,
+                                                        None, None, allow_empty=True))
         return Result.select_by_iti_subject(ys_id)
 
     @staticmethod

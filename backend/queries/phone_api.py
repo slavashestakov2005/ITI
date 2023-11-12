@@ -25,7 +25,7 @@ def student_info(iti: Iti):
             raise ValueError("Неверные логин пользователя")
         if not user.check_password(user_password):
             raise ValueError("Неверные пароль пользователя")
-        if not user.can_do(-1):
+        if not user.can_do(-3):
             raise ValueError("Пользователь не является администратором")
         student = Student.select(student_id)
         if not student:
@@ -51,7 +51,7 @@ def save_barcodes(iti: Iti):
             raise ValueError("Неверные логин пользователя")
         if not user.check_password(user_password):
             raise ValueError("Неверные пароль пользователя")
-        if not user.can_do(-1):
+        if not user.can_do(-3):
             raise ValueError("Пользователь не является администратором")
         value = json.loads(data)
         for line in value:

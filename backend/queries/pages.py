@@ -3,7 +3,7 @@ from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend import app
 from .help import check_status, check_block_iti
-from ..database import Message, Iti, School
+from ..database import Message, Iti, School, Barcode, Student
 from ..help import ConfigMail
 '''
     /<iti_id>/subjects_for_year.html        Возвращает страницу с настройками ИТИ (admin).
@@ -97,4 +97,7 @@ def iti_codes_page(iti: Iti):
 @check_status('admin')
 @check_block_iti()
 def iti_barcodes_edit_page(iti: Iti):
-    return render_template('barcodes_edit.html', iti=iti)
+    barcodes = Barcode.select_by_iti(iti.id)
+    students = {_.id: _ for _ in Student.select_by_iti(iti)}
+    schools = School.select_id_dict()
+    return render_template('barcodes_edit.html', iti=iti, barcodes=barcodes, students=students, schools=schools)
