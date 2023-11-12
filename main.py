@@ -11,7 +11,7 @@ from backend.config import Config
 
 import logging
 
-logging.basicConfig(filename="logs.log", level=logging.INFO)
+logging.basicConfig(filename="logs.log", level=logging.DEBUG)
 
 
 parse_files()
