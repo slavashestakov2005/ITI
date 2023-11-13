@@ -7,28 +7,23 @@
     <h1>Рейтинг школьников</h1>
     {{ filter_classes(classes) }}
     <br>
-    <p class="invisible"><button id="filter-do" onclick="filterResults(3, 4, -1, true, true, ['js-table-for-excel-body'])">Фильтровать</button></p>
-    <p><button onclick="TableToExcel.convert(document.getElementById('sorted-table'));">Скачать таблицу как Excel</button></p>
-    <p><a href="" onclick="getStudentsExcel({{ year }}); return false;">Скачать данные по параллелям</a></p>
-        <div class="row justify-content-center">
+    <p class="invisible"><button id="filter-do" onclick="filterResults(3, 4, -1)">Фильтровать</button></p>
+    <p><button onclick="TableToExcel.convert(document.getElementById('sorted-table'));">Скачать как Excel</button></p>
+    <div class="row justify-content-center">
         <div class="col-auto">
-            <table class="js-table-color-place" id="sorted-table" data-cols-width="10,20,20,15,10">
-                <thead>
-                    <tr class="js-table-for-excel-head-main"><th colspan="{{ 7 + subjects.__len__() }}" id="table-head-content"></th></tr>
-                    <tr class="js-table-for-excel-head-main"></tr>
-                    <tr class="js-table-for-excel-head-sub">
-                        <th width="10%">Место</th>
-                        <th width="30%">Фамилия</th>
-                        <th width="30%">Имя</th>
-                        <th width="10%">Школа</th>
-                        <th width="10%">Класс</th>
-                        {% for subject_id, subject_name in subjects %}
-                            <th width="5%">{{ subject_name }}</th>
-                        {% endfor %}
-                        <th width="10%">Другие</th>
-                        <th width="10%">Сумма</th>
-                    </tr>
-                </thead>
+            <table class="js-table-color-place" id="sorted-table">
+                <thead><tr>
+                    <th width="10%">Место</th>
+                    <th width="30%">Фамилия</th>
+                    <th width="30%">Имя</th>
+                    <th width="10%">Школа</th>
+                    <th width="10%">Класс</th>
+                    {% for subject_id, subject_name in subjects %}
+                        <th width="5%">{{ subject_name }}</th>
+                    {% endfor %}
+                    <th width="10%">Другие</th>
+                    <th width="10%">Сумма</th>
+                </tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -40,7 +35,6 @@
     let subjects_days = {{ subjects_days | tojson }}, ind_res_per_day = {{ ind_res_per_day | tojson }};
     let tableData = generateStudentsTableData();
     generateAllTable();
-    preparePageForConvert();
     initAutoFilter('class_value');
 </script>
 

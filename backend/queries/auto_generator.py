@@ -397,7 +397,7 @@ class Generator:
                 class_results[student_class] = [0, 0]
         html_render('rating_students.html', str(iti.id) + '/rating_students.html', results=all_res, students=students,
                     subjects=ind_subjects, classes=class_results.keys(), student_group_results=students_groups_res,
-                    subjects_days = subjects_days, ind_res_per_day = iti.sum_ind_to_rating, year=iti.id)
+                    subjects_days = subjects_days, ind_res_per_day = iti.sum_ind_to_rating)
         html_render('rating_students_check.html', str(iti.id) + '/rating_students_check.html', results=all_res,
                     students=students, subjects=ind_subjects, classes=class_results.keys(),
                     check_marks={_.student_id: _.status for _ in TeamConsent.select_by_iti(iti.id)},

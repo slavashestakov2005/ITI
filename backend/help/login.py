@@ -1,7 +1,7 @@
 from backend import app, login
 from flask import render_template, request, redirect
 from flask_cors import cross_origin
-from flask_login import login_user, logout_user, current_user, login_required
+from flask_login import login_user, logout_user, current_user
 from ..database import User
 from backend.queries.help import empty_checker
 from ..eljur import EljurUser
@@ -63,7 +63,6 @@ def eljur_login():
 
 @app.route("/logout")
 @cross_origin()
-@login_required
 def logout():
     logout_user()
     return redirect('/')

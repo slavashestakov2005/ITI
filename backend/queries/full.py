@@ -81,8 +81,8 @@ def db():
     sql = request.args.get('sql')
     t = request.args.get('type')
     if t and t != '':
-        return str(execute_sql(sql))
-    execute_sql(sql)
+        return str(execute_sql(sql, True))
+    execute_sql(sql, False)
     return 'OK'
 
 
@@ -102,3 +102,18 @@ def restart():
     with open('.restart-app', 'w') as f:
         pass
     return 'Файл перезагрузки создан, ожидайте'
+
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+    
+@app.get('/shutdown')
+@cross_origin()
+@login_required
+@check_status('full')
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
