@@ -32,7 +32,7 @@ class ExcelDiplomaWriter(ExcelParentWriter):
                 dip2.append(line)
             else:
                 dip3.append(line)
-        cmp = [lambda x: x[2].id, lambda x: x[0].class_n, lambda x: x[1], lambda x: x[0].class_l, lambda x: x[0].name()]
+        cmp = [lambda x: x[2].id, lambda x: x[0].class_n, lambda x: x[1], lambda x: x[0].class_latter(), lambda x: x[0].name()]
         dip1.sort(key=compare(*cmp, field=True))
         cmp[1], cmp[2] = cmp[2], cmp[1]
         dip2.sort(key=compare(*cmp, field=True))

@@ -12,7 +12,7 @@ class FileCreator:
     @staticmethod
     def __render_default_pages__(year: int):
         html_render('rating_students.html', str(year) + '/rating_students.html', results={}, students={}, subjects={},
-                    classes=[], student_group_results={}, subjects_days={}, ind_res_per_day=0)
+                    classes=[], student_group_results={}, subjects_days={}, ind_res_per_day=0, year=year)
         html_render('rating_students_check.html', str(year) + '/rating_students_check.html', results={}, students={},
                     subjects={}, classes=[], check_marks={}, student_group_results={}, subjects_days={}, ind_res_per_day=0)
         html_render('rating_classes.html', str(year) + '/rating_classes.html', classes=[], results=[])

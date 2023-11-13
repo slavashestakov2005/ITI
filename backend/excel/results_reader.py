@@ -33,7 +33,10 @@ class ExcelResultsReader:
                   1: 'Пустые ячеёки в строках: ' + (','.join(ans[1]) if 1 in ans else ''),
                   3: ('Такого предмета нет в этом году',),
                   4: 'Повтор кодов в строках: ' + (','.join(ans[4]) if 4 in ans else ''),
-                  5: 'Неправильный формат для результата в строках: ' + (','.join(ans[5]) if 5 in ans else '')}
+                  5: 'Неправильный формат для результата в строках: ' + (','.join(ans[5]) if 5 in ans else ''),
+                  6: 'Сумма баллов больше 30: ' + (','.join(ans[6]) if 6 in ans else ''),
+                  7: 'Нет такого ИТИ',
+                  8: 'По этому штрих-коду результат уже сохранён: ' + (','.join(ans[8]) if 8 in ans else '')}
         txt = [decode[key] for key in decode if key in ans]
         return txt
 

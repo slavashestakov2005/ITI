@@ -2,7 +2,7 @@ from flask_login import current_user
 from flask_restful import reqparse, Resource
 from ..api import api_group
 from ..queries.results_raw import save_result_, delete_result_
-from ..database import ItiSubject, Result
+from ..database import ItiSubject
 
 
 parser_simple = reqparse.RequestParser()
@@ -19,12 +19,6 @@ class ResultListResource(Resource):
     @api_group()
     def post(self):
         args = parser_full.parse_args()
-        if float(args['result']) > 30:
-            return False, {'message': 'Пытались сохранить результат больше 30'}
-        result = Result.select_by_code(args['code'])
-        ys = ItiSubject.select(args['year'], args['subject'])
-        if result and result.iti_subject_id != ys.id:
-            return False, {'message': 'По этому штрих-коду результат уже сохранён'}
         code = save_result_(current_user, args['year'], args['subject'], args['code'], args['result'])
         if code == -1:
             return False, {'message': 'Доступ запрещён'}
@@ -39,6 +33,12 @@ class ResultListResource(Resource):
                                       'администратора'.format(args['code'])}
         elif code == 5:
             return False, {'message': 'Некорректные данные'}
+        elif code == 6:
+            return False, {'message': 'Сумма баллов больше 30'}
+        elif code == 7:
+            return False, {'message': 'Нет такого ИТИ'}
+        elif code == 8:
+            return False, {'message': 'По штрих-коду {0} результат уже сохранён в другом предмете'.format(args['code'])}
         elif code == 0:
             return True, {'message': 'Результат участника {0} сохранён'.format(args['code'])}
 

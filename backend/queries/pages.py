@@ -3,7 +3,7 @@ from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend import app
 from .help import check_status, check_block_iti
-from ..database import Message, Iti, School, Barcode, Student
+from ..database import Message, Iti, ItiSubject, School, Barcode, Result, Student, Subject
 from ..help import ConfigMail
 '''
     /<iti_id>/subjects_for_year.html        Возвращает страницу с настройками ИТИ (admin).
@@ -97,7 +97,17 @@ def iti_codes_page(iti: Iti):
 @check_status('admin')
 @check_block_iti()
 def iti_barcodes_edit_page(iti: Iti):
-    barcodes = Barcode.select_by_iti(iti.id)
+    all_subjects = Subject.select_id_dict()
+    iti_subjects = ItiSubject.select_by_iti(iti.id)
+    subjects = {item.id: all_subjects[item.subject_id] for item in iti_subjects}
+    barcodes_list = Barcode.select_by_iti(iti.id)
+    results_list = []
+    for ys in iti_subjects:
+        results_list.extend(Result.select_by_iti_subject(ys.id))
+    barcodes_dict = {item.code: item for item in barcodes_list}
+    results_dict = {item.student_code: item for item in results_list}
     students = {_.id: _ for _ in Student.select_by_iti(iti)}
     schools = School.select_id_dict()
-    return render_template('barcodes_edit.html', iti=iti, barcodes=barcodes, students=students, schools=schools)
+    return render_template('barcodes_edit.html', iti=iti, students=students, schools=schools, subjects=subjects,
+                           barcodes_list=barcodes_list, barcodes_dict=barcodes_dict, results_list=results_list,
+                           results_dict=results_dict)

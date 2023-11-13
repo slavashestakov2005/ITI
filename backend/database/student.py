@@ -31,11 +31,12 @@ class Student(SqlAlchemyBase, Table):
         self.school_id = sc.school_id
         return True
 
+    def class_latter(self):
+        return '' if self.class_l is None else self.class_l
+
     def class_name(self):
         try:
-            if self.class_l is None:
-                return str(self.class_n)
-            return str(self.class_n) + self.class_l
+            return str(self.class_n) + self.class_latter()
         except Exception:
             raise ValueError("Not found class for {}, id: {}".format(self.name(), self.id))
 

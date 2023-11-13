@@ -28,9 +28,10 @@
                 <th>Имя</th>
                 <th>Школа</th>
                 <th>Класс</th>
+                <th>Предмет</th>
             </tr></thead>
             <tbody>
-                {% for barcode in barcodes %}
+                {% for barcode in barcodes_list %}
                     <tr>
                         <td>{{ barcode.code }}</td>
                         <td>{{ barcode.student_id }}</td>
@@ -38,8 +39,19 @@
                         <td>{{ student.name_1 }} {{ student.name_2 }} {{ student.name_3 }}</td>
                         <td>{{ student.school_name(schools) }}</td>
                         <td>{{ student.class_name() }}</td>
+                        <td>{% if barcode.code in results_dict %}{{ subjects[results_dict[barcode.code].iti_subject_id].name }}{% endif %}</td>
                     </tr>
                 {% endfor %}
+                {% for result in results_list %}{% if result.student_code not in barcodes_dict %}
+                    <tr>
+                        <td>{{ result.student_code }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>{{ subjects[result.iti_subject_id].name }}</td>
+                    </tr>
+                {% endif %}{% endfor %}
             </tbody>
         </table>
     {% endif %}

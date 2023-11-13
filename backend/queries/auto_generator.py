@@ -149,7 +149,7 @@ class Generator:
                 if decoded_student:
                     Result.update(result ^ Result.build(ys_id, result.student_code, decoded_student.student_id, None,
                                                         None, None, allow_empty=True))
-        return Result.select_by_iti_subject(ys_id)
+        return [result for result in Result.select_by_iti_subject(ys_id) if result.student_id != 0]
 
     @staticmethod
     def get_results(iti: Iti, subject: int = None):
@@ -272,7 +272,7 @@ class Generator:
                 raise ValueError('Неизвестный школьник code: {}, id: {}'.format(r.student_code, r.student_id))
             sorted_results[students[r.student_id].class_n].append(r)
         for cls in sorted_results:
-            sorted_results[cls].sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: students[x.student_id].class_l,
+            sorted_results[cls].sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: students[x.student_id].class_latter(),
                                  lambda x: Student.sort_by_name(students[x.student_id]), field=True))
         data = {}
         schools = School.select_id_dict()
@@ -397,7 +397,7 @@ class Generator:
                 class_results[student_class] = [0, 0]
         html_render('rating_students.html', str(iti.id) + '/rating_students.html', results=all_res, students=students,
                     subjects=ind_subjects, classes=class_results.keys(), student_group_results=students_groups_res,
-                    subjects_days = subjects_days, ind_res_per_day = iti.sum_ind_to_rating)
+                    subjects_days = subjects_days, ind_res_per_day = iti.sum_ind_to_rating, year=iti.id)
         html_render('rating_students_check.html', str(iti.id) + '/rating_students_check.html', results=all_res,
                     students=students, subjects=ind_subjects, classes=class_results.keys(),
                     check_marks={_.student_id: _.status for _ in TeamConsent.select_by_iti(iti.id)},

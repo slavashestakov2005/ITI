@@ -349,12 +349,14 @@ function getSubjectExcel(year, subject) {
     TableToExcel.convert_many(file_name, data);
 }
 
-// rating_classes.html
+// ratings
 
-function getClassTable() {
+function getTableCopyForExcel() {
     preparePageForConvert();
     return document.getElementById('sorted-table').cloneNode(true);
 }
+
+// rating_classes.html
 
 function getClassesExcel(year) {
     let data = [], file_name = 'ИТИ ' + year + '. Результаты классов';
@@ -363,13 +365,36 @@ function getClassesExcel(year) {
     filter_all.click();
     filter_do.click();
     table_name.innerHTML = 'Общий';
-    data.push(['Общий', getClassTable()]);
+    data.push(['Общий', getTableCopyForExcel()]);
     for (let cls of classes) {
         let name = cls + ' класс';
         table_name.innerHTML = name;
         filter_none.click();
         setChecked(null, cls, null, true);
-        data.push([name, getClassTable()]);
+        data.push([name, getTableCopyForExcel()]);
+    }
+    filter_all.click();
+    filter_do.click();
+    TableToExcel.convert_many(file_name, data);
+    table_name.innerHTML = '';
+}
+
+// rating_students.html
+
+function getStudentsExcel(year) {
+    let data = [], file_name = 'ИТИ ' + year + '. Результаты школьников';
+    let filter_all = document.getElementById("filter-all"), filter_none = document.getElementById("filter-none"),
+        filter_do = document.getElementById("filter-do"), table_name = document.getElementById('table-head-content');
+    filter_all.click();
+    filter_do.click();
+    table_name.innerHTML = 'Общий';
+    data.push(['Общий', getTableCopyForExcel()]);
+    for (let cls of classes) {
+        let name = cls + ' класс';
+        table_name.innerHTML = name;
+        filter_none.click();
+        setChecked(null, cls, null, true);
+        data.push([name, getTableCopyForExcel()]);
     }
     filter_all.click();
     filter_do.click();

@@ -1,5 +1,5 @@
 import re
-from ..database import Result, User, ItiSubject
+from ..database import Result, User, ItiSubject, Iti
 
 
 def prepare_results(res: str):
@@ -22,6 +22,17 @@ def save_result_(user: User, year: int, subject: int, student_code: int, res: st
     result_sum = prepare_results(res)
     if result_sum is None:
         return 5
+    if result_sum > 30:
+        return 6
+
+    iti = Iti.select(year)
+    if iti is None:
+        return 7
+    if iti.encoding_type == 1:
+        result = Result.select_by_code(student_code)
+        if result and result.iti_subject_id != ys.id:
+            return 8
+
     r = Result.build(ys.id, student_code, 0, result_sum, 0, 0)
     old_r = Result.select_for_student_code(r)
     if old_r is not None:
