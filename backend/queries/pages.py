@@ -74,6 +74,12 @@ def rating_students_check(iti: Iti):
     return render_template(str(iti.id) + '/rating_students_check.html')
 
 
+@app.route("/<int:iti_id>/rating.html")
+@cross_origin()
+def rating(iti_id: int):
+    return render_template(str(iti_id) + '/rating.html', iti_id=iti_id)
+
+
 @app.route("/school_edit.html")
 @cross_origin()
 @login_required

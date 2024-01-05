@@ -17,7 +17,7 @@ class Iti(SqlAlchemyBase, Table):
     sum_ind_to_rating = sa.Column(sa.Integer, nullable=False)
     ind_prize_policy = sa.Column(sa.Integer, nullable=False)
     automatic_division = sa.Column(sa.Integer, nullable=False)
-    auto_teams = sa.Column(sa.String, nullable=False)
+    auto_teams = sa.Column(sa.String, nullable=False)       # use #sch-<n> for school-id n
     sum_ind_to_team = sa.Column(sa.Integer, nullable=False)
     sum_gr_to_super = sa.Column(sa.Integer, nullable=False)
     students_in_team = sa.Column(sa.Integer, nullable=False)
@@ -28,6 +28,7 @@ class Iti(SqlAlchemyBase, Table):
     def classes_list(self):
         return list(map(int, self.classes.split(' ')))
 
+    # TODO: change separator to ' | '
     def auto_teams_list(self):
         return self.auto_teams.split(' ')
 

@@ -176,17 +176,21 @@ def ratings_update(iti: Iti):
 @check_status('admin')
 @check_block_iti()
 def share_group_results(iti: Iti, path3):
-    params = group_page_params(iti.id, path3)
     try:
-        subject = path_to_subject(path3)
-    except Exception:
-        return render_template('/add_result.html', **params, error2='Некорректные данные')
+        params = group_page_params(iti.id, path3)
+        try:
+            subject = path_to_subject(path3)
+        except Exception:
+            return render_template('/add_result.html', **params, error2='Некорректные данные')
 
-    if ItiSubject.select(iti.id, subject) is None:
-        return render_template('/add_result.html', **params, error2='Такого предмета нет в этом году.')
-    Generator.gen_group_results(iti.id, subject, str(iti.id) + '/' + path3)
-    message_results_public(iti.id, subject)
-    return render_template(str(iti.id) + '/add_result.html', **params, error2='Результаты опубликованы')
+        if ItiSubject.select(iti.id, subject) is None:
+            return render_template('/add_result.html', **params, error2='Такого предмета нет в этом году.')
+        Generator.gen_group_results(iti.id, subject, str(iti.id) + '/' + path3)
+        message_results_public(iti.id, subject)
+        return render_template(str(iti.id) + '/add_result.html', **params, error2='Результаты опубликованы')
+    except Exception as ex:
+        import traceback
+        return str(ex) + '<br><br>' + str(traceback.format_exc())
 
 
 @app.route('/<int:iti_id>/share_all_results')
@@ -195,25 +199,29 @@ def share_group_results(iti: Iti, path3):
 @check_status('admin')
 @check_block_iti()
 def share_all_results(iti: Iti):
-    ys = ItiSubject.select_by_iti(iti.id)
-    params = {}
-    url = str(iti.id) + '/rating.html'
-    errors = []
-    subjects = []
-    for now in ys:
-        subject = Subject.select(now.subject_id)
-        subjects.append(subject)
-        try:
-            suf = str(subject.id) + '.html'
-            if subject.type == 'i':
-                Generator.gen_results(iti, subject.id, str(iti.id) + '/' + suf)
-            else:
-                Generator.gen_group_results(iti.id, subject.id, str(iti.id) + '/' + suf)
-        except ValueError:
-            errors.append(subject.name)
-    Generator.gen_ratings(iti)
-    if errors:
-        return render_template(url, **params, error=', '.join(errors) + ' имеют неправильные результаты.')
-    else:
-        message_all_ratings_public(iti.id, subjects)
-        return render_template(url, **params, error='Рейтинги обновлены')
+    try:
+        ys = ItiSubject.select_by_iti(iti.id)
+        params = {}
+        url = str(iti.id) + '/rating.html'
+        errors = []
+        subjects = []
+        for now in ys:
+            subject = Subject.select(now.subject_id)
+            subjects.append(subject)
+            try:
+                suf = str(subject.id) + '.html'
+                if subject.type == 'i':
+                    Generator.gen_results(iti, subject.id, str(iti.id) + '/' + suf)
+                else:
+                    Generator.gen_group_results(iti.id, subject.id, str(iti.id) + '/' + suf)
+            except ValueError:
+                errors.append(subject.name)
+        Generator.gen_ratings(iti)
+        if errors:
+            return render_template(url, **params, error=', '.join(errors) + ' имеют неправильные результаты.')
+        else:
+            message_all_ratings_public(iti.id, subjects)
+            return render_template(url, **params, error='Рейтинги обновлены')
+    except Exception as ex:
+        import traceback
+        return str(ex) + '<br><br>' + str(traceback.format_exc())

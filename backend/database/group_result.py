@@ -7,7 +7,7 @@ class GroupResult(SqlAlchemyBase, Table):
 
     team_id = sa.Column(sa.Integer, nullable=False, primary_key=True)
     subject_id = sa.Column(sa.Integer, nullable=False, primary_key=True)
-    result = sa.Column(sa.Integer, nullable=False)
+    result = sa.Column(sa.Float, nullable=False)
     position = sa.Column(sa.Integer, nullable=False)
 
     @staticmethod

@@ -30,7 +30,7 @@
                 {% for subject_id, subject_name in ind_subjects %}
                     <th width="10%">{{ subject_name }}</th>
                 {% endfor %}
-                <th width="10%">Сумма</th>
+                {% raw %}{% if adm %}<th width="10%">Сумма</th>{% endif %}{% endraw %}
             </tr></thead>
             <tbody>
                 {% set gns = namespace(rows=[], row=[]) %}
@@ -61,12 +61,16 @@
                 {% endfor %}
                 {% for row in gns.rows|sort() %}
                     <tr>
-                        {% for item in row %}
+                        {% for item in row[:-1] %}
                             <td>{{ item }}</td>
                         {% endfor %}
+                        {% raw %}{% if adm %}{% endraw %}
+                            <td>{{ row[-1] }}</td>
+                        {% raw %}{% endif %}{% endraw %}
                     </tr>
                 {% endfor %}
                 <tr>
+                    {% raw %}{% if adm %}{% endraw %}
                     <td colspan="4"><center>Сумма</center></td>
                     {% for i in range(ind_subjects.__len__() + 1) %}
                         {% set ns = namespace(sum=0) %}
@@ -77,6 +81,7 @@
                         {% endfor %}
                         <td>{{ ns.sum }}</td>
                     {% endfor %}
+                    {% raw %}{% endif %}{% endraw %}
                 </tr>
             </tbody>
         </table>

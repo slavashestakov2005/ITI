@@ -8,8 +8,8 @@ class ExcelDiplomaWriter(ExcelParentWriter):
         new_data, sz = [], 3
         for x in data:
             student, position, subject = x
-            x = ['учени{} {} класса'.format('ца' if student.gender else 'к', student.class_name()), student.name(),
-                 'за {} место'.format(position), *subject.diploma.split('\n')]
+            x = ['учени{} {} класса'.format('ца' if student.gender == '1' else 'к', student.class_name()), student.name(),
+                 'за {} место'.format(position), *subject.diploma.split(r'\n')]
             sz = max(sz, len(x))
             new_data.append(x)
         self.__write__(worksheet, new_data, border=sz)

@@ -165,10 +165,17 @@ function generateStudentsTableData(addCheckBoxes=false) {
             }
             else line.push('—');
         }
-        if (student_id in students_group_result) line.push(students_group_result[student_id]);
+        let all_sum = 0;
+        if (student_id in students_group_result) {
+            let st_res = students_group_result[student_id];
+            line.push(st_res);
+            if (st_res.includes('баллов')) {
+                let val = st_res.split('баллов')[0].split('(')[1];
+                all_sum += parseFloat(val);
+            }
+        }
         else line.push('');
         if (addCheckBoxes) line.push(student_id);
-        let all_sum = 0;
         for (day in sum) {
             let sorted = sum[day].sort((a, b) => (b - a)).splice(0, ind_res_per_day);
             let day_sum = sorted.reduce((partialSum, a) => partialSum + a, 0);
@@ -252,8 +259,13 @@ function generateTeamsTableData() {
         for (let sub of subjects) {
             let subject = sub[0];
             if (subject in results[team_id]) {
-                line.push(results[team_id][subject][0]);
-                sum += results[team_id][subject][0];
+                if (subject < 0) {
+                    line.push(results[team_id][subject][0]);
+                    sum += results[team_id][subject][0];
+                } else {
+                    line.push(results[team_id][subject][0] * results[team_id][subject][1]);
+                    sum += results[team_id][subject][0] * results[team_id][subject][1];
+                }
             } else line.push('-');
         }
         line.push(sum);

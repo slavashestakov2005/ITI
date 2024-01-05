@@ -291,6 +291,8 @@ class Generator:
         if len(teams) == 0:
             return None
         results = {_: GroupResult.select_by_team_and_subject(_.id, subject) for _ in teams}
+        if None in results.values():
+            return None
         results = sorted(results.items(), key=compare(GroupResult.sort_by_result, lambda x: x[1],
                                                       Team.sort_by_latter, lambda x: x[0]))
         students = [_.student_id for _ in SubjectStudent.select_by_iti_subject(ys.id)]
@@ -336,8 +338,7 @@ class Generator:
             students = [ts.student_id for ts in TeamStudent.select_by_team(team_id)]
             for subject_id, result in team_results[team_id].items():
                 if subject_id > 0:
-                    print(result)
-                    value, place = result
+                    value, mult, place = result
                     for student_id in students:
                         ys = ItiSubject.select(iti.id, subject_id)
                         if SubjectStudent.select_by_all(ys.id, student_id):
@@ -349,18 +350,25 @@ class Generator:
                                     rating[student_id][place - 1] += 1
                             if student_id not in student_group_subject_diploma:
                                 student_group_subject_diploma[student_id] = {}
-                            student_group_subject_diploma[student_id][subject_id] = place
+                            student_group_subject_diploma[student_id][subject_id] = (value, place)
         return rating, diplomas, student_group_subject_diploma
 
     @staticmethod
-    def get_teams_results(team_results):
+    def get_teams_results(team_results, iti):
         results = {}
         for team in team_results:
+            ts = {_.student_id for _ in TeamStudent.select_by_team(team)}
             results[team] = {}
             for r in team_results[team]:
                 results[team][-r] = (team_results[team][r], 0)
             for r in GroupResult.select_by_team(team):
-                results[team][r.subject_id] = (r.result, r.position)
+                if iti.id == 7:
+                    iti_subject = ItiSubject.select(iti.id, r.subject_id).id
+                    subject_students = {_.student_id for _ in SubjectStudent.select_by_iti_subject(iti_subject)}
+                    mult = len(ts.intersection(subject_students))
+                else:
+                    mult = 1
+                results[team][r.subject_id] = (r.result, mult, r.position)
         return results
 
     @staticmethod
@@ -382,14 +390,21 @@ class Generator:
                 subject_priority[-day] = -1, day
         ind_subjects = sorted(ind_subjects.items(), key=lambda x: subject_priority[subjects[x[0]].id])
         group_subjects = sorted(group_subjects.items(), key=lambda x: subject_priority[x[0]])
-        all_team_results = Generator.get_teams_results(team_results)
+        all_team_results = Generator.get_teams_results(team_results, iti)
         teams = {_.id: _.name for _ in Team.select_by_iti(iti.id)}
         team_student = {team: [ts.student_id for ts in TeamStudent.select_by_team(team)] for team in teams}
         ys_index_2_subject = {ys.id: Subject.select(ys.subject_id).id for ys in ItiSubject.select_by_iti(iti.id)}
         rating, diplomas, groups_res_for_student = Generator.gen_super_champion(iti, all_team_results, all_res, ys_index_2_subject)
         students_groups_res = {}
         for student, st_res in groups_res_for_student.items():
-            students_diplomas = '<br>'.join('{} ({})'.format(just_subjects[subject_id], place) for subject_id, place in st_res.items())
+            if iti.id == 7:
+                students_diplomas = '<br>'.join('{} ({} баллов, {} место)'.format(just_subjects[subject_id], *val_place) for subject_id, val_place in st_res.items())
+                student_class = (students[student][2], students[student][3])
+                if student_class not in class_results:
+                    class_results[student_class] = [0, 0]
+                class_results[student_class][0] += sum(val[0] for key, val in st_res.items())
+            else:
+                students_diplomas = '<br>'.join('{} ({})'.format(just_subjects[subject_id], val_place[1]) for subject_id, val_place in st_res.items())
             students_groups_res[student] = students_diplomas
         for student in students:
             student_class = (students[student][2], students[student][3])
@@ -477,8 +492,13 @@ class Generator:
         for team in teams:
             TeamStudent.delete_by_team(team.id)
         Team.delete_by_iti(iti.id)
+        schools = School.select_id_dict()
         for vertical in teams_names:
-            Team.insert(Team.build(None, 'Команда {}'.format(vertical), iti.id, vertical))
+            if '#sch-' in vertical:
+                team_name = schools[int(vertical.replace('#sch-', ''))].short_name
+            else:
+                team_name = 'Команда {}'.format(vertical)
+            Team.insert(Team.build(None, team_name, iti.id, vertical))
         results, students = Generator.get_results(iti), Generator.get_students(iti)
         res_for_ord = {}
         student_result = {}
@@ -500,20 +520,21 @@ class Generator:
                 student_result[student_id][day].sort(reverse=True)
                 res_for_ord[student_id].result += sum(student_result[student_id][day][:iti.sum_ind_to_rating])
         if iti.automatic_division == 2:
-            res_for_ord = sorted(res_for_ord.items(), key=compare(lambda x: x[1].class_name(), lambda x: -x[1].result,
+            res_for_ord = sorted(res_for_ord.items(), key=compare(lambda x: -x[1].result,
                                                                   lambda x: Student.sort_by_name(x[1]), field=True))
-            used_classes = {'.': 4}
+            used_classes = {}
             for res in res_for_ord:
                 stud = res[1]
-                class_name = stud.class_name()
+                class_name = stud.school_class(schools)
+                team_name = stud.class_l if stud.class_l else '#sch-{}'.format(stud.school_id)
                 if class_name not in used_classes:
                     used_classes[class_name] = 0
-                if stud.id in ts and used_classes[class_name] < 4:
-                    TeamStudent.insert(TeamStudent.build(t0[teams_names.index(stud.class_l)], stud.id))
+                if stud.id in ts and used_classes[class_name] < iti.students_in_team:
+                    TeamStudent.insert(TeamStudent.build(t0[teams_names.index(team_name)], stud.id))
                     used_classes[class_name] += 1
-            return min(used_classes.values()) == 4
+            return min(used_classes.values()) == iti.students_in_team
         res_for_ord = sorted(res_for_ord.items(), key=compare(lambda x: x[1].class_n, lambda x: -x[1].result,
-                                                              lambda x: x[1].class_l, lambda x: Student.sort_by_name(x[1]),
+                                                              lambda x: x[1].class_latter(), lambda x: Student.sort_by_name(x[1]),
                                                               field=True))
 
         pos, good = 0, True

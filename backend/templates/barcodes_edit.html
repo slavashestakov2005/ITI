@@ -31,17 +31,6 @@
                 <th>Предмет</th>
             </tr></thead>
             <tbody>
-                {% for barcode in barcodes_list %}
-                    <tr>
-                        <td>{{ barcode.code }}</td>
-                        <td>{{ barcode.student_id }}</td>
-                        {% set student = students[barcode.student_id] %}
-                        <td>{{ student.name_1 }} {{ student.name_2 }} {{ student.name_3 }}</td>
-                        <td>{{ student.school_name(schools) }}</td>
-                        <td>{{ student.class_name() }}</td>
-                        <td>{% if barcode.code in results_dict %}{{ subjects[results_dict[barcode.code].iti_subject_id].name }}{% endif %}</td>
-                    </tr>
-                {% endfor %}
                 {% for result in results_list %}{% if result.student_code not in barcodes_dict %}
                     <tr>
                         <td>{{ result.student_code }}</td>
@@ -50,6 +39,30 @@
                         <td></td>
                         <td></td>
                         <td>{{ subjects[result.iti_subject_id].name }}</td>
+                    </tr>
+                {% endif %}{% endfor %}
+
+                {% for barcode in barcodes_list %}{% if barcode.code not in results_dict %}
+                    <tr>
+                        <td>{{ barcode.code }}</td>
+                        <td>{{ barcode.student_id }}</td>
+                        {% set student = students[barcode.student_id] %}
+                        <td>{{ student.name_1 }} {{ student.name_2 }} {{ student.name_3 }}</td>
+                        <td>{{ student.school_name(schools) }}</td>
+                        <td>{{ student.class_name() }}</td>
+                        <td></td>
+                    </tr>
+                {% endif %}{% endfor %}
+
+                {% for barcode in barcodes_list %}{% if barcode.code in results_dict %}
+                    <tr>
+                        <td>{{ barcode.code }}</td>
+                        <td>{{ barcode.student_id }}</td>
+                        {% set student = students[barcode.student_id] %}
+                        <td>{{ student.name_1 }} {{ student.name_2 }} {{ student.name_3 }}</td>
+                        <td>{{ student.school_name(schools) }}</td>
+                        <td>{{ student.class_name() }}</td>
+                        <td>{{ subjects[results_dict[barcode.code].iti_subject_id].name }}</td>
                     </tr>
                 {% endif %}{% endfor %}
             </tbody>
