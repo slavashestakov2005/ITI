@@ -1,2 +1,5 @@
 *.env
 *.log
+*.db
+/backend/data/?/*.*
+/backend/templates/?/*.*
