@@ -1,5 +1,7 @@
 *.env
 *.log
 *.db
+.idea
+.venv
 /backend/data/?/*.*
 /backend/templates/?/*.*
