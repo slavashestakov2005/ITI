@@ -3,3 +3,4 @@
 *.db
 /backend/data/?/*.*
 /backend/templates/?/*.*
+.idea
