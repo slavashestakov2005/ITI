@@ -40,8 +40,7 @@ def login():
             login_user(u)
             return redirect('/')
         else:
-            return render_template(TEMPLATE, error='Пользователя с логином {0} и паролем {1} не существует'
-                                   .format(user_login, user_password))
+            return render_template(TEMPLATE, error='Неверные логин или пароль ')
     return render_template(TEMPLATE)
 
 
