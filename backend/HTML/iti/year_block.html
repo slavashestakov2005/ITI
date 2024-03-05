@@ -1,0 +1,25 @@
+<!-- login required -->
+<!-- -1 -->
+<!-- replace 1 -->
+<center><h1>Блокировка ИТИ</h1></center>
+
+<div class="row col-12 justify-content-center">
+    <div class="col-auto"><center>
+        {% raw %}{% if adm %}{% endraw %}
+        <h1>Блокировка:</h1>
+        <form onsubmit="iti_block(this); return false;"><center>
+            {% if blocked %}
+                <p><input type="radio" name="block" value="0">Разблокировано</p>
+                <p><input type="radio" name="block" value="1" checked>Заблокировано</p>
+            {% else %}
+                <p><input type="radio" name="block" value="0" checked>Разблокировано</p>
+                <p><input type="radio" name="block" value="1">Заблокировано</p>
+            {% endif %}
+            <p><input type="submit" value="Сохранить"></p>
+        </center></form>
+        {% raw %}{% else %}{% endraw %}
+        <p>Вы не можете заблокировать ИТИ :(</p>
+        {% raw %}{% endif %}{% endraw %}
+    </center></div>
+</div>
+<!-- replace 2 -->

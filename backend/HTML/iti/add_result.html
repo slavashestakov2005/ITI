@@ -1,0 +1,22 @@
+<!-- login required -->
+<!-- replace 1 -->
+<div class="row col-12 justify-content-center">
+	<div class="col t-3"><center>
+		<h1>Сохранение результатов</h1>
+		<form onsubmit="group_results_save(this); return false;">
+            {% for team in teams %}
+                <p>{{ team.name }}: <input type="text" name="score_{{ team.id }}" value="{% raw %}{{ t{% endraw %}{{ team.id }}{% raw %} }} {% endraw %}"></p>
+            {% endfor %}
+			<p>Если результат ещё не был сохранён, то в поле отображается 0.</p>
+			<input type="submit" value="Сохранить">
+		</form>
+	</center></div>
+	<div class="col t-3"><center>
+		{% raw %}{% if adm %}
+		<h1><a href="share_group_results">Публикация результатов</a></h1>
+		<p>После публикации результатов они станут доступны для просмотра всем.</p>
+		{% if error2 %} <p class="error-msg">[ {{ error2 }} ]</p>{% endif %}
+		{% endif %}{% endraw %}
+	</center></div>
+</div>
+<!-- replace 2 -->

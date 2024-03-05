@@ -1,0 +1,27 @@
+<!-- login required -->
+<!-- -2 -->
+
+<h2>Роли:</h2>
+<table width="100%">
+    <tr>
+        <td width="50%" valign="top">
+            <h3>Индивидуальные туры:</h3>
+            {% for subject in subjects %} {% if subject.type == 'i' %}
+                <p><input type="checkbox" name="status" value="{{ subject.id }}">{{ subject.name }}</p>
+            {% endif %} {% endfor %}
+        </td>
+        <td width="50%" valign="top">
+            <h3>Групповые туры:</h3>
+            {% for subject in subjects %} {% if subject.type == 'g' %}
+                <p><input type="checkbox" name="status" value="{{ subject.id }}">{{ subject.name }}</p>
+            {% endif %} {% endfor %}
+            <h3>Другое:</h3>
+            {% for subject in subjects %} {% if subject.type == 'a' %}
+                <p><input type="checkbox" name="status" value="{{ subject.id }}">{{ subject.name }}</p>
+            {% endif %} {% endfor %}
+            <p><input type="checkbox" name="status" value="-1">Администратор</p>
+            <p><input type="checkbox" name="status" value="-3">Сканер штрих-кодов</p>
+        </td>
+    </tr>
+</table>
+<p>Если пользователь является администратором, то у него есть права для всех остальных туров.</p>

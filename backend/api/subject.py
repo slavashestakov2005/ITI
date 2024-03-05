@@ -52,4 +52,5 @@ class SubjectListResource(Resource):
         Generator.gen_subjects_lists()
         if type == 'g':
             Generator.gen_rules(subject)
-        return True, {'message': 'Предмет добавлен'}
+        return True, {'message': 'Предмет добавлен' +
+                                 (', не забудьте добавить его правила и ссылку на них' if type == 'g' else '')}

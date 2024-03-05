@@ -1,9 +1,8 @@
-from .help import SplitFile, all_templates, compare, html_render
+from .help import compare, html_render
 from backend.excel.diploma_writer import ExcelDiplomaWriter
 from ..database import GroupResult, Result, Student, Subject, SubjectStudent, Team, TeamStudent, User, Iti, ItiSubject,\
     ItiSubjectScore, School, TeamConsent, IndDayStudent, decode_result
 from backend.config import Config
-import glob
 from ..help import FileNames
 
 '''
@@ -36,75 +35,25 @@ from ..help import FileNames
 class Generator:
     @staticmethod
     def gen_iti_lists():
-        html_render('years_edit.html', 'years_edit.html', itis=Iti.select_all())
+        html_render('all/years_edit.html', 'years_edit.html', itis=Iti.select_all())
 
     @staticmethod
     def gen_subjects_lists():
         subjects = Subject.select_all()
-        type1 = type2 = type3 = '\n'
-        for subject in subjects:
-            text1 = ' ' * 16 + '<p><input type="checkbox" name="status" value="{0}">{1}</p>\n'.format(subject.id, subject.name)
-            if subject.type == 'i':
-                type1 += text1
-            elif subject.type == 'g':
-                type2 += text1
-            else:
-                type3 += text1
-        for file_name in all_templates():
-            data = SplitFile(file_name)
-            data.insert_after_comment(' list of individual tours (1) ', type1 + ' ' * 12)
-            data.insert_after_comment(' list of group tours (1) ', type2 + ' ' * 12)
-            data.insert_after_comment(' list of another tours (1) ', type3 + ' ' * 12)
-            data.save_file()
-        html_render('subjects_edit.html', 'subjects_edit.html', subjects=sorted(subjects, key=Subject.sort_by_type))
+        html_render('all/subjects.html', 'subjects.html', subjects=subjects)
+        html_render('all/subjects_edit.html', 'subjects_edit.html', subjects=sorted(subjects, key=Subject.sort_by_type))
 
     @staticmethod
     def gen_iti_subjects_list(year: int):
         years_subjects_0 = ItiSubject.select_by_iti(year)
         years_subjects = set([x.subject_id for x in years_subjects_0])
-        subject_n_d = {_.subject_id: _.n_d for _ in years_subjects_0}
         subjects = Subject.select_all()
-        text1 = text2 = text3 = text4 = text5 = '\n'
-        t4 = []
-        for subject in subjects:
-            checked = ''
-            if subject.id in years_subjects:
-                checked = ' checked'
-                if subject.type == 'i':
-                    t4.append(['<p><a href="individual/{0}.html">{1}</a></p>\n'.format(subject.id, subject.name),
-                               subject_n_d[subject.id]])
-                elif subject.type == 'g':
-                    text5 += '<p><a href="group/{0}.html">{1}</a></p>\n'.format(subject.id, subject.name)
-            text = '<p><input type="checkbox" name="subject" value="{0}"{1}>[ {0} ] {2}</p>\n'. \
-                format(subject.id, checked, subject.name, tabs=7)
-            if subject.type == 'i':
-                text1 += text
-            elif subject.type == 'g':
-                text2 += text
-            else:
-                text3 += text
-        t4 = sorted(t4, key=compare(lambda x: x[1], field=True))
-        ld = None
-        for x in t4:
-            if x[1] != ld:
-                text4 += '<h3>День {}</h3>\n'.format(x[1])
-                ld = x[1]
-            text4 += ' ' * 4 + x[0]
-        for file_name in glob.glob(Config.TEMPLATES_FOLDER + '/' + str(year) + '/**/*.html', recursive=True):
-            data = SplitFile(file_name)
-            data.insert_after_comment(' list of year_individual tours ', text1 + ' ' * 24)
-            data.insert_after_comment(' list of year_group tours ', text2 + ' ' * 24)
-            data.insert_after_comment(' list of year_another tours ', text3 + ' ' * 24)
-            data.save_file()
+        html_render('iti/subjects_for_year.html', str(year) + '/subjects_for_year.html', subjects=subjects,
+                    iti_subject=years_subjects)
 
     @staticmethod
     def gen_iti_block_page(iti: Iti):
-        data = SplitFile(Config.TEMPLATES_FOLDER + '/' + str(iti.id) + '/year_block.html')
-        data.insert_after_comment(' is_block ', '''
-                    <p><input type="radio" name="block" value="0" {0}>Разблокировано</p>
-                    <p><input type="radio" name="block" value="1" {1}>Заблокировано</p>
-                '''.format('checked' if iti.block == 0 else '', 'checked' if iti.block == 1 else ''))
-        data.save_file()
+        html_render('iti/year_block.html', str(iti.id) + '/year_block.html', blocked=iti.block)
 
     @staticmethod
     def gen_students_list(year: int, class_n: int):
@@ -114,7 +63,7 @@ class Generator:
                                                 lambda x: x.name_2, field=True))
         length = len(students)
         m1 = length - length // 2
-        html_render('students_table.html', str(year) + '/students_' + str(class_n) + '.html', class_number=class_n,
+        html_render('iti/students_table.html', str(year) + '/students_' + str(class_n) + '.html', class_number=class_n,
                     students1=students[:m1], students2=students[m1:], schools=schools)
 
     @staticmethod
@@ -236,7 +185,7 @@ class Generator:
                 result.result, result.net_score]
 
     @staticmethod
-    def gen_results_table(results: list, students: map, maximum: int, net_score_formula: int, ind_prize_policy: int,
+    def gen_results_table(results: list, students: dict, maximum: int, net_score_formula: int, ind_prize_policy: int,
                           schools: dict):
         if len(results) == 0:
             return []
@@ -272,14 +221,16 @@ class Generator:
                 raise ValueError('Неизвестный школьник code: {}, id: {}'.format(r.student_code, r.student_id))
             sorted_results[students[r.student_id].class_n].append(r)
         for cls in sorted_results:
-            sorted_results[cls].sort(key=compare(lambda x: Result.sort_by_result(x), lambda x: students[x.student_id].class_latter(),
-                                 lambda x: Student.sort_by_name(students[x.student_id]), field=True))
+            sorted_results[cls].sort(
+                key=compare(lambda x: Result.sort_by_result(x), lambda x: students[x.student_id].class_latter(),
+                            lambda x: Student.sort_by_name(students[x.student_id]), field=True))
         data = {}
         schools = School.select_id_dict()
         for cls in iti.classes_list():
             data[cls] = Generator.gen_results_table(sorted_results[cls], students, scores[cls], iti.net_score_formula,
                                                     iti.ind_prize_policy, schools)
-        html_render('subject_ind.html', file_name, subject_name=subject_info.name, results=data, scores=scores, iti=iti)
+        html_render('iti/subject_ind.html', file_name, subject_name=subject_info.name, results=data, scores=scores,
+                    iti=iti)
 
     @staticmethod
     def gen_group_results(year: int, subject: int, file_name: str):
@@ -320,7 +271,7 @@ class Generator:
                          *([_.name_1 + ' ' + _.name_2 + ' ' + _.class_name() for _ in teams_student[result[0].id]]
                            if not is_team and result[0].id in teams_student else [])])
             i += 1
-        html_render('subject_group.html', file_name, results=rows, subject_name=subject_info.name)
+        html_render('iti/subject_group.html', file_name, results=rows, subject_name=subject_info.name)
 
     @staticmethod
     def gen_super_champion(iti: Iti, team_results, student_results, ys_index_2_subject):
@@ -394,77 +345,69 @@ class Generator:
         teams = {_.id: _.name for _ in Team.select_by_iti(iti.id)}
         team_student = {team: [ts.student_id for ts in TeamStudent.select_by_team(team)] for team in teams}
         ys_index_2_subject = {ys.id: Subject.select(ys.subject_id).id for ys in ItiSubject.select_by_iti(iti.id)}
-        rating, diplomas, groups_res_for_student = Generator.gen_super_champion(iti, all_team_results, all_res, ys_index_2_subject)
+        rating, diplomas, groups_res_for_student = Generator.gen_super_champion(iti, all_team_results, all_res,
+                                                                                ys_index_2_subject)
         students_groups_res = {}
         for student, st_res in groups_res_for_student.items():
             if iti.id == 7:
-                students_diplomas = '<br>'.join('{} ({} баллов, {} место)'.format(just_subjects[subject_id], *val_place) for subject_id, val_place in st_res.items())
+                students_diplomas = '<br>'.join(
+                    '{} ({} баллов, {} место)'.format(just_subjects[subject_id], *val_place) for subject_id, val_place
+                    in st_res.items())
                 student_class = (students[student][2], students[student][3])
                 if student_class not in class_results:
                     class_results[student_class] = [0, 0]
                 class_results[student_class][0] += sum(val[0] for key, val in st_res.items())
             else:
-                students_diplomas = '<br>'.join('{} ({})'.format(just_subjects[subject_id], val_place[1]) for subject_id, val_place in st_res.items())
+                students_diplomas = '<br>'.join(
+                    '{} ({})'.format(just_subjects[subject_id], val_place[1]) for subject_id, val_place in
+                    st_res.items())
             students_groups_res[student] = students_diplomas
         for student in students:
             student_class = (students[student][2], students[student][3])
             if student_class not in class_results:
                 class_results[student_class] = [0, 0]
-        html_render('rating_students.html', str(iti.id) + '/rating_students.html', results=all_res, students=students,
-                    subjects=ind_subjects, classes=class_results.keys(), student_group_results=students_groups_res,
-                    subjects_days = subjects_days, ind_res_per_day = iti.sum_ind_to_rating)
-        html_render('rating_students_check.html', str(iti.id) + '/rating_students_check.html', results=all_res,
+        html_render('iti/rating_students.html', str(iti.id) + '/rating_students.html', students=students,
+                    results=all_res, subjects=ind_subjects, classes=class_results.keys(), subjects_days=subjects_days,
+                    student_group_results=students_groups_res, ind_res_per_day=iti.sum_ind_to_rating)
+        html_render('iti/rating_students_check.html', str(iti.id) + '/rating_students_check.html', results=all_res,
                     students=students, subjects=ind_subjects, classes=class_results.keys(),
                     check_marks={_.student_id: _.status for _ in TeamConsent.select_by_iti(iti.id)},
                     student_group_results=students_groups_res,
                     subjects_days=subjects_days, ind_res_per_day=iti.sum_ind_to_rating)
-        html_render('rating_classes.html', str(iti.id) + '/rating_classes.html', classes=class_results.keys(),
+        html_render('iti/rating_classes.html', str(iti.id) + '/rating_classes.html', classes=class_results.keys(),
                     results=[(*_[0], *_[1]) for _ in class_results.items()], year=iti.id)
-        html_render('rating_teams.html', str(iti.id) + '/rating_teams.html', team_results=all_team_results,
+        html_render('iti/rating_teams.html', str(iti.id) + '/rating_teams.html', team_results=all_team_results,
                     ind_subjects=ind_subjects, team_subjects=group_subjects, team_student=team_student,
                     teams=teams, students=students, student_results=all_res, subjects_days=subjects_days,
                     ind_res_per_day=iti.sum_ind_to_rating)
-        html_render('rating.html', str(iti.id) + '/rating.html', results=rating, students=students)
+        html_render('iti/rating.html', str(iti.id) + '/rating.html', results=rating, students=students)
         ExcelDiplomaWriter().write(Config.DATA_FOLDER + '/' + FileNames.diploma_excel(iti)[0], diplomas, subjects_raw,
                                    students_raw)
 
     @staticmethod
     def gen_teams(year: int):
         teams = Team.select_by_iti(year)
-        text3 = '\n'
-        for team in teams:
-            text3 += ' ' * 16 + '<p>{0}: <input type="text" name="score_{1}" value="{{{{ t{1} }}}}"></p>\n'. \
-                format(team.name, team.id)
-        text3 += ' ' * 12
-        data = SplitFile(Config.TEMPLATES_FOLDER + "/" + str(year) + "/add_result.html")
-        data.insert_after_comment(' teams list for saving group results ', text3)
-        data.save_file()
+        html_render('iti/add_result.html', str(year) + '/add_result.html', teams=teams)
 
     @staticmethod
     def gen_timetable(year: int):
         iti_subjects = [_ for _ in ItiSubject.select_by_iti(year) if _.start or _.end or _.place]
         iti_subjects.sort(key=ItiSubject.sort_by_start)
         subjects = {subject.id: subject for subject in Subject.select_all()}
-        html_render('timetable.html', str(year) + '/timetable.html', iti_subjects=iti_subjects, subjects=subjects)
+        html_render('iti/timetable.html', str(year) + '/timetable.html', iti_subjects=iti_subjects, subjects=subjects)
 
     @staticmethod
     def gen_users_list():
         users = User.select_all()
         subjects = {_.id: _.short_name for _ in Subject.select_all()}
-        html_render('user_edit.html', 'user_edit.html', users=users, subjects=subjects)
+        html_render('all/user_edit.html', 'user_edit.html', users=users, subjects=subjects)
 
     @staticmethod
     def gen_rules(subject: Subject):
-        href = '<li><p><a href="{0}.html">{1}</a></p></li>\n'.format(subject.id, subject.name) + ' ' * 12
-        data = SplitFile(Config.TEMPLATES_FOLDER + '/Info/rules.html')
-        data.insert_after_comment(' tours rules ', href, append=True)
-        data.save_file()
-        data = SplitFile(Config.HTML_FOLDER + '/rules.html')
-        data.replace_comment(' {name} ', subject.name)
-        data.save_file(Config.TEMPLATES_FOLDER + '/Info/{}.html'.format(subject.id))
+        html_render('all/rules.html', 'Info/{}.html'.format(subject.id), subject=subject)
 
     @staticmethod
-    def gen_automatic_division_1(codes: map, pos: int, teams: list, ts: set, cls: int):
+    def gen_automatic_division_1(codes: list, pos: int, teams: list, ts: set, cls: int):
         ln, t = len(codes), list(teams)
         t.reverse()
         while pos < ln and codes[pos][1].class_n == cls and len(t):
@@ -534,7 +477,8 @@ class Generator:
                     used_classes[class_name] += 1
             return min(used_classes.values()) == iti.students_in_team
         res_for_ord = sorted(res_for_ord.items(), key=compare(lambda x: x[1].class_n, lambda x: -x[1].result,
-                                                              lambda x: x[1].class_latter(), lambda x: Student.sort_by_name(x[1]),
+                                                              lambda x: x[1].class_latter(),
+                                                              lambda x: Student.sort_by_name(x[1]),
                                                               field=True))
 
         pos, good = 0, True

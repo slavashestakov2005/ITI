@@ -11,14 +11,14 @@ import json
 class FileCreator:
     @staticmethod
     def __render_default_pages__(year: int):
-        html_render('rating_students.html', str(year) + '/rating_students.html', results={}, students={}, subjects={},
+        html_render('iti/rating_students.html', str(year) + '/rating_students.html', results={}, students={}, subjects={},
                     classes=[], student_group_results={}, subjects_days={}, ind_res_per_day=0, year=year)
-        html_render('rating_students_check.html', str(year) + '/rating_students_check.html', results={}, students={},
+        html_render('iti/rating_students_check.html', str(year) + '/rating_students_check.html', results={}, students={},
                     subjects={}, classes=[], check_marks={}, student_group_results={}, subjects_days={}, ind_res_per_day=0)
-        html_render('rating_classes.html', str(year) + '/rating_classes.html', classes=[], results=[])
-        html_render('rating_teams.html', str(year) + '/rating_teams.html', team_results={}, ind_subjects={},
+        html_render('iti/rating_classes.html', str(year) + '/rating_classes.html', classes=[], results=[])
+        html_render('iti/rating_teams.html', str(year) + '/rating_teams.html', team_results={}, ind_subjects={},
                     team_subjects={}, team_student={}, teams={}, students={}, student_results={}, subjects_days={}, ind_res_per_day=0)
-        html_render('rating.html', str(year) + '/rating.html', results={}, students={})
+        html_render('iti/rating.html', str(year) + '/rating.html', results={}, students={})
 
     @staticmethod
     def __create_default_messages__(year: int):
@@ -48,7 +48,7 @@ class FileCreator:
     def create_subjects(iti: Iti, subjects: list):
         subjects = [Subject.select(_) for _ in subjects]
         for subject in subjects:
-            template_name = 'subject_ind.html' if subject.type == 'i' else 'subject_group.html'
+            template_name = 'iti/subject_ind.html' if subject.type == 'i' else 'iti/subject_group.html'
             file_name = '{}/{}.html'.format(iti.id, subject.id)
             if not os.path.exists(file_name):
                 html_render(template_name, file_name, subject_name=subject.name, results={}, scores={}, iti=iti)
