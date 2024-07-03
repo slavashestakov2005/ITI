@@ -23,6 +23,13 @@ html, body {
 
 
 
+/* header */
+.menu-header-logo {
+    height: 80px;
+}
+
+
+
 /* footer */
 .footer {
     width: 100%;
@@ -34,23 +41,24 @@ html, body {
 }
 
 .footer-left {
-    width: 130px;
+    width: 140px;
     text-align: left;
 }
 
 .footer-center {
-    width: 130px;
+    width: 120px;
     text-align: center;
 }
 
 .footer-right {
+    width: 240px;
     text-align: right;
 }
 
 .box {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-evenly;
 }
 
 

@@ -5,7 +5,7 @@
 }
 
 @media screen and (max-width: 710px){
-    .headtext {
+    .menu-header-text {
         display: none;
         visibility: hidden;
     }
@@ -30,6 +30,26 @@
     .itcss {
         display: none;
         visibility: hidden;
+    }
+}
+
+@media screen and (max-width: 450px){
+    .dropbtn {
+        width: 130px;
+        height: 50px;
+        margin: 5px;
+        border-radius: 5px;
+        font-size: 10pt;
+    }
+    .dropdown-item {
+        font-size: 10pt;
+    }
+    .menu-header-logo {
+        height: 50px;
+    }
+    .dropdown-menu {
+        min-width: 140px;
+        width: 140px;
     }
 }
 
