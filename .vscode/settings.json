@@ -4,6 +4,10 @@
 			{
 				"match": "\\.py",
 				"cmd": ".vscode\\compile_py.bat ${file}"
+			},
+			{
+				"match": "\\.bat",
+				"cmd": ".vscode\\copy_data.bat ${file}"
 			}
 		]
 	}
