@@ -4,7 +4,7 @@
 {% block content %}
 <h1>{{h_sub_name}}</h1>
 <div class="row col-12 justify-content-center">
-	<div class="col t-3"><center>
+	<div class="col table-col-450px"><center>
 		<h1>Максимальный балл</h1>
 		<form onsubmit="year_subject_edit(this, 'score'); return false;">
 			{% for score in scores %}
@@ -14,7 +14,7 @@
 			<input type="submit" value="Сохранить">
 		</form>
 	</center></div>
-	<div class="col t-3"><center>
+	<div class="col table-col-450px"><center>
 		<h1>Сохранение результатов</h1>
 		<form onsubmit="result_save(this); return false;">
 			<p>Код участника: <input id="results_for_focus" type="text" name="code"></p>
@@ -37,7 +37,7 @@
 	</center></div>
 
 	{% if adm %}
-	<div class="col t-3"><center>
+	<div class="col table-col-450px"><center>
 		<h1><a href="class_split_results">Разделить результаты по классам</a></h1>
 		<p>Школьники разделятся на классы по данным, занесённым в систему.</p>
 		<p>Если школьник останется в классе "?", то его штрих-код ещё не внесён в систему.</p>
@@ -65,7 +65,7 @@
 <div class="row col-12 justify-content-center">
 	{% for cls in top %}
 		{% if top[cls].__len__() %}
-			<div class="col t-4"><center>
+			<div class="col table-col-350px"><center>
 				<h2>{{ cls }} класс</h2>
 				<table width="100%" border="1">
 					<tr>

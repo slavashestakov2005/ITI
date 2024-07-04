@@ -2,7 +2,7 @@
 <!-- -2 -->
 {% extends "base.html" %}{% block content %}
 <div class="row col-12 justify-content-center">
-	<div class="col t-3">
+	<div class="col table-col-450px">
 		<h1>Новая школа</h1>
 		<form onsubmit="school_add(this); return false;">
 			<p>Название (например "МАОУ «КУГ №1 - Универс»"): <input type="text" name="name"></p>
@@ -10,7 +10,7 @@
 			<input type="submit" value="Создать">
 		</form>
 	</div>
-	<div class="col t-3">
+	<div class="col table-col-450px">
 		<h1>Изменить школу</h1>
 		<form onsubmit="school_edit(this); return false;">
 			<p>ID: <input type="text" name="id"></p>
@@ -19,7 +19,7 @@
 			<input type="submit" value="Изменить">
 		</form>
 	</div>
-	<div class="col t-3">
+	<div class="col table-col-450px">
 		<h1>Удалить школу</h1>
 		<form onsubmit="school_delete(this); return false;">
 			<p>ID: <input type="text" name="id"></p>

@@ -4,7 +4,7 @@
 {% block content %}
 <center><h1>Настройки пользователя</h1></center>
 <div class="row col-12 justify-content-center">
-	<div class="col t-3">
+	<div class="col table-col-450px">
 		<form onsubmit="user_settings(this); return false;">
 			<p>ID (неизменяем): <input type="text" name="id" value="{{ current_user.id }}" readonly></p>
 			<p>Логин (неизменяем): {{ current_user.login }}</p>
@@ -14,7 +14,7 @@
 			<input type="submit" value="Сохранить">
 		</form>
 	</div>
-	<div class="col t-3">
+	<div class="col table-col-450px">
 		{% if full %}
 		<form action="global_settings" method="post">
 			<p>Почта: {{ email }} (неизменяема)</p>

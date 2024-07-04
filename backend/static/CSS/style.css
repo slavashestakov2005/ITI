@@ -1,3 +1,4 @@
+/* colors */
 :root {
     --dark-grey-color: #d3d3d3;
     --dark2-grey-color: #dddddd;
@@ -10,20 +11,15 @@
     --box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 
-
-
-/* text*/
-.headtext {
-    font-size: 25pt;
-    text-align: center;
-    visibility: visible;
-    display: block;
-}
+.current_year { color: blue; }
+.p1 { background: #ffd700; }
+.p2 { background: #c0c0c0; }
+.p3 { background: #efa540; }
 
 
 
 /* lines */
-.white-line {
+.white-line-50px {
     background-color: transparent;
     text-align: center;
     padding: 2px;
@@ -31,6 +27,8 @@
 }
 
 
+
+/* elements */
 h1{ font-size: 24pt; text-align: center; }
 h2{ font-size: 18pt; }
 h3{ font-size: 15pt; }
@@ -38,6 +36,25 @@ h4{ font-size: 12pt; }
 
 .error-msg {
     color: red;
+}
+
+.invisible {
+    display: none;
+    visibility: hidden;
+}
+
+.textarea-multiline-red {
+    display: block;
+    width: 50%;
+    margin-left: 130px;
+    margin-top: -20px;
+    box-sizing: border-box;
+    border: solid 2px #e06969;
+    background-color: #fff;
+    min-height: 54px;
+    font-size: 14px;
+    line-height: 1.2;
+    resize: none;
 }
 
 
@@ -90,11 +107,4 @@ h4{ font-size: 12pt; }
     line-height: 1.2;
     margin: 0 auto;
     resize: none;
-}
-
-
-/* invisible elements */
-.invisible {
-    display: none;
-    visibility: hidden;
 }

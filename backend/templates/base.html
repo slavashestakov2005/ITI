@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="/CSS/bootstrap.min.css">
     <link rel="stylesheet" href="/CSS/menu.css">
     <link rel="stylesheet" href="/CSS/style.css">
-    <link rel="stylesheet" href="/CSS/style_old.css">
+    <link rel="stylesheet" href="/CSS/style_tables.css">
     <link rel="stylesheet" href="/CSS/media.css">
     <link rel="icon" href="/Images/logo.png" type="image/x-icon">
     <link href='https://fonts.googleapis.com/css?family=Lora' rel='stylesheet'>
@@ -28,11 +28,11 @@
 <div class="wrapper">
     <div class="content">
         <div class="row justify-content-between">
-            <div class="col-auto">
-                <a href="/"><img class="menu-header-logo" src="/Images/logo.png"></a>
+            <div class="col-auto header-logo-div">
+                <a href="/"><img class="header-logo-img" src="/Images/logo.png"></a>
             </div>
-            <div class="col-auto menu-header-text">
-                <p class="headtext">ИНТЕЛЛЕКТУАЛЬНО <br> ТВОРЧЕСКИЕ <br>ИГРЫ</p>
+            <div class="col-auto header-text-div">
+                <p class="header-text-p">ИНТЕЛЛЕКТУАЛЬНО <br> ТВОРЧЕСКИЕ <br>ИГРЫ</p>
             </div>
             <div class="col-auto">
                 <div class="dropdown">
@@ -48,13 +48,13 @@
                 </div>
             </div>
         </div>
-        <div class="white-line"></div>
+        <div class="header-white-line"></div>
         {% block content %}{% endblock %}
-        <div class="white-line"></div>
+        <div class="header-white-line"></div>
     </div>
     <div class="footer">
         <div class="container">
-            <div class="box">
+            <div class="footer-box">
                 <div class="footer-left">
                     О нас:<br>
                     <a href="/Info/organizer.html">Организаторы</a><br>

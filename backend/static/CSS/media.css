@@ -1,11 +1,11 @@
 @media screen and (max-width: 800px) {
-    .headtext {
+    .header-text-p {
         font-size: 19pt;
     }
 }
 
 @media screen and (max-width: 710px){
-    .menu-header-text {
+    .header-text-div {
         display: none;
         visibility: hidden;
     }
@@ -26,13 +26,6 @@
     }
 }
 
-@media screen and (max-width: 480px){
-    .itcss {
-        display: none;
-        visibility: hidden;
-    }
-}
-
 @media screen and (max-width: 450px){
     .dropbtn {
         width: 130px;
@@ -44,7 +37,7 @@
     .dropdown-item {
         font-size: 10pt;
     }
-    .menu-header-logo {
+    .header-logo-img {
         height: 50px;
     }
     .dropdown-menu {
@@ -62,7 +55,7 @@
 
 
 @media screen and (orientation: portrait) {
-    .white-line {
+    .header-white-line {
         height: 20px;
     }
 }

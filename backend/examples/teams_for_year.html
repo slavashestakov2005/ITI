@@ -15,7 +15,7 @@
 
 <div class="row col-12 justify-content-center">
     {% if adm %}
-    <div class="col t-3"><center>
+    <div class="col table-col-450px"><center>
         <h2>Команды:</h2>
         <table width="85%" border="1">
             <thead><tr>
@@ -51,7 +51,7 @@
             <input type="submit" value="Удалить">
         </center></form>
     </center></div>
-    <div class="col t-3"><center>
+    <div class="col table-col-450px"><center>
         <h2>Участники команд:</h2>
         <form onsubmit="team_student_add(this); return false;"><center>
             <h3>Новый участник:</h3>
@@ -67,7 +67,7 @@
         </center></form>
     </center></div>
     {% endif %}
-    <div class="col t-2"><center>
+    <div class="col table-col-930px"><center>
         <h2>Ваши команды:</h2>
         {% for team in teams %}
             <form onsubmit="subject_student_save(this); return false;"><center>

@@ -1,7 +1,7 @@
 <!-- login required -->
 <!-- replace 1 -->
 <div class="row col-12 justify-content-center">
-	<div class="col t-3"><center>
+	<div class="col table-col-450px"><center>
 		<h1>Сохранение результатов</h1>
 		<form onsubmit="group_results_save(this); return false;">
             {% for team in teams %}
@@ -11,7 +11,7 @@
 			<input type="submit" value="Сохранить">
 		</form>
 	</center></div>
-	<div class="col t-3"><center>
+	<div class="col table-col-450px"><center>
 		{% raw %}{% if adm %}
 		<h1><a href="share_group_results">Публикация результатов</a></h1>
 		<p>После публикации результатов они станут доступны для просмотра всем.</p>

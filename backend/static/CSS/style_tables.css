@@ -1,0 +1,36 @@
+/* table */
+table {
+    width: max-content;
+    max-width: 100%;
+}
+
+.table-timetable {
+    min-width: 700px;
+    max-width: 850px;
+}
+
+.table-col-930px {
+    min-width: 930px;
+    max-width: 930px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+.table-col-450px {
+    min-width: 450px;
+    width: 450px;
+    max-width: 500px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+.table-col-350px {
+    min-width: 350px;
+    width: 350px;
+    max-width: 400px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 20px;
+}
