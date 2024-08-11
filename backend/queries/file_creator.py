@@ -37,7 +37,7 @@ class FileCreator:
         if os.path.exists(data_directory):
             shutil.rmtree(data_directory)
             FileManager.delete_dir(data_directory)
-        shutil.copytree(Config.EXAMPLES_FOLDER, directory)
+        shutil.copytree(Config.DEFAULT_ITI_FOLDER, directory)
         os.makedirs(data_directory)
         FileManager.save_dir(directory)
         FileCreator.__render_default_pages__(year)

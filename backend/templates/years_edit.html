@@ -10,15 +10,52 @@
 			<p>Участвующие классы: <input type="text" name="classes"></p>
 			<p>Количество индивидуальных дней: <input type="text" name="ind_days"></p>
 			<p>Максимальный балл за индивидуальный тур: <input type="text" name="default_ind_score"></p>
-			<p>Формула вычисления балла в рейтинг за индивидуальный тур: <input type="text" name="net_score_formula"></p>
+			<p>Формула вычисления балла в рейтинг за индивидуальный тур:
+				<select name="net_score_formula">
+					<option value="">Не выбрано</option>
+					<option value="0">Масштабирование в [0; 100] (ОШ)</option>
+					<option value="1">Без округлений (НШ)</option>
+				</select>
+			</p>
 			<p>Количество индивидуальных предметов из одного дня в рейтинг: <input type="text" name="sum_ind_to_rating"></p>
-			<p>Обязательно ли есть все призовые места: <input type="text" name="ind_prize_policy"></p>
-			<p>Алгоритм распределения на команды: <input type="text" name="automatic_division"></p>
+			<p>Обязательно ли есть все призовые места:
+				<select name="ind_prize_policy">
+					<option value="">Не выбрано</option>
+					<option value="0">Только три призёра (ОШ)</option>
+					<option value="1">Награждать всех по баллам (НШ)</option>
+				</select>
+			</p>
+			<p>Алгоритм распределения на команды:
+				<select name="automatic_division">
+					<option value="">Не выбрано</option>
+					<option value="0">Ручное</option>
+					<option value="1">По рейтингу внутри параллели</option>
+					<option value="2">По рейтингу внутри класса</option>
+				</select>
+			</p>
 			<p>Названия автоматических команд: <input type="text" name="auto_teams"></p>
-			<p>Суммировать индивидуальные предметы в рейтинг команд: <input type="text" name="sum_ind_to_team"></p>
-			<p>Суммировать групповые предметы в рейтинг суперчемпиона: <input type="text" name="sum_gr_to_super"></p>
+			<p>Суммировать индивидуальные предметы в рейтинг команд: 
+				<select name="sum_ind_to_team">
+					<option value="">Не выбрано</option>
+					<option value="0">Нет</option>
+					<option value="1">Да</option>
+				</select>
+			</p>
+			<p>Суммировать групповые предметы в рейтинг суперчемпиона:
+				<select name="sum_gr_to_super">
+					<option value="">Не выбрано</option>
+					<option value="0">Нет</option>
+					<option value="1">Да</option>
+				</select>
+			</p>	
 			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
-			<p>Тип кодировки: <input type="text" name="encoding_type"></p>
+			<p>Тип кодировки:
+				<select name="encoding_type">
+					<option value="">Не выбрано</option>
+					<option value="0">У школьника фиксирован код</option>
+					<option value="1">У работы есть штрих-код</option>
+				</select>
+			</p>
 			<p>Описание, только для просмотра администраторами:</p>
 			<p><textarea type="text" id="description_1" name="description" class="textarea-multiline-red" oninput="textInput(document, 'description_1')"></textarea></p>
 			<script>textInput(document, 'description_1');</script>
@@ -33,15 +70,52 @@
 			<p>Участвующие классы: <input type="text" name="classes"></p>
 			<p>Количество индивидуальных дней: <input type="text" name="ind_days"></p>
 			<p>Максимальный балл за индивидуальный тур: <input type="text" name="default_ind_score"></p>
-			<p>Формула вычисления балла в рейтинг за индивидуальный тур: <input type="text" name="net_score_formula"></p>
+			<p>Формула вычисления балла в рейтинг за индивидуальный тур:
+				<select name="net_score_formula">
+					<option value="">Не выбрано</option>
+					<option value="0">Масштабирование в [0; 100] (ОШ)</option>
+					<option value="1">Без округлений (НШ)</option>
+				</select>
+			</p>
 			<p>Количество индивидуальных предметов из одного дня в рейтинг: <input type="text" name="sum_ind_to_rating"></p>
-			<p>Обязательно ли есть все призовые места: <input type="text" name="ind_prize_policy"></p>
-			<p>Алгоритм распределения на команды: <input type="text" name="automatic_division"></p>
+			<p>Обязательно ли есть все призовые места:
+				<select name="ind_prize_policy">
+					<option value="">Не выбрано</option>
+					<option value="0">Только три призёра (ОШ)</option>
+					<option value="1">Награждать всех по баллам (НШ)</option>
+				</select>
+			</p>
+			<p>Алгоритм распределения на команды:
+				<select name="automatic_division">
+					<option value="">Не выбрано</option>
+					<option value="0">Ручное</option>
+					<option value="1">По рейтингу внутри параллели</option>
+					<option value="2">По рейтингу внутри класса</option>
+				</select>
+			</p>
 			<p>Названия автоматических команд: <input type="text" name="auto_teams"></p>
-			<p>Суммировать индивидуальные предметы в рейтинг команд: <input type="text" name="sum_ind_to_team"></p>
-			<p>Суммировать групповые предметы в рейтинг суперчемпиона: <input type="text" name="sum_gr_to_super"></p>
+			<p>Суммировать индивидуальные предметы в рейтинг команд: 
+				<select name="sum_ind_to_team">
+					<option value="">Не выбрано</option>
+					<option value="0">Нет</option>
+					<option value="1">Да</option>
+				</select>
+			</p>
+			<p>Суммировать групповые предметы в рейтинг суперчемпиона:
+				<select name="sum_gr_to_super">
+					<option value="">Не выбрано</option>
+					<option value="0">Нет</option>
+					<option value="1">Да</option>
+				</select>
+			</p>	
 			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
-			<p>Тип кодировки: <input type="text" name="encoding_type"></p>
+			<p>Тип кодировки:
+				<select name="encoding_type">
+					<option value="">Не выбрано</option>
+					<option value="0">У школьника фиксирован код</option>
+					<option value="1">У работы есть штрих-код</option>
+				</select>
+			</p>
 			<p>Описание, только для просмотра администраторами:</p>
 			<p><textarea type="text" id="description_2" name="description" class="textarea-multiline-red" oninput="textInput(document, 'description_2')"></textarea></p>
 			<script>textInput(document, 'description_2');</script>

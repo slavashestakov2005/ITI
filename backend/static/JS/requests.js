@@ -68,6 +68,9 @@ function parseForm(form, data={}) {
     for (const element of form.getElementsByTagName('textarea')) {
         data[element.name] = element.value;
     }
+    for (const element of form.getElementsByTagName('select')) {
+        data[element.name] = element.value;
+    }
     return data;
 }
 

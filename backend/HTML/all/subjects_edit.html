@@ -7,7 +7,14 @@
 		<form onsubmit="subject_add(this); return false;">
 			<p>Название: <input type="text" name="name"></p>
 			<p>Короткое название: <input type="text" name="short_name"></p>
-			<p>Тип (i / g / a): <input type="text" name="type"></p>
+			<p>Тип:
+				<select name="type">
+					<option value="">Не выбрано</option>
+					<option value="i">Индивидуальный</option>
+					<option value="g">Групповой</option>
+					<option value="a">Другой</option>
+				</select>
+			</p>
 			<p>Текст диплома: <textarea type="text" id="diploma" name="diploma" class="textarea-multiline-red" oninput="textInput(document, 'diploma')"></textarea></p>
 			<p>Текст новости: <textarea type="text" id="msg" name="msg" class="textarea-multiline-red" oninput="textInput(document, 'msg')"></textarea></p>
 			<script>textInput(document, 'diploma'); textInput(document, 'msg');</script>
@@ -18,7 +25,14 @@
 			<p>ID: <input type="text" name="id"></p>
 			<p>Название: <input type="text" name="name"></p>
 			<p>Короткое название: <input type="text" name="short_name"></p>
-			<p>Тип (i / g / a): <input type="text" name="type"></p>
+			<p>Тип:
+				<select name="type">
+					<option value="">Не выбрано</option>
+					<option value="i">Индивидуальный</option>
+					<option value="g">Групповой</option>
+					<option value="a">Другой</option>
+				</select>
+			</p>
 			<p>Текст диплома: <textarea type="text" id="new_diploma" name="diploma" class="textarea-multiline-red" oninput="textInput(document, 'new_diploma')"></textarea></p>
 			<p>Текст новости: <textarea type="text" id="new_msg" name="msg" class="textarea-multiline-red" oninput="textInput(document, 'new_msg')"></textarea></p>
 			<script>textInput(document, 'new_diploma');textInput(document, 'new_msg');</script>
