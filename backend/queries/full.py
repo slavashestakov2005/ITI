@@ -5,7 +5,7 @@ from flask_login import login_required
 import shutil
 import glob
 import os
-from .help import check_status
+from .help import check_access
 from ..help import init_mail_messages, FileManager, ConfigMail
 from ..database import execute_sql, GroupResult, Message, Result, Barcode, SubjectStudent, Team, TeamStudent, Iti,\
     ItiSubject, ItiSubjectScore, TeamConsent, Code
@@ -65,7 +65,7 @@ def _delete_iti(year: int):
 @app.route("/global_settings", methods=['POST'])
 @cross_origin()
 @login_required
-@check_status('full')
+@check_access(status='full')
 def global_settings():
     app.config['MAIL_PASSWORD'] = request.form['password']
     init_mail_messages()
@@ -76,7 +76,7 @@ def global_settings():
 @app.route('/db')
 @cross_origin()
 @login_required
-@check_status('full')
+@check_access(status='full')
 def db():
     sql = request.args.get('sql')
     t = request.args.get('type')
@@ -89,15 +89,15 @@ def db():
 @app.route('/<int:iti_id>/year_block')
 @cross_origin()
 @login_required
-@check_status('admin')
-def year_block(iti_id: int):
-    return render_template(str(iti_id) + '/year_block.html')
+@check_access(status='admin')
+def year_block(iti: Iti):
+    return render_template(str(iti.id) + '/year_block.html')
 
 
 @app.route('/restart')
 @cross_origin()
 @login_required
-@check_status('full')
+@check_access(status='full')
 def restart():
     with open('.restart-app', 'w') as f:
         pass
@@ -109,11 +109,12 @@ def shutdown_server():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
-    
+
+
 @app.get('/shutdown')
 @cross_origin()
 @login_required
-@check_status('full')
+@check_access(status='full')
 def shutdown():
     shutdown_server()
     return 'Server shutting down...'

@@ -2,7 +2,7 @@ from backend import app
 from .. import Config
 from ..database import Student, Iti, School
 from ..excel import ExcelBarcodesWriter
-from .help import check_status, check_block_iti
+from .help import check_access
 from flask import render_template, send_file, request
 from flask_cors import cross_origin
 from flask_login import login_required
@@ -47,8 +47,7 @@ def create_barcode_blank(doc, student: Student, schools: dict):
 @app.route("/<int:iti_id>/create_barcodes")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def create_barcodes(iti: Iti):
     if not os.path.exists(Config.WORDS_FOLDER):
         os.makedirs(Config.WORDS_FOLDER)
@@ -82,8 +81,7 @@ def create_barcodes(iti: Iti):
 @app.route("/<int:iti_id>/get_barcodes")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def get_barcodes(iti: Iti):
     store_name, send_name = FileNames.barcodes_word(iti)
     filename = './data/' + store_name
@@ -93,8 +91,7 @@ def get_barcodes(iti: Iti):
 @app.route("/<int:iti_id>/get_excel_with_barcodes", methods=['POST'])
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def get_excel_with_barcodes(iti: Iti):
     MOD = 10 ** 12
     try:

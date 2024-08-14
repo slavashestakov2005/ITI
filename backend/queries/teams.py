@@ -1,7 +1,7 @@
 from backend import app
 from ..database import Student, Subject, SubjectStudent, Team, TeamStudent, ItiSubject, User, TeamConsent, Iti,\
     IndDayStudent, School
-from .help import check_status, compare, check_block_iti
+from .help import check_access
 from .auto_generator import Generator
 from flask import render_template
 from flask_cors import cross_origin
@@ -42,7 +42,7 @@ def teams_page_params(user: User, iti: Iti):
                 for subject in subjects:
                     p.append([subject.id, people.id, '{} {}'.format(subject.id, people.id) in participants])
                 t.append(p)
-            t.sort(key=compare(lambda x: x[0][1], lambda x: x[1][1], lambda x: x[2][1], field=True))
+            t.sort(key=lambda x: (x[0][1], x[1][1], x[2][1]))
             res.append([team, t])
         rejection = []
         for tc in TeamConsent.select_rejection_by_iti(iti.id):
@@ -58,8 +58,7 @@ def teams_page_params(user: User, iti: Iti):
 @app.route("/<int:iti_id>/team_edit")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def team_edit(iti: Iti):
     return render_template(str(iti.id) + '/teams_for_year.html', **teams_page_params(current_user, iti))
 
@@ -67,8 +66,7 @@ def team_edit(iti: Iti):
 @app.route("/<int:iti_id>/automatic_division", methods=['GET'])
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def automatic_division(iti: Iti):
     args = teams_page_params(current_user, iti)
     if iti.automatic_division == 0:

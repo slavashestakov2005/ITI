@@ -4,7 +4,7 @@ from ..database import GroupResult, Result, StudentClass, Subject, Team, Iti, It
 from flask import render_template
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
-from .help import check_status, check_block_iti, path_to_subject, compare
+from .help import check_access, path_to_subject
 from .auto_generator import Generator
 from .messages_help import message_results_public, message_ratings_public, message_all_ratings_public
 '''
@@ -54,7 +54,7 @@ def page_params(year: int, path2, path3):
             sorted_results['?'].append(r)
         for cls in sorted_results:
             lst = sorted_results[cls]
-            lst.sort(key=compare(lambda x: Result.sort_by_result(x), field=True))
+            lst.sort(key=Result.sort_by_result)
             t, last_pos, last_result = [], 0, None
             for i in range(len(lst)):
                 if last_result != lst[i].result:
@@ -93,7 +93,7 @@ def chose_params(p1: int, p2: str, p3: str):
 @app.route('/<int:iti_id>/<path:path3>/add_result')
 @cross_origin()
 @login_required
-@check_block_iti()
+@check_access(block=True)
 def add_result(iti: Iti, path3):
     try:
         subject = Subject.select(path_to_subject(path3))
@@ -114,7 +114,7 @@ def add_result(iti: Iti, path3):
 @app.route('/<int:iti_id>/<path:path3>/class_split_results')
 @cross_origin()
 @login_required
-@check_block_iti()
+@check_access(block=True)
 def class_split_results(iti: Iti, path3):
     path2 = 'individual'
     params = page_params(iti.id, path2, path3)
@@ -138,8 +138,7 @@ def class_split_results(iti: Iti, path3):
 @app.route('/<int:iti_id>/<path:path3>/share_results')
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def share_results(iti: Iti, path3):
     path2 = 'individual'
     params = page_params(iti.id, path2, path3)
@@ -162,8 +161,7 @@ def share_results(iti: Iti, path3):
 @app.route("/<int:iti_id>/ratings_update")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def ratings_update(iti: Iti):
     Generator.gen_ratings(iti)
     message_ratings_public(iti.id)
@@ -173,8 +171,7 @@ def ratings_update(iti: Iti):
 @app.route('/<int:iti_id>/<path:path3>/share_group_results')
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def share_group_results(iti: Iti, path3):
     try:
         params = group_page_params(iti.id, path3)
@@ -196,8 +193,7 @@ def share_group_results(iti: Iti, path3):
 @app.route('/<int:iti_id>/share_all_results')
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def share_all_results(iti: Iti):
     try:
         ys = ItiSubject.select_by_iti(iti.id)

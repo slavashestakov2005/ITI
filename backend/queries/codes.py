@@ -1,6 +1,6 @@
 from backend import app
 from ..database import Student, Iti, School, Code
-from .help import check_status, check_block_iti
+from .help import check_access
 from flask import render_template, send_file, request
 from flask_cors import cross_origin
 from flask_login import login_required
@@ -18,8 +18,7 @@ from ..config import Config
 @app.route("/<int:iti_id>/create_codes")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def create_codes(iti: Iti):
     only_new = request.args.get('new') == '1'
     codes = {code for code in range(1000, 10000)}
@@ -49,8 +48,7 @@ def create_codes(iti: Iti):
 @app.route("/<int:iti_id>/get_codes")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def get_codes(iti: Iti):
     store_name, send_name = FileNames.codes_excel(iti)
     filename = './data/' + store_name

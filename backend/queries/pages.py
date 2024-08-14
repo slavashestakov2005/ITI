@@ -2,7 +2,7 @@ from flask import render_template
 from flask_cors import cross_origin
 from flask_login import login_required, current_user
 from backend import app
-from .help import check_status, check_block_iti
+from .help import check_access
 from ..database import Message, Iti, ItiSubject, School, Barcode, Result, Student, Subject
 from ..help import ConfigMail
 '''
@@ -21,8 +21,7 @@ from ..help import ConfigMail
 @app.route("/<int:iti_id>/subjects_for_year.html")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def subjects_for_iti(iti: Iti):
     return render_template(str(iti.id) + '/subjects_for_year.html')
 
@@ -30,8 +29,7 @@ def subjects_for_iti(iti: Iti):
 @app.route("/<int:iti_id>/messages_for_year.html")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def messages_for_iti(iti: Iti):
     return render_template(str(iti.id) + '/messages_for_year.html', messages=Message.select_by_iti(iti.id))
 
@@ -39,8 +37,7 @@ def messages_for_iti(iti: Iti):
 @app.route("/<int:iti_id>/student_edit.html")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def student_edit(iti: Iti):
     return render_template('student_edit.html', iti=iti)
 
@@ -48,8 +45,7 @@ def student_edit(iti: Iti):
 @app.route("/<int:iti_id>/excel.html")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def excel_page_for_iti(iti: Iti):
     return render_template('excel.html', iti=iti)
 
@@ -57,7 +53,7 @@ def excel_page_for_iti(iti: Iti):
 @app.route("/settings.html")
 @cross_origin()
 @login_required
-@check_block_iti()
+@check_access(block=True)
 def settings():
     params = {'password': 'Уже введён' if ConfigMail.MAIL_PASSWORD else 'Отсутствует',
               'email': ConfigMail.MAIL_USERNAME, 'admins': str(ConfigMail.ADMINS)} \
@@ -68,22 +64,22 @@ def settings():
 @app.route("/<int:iti_id>/rating_students_check.html")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def rating_students_check(iti: Iti):
     return render_template(str(iti.id) + '/rating_students_check.html')
 
 
 @app.route("/<int:iti_id>/rating.html")
 @cross_origin()
-def rating(iti_id: int):
-    return render_template(str(iti_id) + '/rating.html', iti_id=iti_id)
+@check_access()
+def rating(iti: Iti):
+    return render_template(str(iti.id) + '/rating.html', iti_id=iti.id, super_is_open=iti.super_is_open)
 
 
 @app.route("/school_edit.html")
 @cross_origin()
 @login_required
-@check_status('admin')
+@check_access(status='admin')
 def school_edit():
     return render_template('school_edit.html', schools=School.select_all())
 
@@ -91,8 +87,7 @@ def school_edit():
 @app.route("/<int:iti_id>/codes.html")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def iti_codes_page(iti: Iti):
     return render_template('codes.html', iti=iti)
 
@@ -100,8 +95,7 @@ def iti_codes_page(iti: Iti):
 @app.route("/<int:iti_id>/barcodes_edit.html")
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def iti_barcodes_edit_page(iti: Iti):
     all_subjects = Subject.select_id_dict()
     iti_subjects = ItiSubject.select_by_iti(iti.id)

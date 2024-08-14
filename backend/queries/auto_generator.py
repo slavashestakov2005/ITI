@@ -1,4 +1,4 @@
-from .help import compare, html_render
+from .help import html_render
 from backend.excel.diploma_writer import ExcelDiplomaWriter
 from ..database import GroupResult, Result, Student, Subject, SubjectStudent, Team, TeamStudent, User, Iti, ItiSubject,\
     ItiSubjectScore, School, TeamConsent, IndDayStudent, decode_result
@@ -59,8 +59,7 @@ class Generator:
     def gen_students_list(year: int, class_n: int):
         schools = School.select_id_dict()
         students = Student.select_by_class_n(year, class_n)
-        students = sorted(students, key=compare(lambda x: Student.sort_by_class(x), lambda x: x.name_1,
-                                                lambda x: x.name_2, field=True))
+        students = sorted(students, key=lambda x: (Student.sort_by_class(x), x.name_1, x.name_2))
         length = len(students)
         m1 = length - length // 2
         html_render('iti/students_table.html', str(year) + '/students_' + str(class_n) + '.html', class_number=class_n,
@@ -221,9 +220,8 @@ class Generator:
                 raise ValueError('Неизвестный школьник code: {}, id: {}'.format(r.student_code, r.student_id))
             sorted_results[students[r.student_id].class_n].append(r)
         for cls in sorted_results:
-            sorted_results[cls].sort(
-                key=compare(lambda x: Result.sort_by_result(x), lambda x: students[x.student_id].class_latter(),
-                            lambda x: Student.sort_by_name(students[x.student_id]), field=True))
+            sorted_results[cls].sort(key=lambda x: (Result.sort_by_result(x), students[x.student_id].class_latter(), 
+                                                    Student.sort_by_name(students[x.student_id])))
         data = {}
         schools = School.select_id_dict()
         for cls in iti.classes_list():
@@ -244,8 +242,7 @@ class Generator:
         results = {_: GroupResult.select_by_team_and_subject(_.id, subject) for _ in teams}
         if None in results.values():
             return None
-        results = sorted(results.items(), key=compare(GroupResult.sort_by_result, lambda x: x[1],
-                                                      Team.sort_by_latter, lambda x: x[0]))
+        results = sorted(results.items(), key=lambda x: (GroupResult.sort_by_result(x[1]), Team.sort_by_latter(x[0])))
         students = [_.student_id for _ in SubjectStudent.select_by_iti_subject(ys.id)]
         teams_student, students_count = {}, 0
         for now in students:
@@ -259,7 +256,7 @@ class Generator:
             teams_student[ts[0]].append(student)
         for x in teams_student:
             students_count = max(students_count, len(teams_student[x]))
-            teams_student[x].sort(key=compare(Student.sort_by_class, Student.sort_by_name, field=True))
+            teams_student[x].sort(key=lambda x: (Student.sort_by_class(x), Student.sort_by_name(x)))
         i, last_pos, last_result = 1, 1, None
         rows = []
         for result in results:
@@ -463,8 +460,7 @@ class Generator:
                 student_result[student_id][day].sort(reverse=True)
                 res_for_ord[student_id].result += sum(student_result[student_id][day][:iti.sum_ind_to_rating])
         if iti.automatic_division == 2:
-            res_for_ord = sorted(res_for_ord.items(), key=compare(lambda x: -x[1].result,
-                                                                  lambda x: Student.sort_by_name(x[1]), field=True))
+            res_for_ord = sorted(res_for_ord.items(), key=lambda x: (-x[1].result, Student.sort_by_name(x[1])))
             used_classes = {}
             for res in res_for_ord:
                 stud = res[1]
@@ -476,10 +472,8 @@ class Generator:
                     TeamStudent.insert(TeamStudent.build(t0[teams_names.index(team_name)], stud.id))
                     used_classes[class_name] += 1
             return min(used_classes.values()) == iti.students_in_team
-        res_for_ord = sorted(res_for_ord.items(), key=compare(lambda x: x[1].class_n, lambda x: -x[1].result,
-                                                              lambda x: x[1].class_latter(),
-                                                              lambda x: Student.sort_by_name(x[1]),
-                                                              field=True))
+        res_for_ord = sorted(res_for_ord.items(),
+                             key=lambda x: (x[1].class_n, -x[1].result, x[1].class_latter(), Student.sort_by_name(x[1])))
 
         pos, good = 0, True
         iti_classes = iti.classes_list()

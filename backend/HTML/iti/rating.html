@@ -15,7 +15,7 @@
     <p><a href="rating_students_check.html">Рейтинг школьников с галочками</a></p>
     <br>
     {% endif %}
-    {% if adm or iti_id == 7 %}{% endraw %}
+    {% if adm and super_is_open == 0 or not anon and super_is_open == 1 or super_is_open == 2 %}
     <h2>Суперчемпион</h2>
     <table class="js-table-color-place" id="sorted-table">
         <thead><tr>

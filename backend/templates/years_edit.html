@@ -47,7 +47,15 @@
 					<option value="0">Нет</option>
 					<option value="1">Да</option>
 				</select>
-			</p>	
+			</p>
+			<p>Кому открыт рейтинг суперчемпиона:
+				<select name="super_is_open">
+					<option value="">Не выбрано</option>
+					<option value="0">Админам</option>
+					<option value="1">Учителям</option>
+					<option value="2">Всем</option>
+				</select>
+			</p>
 			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
 			<p>Тип кодировки:
 				<select name="encoding_type">
@@ -107,6 +115,14 @@
 					<option value="0">Нет</option>
 					<option value="1">Да</option>
 				</select>
+			</p>
+			<p>Кому открыт рейтинг суперчемпиона:
+				<select name="super_is_open">
+					<option value="">Не выбрано</option>
+					<option value="0">Админам</option>
+					<option value="1">Учителям</option>
+					<option value="2">Всем</option>
+				</select>
 			</p>	
 			<p>Школьников с одной параллели в команде: <input type="text" name="students_in_team"></p>
 			<p>Тип кодировки:
@@ -146,6 +162,7 @@
 				<th width="5%">Названия для авт. команд</th>
 				<th width="5%">Сумм. инд. предметы командам</th>
 				<th width="5%">Сумм. гр. дни суперчемпиону</th>
+				<th width="5%">Открытость суперчемпиона</th>
 				<th width="5%">Школьников в команде</th>
 				<th width="5%">Тип кодировки</th>
 				<th width="5%">Описание</th>
@@ -166,6 +183,7 @@
 				<td>-</td>
 				<td>1</td>
 				<td>1</td>
+				<td>0</td>
 				<td>5</td>
 				<td>0</td>
 				<td>Только призовые места, дизайн №1</td>
@@ -186,6 +204,7 @@
 				<td>-</td>
 				<td>1</td>
 				<td>1</td>
+				<td>0</td>
 				<td>4</td>
 				<td>0</td>
 				<td>Только призовые места, дизайн №1</td>
@@ -206,6 +225,7 @@
 				<td>1 2 3 4 5 6</td>
 				<td>0</td>
 				<td>1</td>
+				<td>0</td>
 				<td>4</td>
 				<td>0</td>
 				<td>Всё сохранено, дизайн №1</td>
@@ -226,6 +246,7 @@
 				<td>А Б В Г Д Е Ж З И М</td>
 				<td>0</td>
 				<td>1</td>
+				<td>0</td>
 				<td>4</td>
 				<td>0</td>
 				<td>Всё сохранено, дизайн №1</td>
@@ -246,6 +267,7 @@
 				<td>1 2 3 4 5 6</td>
 				<td>0</td>
 				<td>1</td>
+				<td>0</td>
 				<td>5</td>
 				<td>1</td>
 				<td>Всё сохранено, дизайн №2</td>
@@ -265,6 +287,7 @@
 				<td>2</td>
 				<td>А Б В Г Д Е Ж З И М</td>
 				<td>1</td>
+				<td>0</td>
 				<td>0</td>
 				<td>4</td>
 				<td>0</td>
@@ -286,6 +309,7 @@
 				<td>А Б В Г Д Е Ж З М #sch-9 #sch-5 #sch-3 #sch-10 #sch-8</td>
 				<td>1</td>
 				<td>0</td>
+				<td>2</td>
 				<td>4</td>
 				<td>0</td>
 				<td>Слава, я не знаю, что здесь писать</td>
@@ -306,6 +330,7 @@
 				<td>1 2 3 4 5 6 7 8</td>
 				<td>0</td>
 				<td>1</td>
+				<td>0</td>
 				<td>5</td>
 				<td>1</td>
 				<td>и тут я тоже не знаю, что писать</td>

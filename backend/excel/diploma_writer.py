@@ -1,5 +1,4 @@
 from .__parent_writer__ import ExcelParentWriter
-from backend.queries.help import compare
 
 
 class ExcelDiplomaWriter(ExcelParentWriter):
@@ -19,6 +18,14 @@ class ExcelDiplomaWriter(ExcelParentWriter):
         elif sz > 4:
             worksheet.set_column(3, sz - 1, 30)
             worksheet.merge_range(0, 3, 0, sz - 1, 'Предмет', self.center_style)
+    
+    @staticmethod
+    def order_ind_diploma(x):
+        return x[2].id, x[0].class_n, x[1], x[0].class_latter(), x[0].name()
+
+    @staticmethod
+    def order_gr_diploma(x):
+        return x[2].id, x[1], x[0].class_n, x[0].class_latter(), x[0].name()
 
     def write(self, filename: str, diplomas: list, subjects: dict, students: dict):
         dip1, dip2, dip3 = [], [], []
@@ -32,11 +39,9 @@ class ExcelDiplomaWriter(ExcelParentWriter):
                 dip2.append(line)
             else:
                 dip3.append(line)
-        cmp = [lambda x: x[2].id, lambda x: x[0].class_n, lambda x: x[1], lambda x: x[0].class_latter(), lambda x: x[0].name()]
-        dip1.sort(key=compare(*cmp, field=True))
-        cmp[1], cmp[2] = cmp[2], cmp[1]
-        dip2.sort(key=compare(*cmp, field=True))
-        dip3.sort(key=compare(*cmp, field=True))
+        dip1.sort(key=ExcelDiplomaWriter.order_ind_diploma)
+        dip2.sort(key=ExcelDiplomaWriter.order_gr_diploma)
+        dip3.sort(key=ExcelDiplomaWriter.order_gr_diploma)
         self.__styles__(filename)
         self.__gen_sheet__(self.workbook.add_worksheet('Индивидуальные туры'), dip1)
         self.__gen_sheet__(self.workbook.add_worksheet('Групповые туры'), dip2)

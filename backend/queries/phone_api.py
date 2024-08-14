@@ -1,6 +1,6 @@
 from backend import app
 from ..database import Barcode, Iti, ItiSubject, Student, StudentClass, Subject, User
-from .help import check_block_iti
+from .help import check_access
 from .results_raw import save_result_
 from flask import request, jsonify
 from flask_cors import cross_origin
@@ -15,7 +15,7 @@ import json
 
 @app.route("/<int:iti_id>/student_info", methods=['POST'])
 @cross_origin()
-@check_block_iti()
+@check_access(block=True)
 def student_info(iti: Iti):
     try:
         student_id = request.json['student_id']
@@ -41,7 +41,7 @@ def student_info(iti: Iti):
 
 @app.route("/<int:iti_id>/subject_info", methods=['POST'])
 @cross_origin()
-@check_block_iti()
+@check_access(block=True)
 def subject_info(iti: Iti):
     try:
         subject_id = request.json['subject_id']
@@ -67,7 +67,7 @@ def subject_info(iti: Iti):
 
 @app.route("/<int:iti_id>/save_barcodes", methods=['POST'])
 @cross_origin()
-@check_block_iti()
+@check_access(block=True)
 def save_barcodes(iti: Iti):
     try:
         data = request.json['data']
@@ -101,7 +101,7 @@ def save_barcodes(iti: Iti):
 
 @app.route("/<int:iti_id>/<int:subject_id>/save_results", methods=['POST'])
 @cross_origin()
-@check_block_iti()
+@check_access(block=True)
 def save_subject_results(iti: Iti, subject_id: int):
     try:
         data = request.json['data']

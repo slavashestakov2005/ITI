@@ -5,7 +5,7 @@ from flask_login import login_required, current_user
 from .auto_generator import Generator
 from .file_creator import FileCreator
 from .full import _delete_iti
-from .help import check_status, check_block_iti, path_to_subject
+from .help import check_access, path_to_subject
 from .results import page_params
 from ..database import Iti, ItiSubject, Subject, Student, Code, School
 from ..excel import ExcelFullReader, ExcelItiWriter, ExcelResultsReader, ExcelFullWriter, ExcelStudentsReader,\
@@ -26,7 +26,7 @@ from ..help import FileNames
 @app.route('/load_data_from_excel_all', methods=['POST'])
 @cross_origin()
 @login_required
-@check_status('full')
+@check_access(status='full')
 def load_data_from_excel_all():
     file = request.files['file']
     filename = Config.DATA_FOLDER + '/sheet_all.' + file.filename.rsplit('.', 1)[1]
@@ -69,7 +69,7 @@ def load_data_from_excel_all():
 @app.route('/load_data_from_excel_students', methods=['POST'])
 @cross_origin()
 @login_required
-@check_status('admin')
+@check_access(status='admin')
 def load_data_from_excel_students():
     try:
         file = request.files['file']
@@ -87,7 +87,7 @@ def load_data_from_excel_students():
 @app.route('/download_db', methods=['GET'])
 @cross_origin()
 @login_required
-@check_status('admin')
+@check_access(status='admin')
 def download_db():
     store_name, send_name = FileNames.data_all_excel()
     ExcelFullWriter(Config.DATA_FOLDER + '/' + store_name).write()
@@ -98,8 +98,7 @@ def download_db():
 @app.route('/<int:iti_id>/download_iti', methods=['GET'])
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def download_iti(iti: Iti):
     store_name, send_name = FileNames.data_excel(iti)
     ExcelItiWriter(Config.DATA_FOLDER + '/' + store_name, iti.id).write()
@@ -110,8 +109,7 @@ def download_iti(iti: Iti):
 @app.route('/<int:iti_id>/download_diploma', methods=['GET'])
 @cross_origin()
 @login_required
-@check_status('admin')
-@check_block_iti()
+@check_access(status='admin', block=True)
 def download_diploma(iti: Iti):
     store_name, send_name = FileNames.diploma_excel(iti)
     filename = './data/' + store_name
@@ -121,7 +119,7 @@ def download_diploma(iti: Iti):
 @app.route('/<int:iti_id>/<path:path3>/load_result', methods=['POST'])
 @cross_origin()
 @login_required
-@check_block_iti()
+@check_access(block=True)
 def load_result(iti: Iti, path3):
     path2 = 'individual'
     url = 'add_result.html'

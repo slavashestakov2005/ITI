@@ -7,7 +7,6 @@ from backend.config import Config
 from ..help import correct_slash, krsk_time
 from ..database import Iti
 import re
-import os
 '''
     LOGIN_REQUIRED_FILES = []       Файлы, доступные после входа на сайт.
     STATUS_REQUIRED_FILES = {}      Отображение файла и доступа к нему.
@@ -17,8 +16,7 @@ import os
     empty_checker(*args)            Проверяет аргументы на пустую строку и выбрасывает ValueError.
     path_to_subject(path)           Извлекает id предмета из имени файла.
     parse_files()                   Проходит все файлы, генерирует списки доступа.
-    @check_status(status)           Проверяет открыт ли доступ для текущего пользователя.
-    @check_block_iti()              Проверяет открыто ли редактирование ИТИ.
+    @check_access(status, block)    Проверяет открыт ли доступ для текущего пользователя.
 '''
 
 LOGIN_REQUIRED_FILES = []
@@ -52,23 +50,6 @@ def path_to_subject(path: str) -> int:
     return int(path.rsplit('.', 1)[0])
 
 
-def compare(*args, field=False):
-    def cmp(a, b):
-        n = len(args)
-        if not field:
-            for i in range(0, n, 2):
-                x, y = args[i](args[i + 1](a)), args[i](args[i + 1](b))
-                if x != y:
-                    return -1 if x < y else 1
-        else:
-            for arg in args:
-                x, y = arg(a), arg(b)
-                if x != y:
-                    return -1 if x < y else 1
-        return 0
-    return cmp_to_key(cmp)
-
-
 def parse_files():
     if len(LOGIN_REQUIRED_FILES) > 0:
         return
@@ -94,41 +75,31 @@ def parse_files():
     print("Status: " + str(STATUS_REQUIRED_FILES))
 
 
-def check_status(status: str):
+def check_access(status: str=None, block: bool=None):
     def my_decorator(function_to_decorate):
 
         @wraps(function_to_decorate)
         def wrapped(*args, **kwargs):
-            if status == 'admin':
-                value = -1
-            elif status == 'full':
-                value = -2
-            else:
-                value = int(status)
-            if not current_user.can_do(value):
-                return forbidden_error()
-            return function_to_decorate(*args, **kwargs)
-
-        return wrapped
-
-    return my_decorator
-
-
-def check_block_iti():
-    def my_decorator(function_to_decorate):
-
-        @wraps(function_to_decorate)
-        def wrapped(*args, **kwargs):
-            if len(kwargs):
-                try:
-                    iti_id = kwargs['iti_id']
-                except Exception:
-                    return function_to_decorate(*args, **kwargs)
-                iti_info = Iti.select(iti_id)
-                if not iti_info or iti_info.block:
+            if status is not None:
+                if status == 'admin':
+                    value = -1
+                elif status == 'full':
+                    value = -2
+                else:
+                    value = int(status)
+                if not current_user.can_do(value):
                     return forbidden_error()
-                kwargs['iti'] = iti_info
-                kwargs.pop('iti_id', None)
+            
+            try:
+                iti_id = kwargs['iti_id']
+            except Exception:
+                return function_to_decorate(*args, **kwargs)
+            iti_info = Iti.select(iti_id)
+            kwargs['iti'] = iti_info
+            kwargs.pop('iti_id', None)
+            if not iti_info or block and iti_info.block:
+                return forbidden_error()
+            
             return function_to_decorate(*args, **kwargs)
 
         return wrapped
