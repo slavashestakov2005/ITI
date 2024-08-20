@@ -1,6 +1,5 @@
-# from ..database import FilesTable, File
-import glob
 from datetime import datetime, timezone
+import glob
 import re
 
 from backend.database import Iti

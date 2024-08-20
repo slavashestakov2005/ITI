@@ -1,8 +1,8 @@
-from .help import html_render
-from backend.excel.diploma_writer import ExcelDiplomaWriter
-from ..database import GroupResult, Result, Student, Subject, SubjectStudent, Team, TeamStudent, User, Iti, ItiSubject,\
-    ItiSubjectScore, School, TeamConsent, IndDayStudent, decode_result
 from backend.config import Config
+from backend.excel.diploma_writer import ExcelDiplomaWriter
+from .help import html_render
+from ..database import decode_result, GroupResult, IndDayStudent, Iti, ItiSubject, ItiSubjectScore, Result, School,\
+    Student, Subject, SubjectStudent, Team, TeamConsent, TeamStudent, User
 from ..help import FileNames
 
 '''
@@ -12,58 +12,81 @@ from ..help import FileNames
         gen_iti_subjects_list(iti_id)               Изменяет списки предметов для одного ИТИ.
         gen_iti_block_page(iti)                     Изменяет страницы блокировки ИТИ.
         gen_students_list(iti_id, class_n)          Изменяет таблицу учеников класса class_n.
+        gen_teams(iti_id)                           Генерирует списки команд года year.
+        gen_timetable(iti_id)                       Генерирует расписание предметов года year.
+        gen_users_list()                            Генерирует список пользователей.
+        gen_rules(subject)                          Генерирует страницу для правил группового тура.
 
         get_net_score(...)                          Генерирует балл в рейтинг.
         get_students(iti)                           student.id : student
         get_teams(iti_id)                           team.id : team
         get_subjects_days(iti_id)                   subject.id : subject.day
-        get_results(iti_id, subject_id)             Получает все результаты по указанному предмету.
         get_student_team(iti_id)                    student.id : team.id.
-        get_all_data_from_results(iti)              student_result, class_results, team_results, all_students_results, diploma
+        
+        get_results_subject(iti, subject_id)        Получает все результаты по указанному предмету.
+        get_results_iti(iti)                        Получает все результаты ИТИ.
 
+        get_all_data_from_results(iti)              student_result, class_results, team_results, all_students_results, diploma
         gen_results(iti, sub_id, file)              Генерирует таблицу результатов по предмету sub.
         gen_group_results(iti_id, sub_id, file)     Генерирует таблицу групповых результатов по предмету sub.
         gen_ratings(iti)                            Генерирует рейтинговые таблицы года year.
-        gen_teams(iti_id)                           Генерирует списки команд года year.
-        gen_timetable(iti_id)                       Генерирует расписание предметов года year.
-        gen_users_list()                            Генерирует список пользователей.
-        gen_rules(subject)                          Генерирует страницу для правил группового тура.
         gen_automatic_division(iti)                 Генерирует автоматическое распределение по командам.
 '''
 
 
 class Generator:
     @staticmethod
-    def gen_iti_lists():
+    def gen_iti_lists() -> None:
         html_render('all/years_edit.html', 'years_edit.html', itis=Iti.select_all())
 
     @staticmethod
-    def gen_subjects_lists():
+    def gen_subjects_lists() -> None:
         subjects = Subject.select_all()
         html_render('all/subjects.html', 'subjects.html', subjects=subjects)
         html_render('all/subjects_edit.html', 'subjects_edit.html', subjects=sorted(subjects, key=Subject.sort_by_type))
 
     @staticmethod
-    def gen_iti_subjects_list(year: int):
-        years_subjects_0 = ItiSubject.select_by_iti(year)
+    def gen_iti_subjects_list(iti_id: int) -> None:
+        years_subjects_0 = ItiSubject.select_by_iti(iti_id)
         years_subjects = set([x.subject_id for x in years_subjects_0])
         subjects = Subject.select_all()
-        html_render('iti/subjects_for_year.html', str(year) + '/subjects_for_year.html', subjects=subjects,
+        html_render('iti/subjects_for_year.html', str(iti_id) + '/subjects_for_year.html', subjects=subjects,
                     iti_subject=years_subjects)
 
     @staticmethod
-    def gen_iti_block_page(iti: Iti):
+    def gen_iti_block_page(iti: Iti) -> None:
         html_render('iti/year_block.html', str(iti.id) + '/year_block.html', blocked=iti.block)
 
     @staticmethod
-    def gen_students_list(year: int, class_n: int):
+    def gen_students_list(iti_id: int, class_n: int) -> None:
         schools = School.select_id_dict()
-        students = Student.select_by_class_n(year, class_n)
+        students = Student.select_by_class_n(iti_id, class_n)
         students = sorted(students, key=lambda x: (Student.sort_by_class(x), x.name_1, x.name_2))
-        length = len(students)
-        m1 = length - length // 2
-        html_render('iti/students_table.html', str(year) + '/students_' + str(class_n) + '.html', class_number=class_n,
-                    students1=students[:m1], students2=students[m1:], schools=schools)
+        html_render('iti/students_table.html', str(iti_id) + '/students_' + str(class_n) + '.html', class_number=class_n,
+                    students=students, schools=schools)
+
+    @staticmethod
+    def gen_teams(iti_id: int) -> None:
+        teams = Team.select_by_iti(iti_id)
+        html_render('iti/add_result.html', str(iti_id) + '/add_result.html', teams=teams)
+
+    @staticmethod
+    def gen_timetable(iti_id: int) -> None:
+        iti_subjects = [_ for _ in ItiSubject.select_by_iti(iti_id) if _.start or _.end or _.place]
+        iti_subjects.sort(key=ItiSubject.sort_by_start)
+        subjects = {subject.id: subject for subject in Subject.select_all()}
+        html_render('iti/timetable.html', str(iti_id) + '/timetable.html', iti_subjects=iti_subjects, subjects=subjects)
+
+    @staticmethod
+    def gen_users_list() -> None:
+        users = User.select_all()
+        subjects = {_.id: _.short_name for _ in Subject.select_all()}
+        html_render('all/user_edit.html', 'user_edit.html', users=users, subjects=subjects)
+
+    @staticmethod
+    def gen_rules(subject: Subject) -> None:
+        html_render('all/rules.html', 'Info/{}.html'.format(subject.id), subject=subject)
+
 
     @staticmethod
     def get_net_score(maximum: int, best_score: float, score: float, net_score_formula: int) -> int:
@@ -77,19 +100,30 @@ class Generator:
             raise ValueError('Неверная формула вычисления балла за индивидуальный тур')
 
     @staticmethod
-    def get_students(iti: Iti):
+    def get_students(iti: Iti) -> dict[int, Student]:
         return {_.id: _ for _ in Student.select_by_iti(iti)}
 
     @staticmethod
-    def get_teams(year):
-        return {_.id: _ for _ in Team.select_by_iti(year)}
+    def get_teams(iti_id: int) -> dict[int, Team]:
+        return {_.id: _ for _ in Team.select_by_iti(iti_id)}
 
     @staticmethod
-    def get_subjects_days(year):
-        return {_.subject_id: _.n_d for _ in ItiSubject.select_by_iti(year)}
+    def get_subjects_days(iti_id: int) -> dict[int, int]:
+        return {_.subject_id: _.n_d for _ in ItiSubject.select_by_iti(iti_id)}
 
     @staticmethod
-    def get_results_0(iti: Iti, ys_id: int):
+    def get_student_team(iti_id: int) -> dict[int, int]:
+        teams = Team.select_by_iti(iti_id)
+        ans = {}
+        for team in teams:
+            students = TeamStudent.select_by_team(team.id)
+            for student in students:
+                ans[student.student_id] = student.team_id
+        return ans
+
+
+    @staticmethod
+    def __get_results_for_ind_subject__(iti: Iti, ys_id: int) -> list[Result]:
         results = Result.select_by_iti_subject(ys_id)
         for result in results:
             if not result.student_id:
@@ -100,30 +134,23 @@ class Generator:
         return [result for result in Result.select_by_iti_subject(ys_id) if result.student_id != 0]
 
     @staticmethod
-    def get_results(iti: Iti, subject: int = None):
-        if not subject:
-            data = {}
-            for ys in ItiSubject.select_by_iti(iti.id):
-                data[ys.subject_id] = Generator.get_results_0(iti, ys.id)
-            return data
+    def get_results_subject(iti: Iti, subject: int) -> tuple[ItiSubject, list[Result]]:
         ys = ItiSubject.select(iti.id, subject)
-        return ys, Generator.get_results_0(iti, ys.id)
+        return ys, Generator.__get_results_for_ind_subject__(iti, ys.id)
 
     @staticmethod
-    def get_student_team(year):
-        teams = Team.select_by_iti(year)
-        ans = {}
-        for team in teams:
-            students = TeamStudent.select_by_team(team.id)
-            for student in students:
-                ans[student.student_id] = student.team_id
-        return ans
+    def get_results_iti(iti: Iti) -> dict[int, list[Result]]:
+        data = {}
+        for ys in ItiSubject.select_by_iti(iti.id):
+            data[ys.subject_id] = Generator.__get_results_for_ind_subject__(iti, ys.id)
+        return data
+
 
     @staticmethod
     def get_all_data_from_results(iti: Iti, schools: dict):
         year = iti.id
         zeros = {day: 0 for day in range(1, iti.ind_days + 1)}
-        results = Generator.get_results(iti)
+        results = Generator.get_results_iti(iti)
         student_team = Generator.get_student_team(year)
         ys = {_.id: _ for _ in ItiSubject.select_by_iti(year)}
         students = Generator.get_students(iti)
@@ -179,7 +206,7 @@ class Generator:
         return student_result, class_results, team_results, all_students_results, diploma
 
     @staticmethod
-    def gen_results_row(result: Result, people: Student, schools: dict):
+    def gen_results_row(result: Result, people: Student, schools: dict[int, School]):
         return [result.position, people.name_1, people.name_2, people.school_name(schools), people.class_name(),
                 result.result, result.net_score]
 
@@ -211,7 +238,7 @@ class Generator:
     @staticmethod
     def gen_results(iti: Iti, subject: int, file_name: str):
         subject_info = Subject.select(subject)
-        year_subject, results = Generator.get_results(iti, subject)
+        year_subject, results = Generator.get_results_subject(iti, subject)
         scores = {x.class_n: x.max_value for x in ItiSubjectScore.select_by_iti_subject(year_subject.id)}
         students = Generator.get_students(iti)
         sorted_results = {cls: [] for cls in iti.classes_list()}
@@ -382,28 +409,6 @@ class Generator:
                                    students_raw)
 
     @staticmethod
-    def gen_teams(year: int):
-        teams = Team.select_by_iti(year)
-        html_render('iti/add_result.html', str(year) + '/add_result.html', teams=teams)
-
-    @staticmethod
-    def gen_timetable(year: int):
-        iti_subjects = [_ for _ in ItiSubject.select_by_iti(year) if _.start or _.end or _.place]
-        iti_subjects.sort(key=ItiSubject.sort_by_start)
-        subjects = {subject.id: subject for subject in Subject.select_all()}
-        html_render('iti/timetable.html', str(year) + '/timetable.html', iti_subjects=iti_subjects, subjects=subjects)
-
-    @staticmethod
-    def gen_users_list():
-        users = User.select_all()
-        subjects = {_.id: _.short_name for _ in Subject.select_all()}
-        html_render('all/user_edit.html', 'user_edit.html', users=users, subjects=subjects)
-
-    @staticmethod
-    def gen_rules(subject: Subject):
-        html_render('all/rules.html', 'Info/{}.html'.format(subject.id), subject=subject)
-
-    @staticmethod
     def gen_automatic_division_1(codes: list, pos: int, teams: list, ts: set, cls: int):
         ln, t = len(codes), list(teams)
         t.reverse()
@@ -439,7 +444,7 @@ class Generator:
             else:
                 team_name = 'Команда {}'.format(vertical)
             Team.insert(Team.build(None, team_name, iti.id, vertical))
-        results, students = Generator.get_results(iti), Generator.get_students(iti)
+        results, students = Generator.get_results_iti(iti), Generator.get_students(iti)
         res_for_ord = {}
         student_result = {}
         t0 = [_.id for _ in Team.select_by_iti(iti.id)]

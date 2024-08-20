@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from .__db_session import sa, SqlAlchemyBase, Table
 
 

@@ -1,6 +1,7 @@
 import pandas as pd
-from ..database import Result
+
 from backend.queries.results_raw import save_result_
+from ..database import Result
 
 
 class ExcelResultsReader:

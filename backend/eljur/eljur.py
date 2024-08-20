@@ -1,5 +1,6 @@
-from .config_eljur import ConfigEljur
 from requests import Session
+
+from .config_eljur import ConfigEljur
 
 
 class EljurUser:

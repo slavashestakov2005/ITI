@@ -1,9 +1,10 @@
-from backend import app, login
-from flask import render_template, request, redirect
+from flask import redirect, render_template, request
 from flask_cors import cross_origin
-from flask_login import login_user, logout_user, current_user
-from ..database import User
+from flask_login import current_user, login_user, logout_user
+
+from backend import app, login
 from backend.queries.help import empty_checker
+from ..database import User
 from ..eljur import EljurUser
 
 '''

@@ -1,8 +1,9 @@
 from flask_login import current_user
 from flask_restful import reqparse, Resource
+
 from . import get_point
 from ..api import api_item, api_group
-from ..database import Subject, Iti, ItiSubject, ItiSubjectScore
+from ..database import Iti, ItiSubject, ItiSubjectScore, Subject
 from ..queries.auto_generator import Generator
 from ..queries.file_creator import FileCreator
 

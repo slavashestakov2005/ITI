@@ -1,6 +1,7 @@
 from flask_restful import reqparse, Resource
+
 from ..api import api_group
-from ..database import Student, Team, TeamStudent, TeamConsent
+from ..database import Student, Team, TeamConsent, TeamStudent
 
 
 parser_simple = reqparse.RequestParser()

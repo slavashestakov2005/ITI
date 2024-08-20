@@ -1,12 +1,14 @@
-from backend import app
-from ..help import forbidden_error
-from ..database import GroupResult, Result, StudentClass, Subject, Team, Iti, ItiSubject, ItiSubjectScore
 from flask import render_template
 from flask_cors import cross_origin
-from flask_login import login_required, current_user
-from .help import check_access, path_to_subject
+from flask_login import current_user, login_required
+
+from backend import app
 from .auto_generator import Generator
-from .messages_help import message_results_public, message_ratings_public, message_all_ratings_public
+from .help import check_access, path_to_subject
+from .messages_help import message_all_ratings_public, message_ratings_public, message_results_public
+from ..database import GroupResult, Iti, ItiSubject, ItiSubjectScore, Result, StudentClass, Subject, Team
+from ..help import forbidden_error
+
 '''
     /<iti_id>/<path>/add_result             Возвращает страницу редактирования по предмету (предметник).
     /<iti_id>/<path>/class_split_results    Разделяет индивидуальные результаты по параллелям (admin).
@@ -129,7 +131,7 @@ def class_split_results(iti: Iti, path3):
     if not ys:
         return render_template(url, **params, error4='Такого предмета нет в этом году.')
     try:
-        Generator.get_results_0(iti, ys.id)
+        Generator.get_results_subject(iti, ys.id)
     except ValueError as ex:
         return render_template(url, **params, error4=str(ex))
     return render_template(url, **params, error4='Школьники разделены по классам')

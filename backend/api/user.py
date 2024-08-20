@@ -1,5 +1,6 @@
-from flask_login import current_user, login_required
+from flask_login import current_user
 from flask_restful import reqparse, Resource
+
 from ..api import api_item, api_group
 from ..database import User
 from ..queries.auto_generator import Generator

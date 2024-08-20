@@ -1,10 +1,12 @@
+from flask import render_template
+from flask_cors import cross_origin
+from flask_login import login_required
+
 from backend import app
 from .help import check_access
 from .messages_help import message_timetable_public
 from ..database import Iti
-from flask import render_template
-from flask_cors import cross_origin
-from flask_login import login_required
+
 '''
     /<iti_id>/public_description            Публикует описание всех предметов одного года (admin).
 '''

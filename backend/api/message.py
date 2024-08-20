@@ -1,7 +1,8 @@
 from flask_restful import reqparse, Resource
+
 from . import get_point, str_or_int
 from ..api import api_item, api_group
-from ..database import Message, Iti
+from ..database import Iti, Message
 from ..queries.help import correct_new_line
 from ..queries.messages_help import send_message_to_telegram
 

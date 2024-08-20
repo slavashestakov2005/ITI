@@ -1,14 +1,16 @@
-from backend import app
-from flask import render_template, redirect, request
+from flask import redirect, render_template, request
 from flask_cors import cross_origin
 from flask_login import current_user, login_required
-from ..help.errors import forbidden_error, not_found_error
-from .help import LOGIN_REQUIRED_FILES, STATUS_REQUIRED_FILES, split_class
-from ..database import Message, Result, Student, Subject, Iti, ItiSubject, get_student_by_params
-from jinja2 import TemplateNotFound
 from itertools import permutations
+from jinja2 import TemplateNotFound
 import os
+
+from backend import app
+from .help import LOGIN_REQUIRED_FILES, split_class, STATUS_REQUIRED_FILES
 from ..config import Config
+from ..database import get_student_by_params, Message, Iti, ItiSubject, Result, Student, Subject
+from ..help.errors import forbidden_error, not_found_error
+
 '''
     /                                       Возвращает стартовую страницу последнего ИТИ.
     /<iti_id>/                              Возвращает стартовую страницу ИТИ.

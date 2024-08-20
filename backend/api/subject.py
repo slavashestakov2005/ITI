@@ -1,4 +1,5 @@
 from flask_restful import reqparse, Resource
+
 from ..api import api_item, api_group
 from ..database import Subject
 from ..queries.auto_generator import Generator

@@ -1,12 +1,14 @@
-from backend import app
-from ..database import Student, Subject, SubjectStudent, Team, TeamStudent, ItiSubject, User, TeamConsent, Iti,\
-    IndDayStudent, School
-from .help import check_access
-from .auto_generator import Generator
 from flask import render_template
 from flask_cors import cross_origin
-from flask_login import login_required, current_user
+from flask_login import current_user, login_required
+
+from backend import app
+from .auto_generator import Generator
+from .help import check_access
 from .messages_help import message_teams_public
+from ..database import IndDayStudent, Iti, ItiSubject, School, Student, Subject, SubjectStudent, Team, TeamConsent,\
+    TeamStudent, User
+
 '''
     /<iti_id>/team_edit                     Redirect с параметрами на страницу редактирования (admin).
     /<iti_id>/automatic_division            Генерирует автоматическое распределение школьников (admin).

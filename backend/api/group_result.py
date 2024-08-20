@@ -1,8 +1,9 @@
 from flask import request
 from flask_login import current_user
 from flask_restful import reqparse, Resource
+
 from ..api import api_group
-from ..database import GroupResult, Team, ItiSubject
+from ..database import GroupResult, ItiSubject, Team
 
 
 parser_simple = reqparse.RequestParser()

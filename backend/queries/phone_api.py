@@ -1,10 +1,12 @@
-from backend import app
-from ..database import Barcode, Iti, ItiSubject, Student, StudentClass, Subject, User
-from .help import check_access
-from .results_raw import save_result_
-from flask import request, jsonify
+from flask import jsonify, request
 from flask_cors import cross_origin
 import json
+
+from backend import app
+from .help import check_access
+from .results_raw import save_result_
+from ..database import Barcode, Iti, ItiSubject, Student, StudentClass, Subject, User
+
 '''
     /<iti_id>/student_info                  Возвращает информацию по ID школьника (scaner).
     /<iti_id>/subject_info                  Возрващает информацию по ID предмета (scaner).

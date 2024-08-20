@@ -1,16 +1,18 @@
-from backend import app
 from flask import render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required
-import shutil
 import glob
 import os
-from .help import check_access
-from ..help import init_mail_messages, FileManager, ConfigMail
-from ..database import execute_sql, GroupResult, Message, Result, Barcode, SubjectStudent, Team, TeamStudent, Iti,\
-    ItiSubject, ItiSubjectScore, TeamConsent, Code
+import shutil
+
+from backend import app
 from .auto_generator import Generator
+from .help import check_access
 from ..config import Config
+from ..database import Barcode, Code, execute_sql, GroupResult, Iti, ItiSubject, ItiSubjectScore, Message, Result,\
+      SubjectStudent, Team, TeamConsent, TeamStudent
+from ..help import ConfigMail, FileManager, init_mail_messages
+
 '''
     /global_settings                        Сохраняет глобальные настройки (пароль от почты) (full).
     /db                                     Делает SQL запросы к базе данных (full).

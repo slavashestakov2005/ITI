@@ -1,16 +1,16 @@
-from backend import app
 from flask import render_template, request, send_file
 from flask_cors import cross_origin
-from flask_login import login_required, current_user
+from flask_login import current_user, login_required
+
+from backend import app
 from .auto_generator import Generator
 from .file_creator import FileCreator
 from .full import _delete_iti
 from .help import check_access, path_to_subject
 from .results import page_params
-from ..database import Iti, ItiSubject, Subject, Student, Code, School
-from ..excel import ExcelFullReader, ExcelItiWriter, ExcelResultsReader, ExcelFullWriter, ExcelStudentsReader,\
-    ExcelCodesWriter
 from ..config import Config
+from ..database import Code, Iti, ItiSubject, School, Student, Subject
+from ..excel import ExcelCodesWriter, ExcelFullReader, ExcelFullWriter, ExcelItiWriter, ExcelResultsReader, ExcelStudentsReader
 from ..help import FileNames
 
 '''

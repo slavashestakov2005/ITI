@@ -1,21 +1,20 @@
-from backend import app
-from .. import Config
-from ..database import Student, Iti, School
-from ..excel import ExcelBarcodesWriter
-from .help import check_access
-from flask import render_template, send_file, request
-from flask_cors import cross_origin
-from flask_login import login_required
-
-from glob import glob
-import os
-from docxtpl import DocxTemplate, InlineImage
-from docx.shared import Mm
-from docx import Document
-from docxcompose.composer import Composer
 import barcode
 from barcode.writer import ImageWriter
+from docx import Document
+from docx.shared import Mm
+from docxcompose.composer import Composer
+from docxtpl import DocxTemplate, InlineImage
+from flask import render_template, request, send_file
+from flask_cors import cross_origin
+from flask_login import login_required
+from glob import glob
+import os
 
+from backend import app
+from .help import check_access
+from .. import Config
+from ..database import Iti, School, Student
+from ..excel import ExcelBarcodesWriter
 from ..help import FileNames
 
 '''

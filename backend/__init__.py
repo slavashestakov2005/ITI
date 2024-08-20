@@ -13,9 +13,9 @@ moment = Moment(app)
 app.config.from_object(Config)
 
 
-import backend.queries
-import backend.database
 import backend.help
+import backend.database
+import backend.queries
 import backend.eljur
 import backend.excel
 import backend.api

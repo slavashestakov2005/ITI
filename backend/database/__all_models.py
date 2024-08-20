@@ -1,4 +1,5 @@
 from .barcode import *
+from .code import *
 from .group_result import *
 from .ind_day_student import *
 from .iti import *
@@ -15,4 +16,3 @@ from .team import *
 from .team_consent import *
 from .team_student import *
 from .user import *
-from .code import *

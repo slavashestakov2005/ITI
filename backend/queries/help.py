@@ -1,12 +1,14 @@
-from backend.help.errors import forbidden_error
 from flask_login import current_user
-from functools import wraps, cmp_to_key
+from functools import wraps
 from glob import glob
 from jinja2 import Environment, FileSystemLoader
-from backend.config import Config
-from ..help import correct_slash, krsk_time
-from ..database import Iti
 import re
+
+from backend.config import Config
+from backend.help.errors import forbidden_error
+from ..database import Iti
+from ..help import correct_slash, krsk_time
+
 '''
     LOGIN_REQUIRED_FILES = []       Файлы, доступные после входа на сайт.
     STATUS_REQUIRED_FILES = {}      Отображение файла и доступа к нему.

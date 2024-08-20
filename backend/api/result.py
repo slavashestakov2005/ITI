@@ -1,8 +1,9 @@
 from flask_login import current_user
 from flask_restful import reqparse, Resource
+
 from ..api import api_group
-from ..queries.results_raw import save_result_, delete_result_
 from ..database import ItiSubject
+from ..queries.results_raw import delete_result_, save_result_
 
 
 parser_simple = reqparse.RequestParser()

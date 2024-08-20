@@ -1,10 +1,12 @@
 from flask import render_template
 from flask_cors import cross_origin
-from flask_login import login_required, current_user
+from flask_login import current_user, login_required
+
 from backend import app
 from .help import check_access
-from ..database import Message, Iti, ItiSubject, School, Barcode, Result, Student, Subject
+from ..database import Barcode, Iti, ItiSubject, Message, Result, School, Student, Subject
 from ..help import ConfigMail
+
 '''
     /<iti_id>/subjects_for_year.html        Возвращает страницу с настройками ИТИ (admin).
     /<iti_id>/messages_for_year.html        Возвращает страницу с новостями ИТИ (admin).

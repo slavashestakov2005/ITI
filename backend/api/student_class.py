@@ -1,4 +1,5 @@
 from flask_restful import Resource
+
 from ..api import api_item
 from ..database import StudentClass
 

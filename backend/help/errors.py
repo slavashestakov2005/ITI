@@ -1,8 +1,9 @@
-from flask import request, render_template, redirect, url_for
+from flask import redirect, render_template, request, url_for
 from flask_cors import cross_origin
 import logging
 from logging.handlers import SMTPHandler
 import os
+
 from backend import app
 from .config_mail import ConfigMail
 

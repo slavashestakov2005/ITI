@@ -1,11 +1,12 @@
+import json
 import os
 import shutil
+
 from backend.config import Config
 from .help import html_render
 from .messages_help import message_save
-from ..database import Subject, Iti
+from ..database import Iti, Subject
 from ..help import FileManager
-import json
 
 
 class FileCreator:

@@ -1,4 +1,5 @@
 from flask_restful import Api
+
 from backend import app
 from .__help__ import *
 from . import barcode, group_result, iti, iti_subject, message, result, school, student, student_class, subject,\

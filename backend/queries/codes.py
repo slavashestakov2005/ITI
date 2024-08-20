@@ -1,13 +1,14 @@
-from backend import app
-from ..database import Student, Iti, School, Code
-from .help import check_access
-from flask import render_template, send_file, request
+from flask import render_template, request, send_file
 from flask_cors import cross_origin
 from flask_login import login_required
-from ..help import FileNames
-from ..excel import ExcelCodesWriter
 from random import shuffle
+
+from backend import app
+from .help import check_access
 from ..config import Config
+from ..database import Code, Iti, School, Student
+from ..excel import ExcelCodesWriter
+from ..help import FileNames
 
 '''
     /<iti_id>/create_codes                  Создаёт EXCEL-документ с кодами участников (admin).

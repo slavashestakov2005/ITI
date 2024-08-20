@@ -1,7 +1,8 @@
-from flask import make_response, jsonify
+from flask import jsonify, make_response
 from flask_cors import cross_origin
 from flask_login import current_user
 from functools import wraps
+
 from ..help import EmptyFieldException, get_timestamp
 
 

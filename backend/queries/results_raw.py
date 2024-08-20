@@ -1,5 +1,6 @@
 import re
-from ..database import Result, User, ItiSubject, Iti
+
+from ..database import Iti, ItiSubject, Result, User
 
 
 def prepare_results(res: str):

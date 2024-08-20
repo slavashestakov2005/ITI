@@ -1,6 +1,7 @@
 from flask_restful import reqparse, Resource
+
 from ..api import api_item, api_group, str_or_int
-from ..database import School, Student, StudentClass, get_student_by_params
+from ..database import get_student_by_params, School, Student, StudentClass
 from ..queries.auto_generator import Generator
 from ..queries.help import split_class
 
