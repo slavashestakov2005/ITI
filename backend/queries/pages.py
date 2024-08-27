@@ -75,7 +75,7 @@ def rating_students_check(iti: Iti):
 @cross_origin()
 @check_access()
 def rating(iti: Iti):
-    return render_template(str(iti.id) + '/rating.html', iti_id=iti.id, super_is_open=iti.super_is_open)
+    return render_template(str(iti.id) + '/rating.html', iti_id=iti.id, super_open_policy=iti.super_open_policy)
 
 
 @app.route("/school_edit.html")

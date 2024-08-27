@@ -14,13 +14,14 @@ parser_simple.add_argument('classes', required=True, type=str)
 parser_simple.add_argument('ind_days', required=True, type=str_or_int)
 parser_simple.add_argument('default_ind_score', required=True, type=str_or_int)
 parser_simple.add_argument('net_score_formula', required=True, type=str_or_int)
-parser_simple.add_argument('sum_ind_to_rating', required=True, type=str_or_int)
+parser_simple.add_argument('ind_res_per_day', required=True, type=str_or_int)
 parser_simple.add_argument('ind_prize_policy', required=True, type=str_or_int)
 parser_simple.add_argument('automatic_division', required=True, type=str_or_int)
 parser_simple.add_argument('auto_teams', required=True, type=str)
 parser_simple.add_argument('sum_ind_to_team', required=True, type=str_or_int)
+parser_simple.add_argument('sum_gr_to_ind_policy', required=True, type=str_or_int)
 parser_simple.add_argument('sum_gr_to_super', required=True, type=str_or_int)
-parser_simple.add_argument('super_is_open', required=True, type=str_or_int)
+parser_simple.add_argument('super_open_policy', required=True, type=str_or_int)
 parser_simple.add_argument('students_in_team', required=True, type=str_or_int)
 parser_simple.add_argument('encoding_type', required=True, type=str_or_int)
 parser_simple.add_argument('description', required=True, type=str)
@@ -50,9 +51,9 @@ class ItiListResource(Resource):
     def post(self):
         args = parser_simple.parse_args()
         iti_info = Iti.build(None, args['name_in_list'], args['name_on_page'], args['classes'], args['ind_days'],
-                             args['default_ind_score'], args['net_score_formula'], args['sum_ind_to_rating'],
+                             args['default_ind_score'], args['net_score_formula'], args['ind_res_per_day'],
                              args['ind_prize_policy'], args['automatic_division'], args['auto_teams'],
-                             args['sum_ind_to_team'], args['sum_gr_to_super'], args['super_is_open'],
+                             args['sum_ind_to_team'], args['sum_gr_to_ind_policy'], args['sum_gr_to_super'], args['super_open_policy'],
                              args['students_in_team'], args['encoding_type'], args['description'], 0)
         iti_id = Iti.insert(iti_info, return_id=True)
         FileCreator.create_iti(iti_id)
@@ -67,9 +68,9 @@ class ItiListResource(Resource):
         if not iti_info:
             return False, {'message': 'ИТИ не существует'}
         new = Iti.build(None, args['name_in_list'], args['name_on_page'], args['classes'], args['ind_days'],
-                        args['default_ind_score'], args['net_score_formula'], args['sum_ind_to_rating'],
+                        args['default_ind_score'], args['net_score_formula'], args['ind_res_per_day'],
                         args['ind_prize_policy'], args['automatic_division'], args['auto_teams'],
-                        args['sum_ind_to_team'], args['sum_gr_to_super'], args['super_is_open'],
+                        args['sum_ind_to_team'], args['sum_gr_to_ind_policy'], args['sum_gr_to_super'], args['super_open_policy'],
                         args['students_in_team'], args['encoding_type'], args['description'], None, allow_empty=True)
         iti_info ^= new
         Iti.update(iti_info)

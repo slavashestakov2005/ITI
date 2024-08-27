@@ -50,9 +50,9 @@ def load_data_from_excel_all():
             subject = subjects[iti_subject.subject_id]
             filename = '{}/{}.html'.format(iti_id, iti_subject.subject_id)
             if subject.type == 'i':
-                Generator.gen_results(iti, iti_subject.subject_id, filename)
+                Generator.gen_individual_results(iti, iti_subject.subject_id, filename)
             elif subject.type == 'g' or subject.type == 'a':
-                Generator.gen_group_results(iti_id, iti_subject.subject_id, filename)
+                Generator.gen_group_results(iti, iti_subject.subject_id, filename)
         Generator.gen_ratings(iti)
         students = {_.id: _ for _ in Student.select_by_iti(iti)}
         codes = Code.select_by_iti(iti_id)

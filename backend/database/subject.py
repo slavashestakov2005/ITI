@@ -19,6 +19,16 @@ class Subject(SqlAlchemyBase, Table):
             return 'group'
         return 'team'
 
+    def type_priority(self):
+        if self.type == 'i':
+            return 0
+        elif self.type == 'g':
+            return 1
+        elif self.type == 'a':
+            return 2
+        else:
+            return -1
+
     def diplomas_br(self):
         return self.diploma.replace('\n', '<br>')
 

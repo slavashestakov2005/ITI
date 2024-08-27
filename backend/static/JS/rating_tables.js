@@ -133,6 +133,67 @@ function initAutoFilter(class_name) {
     }
 }
 
+function sum_array(array, start_value) {
+    return array.reduce((partialSum, a) => partialSum + a, start_value);
+}
+
+function string_join_array(string, array) {
+    let result = [];
+    for (let data of array) {
+        result.push(data);
+        result.push(string);
+    }
+    if (result.length > 0) result.pop();
+    return sum_array(result, '');
+}
+
+function calculateStudentsResults(calc_ind=false, calc_gr=false) {
+    let data = {};
+    for (let student_id in students) {
+        data[student_id] = {};
+        let ind_sum = 0, group_sum = 0;
+        if (calc_ind) {
+            let sum = {};
+            for (let num in ind_subjects) {
+                let subject = ind_subjects[num];
+                let subject_id = subject['id'];
+                if (subject_id in ind_results && student_id in ind_results[subject_id]) {
+                    let data = ind_results[subject_id][student_id];
+                    let day = subject['day'];
+                    if (!(day in sum)) {
+                        sum[day] = [];
+                    }
+                    sum[day].push(data['score']);
+                }
+            }
+            for (day in sum) {
+                let sorted = sum[day].sort((a, b) => (b - a)).splice(0, iti['ind_res_per_day']);
+                let day_sum = sum_array(sorted, 0);
+                data[student_id][day] = day_sum;
+                ind_sum += day_sum;
+            }
+            data[student_id]['ind_sum'] = ind_sum;
+        }
+        if (calc_gr) {
+            let group_text = [];
+            if (student_id in group_results) {
+                for (let subject_id in group_results[student_id]) {
+                    let result = group_results[student_id][subject_id];
+                    if (iti['sum_gr_to_ind_policy']) {
+                        group_text.push(`${group_subjects[subject_id]['name']}&nbsp;(${result['score']} баллов, ${result['position']} место)`);
+                        group_sum += result['score'];
+                    }
+                    else group_text.push(`${group_subjects[subject_id]['name']}&nbsp;(${result['position']})`);
+                }
+            }
+            data[student_id]['group_text'] = string_join_array('<br>', group_text);
+            data[student_id]['group_sum'] = group_sum;        
+        }
+        data[student_id]['all_sum'] = ind_sum + group_sum;
+    }
+    return data;
+}
+
 // rating_students.html
 
 function compareStudentsResults(a, b) {
@@ -146,42 +207,24 @@ function compareStudentsResults(a, b) {
 }
 
 function generateStudentsTableData(addCheckBoxes=false) {
+    let calc_results = calculateStudentsResults(true, true);
     let lines = [];
     for (let student_id in students) {
-        let line = [], sum = {};
-        let result = student_id in results ? results[student_id] : {};
+        let student = students[student_id];
+        let line = [];
         line.push(0);
-        for (let data of students[student_id]) line.push(data);
-        for (let sub of subjects) {
-            let subject_id = sub[0];
-            if (subject_id in result) {
-                let data = result[subject_id];
-                line.push(`${data[0]}&nbsp;(${data[1]})`);
-                let day = subjects_days[subject_id];
-                if (!(day in sum)) {
-                    sum[day] = [];
-                }
-                sum[day].push(data[0]);
+        for (let field of ['name1', 'name2', 'school', 'class']) line.push(student[field]);
+        for (let num in ind_subjects) {
+            let subject_id = ind_subjects[num]['id'], subject = ind_subjects[num];
+            if (subject_id in ind_results && student_id in ind_results[subject_id]) {
+                let data = ind_results[subject_id][student_id];
+                line.push(`${data['score']}&nbsp;(${data['position']})`);
             }
             else line.push('—');
         }
-        let all_sum = 0;
-        if (student_id in students_group_result) {
-            let st_res = students_group_result[student_id];
-            line.push(st_res);
-            if (st_res.includes('баллов')) {
-                let val = st_res.split('баллов')[0].split('(')[1];
-                all_sum += parseFloat(val);
-            }
-        }
-        else line.push('');
+        line.push(calc_results[student_id]['group_text']);
         if (addCheckBoxes) line.push(student_id);
-        for (day in sum) {
-            let sorted = sum[day].sort((a, b) => (b - a)).splice(0, ind_res_per_day);
-            let day_sum = sorted.reduce((partialSum, a) => partialSum + a, 0);
-            all_sum += day_sum
-        }
-        line.push(all_sum);
+        line.push(calc_results[student_id]['all_sum']);
         lines.push(line);
     }
     lines.sort(compareStudentsResults);
@@ -225,18 +268,31 @@ function addCheckBoxes() {
 // rating_classes.html
 
 function compareClassesResults(a, b) {
-    if (a[2] !== b[2]) return b[3] - a[3];
-    if (a[1] !== b[1]) return a[1].localeCompare(b[1]);
+    if (a[3] !== b[3]) return b[3] - a[3];
+    if (a[4] !== b[4]) return a[4] - b[4];
     if (a[2] !== b[2]) return a[2].localeCompare(b[2]);
-    if (a[3] !== b[3]) return a[4] - b[4];
+    if (a[1] !== b[1]) return a[1].localeCompare(b[1]);
     return 0;
 }
 
 function generateClassesTableData() {
+    let calc_results = calculateStudentsResults(true, true);
+    let classes_data = {};
+    for (let student_id in calc_results) {
+        let result = calc_results[student_id]['all_sum'], student = students[student_id];
+        let cls = student['school'] + '|' + student['class'];
+        if (!(cls in classes_data)) {
+            classes_data[cls] = {'students_count': 0, 'score': 0};
+        }
+        if (result > 0) classes_data[cls]['students_count'] += 1;
+        classes_data[cls]['score'] += result;
+    }
     let lines = [];
-    for (let res of results) {
+    for (let cls_name in classes_data) {
+        let cls_res = classes_data[cls_name];
         let line = [0];
-        for (let data of res) line.push(data);
+        for (let data of cls_name.split('|')) line.push(data);
+        for (let field of ['score', 'students_count']) line.push(cls_res[field]);
         lines.push(line);
     }
     lines.sort(compareClassesResults);
@@ -254,19 +310,31 @@ function compareTeamsResults(a, b) {
 
 function generateTeamsTableData() {
     let lines = [];
-    for (let team_id in results) {
-        let line = [0, teams[team_id]], sum = 0;
-        for (let sub of subjects) {
-            let subject = sub[0];
-            if (subject in results[team_id]) {
-                if (subject < 0) {
-                    line.push(results[team_id][subject][0]);
-                    sum += results[team_id][subject][0];
-                } else {
-                    line.push(results[team_id][subject][0] * results[team_id][subject][1]);
-                    sum += results[team_id][subject][0] * results[team_id][subject][1];
+    let calc_results = calculateStudentsResults(true, false);
+    for (let team_id in teams) {
+        let line = [0, teams[team_id]['name']], sum = 0;
+        for (let num in subjects) {
+            let subject = subjects[num];
+            let subject_id = subject['id']
+            if (('' + subject_id).indexOf('ind') != -1) {
+                let day = subject['day'];
+                let subject_sum = 0;
+                for (let num2 in team_student[team_id]) {
+                    let student_id = team_student[team_id][num2];
+                    if (student_id in ind_day_students && ind_day_students[student_id].indexOf(day) != -1) {
+                        if (student_id in calc_results && day in calc_results[student_id]) {
+                            subject_sum += calc_results[student_id][day];
+                        }
+                    }
                 }
-            } else line.push('-');
+                line.push(subject_sum);
+                sum += subject_sum;
+            } else {
+                if (team_id in results[subject_id]) {
+                    line.push(results[subject_id][team_id]['score']);
+                    sum += results[subject_id][team_id]['score'];
+                } else line.push('-');
+            }
         }
         line.push(sum);
         lines.push(line);
@@ -289,8 +357,9 @@ function compareSuperChampionResults(a, b) {
 function generateSuperChampionTableData() {
     let lines = [];
     for (let student_id in results) {
+        let student = students[student_id];
         let line = [0], sum = '';
-        for (let data of students[student_id]) line.push(data);
+        for (let field of ['name1', 'name2', 'school', 'class']) line.push(student[field]);
         for (let data of results[student_id]) {
             sum += data;
             line.push(data);

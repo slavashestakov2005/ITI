@@ -8,8 +8,8 @@
                 <thead><tr>
                     <th width="10%">Место</th>
                     <th width="30%">Команда</th>
-                    {% for subject_id, subject_name in team_subjects %}
-                        <th width="5%">{{ subject_name }}</th>
+                    {% for subject_id, subject in team_subjects %}
+                        <th width="5%">{{ subject['short_name'] }}</th>
                     {% endfor %}
                     <th width="30%">Сумма</th>
                 </tr></thead>
@@ -17,34 +17,35 @@
             </table>
         </div>
     </div>
-    {% for team in teams %}
+    {% for team_id in teams %}
         <br>
         <div class="w-100"></div>
-        <h2>{{ teams[team] }}</h2>
+        <h2>{{ teams[team_id]['name'] }}</h2>
         <table>
             <thead><tr>
                 <th width="10%">Школа</th>
                 <th width="10%">Класс</th>
                 <th width="10%">Фамилия</th>
                 <th width="10%">Имя</th>
-                {% for subject_id, subject_name in ind_subjects %}
-                    <th width="10%">{{ subject_name }}</th>
+                {% for subject_id, subject in ind_subjects %}
+                    <th width="10%">{{ subject['short_name'] }}</th>
                 {% endfor %}
                 {% raw %}{% if adm %}<th width="10%">Сумма</th>{% endif %}{% endraw %}
             </tr></thead>
             <tbody>
                 {% set gns = namespace(rows=[], row=[]) %}
-                {% for student in team_student[team] %}
-                    {% set _ = gns.row.append(students[student][2]) %}
-                    {% set _ = gns.row.append(students[student][3]) %}
-                    {% set _ = gns.row.append(students[student][0]) %}
-                    {% set _ = gns.row.append(students[student][1]) %}
+                {% for student_id in team_student[team_id] %}
+                    {% set _ = gns.row.append(students[student_id]['school']) %}
+                    {% set _ = gns.row.append(students[student_id]['class']) %}
+                    {% set _ = gns.row.append(students[student_id]['name1']) %}
+                    {% set _ = gns.row.append(students[student_id]['name2']) %}
                     {% set ns = namespace(sum={}, all_sum=0) %}
-                    {% for subject, _ in ind_subjects %}
-                        {% if student in student_results and subject in student_results[student] %}
-                            {% set student_result = student_results[student][subject][0] %}
+                    {% for ys_id, subject in ind_subjects %}
+                        {% set subject_id = subject['id'] %}
+                        {% if subject_id in ind_results and student_id in ind_results[subject_id] %}
+                            {% set student_result = ind_results[subject_id][student_id]['score'] %}
                             {% set _ = gns.row.append(student_result) %}
-                            {% set day = subjects_days[subject] %}
+                            {% set day = subject['day'] %}
                             {% if day not in ns.sum %}
                                 {% set _ = ns.sum.__setitem__(day, []) %}
                             {% endif %}
@@ -53,7 +54,7 @@
                         {% endif %}
                     {% endfor %}
                     {% for day, res in ns.sum.items() %}
-                        {% set ns.all_sum = ns.all_sum + ((res | sort(reverse=True)) [:ind_res_per_day] | sum) %}
+                        {% set ns.all_sum = ns.all_sum + ((res | sort(reverse=True)) [:iti.ind_res_per_day] | sum) %}
                     {% endfor %}
                     {% set _ = gns.row.append(ns.all_sum) %}
                     {% set _ = gns.rows.append(gns.row) %}
@@ -88,7 +89,9 @@
     {% endfor %}
 </center>
 <script>
-    let results = {{ team_results | tojson }}, teams = {{ teams | tojson }}, subjects = {{ team_subjects | tojson }};
+    let results = {{ team_results }}, teams = {{ teams }}, subjects = {{ team_subjects }}, students = {{ students }};
+    let ind_subjects = {{ ind_subjects }}, ind_results = {{ ind_results }}, iti = {{ iti.json() }};
+    let team_student = {{ team_student }}, ind_day_students = {{ ind_day_students }};
     let tableData = generateTeamsTableData();
     filterResults(null, null, -1, false, false);
     let cols = [];

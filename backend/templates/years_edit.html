@@ -17,7 +17,7 @@
 					<option value="1">Без округлений (НШ)</option>
 				</select>
 			</p>
-			<p>Количество индивидуальных предметов из одного дня в рейтинг: <input type="text" name="sum_ind_to_rating"></p>
+			<p>Количество индивидуальных предметов из одного дня в рейтинг: <input type="text" name="ind_res_per_day"></p>
 			<p>Обязательно ли есть все призовые места:
 				<select name="ind_prize_policy">
 					<option value="">Не выбрано</option>
@@ -41,6 +41,13 @@
 					<option value="1">Да</option>
 				</select>
 			</p>
+			<p>Суммировать групповые предметы в индивидуальный рейтинг: 
+				<select name="sum_gr_to_ind_policy">
+					<option value="">Не выбрано</option>
+					<option value="0">Нет</option>
+					<option value="1">Да, групповой балл = индивидуальный * количество школьников</option>
+				</select>
+			</p>
 			<p>Суммировать групповые предметы в рейтинг суперчемпиона:
 				<select name="sum_gr_to_super">
 					<option value="">Не выбрано</option>
@@ -49,7 +56,7 @@
 				</select>
 			</p>
 			<p>Кому открыт рейтинг суперчемпиона:
-				<select name="super_is_open">
+				<select name="super_open_policy">
 					<option value="">Не выбрано</option>
 					<option value="0">Админам</option>
 					<option value="1">Учителям</option>
@@ -85,7 +92,7 @@
 					<option value="1">Без округлений (НШ)</option>
 				</select>
 			</p>
-			<p>Количество индивидуальных предметов из одного дня в рейтинг: <input type="text" name="sum_ind_to_rating"></p>
+			<p>Количество индивидуальных предметов из одного дня в рейтинг: <input type="text" name="ind_res_per_day"></p>
 			<p>Обязательно ли есть все призовые места:
 				<select name="ind_prize_policy">
 					<option value="">Не выбрано</option>
@@ -109,6 +116,13 @@
 					<option value="1">Да</option>
 				</select>
 			</p>
+			<p>Суммировать групповые предметы в индивидуальный рейтинг: 
+				<select name="sum_gr_to_ind_policy">
+					<option value="">Не выбрано</option>
+					<option value="0">Нет</option>
+					<option value="1">Да, групповой балл = индивидуальный * количество школьников</option>
+				</select>
+			</p>
 			<p>Суммировать групповые предметы в рейтинг суперчемпиона:
 				<select name="sum_gr_to_super">
 					<option value="">Не выбрано</option>
@@ -117,7 +131,7 @@
 				</select>
 			</p>
 			<p>Кому открыт рейтинг суперчемпиона:
-				<select name="super_is_open">
+				<select name="super_open_policy">
 					<option value="">Не выбрано</option>
 					<option value="0">Админам</option>
 					<option value="1">Учителям</option>
@@ -161,6 +175,7 @@
 				<th width="5%">Распределение по командам</th>
 				<th width="5%">Названия для авт. команд</th>
 				<th width="5%">Сумм. инд. предметы командам</th>
+				<th width="5%">Сумм. гр. дни в инд. рейтинг</th>
 				<th width="5%">Сумм. гр. дни суперчемпиону</th>
 				<th width="5%">Открытость суперчемпиона</th>
 				<th width="5%">Школьников в команде</th>
@@ -182,6 +197,7 @@
 				<td>0</td>
 				<td>-</td>
 				<td>1</td>
+				<td>0</td>
 				<td>1</td>
 				<td>0</td>
 				<td>5</td>
@@ -203,6 +219,7 @@
 				<td>0</td>
 				<td>-</td>
 				<td>1</td>
+				<td>0</td>
 				<td>1</td>
 				<td>0</td>
 				<td>4</td>
@@ -223,6 +240,7 @@
 				<td>0</td>
 				<td>1</td>
 				<td>1 2 3 4 5 6</td>
+				<td>0</td>
 				<td>0</td>
 				<td>1</td>
 				<td>0</td>
@@ -245,6 +263,7 @@
 				<td>2</td>
 				<td>А Б В Г Д Е Ж З И М</td>
 				<td>0</td>
+				<td>0</td>
 				<td>1</td>
 				<td>0</td>
 				<td>4</td>
@@ -265,6 +284,7 @@
 				<td>0</td>
 				<td>1</td>
 				<td>1 2 3 4 5 6</td>
+				<td>0</td>
 				<td>0</td>
 				<td>1</td>
 				<td>0</td>
@@ -289,6 +309,7 @@
 				<td>1</td>
 				<td>0</td>
 				<td>0</td>
+				<td>0</td>
 				<td>4</td>
 				<td>0</td>
 				<td>Всё сохранено, дизайн №2</td>
@@ -307,6 +328,7 @@
 				<td>1</td>
 				<td>2</td>
 				<td>А Б В Г Д Е Ж З М #sch-9 #sch-5 #sch-3 #sch-10 #sch-8</td>
+				<td>1</td>
 				<td>1</td>
 				<td>0</td>
 				<td>2</td>
@@ -328,6 +350,7 @@
 				<td>0</td>
 				<td>1</td>
 				<td>1 2 3 4 5 6 7 8</td>
+				<td>0</td>
 				<td>0</td>
 				<td>1</td>
 				<td>0</td>

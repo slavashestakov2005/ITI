@@ -18,10 +18,10 @@
                     <th width="30%">Имя</th>
                     <th width="10%">Школа</th>
                     <th width="10%">Класс</th>
-                    {% for subject_id, subject_name in subjects %}
-                        <th width="5%">{{ subject_name }}</th>
+                    {% for subject_id, subject in ind_subjects %}
+                        <th width="5%">{{ subject['short_name'] }}</th>
                     {% endfor %}
-                    <th width="10%">Другие</th>
+                    <th width="20%">Другие</th>
                     <th width="10%">Сумма</th>
                 </tr></thead>
                 <tbody></tbody>
@@ -30,9 +30,8 @@
     </div>
 </center>
 <script>
-    let results = {{ results | tojson }}, subjects = {{ subjects | tojson }}, students = {{ students | tojson }};
-    let students_group_result = {{ student_group_results | tojson }};
-    let subjects_days = {{ subjects_days | tojson }}, ind_res_per_day = {{ ind_res_per_day | tojson }};
+    let ind_results = {{ ind_results }}, ind_subjects = {{ ind_subjects }}, students = {{ students }};
+    let iti = {{ iti.json() }}, group_results = {{ group_results }}, group_subjects = {{ group_subjects}};
     let tableData = generateStudentsTableData();
     generateAllTable();
     initAutoFilter('class_value');

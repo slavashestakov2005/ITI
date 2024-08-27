@@ -131,7 +131,7 @@ def class_split_results(iti: Iti, path3):
     if not ys:
         return render_template(url, **params, error4='Такого предмета нет в этом году.')
     try:
-        Generator.get_results_subject(iti, ys.id)
+        Generator.get_results_individual_subject(iti, ys.id)
     except ValueError as ex:
         return render_template(url, **params, error4=str(ex))
     return render_template(url, **params, error4='Школьники разделены по классам')
@@ -153,7 +153,7 @@ def share_results(iti: Iti, path3):
     if ItiSubject.select(iti.id, subject) is None:
         return render_template(url, **params, error3='Такого предмета нет в этом году.')
     try:
-        Generator.gen_results(Iti.select(iti.id), subject, str(iti.id) + '/' + path3)
+        Generator.gen_individual_results(Iti.select(iti.id), subject, str(iti.id) + '/' + path3)
     except ValueError as ex:
         return render_template(url, **params, error3=str(ex))
     message_results_public(iti.id, subject)
@@ -184,7 +184,7 @@ def share_group_results(iti: Iti, path3):
 
         if ItiSubject.select(iti.id, subject) is None:
             return render_template('/add_result.html', **params, error2='Такого предмета нет в этом году.')
-        Generator.gen_group_results(iti.id, subject, str(iti.id) + '/' + path3)
+        Generator.gen_group_results(iti, subject, str(iti.id) + '/' + path3)
         message_results_public(iti.id, subject)
         return render_template(str(iti.id) + '/add_result.html', **params, error2='Результаты опубликованы')
     except Exception as ex:
@@ -209,9 +209,9 @@ def share_all_results(iti: Iti):
             try:
                 suf = str(subject.id) + '.html'
                 if subject.type == 'i':
-                    Generator.gen_results(iti, subject.id, str(iti.id) + '/' + suf)
+                    Generator.gen_individual_results(iti, subject.id, str(iti.id) + '/' + suf)
                 else:
-                    Generator.gen_group_results(iti.id, subject.id, str(iti.id) + '/' + suf)
+                    Generator.gen_group_results(iti, subject.id, str(iti.id) + '/' + suf)
             except ValueError:
                 errors.append(subject.name)
         Generator.gen_ratings(iti)

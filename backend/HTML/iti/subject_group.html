@@ -9,8 +9,8 @@
                 <th width="5%">Место</th>
                 <th width="15%">Команда</th>
                 <th width="10%">Балл в рейтинг</th>
-                {% if results.__len__() > 0 and results[0].__len__() > 3 %}
-                    <th width="60%" colspan="{{ results[0].__len__() - 3 }}"><center>Участники</center></th>
+                {% if teams_size > 0 %}
+                    <th width="60%" colspan="{{ teams_size }}"><center>Участники</center></th>
                 {% endif %}
             </tr>
         </thead>
