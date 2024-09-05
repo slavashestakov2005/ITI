@@ -1,7 +1,8 @@
 from flask_restful import reqparse, Resource
 
-from ..api import api_item, api_group, str_or_int
+from ..api import api_group, api_item, ApiStatus, str_or_int
 from ..database import get_student_by_params, School, Student, StudentClass
+from ..help import UserRoleGlobal
 from ..queries.auto_generator import Generator
 from ..queries.help import split_class
 
@@ -24,7 +25,7 @@ def parse_name(name1, name2, name3):
 
 
 class StudentResource(Resource):
-    @api_item(Student.select, 'admin')
+    @api_item(db=Student.select, roles=[UserRoleGlobal.CHANGE_STUDENT])
     def put(self, student: Student):
         args = parser_full.parse_args()
         student.load_class(args['year'])
@@ -37,9 +38,9 @@ class StudentResource(Resource):
         school_id = args['school'] or student.school_id
         student ^= new
         if get_student_by_params(args['year'], name1, name2, class_n, class_l):
-            return False, {'message': 'Такой участник уже есть'}
+            return ApiStatus.FAIL, {'message': 'Такой участник уже есть'}
         if not School.select(school_id):
-            return False, {'message': 'Такой школы нет'}
+            return ApiStatus.FAIL, {'message': 'Такой школы нет'}
         student_id = student.id
         Student.update(student)
         sc = StudentClass.build(student_id, args['year'], class_n, class_l, school_id)
@@ -51,17 +52,17 @@ class StudentResource(Resource):
             Generator.gen_students_list(args['year'], old_class_n)
         if class_n:
             Generator.gen_students_list(args['year'], class_n)
-        return True, {'message': 'Данные изменены'}
+        return ApiStatus.OK, {'message': 'Данные изменены'}
 
-    @api_item(Student.select, 'admin')
+    @api_item(db=Student.select, roles=[UserRoleGlobal.CHANGE_STUDENT])
     def delete(self, student: Student):
         Student.delete(student)
         StudentClass.delete_by_student(student.id)
-        return True, {'message': 'Участник удалён'}
+        return ApiStatus.OK, {'message': 'Участник удалён'}
 
 
 class StudentListResource(Resource):
-    @api_group('admin')
+    @api_group(roles=[UserRoleGlobal.CHANGE_STUDENT])
     def post(self):
         args = parser_full.parse_args()
         class_n, class_l = split_class(args['class'])
@@ -69,10 +70,10 @@ class StudentListResource(Resource):
         school_id = args['school']
         student = Student.build(None, name1, name2, name3, args['gender'], args['other_id'])
         if get_student_by_params(args['year'], name1, name2, class_n, class_l):
-            return False, {'message': 'Такой участник уже есть'}
+            return ApiStatus.FAIL, {'message': 'Такой участник уже есть'}
         if not School.select(school_id):
-            return False, {'message': 'Такой школы нет'}
+            return ApiStatus.FAIL, {'message': 'Такой школы нет'}
         student_id = Student.insert(student, return_id=True)
         StudentClass.insert(StudentClass.build(student_id, args['year'], class_n, class_l, school_id))
         Generator.gen_students_list(args['year'], class_n)
-        return True, {'message': 'Участник добавлен'}
+        return ApiStatus.OK, {'message': 'Участник добавлен'}

@@ -7,6 +7,7 @@ from .iti_subject import *
 from .iti_subject_score import *
 from .message import *
 from .result import *
+from .roles import *
 from .school import *
 from .student import *
 from .student_class import *

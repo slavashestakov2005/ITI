@@ -15,7 +15,7 @@ from .help import check_access
 from .. import Config
 from ..database import Iti, School, Student
 from ..excel import ExcelBarcodesWriter
-from ..help import FileNames
+from ..help import FileNames, UserRoleIti
 
 '''
     /<iti_id>/create_barcodes               Создаёт WORD-документ с штрих-кодами участников (admin).
@@ -46,7 +46,7 @@ def create_barcode_blank(doc, student: Student, schools: dict):
 @app.route("/<int:iti_id>/create_barcodes")
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def create_barcodes(iti: Iti):
     if not os.path.exists(Config.WORDS_FOLDER):
         os.makedirs(Config.WORDS_FOLDER)
@@ -80,7 +80,7 @@ def create_barcodes(iti: Iti):
 @app.route("/<int:iti_id>/get_barcodes")
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def get_barcodes(iti: Iti):
     store_name, send_name = FileNames.barcodes_word(iti)
     filename = './data/' + store_name
@@ -90,7 +90,7 @@ def get_barcodes(iti: Iti):
 @app.route("/<int:iti_id>/get_excel_with_barcodes", methods=['POST'])
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def get_excel_with_barcodes(iti: Iti):
     MOD = 10 ** 12
     try:

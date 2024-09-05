@@ -1,0 +1,59 @@
+<!-- replace 1 -->
+<div class="row col-12 justify-content-center">
+	<div class="col table-col-450px">
+		<h1>Изменить роль</h1>
+		<form onsubmit="role_edit_iti(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			{% raw %}{% include "roles_iti.html" %}{% endraw %}
+			<input type="submit" value="Изменить">
+		</form>
+	</div>
+	<div class="col table-col-450px">
+		<h1>Изменить предметы</h1>
+		<form onsubmit="role_edit_iti_subject(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			<h2>Предметы:</h2>
+			<table width="100%">
+				<tr>
+					<td width="50%" valign="top">
+						<h3>Индивидуальные туры:</h3>
+						{% for iti_subject_id, subject in iti_subjects.items() %} {% if subject.type == 'i' %}
+							<p><input type="checkbox" name="subjects" value="{{ iti_subject_id }}"> {{ subject.name }}</p>
+						{% endif %} {% endfor %}
+					</td>
+					<td width="50%" valign="top">
+						<h3>Групповые туры:</h3>
+						{% for iti_subject_id, subject in iti_subjects.items() %} {% if subject.type == 'g' %}
+							<p><input type="checkbox" name="subjects" value="{{ iti_subject_id }}"> {{ subject.name }}</p>
+						{% endif %} {% endfor %}
+						<h3>Другое:</h3>
+						{% for iti_subject_id, subject in iti_subjects.items() %} {% if subject.type == 'a' %}
+							<p><input type="checkbox" name="subjects" value="{{ iti_subject_id }}"> {{ subject.name }}</p>
+						{% endif %} {% endfor %}
+					</td>
+				</tr>
+			</table>
+			{% raw %}{% include "roles_iti_subject.html" %}{% endraw %}
+			<input type="submit" value="Изменить">
+		</form>
+	</div>
+	<div class="col table-col-450px">
+		<table border="1">
+			<thead><tr>
+				<th width="5%">ID</th>
+				<th width="10%">Логин</th>
+				<th width="25%">ИТИ роли</th>
+                <th width="60%">Предметы</th>
+			</tr></thead>
+			{% for user in users %}
+			<tr>
+				<td>{{ user.id }}</td>
+				<td>{{ user.login }}</td>
+				<td>{{ user.roles_iti_str(iti.id) }}</td>
+				<td>{{ user.roles_iti_subject_str(iti_subjects) }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+</div>
+<!-- replace 2 -->

@@ -8,7 +8,7 @@ from .help import check_access
 from ..config import Config
 from ..database import Code, Iti, School, Student
 from ..excel import ExcelCodesWriter
-from ..help import FileNames
+from ..help import FileNames, UserRoleIti
 
 '''
     /<iti_id>/create_codes                  Создаёт EXCEL-документ с кодами участников (admin).
@@ -19,7 +19,7 @@ from ..help import FileNames
 @app.route("/<int:iti_id>/create_codes")
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def create_codes(iti: Iti):
     only_new = request.args.get('new') == '1'
     codes = {code for code in range(1000, 10000)}
@@ -49,7 +49,7 @@ def create_codes(iti: Iti):
 @app.route("/<int:iti_id>/get_codes")
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def get_codes(iti: Iti):
     store_name, send_name = FileNames.codes_excel(iti)
     filename = './data/' + store_name

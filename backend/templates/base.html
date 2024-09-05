@@ -3,9 +3,11 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    {% if current_user.is_anonymous %} {% set anon = True %} {% else %} {% set anon = False %} {% endif %}
-    {% if not anon and current_user.can_do(-1) %} {% set adm = True %} {% else %} {% set adm = False %} {% endif %}
-    {% if not anon and current_user.can_do(-2) %} {% set full = True %} {% else %} {% set full = False %} {% endif %}
+    {% if current_user.is_anonymous %} {% set anon = True %} {% else %}
+    {% set anon = False %}
+    {% set adm = (iti and check_role(roles=[UserRoleIti.ADMIN], iti_id=iti.id)) %}
+    {% set full = check_role(roles=[UserRoleGlobal.FULL]) %}
+    {% endif %}
     <meta charset="utf-8">
     <title>ИТИ</title>
     <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>

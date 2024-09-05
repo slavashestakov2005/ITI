@@ -11,7 +11,7 @@ from .help import check_access
 from ..config import Config
 from ..database import Barcode, Code, execute_sql, GroupResult, Iti, ItiSubject, ItiSubjectScore, Message, Result,\
       SubjectStudent, Team, TeamConsent, TeamStudent
-from ..help import ConfigMail, FileManager, init_mail_messages
+from ..help import ConfigMail, FileManager, init_mail_messages, UserRoleGlobal, UserRoleIti
 
 '''
     /global_settings                        Сохраняет глобальные настройки (пароль от почты) (full).
@@ -67,7 +67,7 @@ def _delete_iti(year: int):
 @app.route("/global_settings", methods=['POST'])
 @cross_origin()
 @login_required
-@check_access(status='full')
+@check_access(roles=[UserRoleGlobal.FULL])
 def global_settings():
     app.config['MAIL_PASSWORD'] = request.form['password']
     init_mail_messages()
@@ -78,7 +78,7 @@ def global_settings():
 @app.route('/db')
 @cross_origin()
 @login_required
-@check_access(status='full')
+@check_access(roles=[UserRoleGlobal.FULL])
 def db():
     sql = request.args.get('sql')
     t = request.args.get('type')
@@ -91,15 +91,15 @@ def db():
 @app.route('/<int:iti_id>/year_block')
 @cross_origin()
 @login_required
-@check_access(status='admin')
+@check_access(roles=[UserRoleIti.ADMIN])
 def year_block(iti: Iti):
-    return render_template(str(iti.id) + '/year_block.html')
+    return render_template(str(iti.id) + '/year_block.html', iti=iti)
 
 
 @app.route('/restart')
 @cross_origin()
 @login_required
-@check_access(status='full')
+@check_access(roles=[UserRoleGlobal.FULL])
 def restart():
     with open('.restart-app', 'w') as f:
         pass
@@ -116,7 +116,7 @@ def shutdown_server():
 @app.get('/shutdown')
 @cross_origin()
 @login_required
-@check_access(status='full')
+@check_access(roles=[UserRoleGlobal.FULL])
 def shutdown():
     shutdown_server()
     return 'Server shutting down...'

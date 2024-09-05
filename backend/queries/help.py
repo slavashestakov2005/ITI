@@ -1,4 +1,3 @@
-from flask_login import current_user
 from functools import wraps
 from glob import glob
 from jinja2 import Environment, FileSystemLoader
@@ -7,7 +6,7 @@ import re
 from backend.config import Config
 from backend.help.errors import forbidden_error
 from ..database import Iti
-from ..help import correct_slash, krsk_time
+from ..help import check_role, correct_slash, jinja_context, krsk_time
 
 '''
     LOGIN_REQUIRED_FILES = []       Файлы, доступные после входа на сайт.
@@ -77,25 +76,19 @@ def parse_files():
     print("Status: " + str(STATUS_REQUIRED_FILES))
 
 
-def check_access(status: str=None, block: bool=None):
+def check_access(*, roles=None, block: bool=None):
     def my_decorator(function_to_decorate):
 
         @wraps(function_to_decorate)
         def wrapped(*args, **kwargs):
-            if status is not None:
-                if status == 'admin':
-                    value = -1
-                elif status == 'full':
-                    value = -2
-                else:
-                    value = int(status)
-                if not current_user.can_do(value):
-                    return forbidden_error()
-            
             try:
                 iti_id = kwargs['iti_id']
             except Exception:
+                if not check_role(roles=roles):
+                    return forbidden_error()
                 return function_to_decorate(*args, **kwargs)
+            if not check_role(roles=roles, iti_id=iti_id):
+                return forbidden_error()
             iti_info = Iti.select(iti_id)
             kwargs['iti'] = iti_info
             kwargs.pop('iti_id', None)
@@ -124,6 +117,8 @@ def html_render(template_name: str, output_name: str, template_folder: str = Con
     env = Environment(loader=FileSystemLoader(template_folder))
     env.filters['set'] = set_filter
     template = env.get_template(template_name)
+    for key, val in jinja_context().items():
+        data[key] = val
     data['krsk_moment'] = krsk_time
     data = template.render(**data)
     for rep in default_replace:

@@ -10,6 +10,7 @@ from .help import LOGIN_REQUIRED_FILES, split_class, STATUS_REQUIRED_FILES
 from ..config import Config
 from ..database import get_student_by_params, Message, Iti, ItiSubject, Result, Student, Subject
 from ..help.errors import forbidden_error, not_found_error
+from .auto_generator import Generator
 
 '''
     /                                       Возвращает стартовую страницу последнего ИТИ.
@@ -33,6 +34,8 @@ def index():
 @app.route('/<int:year>/')
 @cross_origin()
 def main_year_page_redirect(year: int):
+    Generator.gen_iti_users_list(year)
+    Generator.gen_subjects_lists()
     return redirect('/{}/main.html'.format(year))
 
 
@@ -42,10 +45,12 @@ def main_year_page_redirect(year: int):
 def admin_panel():
     iti, subject, sub = request.args.get('year'), request.args.get('subject'), []
     if subject:
-        subject = Subject.select(subject)
+        ys = ItiSubject.select_by_id(subject)
+        info = Subject.select(ys.subject_id) if ys is not None else None
+        subject = {'subject': info, 'iti_subject': ys}
     if iti:
         for cur_sub in ItiSubject.select_by_iti(iti):
-            sub.append(Subject.select(cur_sub.subject_id))
+            sub.append({'info': Subject.select(cur_sub.subject_id), 'id': cur_sub.id})
         iti = Iti.select(iti)
     return render_template('admin_panel.html', iti=iti, subject=subject, itis=Iti.select_all(), subjects=sub)
 
@@ -54,9 +59,7 @@ def admin_panel():
 @cross_origin()
 def static_file(path):
     parts = [x.lower() for x in path.rsplit('.', 1)]
-    if path in LOGIN_REQUIRED_FILES and (not current_user.is_authenticated
-                                         or path in STATUS_REQUIRED_FILES
-                                         and all(not current_user.can_do(_) for _ in str(STATUS_REQUIRED_FILES[path]))):
+    if path in LOGIN_REQUIRED_FILES and not current_user.is_authenticated:
         return forbidden_error()
     try:
         if len(parts) >= 2 and parts[1] == 'html':

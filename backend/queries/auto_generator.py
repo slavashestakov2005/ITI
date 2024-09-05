@@ -15,6 +15,7 @@ from ..help import FileNames
         gen_teams(iti_id)                                   Генерирует списки команд года year.
         gen_timetable(iti_id)                               Генерирует расписание предметов года year.
         gen_users_list()                                    Генерирует список пользователей.
+        gen_iti_users_list(iti_id)                          Генерирует список ролей ИТИ для пользователей.
         gen_rules(subject)                                  Генерирует страницу для правил группового тура.
 
         __get_net_score(...)                                Генерирует балл в рейтинг.
@@ -134,6 +135,15 @@ class Generator:
         users = User.select_all()
         subjects = {_.id: _.short_name for _ in Subject.select_all()}
         html_render('all/user_edit.html', 'user_edit.html', users=users, subjects=subjects)
+
+    @staticmethod
+    def gen_iti_users_list(iti_id: int) -> None:
+        iti = Iti.select(iti_id)
+        users = User.select_all()
+        subjects = Subject.select_all()
+        iti_subjects = {sub.id: Subject.select(sub.subject_id) for sub in ItiSubject.select_by_iti(iti_id)}
+        html_render('iti/roles_edit.html', str(iti_id) + '/roles_edit.html', iti=iti, users=users,
+                    iti_subjects=iti_subjects, subjects=subjects)
 
     @staticmethod
     def gen_rules(subject: Subject) -> None:

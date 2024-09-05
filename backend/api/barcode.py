@@ -1,7 +1,8 @@
 from flask_restful import reqparse, Resource
 
-from ..api import api_item
+from ..api import api_item, ApiStatus
 from ..database import Barcode, Iti
+from ..help import UserRoleIti
 
 
 parser_simple = reqparse.RequestParser()
@@ -10,7 +11,7 @@ parser_simple.add_argument('student_id', required=True, type=int)
 
 
 class BarcodeListResource(Resource):
-    @api_item(Iti.select, 'admin')
+    @api_item(db=Iti.select, roles=[UserRoleIti.CHANGE_BARCODE])
     def post(self, iti: Iti):
         args = parser_simple.parse_args()
         barcode, student = args['barcode'], args['student_id']
@@ -20,15 +21,15 @@ class BarcodeListResource(Resource):
             Barcode.delete(old_bar)
         Barcode.insert(Barcode.build(iti.id, barcode, student))
         if editing:
-            return True, {'message': 'Данные по штрих-коду отредактированы'}
-        return True, {'message': 'Данные по штрих-коду сохранены'}
+            return ApiStatus.OK, {'message': 'Данные по штрих-коду отредактированы'}
+        return ApiStatus.OK, {'message': 'Данные по штрих-коду сохранены'}
 
-    @api_item(Iti.select, 'admin')
+    @api_item(db=Iti.select, roles=[UserRoleIti.CHANGE_BARCODE])
     def delete(self, iti: Iti):
         args = parser_simple.parse_args()
         barcode, student = args['barcode'], args['student_id']
         old_bar = Barcode.select(iti.id, barcode)
         if not old_bar:
-            return True, {'message': 'Такого штрих-кода и не было'}
+            return ApiStatus.OK, {'message': 'Такого штрих-кода и не было'}
         Barcode.delete(old_bar)
-        return True, {'message': 'Данные по штрих-коду удалены'}
+        return ApiStatus.OK, {'message': 'Данные по штрих-коду удалены'}

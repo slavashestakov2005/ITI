@@ -1,13 +1,13 @@
 from flask import render_template
 from flask_cors import cross_origin
-from flask_login import current_user, login_required
+from flask_login import login_required
 
 from backend import app
 from .auto_generator import Generator
 from .help import check_access, path_to_subject
 from .messages_help import message_all_ratings_public, message_ratings_public, message_results_public
 from ..database import GroupResult, Iti, ItiSubject, ItiSubjectScore, Result, StudentClass, Subject, Team
-from ..help import forbidden_error
+from ..help import check_role, forbidden_error, UserRoleIti, UserRoleItiSubject
 
 '''
     /<iti_id>/<path>/add_result             Возвращает страницу редактирования по предмету (предметник).
@@ -103,14 +103,15 @@ def add_result(iti: Iti, path3):
             raise ValueError()
     except Exception:
         return forbidden_error()
-    if not current_user.can_do(subject.id):
+    ys = ItiSubject.select(iti.id, subject.id)
+    if ys is None or not check_role(roles=[UserRoleItiSubject.ADD_RESULT], iti_id=iti.id, iti_subject_id=ys.id):
         return forbidden_error()
 
     path2 = tour_name(subject.type)
     params = chose_params(iti.id, path2, path3)
     if path2 == 'group' or path2 == 'team':
         return render_template(str(iti.id) + '/add_result.html', **params)
-    return render_template('add_result.html', **params)
+    return render_template('add_result.html', **params, iti_id=iti.id, iti_subject_id=ys.id)
 
 
 @app.route('/<int:iti_id>/<path:path3>/class_split_results')
@@ -125,11 +126,11 @@ def class_split_results(iti: Iti, path3):
         subject = path_to_subject(path3)
     except Exception:
         return render_template(url, **params, error4='Некорректные данные')
-    if not current_user.can_do(subject):
-        return render_template(url, **params, error4='У вас не доступа к этому предмету')
     ys = ItiSubject.select(iti.id, subject)
     if not ys:
         return render_template(url, **params, error4='Такого предмета нет в этом году.')
+    if not check_role(roles=[UserRoleItiSubject.SPLIT_CLASS], iti_id=iti.id, iti_subject_id=ys.id):
+        return render_template(url, **params, error4='У вас не доступа к этому предмету')
     try:
         Generator.get_results_individual_subject(iti, ys.id)
     except ValueError as ex:
@@ -140,7 +141,7 @@ def class_split_results(iti: Iti, path3):
 @app.route('/<int:iti_id>/<path:path3>/share_results')
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(block=True)
 def share_results(iti: Iti, path3):
     path2 = 'individual'
     params = page_params(iti.id, path2, path3)
@@ -150,8 +151,11 @@ def share_results(iti: Iti, path3):
     except Exception:
         return render_template(url, **params, error3='Некорректные данные')
 
-    if ItiSubject.select(iti.id, subject) is None:
+    ys = ItiSubject.select(iti.id, subject)
+    if ys is None:
         return render_template(url, **params, error3='Такого предмета нет в этом году.')
+    if not check_role(roles=[UserRoleItiSubject.SHARE_RESULT], iti_id=iti.id, iti_subject_id=ys.id):
+        return render_template(url, **params, error3='У вас не доступа к этому предмету')
     try:
         Generator.gen_individual_results(Iti.select(iti.id), subject, str(iti.id) + '/' + path3)
     except ValueError as ex:
@@ -163,7 +167,7 @@ def share_results(iti: Iti, path3):
 @app.route("/<int:iti_id>/ratings_update")
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def ratings_update(iti: Iti):
     Generator.gen_ratings(iti)
     message_ratings_public(iti.id)
@@ -173,7 +177,7 @@ def ratings_update(iti: Iti):
 @app.route('/<int:iti_id>/<path:path3>/share_group_results')
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(block=True)
 def share_group_results(iti: Iti, path3):
     try:
         params = group_page_params(iti.id, path3)
@@ -182,8 +186,11 @@ def share_group_results(iti: Iti, path3):
         except Exception:
             return render_template('/add_result.html', **params, error2='Некорректные данные')
 
-        if ItiSubject.select(iti.id, subject) is None:
+        ys = ItiSubject.select(iti.id, subject)
+        if ys is None:
             return render_template('/add_result.html', **params, error2='Такого предмета нет в этом году.')
+        if not check_role(roles=[UserRoleItiSubject.SHARE_RESULT], iti_id=iti.id, iti_subject_id=ys.id):
+            return render_template('/add_result.html', **params, error2='У вас не доступа к этому предмету')    
         Generator.gen_group_results(iti, subject, str(iti.id) + '/' + path3)
         message_results_public(iti.id, subject)
         return render_template(str(iti.id) + '/add_result.html', **params, error2='Результаты опубликованы')
@@ -195,7 +202,7 @@ def share_group_results(iti: Iti, path3):
 @app.route('/<int:iti_id>/share_all_results')
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def share_all_results(iti: Iti):
     try:
         ys = ItiSubject.select_by_iti(iti.id)

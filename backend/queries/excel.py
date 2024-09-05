@@ -11,7 +11,7 @@ from .results import page_params
 from ..config import Config
 from ..database import Code, Iti, ItiSubject, School, Student, Subject
 from ..excel import ExcelCodesWriter, ExcelFullReader, ExcelFullWriter, ExcelItiWriter, ExcelResultsReader, ExcelStudentsReader
-from ..help import FileNames
+from ..help import FileNames, UserRoleGlobal, UserRoleIti
 
 '''
     /load_data_from_excel_all               Загружает все данные из Excel (full).
@@ -26,7 +26,7 @@ from ..help import FileNames
 @app.route('/load_data_from_excel_all', methods=['POST'])
 @cross_origin()
 @login_required
-@check_access(status='full')
+@check_access(roles=[UserRoleGlobal.FULL])
 def load_data_from_excel_all():
     file = request.files['file']
     filename = Config.DATA_FOLDER + '/sheet_all.' + file.filename.rsplit('.', 1)[1]
@@ -69,7 +69,7 @@ def load_data_from_excel_all():
 @app.route('/load_data_from_excel_students', methods=['POST'])
 @cross_origin()
 @login_required
-@check_access(status='admin')
+@check_access(roles=[UserRoleGlobal.FULL])
 def load_data_from_excel_students():
     try:
         file = request.files['file']
@@ -87,7 +87,7 @@ def load_data_from_excel_students():
 @app.route('/download_db', methods=['GET'])
 @cross_origin()
 @login_required
-@check_access(status='admin')
+@check_access(roles=[UserRoleGlobal.FULL])
 def download_db():
     store_name, send_name = FileNames.data_all_excel()
     ExcelFullWriter(Config.DATA_FOLDER + '/' + store_name).write()
@@ -98,7 +98,7 @@ def download_db():
 @app.route('/<int:iti_id>/download_iti', methods=['GET'])
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def download_iti(iti: Iti):
     store_name, send_name = FileNames.data_excel(iti)
     ExcelItiWriter(Config.DATA_FOLDER + '/' + store_name, iti.id).write()
@@ -109,7 +109,7 @@ def download_iti(iti: Iti):
 @app.route('/<int:iti_id>/download_diploma', methods=['GET'])
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def download_diploma(iti: Iti):
     store_name, send_name = FileNames.diploma_excel(iti)
     filename = './data/' + store_name

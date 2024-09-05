@@ -19,8 +19,6 @@
             {% for subject in subjects %} {% if subject.type == 'a' %}
                 <p><input type="checkbox" name="status" value="{{ subject.id }}">{{ subject.name }}</p>
             {% endif %} {% endfor %}
-            <p><input type="checkbox" name="status" value="-1">Администратор</p>
-            <p><input type="checkbox" name="status" value="-3">Сканер штрих-кодов</p>
         </td>
     </tr>
 </table>

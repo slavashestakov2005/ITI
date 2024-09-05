@@ -6,6 +6,7 @@ from backend import app
 from .help import check_access
 from .results_raw import save_result_
 from ..database import Barcode, Iti, ItiSubject, Student, StudentClass, Subject, User
+from ..help import check_role, UserRoleIti
 
 '''
     /<iti_id>/student_info                  Возвращает информацию по ID школьника (scaner).
@@ -28,7 +29,7 @@ def student_info(iti: Iti):
             raise ValueError("Неверные логин пользователя")
         if not user.check_password(user_password):
             raise ValueError("Неверные пароль пользователя")
-        if not user.can_do(-3):
+        if not check_role(user=user, roles=[UserRoleIti.SCANNER], iti_id=iti.id):
             raise ValueError("Пользователь не является сканером")
         student = Student.select(student_id)
         if not student:
@@ -54,7 +55,7 @@ def subject_info(iti: Iti):
             raise ValueError("Неверные логин пользователя")
         if not user.check_password(user_password):
             raise ValueError("Неверные пароль пользователя")
-        if not user.can_do(-3):
+        if not check_role(user=user, roles=[UserRoleIti.SCANNER], iti_id=iti.id):
             raise ValueError("Пользователь не является сканером")
         subject = Subject.select(subject_id)
         if not subject:
@@ -80,7 +81,7 @@ def save_barcodes(iti: Iti):
             raise ValueError("Неверные логин пользователя")
         if not user.check_password(user_password):
             raise ValueError("Неверные пароль пользователя")
-        if not user.can_do(-3):
+        if not check_role(user=user, roles=[UserRoleIti.SCANNER], iti_id=iti.id):
             raise ValueError("Пользователь не является сканером")
         value = json.loads(data)
         for line in value:
@@ -114,8 +115,6 @@ def save_subject_results(iti: Iti, subject_id: int):
             raise ValueError("Неверные логин пользователя")
         if not user.check_password(user_password):
             raise ValueError("Неверные пароль пользователя")
-        if not user.can_do(subject_id):
-            raise ValueError("Пользователь не может редактировать этот предмет")
         value = json.loads(data)
         ans = {}
         for i, line in enumerate(value):

@@ -1,9 +1,9 @@
-from flask_login import current_user
 from flask_restful import reqparse, Resource
 
 from . import get_point
-from ..api import api_item, api_group
+from ..api import api_group, api_item, ApiStatus
 from ..database import Iti, ItiSubject, ItiSubjectScore, Subject
+from ..help import check_role, UserRoleIti, UserRoleItiSubject
 from ..queries.auto_generator import Generator
 from ..queries.file_creator import FileCreator
 
@@ -31,20 +31,20 @@ parser_full.add_argument('score_9', required=False, type=int)
 
 
 class ItiSubjectResource(Resource):
-    @api_item(ItiSubject.select)
+    @api_item(db=ItiSubject.select)
     def put(self, iti_subjects: ItiSubject):
         args = parser_full.parse_args()
         iti_info = Iti.select(iti_subjects.iti_id)
         if not iti_info:
-            return False, {'message': 'Этого ИТИ нет'}
+            return ApiStatus.FAIL, {'message': 'Этого ИТИ нет'}
         if not Subject.select(iti_subjects.subject_id):
-            return False, {'message': 'Этого предмета нет'}
+            return ApiStatus.FAIL, {'message': 'Этого предмета нет'}
 
         if args['type'] == 'description':
-            if not current_user.can_do(-1):
-                return False, {'message': 'Доступ запрещён'}
+            if not check_role(roles=[UserRoleIti.ADMIN], iti_id=iti_info.id):
+                return ApiStatus.ACCESS_DENIED, {}
             if args['n_d'] and args['n_d'] <= 0:
-                return False, {'message': 'Отрицательный номер дня'}
+                return ApiStatus.FAIL, {'message': 'Отрицательный номер дня'}
             start = get_point(args['date'], args['start'], args['timezone'])
             end = get_point(args['date'], args['end'], args['timezone'])
             new = ItiSubject.build(iti_subjects.id, iti_subjects.iti_id, iti_subjects.subject_id, start, end,
@@ -54,24 +54,26 @@ class ItiSubjectResource(Resource):
             Generator.gen_timetable(iti_subjects.iti_id)
             Generator.gen_iti_subjects_list(iti_subjects.iti_id)
         elif args['type'] == 'score':
-            if not current_user.can_do(iti_subjects.subject_id):
-                return False, {'message': 'Доступ запрещён'}
+            if not check_role(roles=[UserRoleItiSubject.EDIT_SCORE], iti_id=iti_info.id, iti_subject_id=iti_subjects.id):
+                return ApiStatus.ACCESS_DENIED, {}
             for cls in iti_info.classes_list():
                 score = args['score_{}'.format(cls)]
                 ItiSubjectScore.update(ItiSubjectScore.build(iti_subjects.id, cls, score))
         else:
-            return False, {'message': 'Неизвестный тип запроса'}
-        return True, {'message': 'Сохранено'}
+            return ApiStatus.FAIL, {'message': 'Неизвестный тип запроса'}
+        return ApiStatus.OK, {'message': 'Сохранено'}
 
 
 class ItiSubjectListResource(Resource):
-    @api_group('admin')
+    @api_group()
     def post(self):
         args = parser_simple.parse_args()
         year, subjects = args['year'], args['subject']
+        if not check_role(roles=[UserRoleIti.ADMIN], iti_id=year):
+            return ApiStatus.ACCESS_DENIED, {}
         iti_info = Iti.select(year)
         if not iti_info:
-            return False, {'message': 'Этого года нет'}
+            return ApiStatus.FAIL, {'message': 'Этого года нет'}
         old_subjects = ItiSubject.select_by_iti(iti_info.id)
         old_sub_sub = [x.subject_id for x in old_subjects]
         old_sub_id = [x.id for x in old_subjects]
@@ -87,4 +89,4 @@ class ItiSubjectListResource(Resource):
                     ItiSubjectScore.insert(ItiSubjectScore.build(iti_subject_id, cls, iti_info.default_ind_score))
         FileCreator.create_subjects(iti_info, subjects)
         Generator.gen_iti_subjects_list(iti_info.id)
-        return True, {'message': 'Сохранено'}
+        return ApiStatus.OK, {'message': 'Сохранено'}

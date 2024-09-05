@@ -1,0 +1,16 @@
+<!-- login required -->
+<!-- -2 -->
+
+<h2>Глобальные роли:</h2>
+<table width="100%">
+    <tr>
+        <td>
+            {% for role in UserRoleGlobal %}
+                {% if check_role(roles=[role]) %}
+                    <p><input type="checkbox" name="status" value="{{ role.value }}"> {{ role.name }}</p>
+                {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+<p>Роль FULL даёт полный доступ к сайту.</p>
