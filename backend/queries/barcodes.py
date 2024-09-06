@@ -98,7 +98,7 @@ def get_excel_with_barcodes(iti: Iti):
         start_barcode = int(request.form['start_barcode']) % MOD
         end_barcode = int(request.form['end_barcode']) % MOD
     except Exception:
-        return render_template('codes.html', error='Не переданы начальные и конечные коды')
+        return render_template('codes.html', error='Не переданы начальные и конечные коды', iti=iti)
     store_name, send_name = FileNames.barcodes_excel(iti, start_barcode, end_barcode)
     data = []
     for code in range(start_barcode, end_barcode + 1):

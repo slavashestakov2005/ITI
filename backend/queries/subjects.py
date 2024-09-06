@@ -19,4 +19,4 @@ from ..help import UserRoleIti
 @check_access(roles=[UserRoleIti.ADMIN], block=True)
 def public_description(iti: Iti):
     message_timetable_public(iti.id)
-    return render_template(str(iti.id) + '/subjects_for_year.html', error11='Сообщение опубликовано')
+    return render_template(str(iti.id) + '/subjects_for_year.html', error11='Сообщение опубликовано', iti=iti)

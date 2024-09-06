@@ -6,14 +6,12 @@ load_dotenv('.env')
 
 from backend import app
 from backend.help import start_debug, init_mail_messages
-from backend.queries.help import parse_files
 
 import logging
 
 logging.basicConfig(filename="logs.log", level=logging.DEBUG)
 
 
-parse_files()
 start_debug()
 init_mail_messages()
 if __name__ == '__main__':

@@ -8,14 +8,14 @@
     {% if error %} <p class="error-msg">[ {{ error }} ]</p>{% endif %}
     {% endif %}
     <br>
-    <p><a href="rating_students.html">Рейтинг школьников</a></p>
-    <p><a href="rating_classes.html">Рейтинг классов</a></p>
-    <p><a href="rating_teams.html">Рейтинг команд</a></p>
+    <p><a href="rating_students">Рейтинг школьников</a></p>
+    <p><a href="rating_classes">Рейтинг классов</a></p>
+    <p><a href="rating_teams">Рейтинг команд</a></p>
     {% if adm %}
-    <p><a href="rating_students_check.html">Рейтинг школьников с галочками</a></p>
+    <p><a href="rating_students_check">Рейтинг школьников с галочками</a></p>
     <br>
     {% endif %}
-    {% if adm and super_open_policy == 0 or not anon and super_open_policy == 1 or super_open_policy == 2 %}
+    {% if adm and iti.super_open_policy == 0 or not anon and iti.super_open_policy == 1 or iti.super_open_policy == 2 %}
     <h2>Суперчемпион</h2>
     <table class="js-table-color-place" id="sorted-table">
         <thead><tr>

@@ -95,7 +95,6 @@ class Generator:
     @staticmethod
     def gen_subjects_lists() -> None:
         subjects = Subject.select_all()
-        html_render('all/subjects.html', 'subjects.html', subjects=subjects)
         html_render('all/subjects_edit.html', 'subjects_edit.html', subjects=sorted(subjects, key=Subject.sort_by_type))
 
     @staticmethod

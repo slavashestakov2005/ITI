@@ -1,3 +1,4 @@
+from flask import render_template
 from functools import wraps
 from glob import glob
 from jinja2 import Environment, FileSystemLoader
@@ -6,26 +7,14 @@ import re
 from backend.config import Config
 from backend.help.errors import forbidden_error
 from ..database import Iti
-from ..help import check_role, correct_slash, jinja_context, krsk_time
+from ..help import check_role, jinja_context, krsk_time
 
 '''
-    LOGIN_REQUIRED_FILES = []       Файлы, доступные после входа на сайт.
-    STATUS_REQUIRED_FILES = {}      Отображение файла и доступа к нему.
-    all_templates()                 Список всех файлов-шаблонов из папки шаблонов.
     correct_new_line(str)           Заменяет все переносы строк на '\n'.
     split_class(str)                Разбивает класс на букву и цифру.
     empty_checker(*args)            Проверяет аргументы на пустую строку и выбрасывает ValueError.
-    path_to_subject(path)           Извлекает id предмета из имени файла.
-    parse_files()                   Проходит все файлы, генерирует списки доступа.
     @check_access(status, block)    Проверяет открыт ли доступ для текущего пользователя.
 '''
-
-LOGIN_REQUIRED_FILES = []
-STATUS_REQUIRED_FILES = {}
-
-
-def all_templates():
-    return glob(Config.TEMPLATES_FOLDER + '/**/*.html', recursive=True)
 
 
 def correct_new_line(s: str):
@@ -47,36 +36,7 @@ def empty_checker(*args):
             raise ValueError
 
 
-def path_to_subject(path: str) -> int:
-    return int(path.rsplit('.', 1)[0])
-
-
-def parse_files():
-    if len(LOGIN_REQUIRED_FILES) > 0:
-        return
-    path = Config.TEMPLATES_FOLDER + "/"
-    length = len(path)
-    for file_name in all_templates():
-        with open(file_name, 'r', encoding='utf-8') as f:
-            line1 = f.readline()
-            line2 = f.readline()
-        if line1 == "<!-- login required -->\n":
-            LOGIN_REQUIRED_FILES.append(correct_slash(file_name[length:]))
-            begin = line2[0:5]
-            end = line2[-5:-1]
-            if begin == '<!-- ' and end == ' -->':
-                value = int(line2[5:-5])
-                if value > 0:
-                    STATUS_REQUIRED_FILES[correct_slash(file_name[length:])] = {value, -2, -1}
-                elif value == -1:
-                    STATUS_REQUIRED_FILES[correct_slash(file_name[length:])] = {-2, -1}
-                else:
-                    STATUS_REQUIRED_FILES[correct_slash(file_name[length:])] = {-2}
-    print("Login required files: " + str(LOGIN_REQUIRED_FILES))
-    print("Status: " + str(STATUS_REQUIRED_FILES))
-
-
-def check_access(*, roles=None, block: bool=None):
+def check_access(*, roles: list=None, block: bool=None):
     def my_decorator(function_to_decorate):
 
         @wraps(function_to_decorate)
@@ -96,6 +56,28 @@ def check_access(*, roles=None, block: bool=None):
                 return forbidden_error()
             
             return function_to_decorate(*args, **kwargs)
+
+        return wrapped
+
+    return my_decorator
+
+
+def route_iti_html_page(*, page: str, roles=None, block: bool=None, root: bool=False):
+    def my_decorator(function_to_decorate):
+
+        @wraps(function_to_decorate)
+        def wrapped(iti_id: int):
+            try:
+                if not check_role(roles=roles, iti_id=iti_id):
+                    raise ValueError()
+                iti = Iti.select(iti_id)
+                if not iti or block and iti.block:
+                    raise ValueError()
+                params = function_to_decorate(iti)
+            except Exception:
+                return forbidden_error()
+            template = page if root else '{}/{}.html'.format(iti.id, page)
+            return render_template(template, iti=iti, **params)
 
         return wrapped
 

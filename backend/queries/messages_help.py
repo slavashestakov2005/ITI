@@ -27,7 +27,7 @@ def message_results_public(year, subject):
     title = subject.name
     was_old = len(Message.select_by_iti_and_title(year, title))
     content = 'Опубликованы' if not was_old else 'Обновлены'
-    content += ' <a href="{}.html">результаты {}.</a>'.format(subject.id, subject.msg)
+    content += ' <a href="{}">результаты {}.</a>'.format(subject.id, subject.msg)
     message_save(title, content, year)
 
 
@@ -35,7 +35,7 @@ def message_timetable_public(year):
     title = 'Расписание'
     was_old = len(Message.select_by_iti_and_title(year, title))
     content = 'Опубликовано' if not was_old else 'Обновлено'
-    content += ' <a href="timetable.html">расписание ИТИ.</a>'
+    content += ' <a href="timetable">расписание ИТИ.</a>'
     message_save(title, content, year)
 
 
@@ -44,24 +44,24 @@ def message_ratings_public(year):
     was_old = len(Message.select_by_iti_and_title(year, title))
     content = 'Опубликованы' if not was_old else 'Обновлены'
     content += ' рейтинги ИТИ:<ul>'\
-               '<li><a href="rating_students.html">Рейтинг школьников</a></li>' \
-               '<li><a href="rating_classes.html">Рейтинг классов</a></li>' \
-               '<li><a href="rating_teams.html">Рейтинг команд</a></li>' \
-               '<li><a href="rating.html">Все рейтинги</a></li></ul>'
+               '<li><a href="rating_students">Рейтинг школьников</a></li>' \
+               '<li><a href="rating_classes">Рейтинг классов</a></li>' \
+               '<li><a href="rating_teams">Рейтинг команд</a></li>' \
+               '<li><a href="rating">Все рейтинги</a></li></ul>'
     message_save(title, content, year)
 
 
 def message_all_ratings_public(year, subjects):
     title = 'Текущие результаты'
     content = 'На данный момент все результаты на сайте соответствуют результатам проверки работ.\n<ul>\n'
-    content += '<li><a href="rating.html">Рейтинги</a></li>\n'
+    content += '<li><a href="rating">Рейтинги</a></li>\n'
     for subject in subjects:
-        content += '<li><a href="{}.html">{}</a></li>\n'.format(subject.id, subject.name)
+        content += '<li><a href="{}">{}</a></li>\n'.format(subject.id, subject.name)
     content += '</ul>\n'
     message_save(title, content, year)
 
 
 def message_teams_public(year):
     title = 'Команды'
-    content = 'Все команды ИТИ целиком сформированы, <a href="rating_teams.html">списки и рейтинги команд.</a>'
+    content = 'Все команды ИТИ целиком сформированы, <a href="rating_teams">списки и рейтинги команд.</a>'
     message_save(title, content, year)

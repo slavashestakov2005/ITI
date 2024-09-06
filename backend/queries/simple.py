@@ -1,23 +1,23 @@
 from flask import redirect, render_template, request
 from flask_cors import cross_origin
-from flask_login import current_user, login_required
+from flask_login import login_required
 from itertools import permutations
 from jinja2 import TemplateNotFound
 import os
+from werkzeug.exceptions import NotFound
 
 from backend import app
-from .help import LOGIN_REQUIRED_FILES, split_class, STATUS_REQUIRED_FILES
+from .help import split_class
 from ..config import Config
 from ..database import get_student_by_params, Message, Iti, ItiSubject, Result, Student, Subject
 from ..help.errors import forbidden_error, not_found_error
-from .auto_generator import Generator
 
 '''
     /                                       Возвращает стартовую страницу последнего ИТИ.
     /<iti_id>/                              Возвращает стартовую страницу ИТИ.
     /admin_panel                            Рисует админ-панель.
     /<path>                                 Возвращает статическую страницу, проверяя статус пользователя и доступ к файлу.
-    /<iti_id>/main.html                     Рисует стартовую страницу ИТИ.
+    /<iti_id>/main                          Рисует стартовую страницу ИТИ.
 '''
 
 
@@ -26,7 +26,7 @@ from .auto_generator import Generator
 def index():
     iti = Iti.select_last()
     if iti and os.path.exists(Config.TEMPLATES_FOLDER + '/' + str(iti.id) + '/main.html'):
-        return redirect(str(iti.id) + '/main.html')
+        return redirect(str(iti.id) + '/main')
     else:
         return forbidden_error()
 
@@ -34,9 +34,7 @@ def index():
 @app.route('/<int:year>/')
 @cross_origin()
 def main_year_page_redirect(year: int):
-    Generator.gen_iti_users_list(year)
-    Generator.gen_subjects_lists()
-    return redirect('/{}/main.html'.format(year))
+    return redirect('/{}/main'.format(year))
 
 
 @app.route('/admin_panel')
@@ -55,24 +53,21 @@ def admin_panel():
     return render_template('admin_panel.html', iti=iti, subject=subject, itis=Iti.select_all(), subjects=sub)
 
 
+@app.route('/Info/<path:path>')
+@cross_origin()
+def info_file(path):
+    try:
+        return render_template('Info/' + path)
+    except TemplateNotFound:
+        return not_found_error()
+
+
 @app.route('/<path:path>')
 @cross_origin()
 def static_file(path):
-    parts = [x.lower() for x in path.rsplit('.', 1)]
-    if path in LOGIN_REQUIRED_FILES and not current_user.is_authenticated:
-        return forbidden_error()
     try:
-        if len(parts) >= 2 and parts[1] == 'html':
-            parts, params = path.split('/'), {}
-            if parts[0][0] == '-':
-                parts[0] = parts[0][1:]
-            if parts[0].isdigit():
-                params['year'] = parts[0]
-            if parts[0] == 'Info' or parts[0] == '2019' or parts[0] == '2020':
-                params['is_info'] = True
-            return render_template(path, **params)
         return app.send_static_file(path)
-    except TemplateNotFound:
+    except NotFound:
         return not_found_error()
 
 
@@ -91,7 +86,7 @@ def get_info_for_student(student: Student, year: int):
     return data, days, summ
 
 
-@app.route('/<int:iti_id>/main.html')
+@app.route('/<int:iti_id>/main')
 @cross_origin()
 def search(iti_id: int):
     iti = Iti.select(iti_id)

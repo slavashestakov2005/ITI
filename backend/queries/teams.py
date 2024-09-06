@@ -53,9 +53,10 @@ def teams_page_params(user: User, iti: Iti):
             people.load_class(iti.id)
             rejection.append(people)
         rejection.sort(key=Student.sort_by_all)
-        return {'teams': res, 'subjects': [_.short_name for _ in subjects], 'rejection': rejection, 'schools': schools}
+        return {'iti': iti, 'teams': res, 'subjects': [_.short_name for _ in subjects],
+                'rejection': rejection, 'schools': schools}
     except Exception:
-        return {}
+        return {'iti': iti}
 
 
 @app.route("/<int:iti_id>/team_edit")
