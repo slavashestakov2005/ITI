@@ -133,7 +133,6 @@ def load_result(iti: Iti, path3):
         return render_template(url, **params, error6=['[ Некорректные данные ]'])
 
     file.save(filename)
-    # FileManager.save(filename)
     txt = ExcelResultsReader(filename, iti.id, subject).read(current_user)
     params = page_params(iti.id, path2, path3)
     if txt:

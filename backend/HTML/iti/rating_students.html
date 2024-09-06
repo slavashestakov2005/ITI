@@ -1,4 +1,4 @@
-<!-- replace 1 -->
+{% raw %}{% extends "base.html" %}{% block content %}{% endraw %}
 
 <script>let pre_filter = false;</script>
 {% from "iti/macro_filters.html" import filter_classes %}
@@ -37,4 +37,4 @@
     initAutoFilter('class_value');
 </script>
 
-<!-- replace 2 -->
+{% raw %}{% endblock %}{% endraw %}

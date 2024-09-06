@@ -11,7 +11,7 @@ from .help import check_access
 from ..config import Config
 from ..database import Barcode, Code, execute_sql, GroupResult, Iti, ItiSubject, ItiSubjectScore, Message, Result,\
       SubjectStudent, Team, TeamConsent, TeamStudent
-from ..help import ConfigMail, FileManager, init_mail_messages, UserRoleGlobal, UserRoleIti
+from ..help import ConfigMail, init_mail_messages, UserRoleGlobal, UserRoleIti
 
 '''
     /global_settings                        Сохраняет глобальные настройки (пароль от почты) (full).
@@ -46,18 +46,14 @@ def _delete_iti(year: int):
     hard_dirs = ['/data_', '/load_']
     for d in simple_dirs:
         for file in glob.glob(Config.DATA_FOLDER + d + str(year) + '.*'):
-            FileManager.delete(file)
             os.remove(file)
     for d in hard_dirs:
         for file in glob.glob(Config.DATA_FOLDER + d + str(year) + '_*.*'):
-            FileManager.delete(file)
             os.remove(file)
     for file in glob.glob(Config.DATA_FOLDER + '/{}/'.format(year) + "*.*"):
-        FileManager.delete(file)
         os.remove(file)
     dirs = [dir1, dir2, dir3]
     for cur_dir in dirs:
-        FileManager.delete_dir(cur_dir)
         try:
             shutil.rmtree(cur_dir)
         except FileNotFoundError:

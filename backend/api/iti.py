@@ -36,7 +36,7 @@ class ItiResource(Resource):
     @api_item(db=Iti.select, roles=[UserRoleGlobal.CHANGE_ITI, UserRoleIti.ADMIN])
     def delete(self, iti: Iti):
         _delete_iti(iti.id)
-        return ApiStatus.Ok, {'message': 'ИТИ удалены'}
+        return ApiStatus.OK, {'message': 'ИТИ удалены'}
 
     @api_item(db=Iti.select, roles=[UserRoleGlobal.CHANGE_ITI, UserRoleIti.ADMIN])
     def put(self, iti: Iti):

@@ -1,4 +1,4 @@
-<!-- replace 1 -->
+{% raw %}{% extends "base.html" %}{% block content %}{% endraw %}
 <center><h1>{{ subject_name }}</h1></center>
 
 <center>
@@ -44,4 +44,4 @@
     let classes = {{ classes | tojson }};
 </script>
 
-<!-- replace 2 -->
+{% raw %}{% endblock %}{% endraw %}

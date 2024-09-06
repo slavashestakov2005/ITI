@@ -102,18 +102,12 @@ def check_access(*, roles=None, block: bool=None):
     return my_decorator
 
 
-default_replace = [['<!-- replace 1 -->', '{% extends "base.html" %}{% block content %}'],
-                   ['<!-- replace 2 -->', '{% endblock %}\n']]
-
-
 def set_filter(seq):
     return set(seq)
 
 
 def html_render(template_name: str, output_name: str, template_folder: str = Config.HTML_FOLDER,
-                output_folder: str = Config.TEMPLATES_FOLDER, replaced: list = None, **data):
-    if replaced is None:
-        replaced = []
+                output_folder: str = Config.TEMPLATES_FOLDER, **data):
     env = Environment(loader=FileSystemLoader(template_folder))
     env.filters['set'] = set_filter
     template = env.get_template(template_name)
@@ -121,9 +115,6 @@ def html_render(template_name: str, output_name: str, template_folder: str = Con
         data[key] = val
     data['krsk_moment'] = krsk_time
     data = template.render(**data)
-    for rep in default_replace:
-        data = data.replace(rep[0], rep[1])
-    for rep in replaced:
-        data = data.replace(rep[0], rep[1])
+    data += '\n' if data[-1] != '\n' else ''
     with open(output_folder + '/' + output_name, 'w', encoding='UTF-8') as f:
         f.write(data)
