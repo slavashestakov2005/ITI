@@ -8,6 +8,7 @@ from .help import check_access
 from .messages_help import message_teams_public
 from ..database import IndDayStudent, Iti, ItiSubject, School, Student, Subject, SubjectStudent, Team, TeamConsent,\
     TeamStudent, User
+from ..help import UserRoleIti
 
 '''
     /<iti_id>/team_edit                     Redirect с параметрами на страницу редактирования (admin).
@@ -52,15 +53,16 @@ def teams_page_params(user: User, iti: Iti):
             people.load_class(iti.id)
             rejection.append(people)
         rejection.sort(key=Student.sort_by_all)
-        return {'teams': res, 'subjects': [_.short_name for _ in subjects], 'rejection': rejection, 'schools': schools}
+        return {'iti': iti, 'teams': res, 'subjects': [_.short_name for _ in subjects],
+                'rejection': rejection, 'schools': schools}
     except Exception:
-        return {}
+        return {'iti': iti}
 
 
 @app.route("/<int:iti_id>/team_edit")
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def team_edit(iti: Iti):
     return render_template(str(iti.id) + '/teams_for_year.html', **teams_page_params(current_user, iti))
 
@@ -68,7 +70,7 @@ def team_edit(iti: Iti):
 @app.route("/<int:iti_id>/automatic_division", methods=['GET'])
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def automatic_division(iti: Iti):
     args = teams_page_params(current_user, iti)
     if iti.automatic_division == 0:

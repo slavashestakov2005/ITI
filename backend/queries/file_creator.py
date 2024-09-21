@@ -3,26 +3,25 @@ import os
 import shutil
 
 from backend.config import Config
+from .auto_generator import Generator
 from .help import html_render
 from .messages_help import message_save
 from ..database import Iti, Subject
-from ..help import FileManager
 
 
 class FileCreator:
     @staticmethod
-    def __render_default_pages__(year: int):
-        html_render('iti/rating_students.html', str(year) + '/rating_students.html', results={}, students={}, subjects={},
-                    classes=[], student_group_results={}, subjects_days={}, ind_res_per_day=0, year=year)
-        html_render('iti/rating_students_check.html', str(year) + '/rating_students_check.html', results={}, students={},
-                    subjects={}, classes=[], check_marks={}, student_group_results={}, subjects_days={}, ind_res_per_day=0)
-        html_render('iti/rating_classes.html', str(year) + '/rating_classes.html', classes=[], results=[])
-        html_render('iti/rating_teams.html', str(year) + '/rating_teams.html', team_results={}, ind_subjects={},
-                    team_subjects={}, team_student={}, teams={}, students={}, student_results={}, subjects_days={}, ind_res_per_day=0)
-        html_render('iti/rating.html', str(year) + '/rating.html', results={}, students={})
+    def __render_default_pages(year: int):
+        iti = Iti.select(year)
+        Generator.gen_teams(year)
+        Generator.gen_ratings(iti)
+        Generator.gen_iti_users_list(year)
+        Generator.gen_iti_subjects_list(year)
+        Generator.gen_timetable(year)
+        Generator.gen_iti_block_page(iti)
 
     @staticmethod
-    def __create_default_messages__(year: int):
+    def __create_default_messages(year: int):
         with open(Config.DATA_FOLDER + '/default_iti_messages.json', 'r', encoding='UTF-8') as f:
             data = json.load(f)
         for line in data:
@@ -33,17 +32,14 @@ class FileCreator:
         directory = Config.TEMPLATES_FOLDER + "/" + str(year)
         if os.path.exists(directory):
             shutil.rmtree(directory)
-            FileManager.delete_dir(directory)
         data_directory = Config.DATA_FOLDER + "/" + str(year)
         if os.path.exists(data_directory):
             shutil.rmtree(data_directory)
-            FileManager.delete_dir(data_directory)
         shutil.copytree(Config.DEFAULT_ITI_FOLDER, directory)
         os.makedirs(data_directory)
-        FileManager.save_dir(directory)
-        FileCreator.__render_default_pages__(year)
+        FileCreator.__render_default_pages(year)
         if send_messages:
-            FileCreator.__create_default_messages__(year)
+            FileCreator.__create_default_messages(year)
 
     @staticmethod
     def create_subjects(iti: Iti, subjects: list):

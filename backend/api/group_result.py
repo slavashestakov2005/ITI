@@ -1,9 +1,9 @@
 from flask import request
-from flask_login import current_user
 from flask_restful import reqparse, Resource
 
-from ..api import api_group
+from ..api import api_group, ApiStatus
 from ..database import GroupResult, ItiSubject, Team
+from ..help import check_role, UserRoleItiSubject
 
 
 parser_simple = reqparse.RequestParser()
@@ -16,18 +16,21 @@ class GroupResultListResource(Resource):
     def post(self):
         args = parser_simple.parse_args()
         year, subject = args['year'], args['subject']
-        if not current_user.can_do(subject):
-            return False, {'message': 'Доступ запрещён'}
-        if not ItiSubject.select(year, subject):
-            return False, {'message': 'Такого предмета нет в этом году'}
+        iti_subject = ItiSubject.select(year, subject)
+        if not iti_subject:
+            return ApiStatus.FAIL, {'message': 'Такого предмета нет в этом году'}
         teams = Team.select_by_iti(year)
         for team in teams:
             try:
                 gr = GroupResult.build(team.id, subject, float(request.json['score_' + str(team.id)]), 0)
             except Exception:
-                return False, {'message': 'Некорректные данные'}
+                return ApiStatus.FAIL, {'message': 'Некорректные данные'}
             if not GroupResult.select_by_team_and_subject(team.id, subject):
+                if not check_role(roles=[UserRoleItiSubject.ADD_RESULT], iti_id=year, iti_subject_id=iti_subject.id):
+                    return ApiStatus.ACCESS_DENIED, {}
                 GroupResult.insert(gr)
             else:
+                if not check_role(roles=[UserRoleItiSubject.EDIT_RESULT], iti_id=year, iti_subject_id=iti_subject.id):
+                    return ApiStatus.ACCESS_DENIED, {}
                 GroupResult.update(gr)
-        return True, {'message': 'Результаты сохранены'}
+        return ApiStatus.OK, {'message': 'Результаты сохранены'}

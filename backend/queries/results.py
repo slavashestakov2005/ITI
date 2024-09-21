@@ -1,55 +1,37 @@
 from flask import render_template
 from flask_cors import cross_origin
-from flask_login import current_user, login_required
+from flask_login import login_required
 
 from backend import app
 from .auto_generator import Generator
-from .help import check_access, path_to_subject
+from .help import check_access
 from .messages_help import message_all_ratings_public, message_ratings_public, message_results_public
 from ..database import GroupResult, Iti, ItiSubject, ItiSubjectScore, Result, StudentClass, Subject, Team
-from ..help import forbidden_error
+from ..help import check_role, forbidden_error, UserRoleIti, UserRoleItiSubject
 
 '''
-    /<iti_id>/<path>/add_result             Возвращает страницу редактирования по предмету (предметник).
-    /<iti_id>/<path>/class_split_results    Разделяет индивидуальные результаты по параллелям (admin).
-    /<iti_id>/<path>/share_results          Генерирует таблицу с индивидуальными результатами (admin).
-    /<iti_id>/ratings_update                Обновляет рейтинги (admin).
-    /<iti_id>/<path>/share_group_results    Генерирует таблицу с групповыми результатами (admin).
-    /<iti_id>/share_all_results             Обновляет таблицы по всем предметам (admin).
+    /<iti_id>/<subject_id>/add_result             Возвращает страницу редактирования по предмету (предметник).
+    /<iti_id>/<subject_id>/class_split_results    Разделяет индивидуальные результаты по параллелям (admin).
+    /<iti_id>/<subject_id>/share_results          Генерирует таблицу с индивидуальными результатами (admin).
+    /<iti_id>/ratings_update                      Обновляет рейтинги (admin).
+    /<iti_id>/<subject_id>/share_group_results    Генерирует таблицу с групповыми результатами (admin).
+    /<iti_id>/share_all_results                   Обновляет таблицы по всем предметам (admin).
 '''
 
 
-def tour_type(name: str) -> str:
-    if name == 'individual':
-        return 'Индивидуальный тур'
-    elif name == 'group':
-        return 'Групповой тур'
-    return 'Командный тур'
-
-
-def tour_name(type: str) -> str:
-    if type == 'i':
-        return 'individual'
-    elif type == 'g':
-        return 'group'
-    return 'team'
-
-
-def page_params(year: int, path2, path3):
-    params = {'year': abs(year), 'h_type_1': path2, 'h_type_2': tour_type(path2)}
+def individual_page_params(iti: Iti, subject: Subject):
+    params = {'iti': iti, 'year': iti.id, 'subject': subject.id, 'h_sub_name': subject.name}
     try:
-        params['subject'] = subject = path_to_subject(path3)
-        sub = ItiSubject.select(year, subject)
+        sub = ItiSubject.select(iti.id, subject.id)
         scores = ItiSubjectScore.select_by_iti_subject(sub.id)
-        params.update({'h_sub_name': Subject.select(subject).name, 'scores': scores})
+        params['scores'] = scores
         results = Result.select_by_iti_subject(sub.id)
-        year_info = Iti.select(year)
-        sorted_results = {cls: [] for cls in year_info.classes_list()}
+        sorted_results = {cls: [] for cls in iti.classes_list()}
         sorted_results['?'] = []
         top = {}
         for r in results:
             if r.student_id:
-                sc = StudentClass.select(year, r.student_id)
+                sc = StudentClass.select(iti.id, r.student_id)
                 if sc:
                     sorted_results[sc.class_number].append(r)
                     continue
@@ -61,9 +43,6 @@ def page_params(year: int, path2, path3):
             for i in range(len(lst)):
                 if last_result != lst[i].result:
                     last_pos, last_result = i + 1, lst[i].result
-                # if last_pos > 3:
-                #    break
-                # на сайте захотели все результаты
                 t.append([last_pos, lst[i].student_code, lst[i].result])
             top[cls] = t
         params['top'] = top
@@ -72,14 +51,16 @@ def page_params(year: int, path2, path3):
     return params
 
 
-def group_page_params(year: int, path3):
-    res = {'year': abs(year)}
+def group_page_params(iti: Iti, subject: Subject):
+    res = {'iti': iti, 'year': iti.id, 'subject': subject.id, 'h_sub_name': subject.name}
     try:
-        res['subject'] = subject = path_to_subject(path3)
-        res['h_sub_name'] = Subject.select(subject).name
-        teams = Team.select_by_iti(year)
+        ys = ItiSubject.select(iti.id, subject.id)
+        if ys is None:
+            raise ValueError()
+        res['ys'] = ys
+        teams = Team.select_by_iti(iti.id)
         for team in teams:
-            gr = GroupResult.select_by_team_and_subject(team.id, subject)
+            gr = GroupResult.select_by_team_and_subject(team.id, subject.id)
             if gr is None:
                 gr.result = 0
             res['t' + str(team.id)] = gr.result
@@ -88,104 +69,111 @@ def group_page_params(year: int, path3):
     return res
 
 
-def chose_params(p1: int, p2: str, p3: str):
-    return group_page_params(p1, p3) if p2 == 'group' or p2 == 'team' else page_params(p1, p2, p3)
-
-
-@app.route('/<int:iti_id>/<path:path3>/add_result')
+@app.route('/<int:iti_id>/<int:subject_id>/add_result')
 @cross_origin()
 @login_required
 @check_access(block=True)
-def add_result(iti: Iti, path3):
+def add_result(iti: Iti, subject_id: int):
     try:
-        subject = Subject.select(path_to_subject(path3))
+        subject = Subject.select(subject_id)
         if subject is None:
             raise ValueError()
     except Exception:
         return forbidden_error()
-    if not current_user.can_do(subject.id):
+    ys = ItiSubject.select(iti.id, subject.id)
+    if ys is None or not check_role(roles=[UserRoleItiSubject.ADD_RESULT], iti_id=iti.id, iti_subject_id=ys.id):
         return forbidden_error()
 
-    path2 = tour_name(subject.type)
-    params = chose_params(iti.id, path2, path3)
-    if path2 == 'group' or path2 == 'team':
+    if subject.type == 'i':
+        params = individual_page_params(iti, subject)
+        return render_template('add_result.html', **params, iti_id=iti.id, iti_subject_id=ys.id)
+    else:
+        params = group_page_params(iti, subject)
         return render_template(str(iti.id) + '/add_result.html', **params)
-    return render_template('add_result.html', **params)
 
 
-@app.route('/<int:iti_id>/<path:path3>/class_split_results')
+@app.route('/<int:iti_id>/<int:subject_id>/class_split_results')
 @cross_origin()
 @login_required
 @check_access(block=True)
-def class_split_results(iti: Iti, path3):
-    path2 = 'individual'
-    params = page_params(iti.id, path2, path3)
-    url = 'add_result.html'
+def class_split_results(iti: Iti, subject_id: int):
     try:
-        subject = path_to_subject(path3)
+        subject = Subject.select(subject_id)
+        if subject is None:
+            raise ValueError()
     except Exception:
-        return render_template(url, **params, error4='Некорректные данные')
-    if not current_user.can_do(subject):
-        return render_template(url, **params, error4='У вас не доступа к этому предмету')
-    ys = ItiSubject.select(iti.id, subject)
+        return forbidden_error()
+
+    params = individual_page_params(iti, subject)
+    ys = ItiSubject.select(iti.id, subject.id)
     if not ys:
-        return render_template(url, **params, error4='Такого предмета нет в этом году.')
+        return render_template('add_result.html', **params, error4='Такого предмета нет в этом году.')
+    if not check_role(roles=[UserRoleItiSubject.SPLIT_CLASS], iti_id=iti.id, iti_subject_id=ys.id):
+        return render_template('add_result.html', **params, error4='У вас не доступа к этому предмету')
     try:
-        Generator.get_results_subject(iti, ys.id)
+        Generator.get_results_individual_subject(iti, ys.id)
     except ValueError as ex:
-        return render_template(url, **params, error4=str(ex))
-    return render_template(url, **params, error4='Школьники разделены по классам')
+        return render_template('add_result.html', **params, error4=str(ex))
+    return render_template('add_result.html', **params, error4='Школьники разделены по классам')
 
 
-@app.route('/<int:iti_id>/<path:path3>/share_results')
+@app.route('/<int:iti_id>/<int:subject_id>/share_results')
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
-def share_results(iti: Iti, path3):
-    path2 = 'individual'
-    params = page_params(iti.id, path2, path3)
-    url = 'add_result.html'
+@check_access(block=True)
+def share_results(iti: Iti, subject_id: int):
     try:
-        subject = path_to_subject(path3)
+        subject = Subject.select(subject_id)
+        if subject is None:
+            raise ValueError()
     except Exception:
-        return render_template(url, **params, error3='Некорректные данные')
+        return forbidden_error()
 
-    if ItiSubject.select(iti.id, subject) is None:
-        return render_template(url, **params, error3='Такого предмета нет в этом году.')
+    params = individual_page_params(iti, subject)
+    ys = ItiSubject.select(iti.id, subject.id)
+    if ys is None:
+        return render_template('add_result.html', **params, error3='Такого предмета нет в этом году.')
+    if not check_role(roles=[UserRoleItiSubject.SHARE_RESULT], iti_id=iti.id, iti_subject_id=ys.id):
+        return render_template('add_result.html', **params, error3='У вас не доступа к этому предмету')
     try:
-        Generator.gen_results(Iti.select(iti.id), subject, str(iti.id) + '/' + path3)
+        Generator.gen_individual_results(Iti.select(iti.id), subject.id, '{}/{}.html'.format(iti.id, subject.id))
     except ValueError as ex:
-        return render_template(url, **params, error3=str(ex))
-    message_results_public(iti.id, subject)
-    return render_template(url, **params, error3='Результаты опубликованы')
+        return render_template('add_result.html', **params, error3=str(ex))
+    message_results_public(iti.id, subject.id)
+    return render_template('add_result.html', **params, error3='Результаты опубликованы')
 
 
 @app.route("/<int:iti_id>/ratings_update")
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def ratings_update(iti: Iti):
     Generator.gen_ratings(iti)
     message_ratings_public(iti.id)
-    return render_template(str(iti.id) + '/rating.html', error='Рейтинги обновлены')
+    return render_template(str(iti.id) + '/rating.html', error='Рейтинги обновлены', iti=iti)
 
 
-@app.route('/<int:iti_id>/<path:path3>/share_group_results')
+@app.route('/<int:iti_id>/<int:subject_id>/share_group_results')
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
-def share_group_results(iti: Iti, path3):
+@check_access(block=True)
+def share_group_results(iti: Iti, subject_id: int):
     try:
-        params = group_page_params(iti.id, path3)
         try:
-            subject = path_to_subject(path3)
+            subject = Subject.select(subject_id)
+            if subject is None:
+                raise ValueError()
         except Exception:
-            return render_template('/add_result.html', **params, error2='Некорректные данные')
+            return forbidden_error()
 
-        if ItiSubject.select(iti.id, subject) is None:
+        params = group_page_params(iti, subject)
+        ys = ItiSubject.select(iti.id, subject.id)
+        if ys is None:
             return render_template('/add_result.html', **params, error2='Такого предмета нет в этом году.')
-        Generator.gen_group_results(iti.id, subject, str(iti.id) + '/' + path3)
-        message_results_public(iti.id, subject)
+        if not check_role(roles=[UserRoleItiSubject.SHARE_RESULT], iti_id=iti.id, iti_subject_id=ys.id):
+            return render_template('/add_result.html', **params, error2='У вас не доступа к этому предмету')    
+        Generator.gen_group_results(iti, subject.id, '{}/{}.html'.format(iti.id, subject.id))
+        message_results_public(iti.id, subject.id)
         return render_template(str(iti.id) + '/add_result.html', **params, error2='Результаты опубликованы')
     except Exception as ex:
         import traceback
@@ -195,11 +183,10 @@ def share_group_results(iti: Iti, path3):
 @app.route('/<int:iti_id>/share_all_results')
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def share_all_results(iti: Iti):
     try:
         ys = ItiSubject.select_by_iti(iti.id)
-        params = {}
         url = str(iti.id) + '/rating.html'
         errors = []
         subjects = []
@@ -209,17 +196,17 @@ def share_all_results(iti: Iti):
             try:
                 suf = str(subject.id) + '.html'
                 if subject.type == 'i':
-                    Generator.gen_results(iti, subject.id, str(iti.id) + '/' + suf)
+                    Generator.gen_individual_results(iti, subject.id, str(iti.id) + '/' + suf)
                 else:
-                    Generator.gen_group_results(iti.id, subject.id, str(iti.id) + '/' + suf)
+                    Generator.gen_group_results(iti, subject.id, str(iti.id) + '/' + suf)
             except ValueError:
                 errors.append(subject.name)
         Generator.gen_ratings(iti)
         if errors:
-            return render_template(url, **params, error=', '.join(errors) + ' имеют неправильные результаты.')
+            return render_template(url, error=', '.join(errors) + ' имеют неправильные результаты.', iti=iti)
         else:
             message_all_ratings_public(iti.id, subjects)
-            return render_template(url, **params, error='Рейтинги обновлены')
+            return render_template(url, error='Рейтинги обновлены', iti=iti)
     except Exception as ex:
         import traceback
         return str(ex) + '<br><br>' + str(traceback.format_exc())

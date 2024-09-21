@@ -1,62 +1,68 @@
-<!-- login required -->
 {% extends "base.html" %}
 
 {% block content %}
 <h1>{{h_sub_name}}</h1>
 <div class="row col-12 justify-content-center">
-	<div class="col table-col-450px"><center>
-		<h1>Максимальный балл</h1>
-		<form onsubmit="year_subject_edit(this, 'score'); return false;">
-			{% for score in scores %}
-				<p>{{ score.class_n }} класс: <input type="text" name="score_{{ score.class_n }}" value="{{ score.max_value }}"></p>
-			{% endfor %}
-			<p>Если оставить поле пустыми (или поставить 0), то данного предмета для данного класса не будет.</p>
-			<input type="submit" value="Сохранить">
-		</form>
-	</center></div>
-	<div class="col table-col-450px"><center>
-		<h1>Сохранение результатов</h1>
-		<form onsubmit="result_save(this); return false;">
-			<p>Код участника: <input id="results_for_focus" type="text" name="code"></p>
-			<p>Результат: <input type="text" name="result"></p>
-			<p>Введите баллы за все задачи. Разделитель между числами может быть любым; десятичный разделитель — ',' или '.'.
-				Симолы 'х', 'Х', 'x', 'X' распознаются как задачи, к которым участник не писал решение.</p>
-			<input type="submit" value="Сохранить">
-		</form>
-		<br>
-		<h2>Загрузка из Excel</h2>
-		<form action="load_result" method="post" enctype=multipart/form-data>
-			<p>Файл: <input type="file" name="file"></p>
-			{% if error6 %}
-			{% for e in error6 %}
-			<p class="error-msg">{{ e }}</p>
-			{% endfor %}
-			{% endif %}
-			<input type="submit" value="Сохранить">
-		</form>
-	</center></div>
-
-	{% if adm %}
-	<div class="col table-col-450px"><center>
-		<h1><a href="class_split_results">Разделить результаты по классам</a></h1>
-		<p>Школьники разделятся на классы по данным, занесённым в систему.</p>
-		<p>Если школьник останется в классе "?", то его штрих-код ещё не внесён в систему.</p>
-		{% if error4 %} <p class="error-msg">[ {{ error4 }} ]</p>
-		{% endif %}
-		<br>
-		<h1><a href="share_results">Публикация результатов</a></h1>
-		<p>После публикации результатов они станут доступны для просмотра всем.</p>
-		<p>Не рекомендуется публиковать результаты до проверки всех работ по данному предмету.</p>
-		{% if error3 %} <p class="error-msg">[ {{ error3 }} ]</p>
-		{% endif %}
-		<br>
-		<h1>Удаление результатов</h1>
-		<form onsubmit="result_delete(this); return false;">
-			<p>Код участника: <input type="text" name="code"></p>
-			<input type="submit" value="Удалить">
-		</form>
-	</center></div>
+	{% if check_role(roles=[UserRoleItiSubject.EDIT_SCORE], iti_id=iti_id, iti_subject_id=iti_subject_id) %}
+		<div class="col table-col-450px"><center>
+			<h1>Максимальный балл</h1>
+			<form onsubmit="year_subject_edit(this, 'score'); return false;">
+				{% for score in scores %}
+					<p>{{ score.class_n }} класс: <input type="text" name="score_{{ score.class_n }}" value="{{ score.max_value }}"></p>
+				{% endfor %}
+				<p>Если оставить поле пустыми (или поставить 0), то данного предмета для данного класса не будет.</p>
+				<input type="submit" value="Сохранить">
+			</form>
+		</center></div>
 	{% endif %}
+	{% if check_role(roles=[UserRoleItiSubject.ADD_RESULT], iti_id=iti_id, iti_subject_id=iti_subject_id) %}
+		<div class="col table-col-450px"><center>
+			<h1>Сохранение результатов</h1>
+			<form onsubmit="result_save(this); return false;">
+				<p>Код участника: <input id="results_for_focus" type="text" name="code"></p>
+				<p>Результат: <input type="text" name="result"></p>
+				<p>Введите баллы за все задачи. Разделитель между числами может быть любым; десятичный разделитель — ',' или '.'.
+					Симолы 'х', 'Х', 'x', 'X' распознаются как задачи, к которым участник не писал решение.</p>
+				<input type="submit" value="Сохранить">
+			</form>
+			<br>
+			<h2>Загрузка из Excel</h2>
+			<form action="load_result" method="post" enctype=multipart/form-data>
+				<p>Файл: <input type="file" name="file"></p>
+				{% if error6 %}
+				{% for e in error6 %}
+				<p class="error-msg">{{ e }}</p>
+				{% endfor %}
+				{% endif %}
+				<input type="submit" value="Сохранить">
+			</form>
+		</center></div>
+	{% endif %}
+	<div class="col table-col-450px"><center>
+		{% if check_role(roles=[UserRoleItiSubject.SPLIT_CLASS], iti_id=iti_id, iti_subject_id=iti_subject_id) %}
+			<h1><a href="class_split_results">Разделить результаты по классам</a></h1>
+			<p>Школьники разделятся на классы по данным, занесённым в систему.</p>
+			<p>Если школьник останется в классе "?", то его штрих-код ещё не внесён в систему.</p>
+			{% if error4 %} <p class="error-msg">[ {{ error4 }} ]</p>
+			{% endif %}
+			<br>
+		{% endif %}
+		{% if check_role(roles=[UserRoleItiSubject.SHARE_RESULT], iti_id=iti_id, iti_subject_id=iti_subject_id) %}
+			<h1><a href="share_results">Публикация результатов</a></h1>
+			<p>После публикации результатов они станут доступны для просмотра всем.</p>
+			<p>Не рекомендуется публиковать результаты до проверки всех работ по данному предмету.</p>
+			{% if error3 %} <p class="error-msg">[ {{ error3 }} ]</p>
+			{% endif %}
+			<br>
+		{% endif %}
+		{% if check_role(roles=[UserRoleItiSubject.DELETE_RESULT], iti_id=iti_id, iti_subject_id=iti_subject_id) %}
+			<h1>Удаление результатов</h1>
+			<form onsubmit="result_delete(this); return false;">
+				<p>Код участника: <input type="text" name="code"></p>
+				<input type="submit" value="Удалить">
+			</form>
+		{% endif %}
+	</center></div>
 </div>
 <br>
 {% if top %}

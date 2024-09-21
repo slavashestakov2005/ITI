@@ -7,8 +7,8 @@ class ExcelDiplomaWriter(ExcelParentWriter):
         new_data, sz = [], 3
         for x in data:
             student, position, subject = x
-            x = ['учени{} {} класса'.format('ца' if student.gender == '1' else 'к', student.class_name()), student.name(),
-                 'за {} место'.format(position), *subject.diploma.split(r'\n')]
+            x = ['учени{} {} класса'.format('ца' if student['gender'] == '1' else 'к', student['class']), student['name_all'],
+                 'за {} место'.format(position), *subject['diploma'].split(r'\n')]
             sz = max(sz, len(x))
             new_data.append(x)
         self.__write__(worksheet, new_data, border=sz)
@@ -21,18 +21,18 @@ class ExcelDiplomaWriter(ExcelParentWriter):
     
     @staticmethod
     def order_ind_diploma(x):
-        return x[2].id, x[0].class_n, x[1], x[0].class_latter(), x[0].name()
+        return x[2]['id'], x[0]['class_n'], x[1], x[0]['class_latter'], x[0]['name_all']
 
     @staticmethod
     def order_gr_diploma(x):
-        return x[2].id, x[1], x[0].class_n, x[0].class_latter(), x[0].name()
+        return x[2]['id'], x[1], x[0]['class_n'], x[0]['class_latter'], x[0]['name_all']
 
     def write(self, filename: str, diplomas: list, subjects: dict, students: dict):
         dip1, dip2, dip3 = [], [], []
         for diploma in diplomas:
             student_id, subject_id, place = diploma
             student, subject = students[student_id], subjects[subject_id]
-            line, tp = [student, place, subject], subject.type
+            line, tp = [student, place, subject], subject['type']
             if tp == 'i':
                 dip1.append(line)
             elif tp == 'g':

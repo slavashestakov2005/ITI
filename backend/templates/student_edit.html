@@ -1,4 +1,3 @@
-<!-- login required -->
 {% extends "base.html" %}
 
 {% block content %}
@@ -54,7 +53,7 @@
 			{% if iti %}
 			<div class="col-auto">
 				{% for c in iti.classes_list() %}
-				<p><a href="students_{{ c }}.html">{{ c }}&nbsp;класс</a></p>
+				<p><a href="students_{{ c }}">{{ c }}&nbsp;класс</a></p>
 				{% endfor %}
 			</div>
 			{% endif %}

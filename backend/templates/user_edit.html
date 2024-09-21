@@ -6,7 +6,7 @@
 			<p>Логин: <input type="text" name="login"></p>
 			<p>Пароль: <input type="text" name="password"></p>
 			<p>Подтверждение пароля: <input type="text" name="password2"></p>
-			{% include "subjects.html" %}
+			{% include "roles_global.html" %}
 			<input type="submit" value="Создать">
 		</form>
 	</div>
@@ -14,7 +14,7 @@
 		<h1>Изменить роль</h1>
 		<form onsubmit="user_edit_status(this); return false;">
 			<p>ID: <input type="text" name="id"></p>
-			{% include "subjects.html" %}
+			{% include "roles_global.html" %}
 			<input type="submit" value="Изменить">
 		</form>
 	</div>
@@ -29,97 +29,103 @@
 			<thead><tr>
 				<th width="5%">ID</th>
 				<th width="10%">Логин</th>
-				<th width="10%">Статус</th>
+				<th width="10%">Роли</th>
 			</tr></thead>
+			
+			<tr>
+				<td>1</td>
+				<td>slava</td>
+				<td>FULL</td>
+			</tr>
 			
 			<tr>
 				<td>2</td>
 				<td>Savokina</td>
-				<td>admin</td>
+				<td>CHANGE_ITI, CHANGE_SUBJECT, CHANGE_MESSAGE, CHANGE_SCHOOL, CHANGE_STUDENT, CHANGE_USER</td>
 			</tr>
 			
 			<tr>
 				<td>3</td>
 				<td>Prokhodskii</td>
-				<td>admin</td>
+				<td>CHANGE_MESSAGE</td>
 			</tr>
 			
 			<tr>
 				<td>4</td>
 				<td>Martynova</td>
-				<td>admin</td>
+				<td>CHANGE_SUBJECT, CHANGE_MESSAGE, CHANGE_STUDENT</td>
 			</tr>
 			
 			<tr>
 				<td>5</td>
 				<td>Grachev</td>
-				<td>admin</td>
+				<td>CHANGE_MESSAGE, CHANGE_USER</td>
 			</tr>
 			
 			<tr>
 				<td>6</td>
 				<td>Scaner-1</td>
-				<td>scaner</td>
+				<td></td>
 			</tr>
 			
 			<tr>
 				<td>7</td>
 				<td>matem</td>
-				<td>Мат.</td>
+				<td></td>
 			</tr>
 			
 			<tr>
 				<td>8</td>
 				<td>english</td>
-				<td>Анг.</td>
+				<td></td>
 			</tr>
 			
 			<tr>
 				<td>9</td>
-				<td>iso</td>
-				<td>Иск.; Иск.</td>
+				<td>izo</td>
+				<td></td>
 			</tr>
 			
 			<tr>
 				<td>10</td>
 				<td>tehnolog</td>
-				<td>Тех.; Тех.</td>
+				<td></td>
 			</tr>
 			
 			<tr>
 				<td>11</td>
 				<td>istor</td>
-				<td>Общ.</td>
+				<td></td>
 			</tr>
 			
 			<tr>
 				<td>12</td>
 				<td>slovo</td>
-				<td>Лит.; Рус.</td>
+				<td></td>
 			</tr>
 			
 			<tr>
 				<td>13</td>
 				<td>est</td>
-				<td>Ест.</td>
+				<td></td>
 			</tr>
 			
 			<tr>
 				<td>14</td>
 				<td>info</td>
-				<td>Инф.</td>
+				<td></td>
 			</tr>
 			
 			<tr>
 				<td>15</td>
 				<td>fingr</td>
-				<td>Фин.</td>
+				<td></td>
 			</tr>
 			
 			<tr>
 				<td>16</td>
 				<td>itsn</td>
-				<td>ИЦН</td>
+				<td></td>
 			</tr>
 			
 		</table>

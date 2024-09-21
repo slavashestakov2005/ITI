@@ -1,6 +1,5 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
-from sqlalchemy.orm import Session
 import sqlalchemy.ext.declarative as dec
 
 from .__config_db import ConfigDB
@@ -29,7 +28,7 @@ def global_init(db_file: str):
     SqlAlchemyBase.metadata.create_all(engine)
 
 
-def create_session() -> Session:
+def create_session() -> orm.Session:
     global __factory
     return __factory()
 

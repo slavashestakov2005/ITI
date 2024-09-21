@@ -22,12 +22,13 @@ class ExcelItiWriter(ExcelParentWriter):
 
     def write(self):
         self.__styles__(self.filename)
-        iti_subject_score, result, subject_student = [], [], []
+        iti_subject_score, result, subject_student, subject_roles = [], [], [], []
         group_result, team_student = [], []
         for iti_subject in ItiSubject.select_by_iti(self.iti_id):
             iti_subject_score.extend(ItiSubjectScore.select_by_iti_subject(iti_subject.id))
             result.extend(Result.select_by_iti_subject(iti_subject.id))
             subject_student.extend(SubjectStudent.select_by_iti_subject(iti_subject.id))
+            subject_roles.extend(RoleItiSubject.select_by_iti_subject(iti_subject.id))
         for team in Team.select_by_iti(self.iti_id):
             group_result.extend(GroupResult.select_by_team(team.id))
             team_student.extend(TeamStudent.select_by_team(team.id))
@@ -41,6 +42,8 @@ class ExcelItiWriter(ExcelParentWriter):
         self.parse_data(ItiSubjectScore, iti_subject_score)
         self.parse_data(Message, Message.select_by_iti(self.iti_id))
         self.parse_data(Result, result)
+        self.parse_data(RoleIti, RoleIti.select_by_iti(self.iti_id))
+        self.parse_data(RoleItiSubject, subject_roles)
         self.parse_data(School, School.select_all())
         self.parse_data(Student, Student.select_all())
         self.parse_data(StudentClass, StudentClass.select_by_iti(self.iti_id))
@@ -49,4 +52,5 @@ class ExcelItiWriter(ExcelParentWriter):
         self.parse_data(Team, Team.select_by_iti(self.iti_id))
         self.parse_data(TeamConsent, TeamConsent.select_by_iti(self.iti_id))
         self.parse_data(TeamStudent, team_student)
+        self.parse_data(User, User.select_all())
         self.workbook.close()

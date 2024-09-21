@@ -90,7 +90,17 @@ function user_delete(form) {
 }
 
 function user_edit_status(form) {
-    let data = parseForm(form, {'password': '', 'password_old': '', 'type': 'status'});
+    let data = parseForm(form, {'type': 'role-global'});
+    makeRequest('user/' + data['id'], 'put', data);
+}
+
+function role_edit_iti(form) {
+    let data = parseForm(form, {'type': 'role-iti', 'iti_id': urlIti()});
+    makeRequest('user/' + data['id'], 'put', data);
+}
+
+function role_edit_iti_subject(form) {
+    let data = parseForm(form, {'type': 'role-iti-subject', 'iti_id': urlIti()});
     makeRequest('user/' + data['id'], 'put', data);
 }
 
@@ -99,7 +109,7 @@ function user_settings(form) {
     if (!password_old) { alert('Пустой старый пароль'); return; }
     if (password !== password2) { alert('Пароли не совпадают'); return; }
     if (!password) { alert('Пустой пароль'); return; }
-    makeRequest('user/' + id, 'put', {'status': [], 'password': password, 'password_old': password_old, 'type': 'password'});
+    makeRequest('user/' + id, 'put', {'password': password, 'password_old': password_old, 'type': 'password'});
 }
 
 // iti

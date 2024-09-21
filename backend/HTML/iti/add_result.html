@@ -1,5 +1,4 @@
-<!-- login required -->
-<!-- replace 1 -->
+{% raw %}{% extends "base.html" %}{% block content %}{% endraw %}
 <div class="row col-12 justify-content-center">
 	<div class="col table-col-450px"><center>
 		<h1>Сохранение результатов</h1>
@@ -12,11 +11,11 @@
 		</form>
 	</center></div>
 	<div class="col table-col-450px"><center>
-		{% raw %}{% if adm %}
+		{% raw %}{% if check_role(roles=[UserRoleItiSubject.SHARE_RESULT], iti_id=iti.id, iti_subject_id=ys.id) %}
 		<h1><a href="share_group_results">Публикация результатов</a></h1>
 		<p>После публикации результатов они станут доступны для просмотра всем.</p>
 		{% if error2 %} <p class="error-msg">[ {{ error2 }} ]</p>{% endif %}
 		{% endif %}{% endraw %}
 	</center></div>
 </div>
-<!-- replace 2 -->
+{% raw %}{% endblock %}{% endraw %}

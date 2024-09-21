@@ -1,4 +1,4 @@
-<!-- replace 1 -->
+{% raw %}{% extends "base.html" %}{% block content %}{% endraw %}
 
 <script>let pre_filter = false;</script>
 {% from "iti/macro_filters.html" import filter_classes %}
@@ -9,7 +9,7 @@
     <br>
     <p class="invisible"><button id="filter-do" onclick="filterResults(1, 2, 3, true, true, ['js-table-for-excel-body'])">Фильтровать</button></p>
     <p><button onclick="TableToExcel.convert(document.getElementById('sorted-table'));">Скачать таблицу как Excel</button></p>
-    <p><a href="" onclick="getClassesExcel({{ year }}); return false;">Скачать данные по параллелям</a></p>
+    <p><a href="" onclick="getClassesExcel({{ iti.id }}); return false;">Скачать данные по параллелям</a></p>
     <div class="row justify-content-center">
         <div class="col-auto">
             <table class="js-table-color-place" id="sorted-table" data-cols-width="10,10,10,18">
@@ -30,11 +30,12 @@
     </div>
 </center>
 <script>
-    let results = {{ results | tojson }};
+    let students = {{ students }}, ind_subjects = {{ ind_subjects }}, ind_results = {{ ind_results }}, group_results = {{ group_results }};
+    let group_subjects = {{ group_subjects }}, iti = {{ iti.json() }};
     let tableData = generateClassesTableData();
     generateAllTable();
     preparePageForConvert();
     initAutoFilter('class_value');
 </script>
 
-<!-- replace 2 -->
+{% raw %}{% endblock %}{% endraw %}

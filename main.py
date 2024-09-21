@@ -6,16 +6,13 @@ load_dotenv('.env')
 
 from backend import app
 from backend.help import start_debug, init_mail_messages
-from backend.queries.help import parse_files
 
 import logging
 
 logging.basicConfig(filename="logs.log", level=logging.DEBUG)
 
 
-parse_files()
 start_debug()
 init_mail_messages()
-# FileManager.restore_all() # база данных на сайте обрезает концы файлов
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)

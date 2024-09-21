@@ -1,4 +1,4 @@
-<!-- replace 1 -->
+{% raw %}{% extends "base.html" %}{% block content %}{% endraw %}
 <center><h1>{{ subject_name }}</h1></center>
 
 <center><h2>Результаты</h2></center>
@@ -9,8 +9,8 @@
                 <th width="5%">Место</th>
                 <th width="15%">Команда</th>
                 <th width="10%">Балл в рейтинг</th>
-                {% if results.__len__() > 0 and results[0].__len__() > 3 %}
-                    <th width="60%" colspan="{{ results[0].__len__() - 3 }}"><center>Участники</center></th>
+                {% if teams_size > 0 %}
+                    <th width="60%" colspan="{{ teams_size }}"><center>Участники</center></th>
                 {% endif %}
             </tr>
         </thead>
@@ -25,4 +25,4 @@
 </div>
 <script>colorizePlaces();</script>
 
-<!-- replace 2 -->
+{% raw %}{% endblock %}{% endraw %}

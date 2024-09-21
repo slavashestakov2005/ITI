@@ -45,9 +45,11 @@ def login():
     return render_template(TEMPLATE)
 
 
-@app.route("/eljur_login", methods=['POST'])
+@app.route("/eljur_login", methods=['GET', 'POST'])
 @cross_origin()
 def eljur_login():
+    if request.method == 'GET':
+        return render_template(ELJUR_LOGIN)
     try:
         user_login = request.form['login']
         user_password = request.form['password']

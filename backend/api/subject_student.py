@@ -1,7 +1,8 @@
 from flask_restful import reqparse, Resource
 
-from ..api import api_group
+from ..api import api_group, ApiStatus
 from ..database import IndDayStudent, ItiSubject, SubjectStudent
+from ..help import check_role, UserRoleIti
 
 
 parser_simple = reqparse.RequestParser()
@@ -11,9 +12,11 @@ parser_simple.add_argument('old_subject', required=False, type=str, action='appe
 
 
 class SubjectStudentListResource(Resource):
-    @api_group('admin')
+    @api_group()
     def post(self):
         args = parser_simple.parse_args()
+        if not check_role(roles=[UserRoleIti.ADMIN], iti_id=args['year']):
+            return ApiStatus.ACCESS_DENIED, {}
         subjects = set(args['subject'])
         old_subjects = set(args['old_subject'])
         different = subjects.symmetric_difference(old_subjects)
@@ -33,4 +36,4 @@ class SubjectStudentListResource(Resource):
                     IndDayStudent.insert(t)
                 else:
                     IndDayStudent.delete(t)
-        return True, {'message': 'Сохранено'}
+        return ApiStatus.OK, {'message': 'Сохранено'}

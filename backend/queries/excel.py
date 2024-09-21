@@ -6,12 +6,12 @@ from backend import app
 from .auto_generator import Generator
 from .file_creator import FileCreator
 from .full import _delete_iti
-from .help import check_access, path_to_subject
-from .results import page_params
+from .help import check_access
+from .results import individual_page_params
 from ..config import Config
 from ..database import Code, Iti, ItiSubject, School, Student, Subject
 from ..excel import ExcelCodesWriter, ExcelFullReader, ExcelFullWriter, ExcelItiWriter, ExcelResultsReader, ExcelStudentsReader
-from ..help import FileNames
+from ..help import FileNames, forbidden_error, UserRoleGlobal, UserRoleIti
 
 '''
     /load_data_from_excel_all               Загружает все данные из Excel (full).
@@ -26,7 +26,7 @@ from ..help import FileNames
 @app.route('/load_data_from_excel_all', methods=['POST'])
 @cross_origin()
 @login_required
-@check_access(status='full')
+@check_access(roles=[UserRoleGlobal.FULL])
 def load_data_from_excel_all():
     file = request.files['file']
     filename = Config.DATA_FOLDER + '/sheet_all.' + file.filename.rsplit('.', 1)[1]
@@ -50,9 +50,9 @@ def load_data_from_excel_all():
             subject = subjects[iti_subject.subject_id]
             filename = '{}/{}.html'.format(iti_id, iti_subject.subject_id)
             if subject.type == 'i':
-                Generator.gen_results(iti, iti_subject.subject_id, filename)
+                Generator.gen_individual_results(iti, iti_subject.subject_id, filename)
             elif subject.type == 'g' or subject.type == 'a':
-                Generator.gen_group_results(iti_id, iti_subject.subject_id, filename)
+                Generator.gen_group_results(iti, iti_subject.subject_id, filename)
         Generator.gen_ratings(iti)
         students = {_.id: _ for _ in Student.select_by_iti(iti)}
         codes = Code.select_by_iti(iti_id)
@@ -69,7 +69,7 @@ def load_data_from_excel_all():
 @app.route('/load_data_from_excel_students', methods=['POST'])
 @cross_origin()
 @login_required
-@check_access(status='admin')
+@check_access(roles=[UserRoleGlobal.FULL])
 def load_data_from_excel_students():
     try:
         file = request.files['file']
@@ -87,7 +87,7 @@ def load_data_from_excel_students():
 @app.route('/download_db', methods=['GET'])
 @cross_origin()
 @login_required
-@check_access(status='admin')
+@check_access(roles=[UserRoleGlobal.FULL])
 def download_db():
     store_name, send_name = FileNames.data_all_excel()
     ExcelFullWriter(Config.DATA_FOLDER + '/' + store_name).write()
@@ -98,7 +98,7 @@ def download_db():
 @app.route('/<int:iti_id>/download_iti', methods=['GET'])
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def download_iti(iti: Iti):
     store_name, send_name = FileNames.data_excel(iti)
     ExcelItiWriter(Config.DATA_FOLDER + '/' + store_name, iti.id).write()
@@ -109,33 +109,36 @@ def download_iti(iti: Iti):
 @app.route('/<int:iti_id>/download_diploma', methods=['GET'])
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def download_diploma(iti: Iti):
     store_name, send_name = FileNames.diploma_excel(iti)
     filename = './data/' + store_name
     return send_file(filename, as_attachment=True, download_name=send_name)
 
 
-@app.route('/<int:iti_id>/<path:path3>/load_result', methods=['POST'])
+@app.route('/<int:iti_id>/<int:subject_id>/load_result', methods=['POST'])
 @cross_origin()
 @login_required
 @check_access(block=True)
-def load_result(iti: Iti, path3):
-    path2 = 'individual'
-    url = 'add_result.html'
+def load_result(iti: Iti, subject_id: int):
     try:
-        subject = path_to_subject(path3)
+        subject = Subject.select(subject_id)
+        if subject is None:
+            raise ValueError()
+    except Exception:
+        return forbidden_error()
+
+    try:
         file = request.files['file']
         parts = [x.lower() for x in file.filename.rsplit('.', 1)]
-        filename = Config.DATA_FOLDER + '/load_' + str(iti.id) + '_' + str(subject) + '.' + parts[1]
+        filename = Config.DATA_FOLDER + '/load_' + str(iti.id) + '_' + str(subject.id) + '.' + parts[1]
     except Exception:
-        params = page_params(iti.id, path2, path3)
-        return render_template(url, **params, error6=['[ Некорректные данные ]'])
+        params = individual_page_params(iti.id, subject.id)
+        return render_template('add_result.html', **params, error6=['[ Некорректные данные ]'], iti=iti)
 
     file.save(filename)
-    # FileManager.save(filename)
-    txt = ExcelResultsReader(filename, iti.id, subject).read(current_user)
-    params = page_params(iti.id, path2, path3)
+    txt = ExcelResultsReader(filename, iti.id, subject.id).read(current_user)
+    params = individual_page_params(iti.id, subject.id)
     if txt:
-        return render_template(url, **params, error6=txt)
-    return render_template(url, **params, error6=['[ Сохранено ]'])
+        return render_template('add_result.html', **params, error6=txt, iti=iti)
+    return render_template('add_result.html', **params, error6=['[ Сохранено ]'], iti=iti)

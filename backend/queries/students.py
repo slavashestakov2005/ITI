@@ -6,6 +6,7 @@ from backend import app
 from .auto_generator import Generator
 from .help import check_access
 from ..database import Iti
+from ..help import UserRoleIti
 
 '''
     /<iti_id>/create_students_lists         Генерирует списки школьников ИТИ по классам (admin).
@@ -15,7 +16,7 @@ from ..database import Iti
 @app.route("/<int:iti_id>/create_students_lists")
 @cross_origin()
 @login_required
-@check_access(status='admin', block=True)
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
 def create_students_lists(iti: Iti):
     for class_num in iti.classes_list():
         Generator.gen_students_list(iti.id, int(class_num))

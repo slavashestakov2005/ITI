@@ -1,0 +1,13 @@
+<h2>Роли ИТИ:</h2>
+<table width="100%">
+    <tr>
+        <td>
+            {% for role in UserRoleIti %}
+                {% if check_role(roles=[role], iti_id=iti.id) %}
+                    <p><input type="checkbox" name="status" value="{{ role.value }}"> {{ role.name }}</p>
+                {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+<p>Роль ADMIN даёт доступ ко всем предметам.</p>

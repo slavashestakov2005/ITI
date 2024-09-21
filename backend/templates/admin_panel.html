@@ -6,18 +6,14 @@
     <div class="col">
         <h2>Глобальные настройки</h2>
         <ul>
-            {% if adm %}
-            <li><a href="user_edit.html">Пользователи (учителя)</a></li>
-            <li><a href="years_edit.html">Создать ИТИ</a></li>
-            <li><a href="subjects_edit.html">Создать предмет</a></li>
-            <li><a href="school_edit.html">Создать школу</a></li>
-            <li><a href="settings.html">Настройки пользователя</a></li>
-            <li><a href="upload_excel.html">Загрузить Excel на сайт</a></li>
-            {% else %}
-            <li><a href="settings.html">Настройки пользователя</a></li>
-            {% endif %}
+            {% if check_role(roles=[UserRoleGlobal.CHANGE_USER]) %}<li><a href="user_edit">Создать пользователя (учителя)</a></li>{% endif %}
+            {% if check_role(roles=[UserRoleGlobal.CHANGE_ITI]) %}<li><a href="years_edit">Создать ИТИ</a></li>{% endif %}
+            {% if check_role(roles=[UserRoleGlobal.CHANGE_SUBJECT]) %}<li><a href="subjects_edit">Создать предмет</a></li>{% endif %}
+            {% if check_role(roles=[UserRoleGlobal.CHANGE_SCHOOL]) %}<li><a href="school_edit">Создать школу</a></li>{% endif %}
+            <li><a href="settings">Настройки пользователя</a></li>
+            {% if check_role(roles=[UserRoleGlobal.FULL]) %}<li><a href="upload_excel">Загрузить Excel на сайт</a></li>{% endif %}
             <li><a target="_blank" href="https://drive.google.com/drive/folders/1WF8ALf5ctRKGO5r7q5AP5IopGNHC8Va5?usp=drive_link">Приложение «ИТИ-сканер»</a></li>
-            <li><a target="_blank" href="https://github.com/slavashestakov2005/ITI">Github (с описанием всех Excel документов в частности).</a></li>
+            <li><a target="_blank" href="https://github.com/slavashestakov2005/ITI">Github (с описанием всех Excel документов в частности)</a></li>
         </ul>
     </div>
     <div class="col">
@@ -26,18 +22,17 @@
         {% else %}<ul>
             {% if adm %}
             <li><a href="{{ iti.id }}/year_block">Блокировка ИТИ</a></li>
-            <li><a href="{{ iti.id }}/subjects_for_year.html">Предметы и расписание ИТИ</a></li>
-            <li><a href="{{ iti.id }}/messages_for_year.html">Объявления ИТИ (новости на главной странице)</a></li>
-            <li><a href="{{ iti.id }}/student_edit.html">Участники ИТИ (школьники)</a></li>
+            <li><a href="{{ iti.id }}/subjects_for_year">Предметы и расписание ИТИ</a></li>
+            <li><a href="{{ iti.id }}/messages_for_year">Объявления ИТИ (новости на главной странице)</a></li>
+            <li><a href="{{ iti.id }}/student_edit">Участники ИТИ (школьники)</a></li>
             <li><a href="{{ iti.id }}/team_edit">Команды ИТИ</a></li>
-            <li><a href="{{ iti.id }}/codes.html">Коды участников</a></li>
-            {% if iti.encoding_type == 1 %}<li><a href="{{ iti.id }}/barcodes_edit.html">Редактирование штрих-кодов работ</a></li>{% endif %}
-            <li><a href="{{ iti.id }}/excel.html">Excel таблицы с данными</a></li>
-            {% else %}
-            <li><a href="{{ iti.id }}/team_edit">Команды ИТИ</a></li>
+            <li><a href="{{ iti.id }}/codes">Коды участников</a></li>
+            {% if iti.encoding_type == 1 %}<li><a href="{{ iti.id }}/barcodes_edit">Редактирование штрих-кодов работ</a></li>{% endif %}
+            <li><a href="{{ iti.id }}/excel">Excel таблицы с данными</a></li>
             {% endif %}
-            <li><a href="{{ iti.id }}/rating.html">Рейтинг</a></li>
-            <li><a href="{{ iti.id }}/timetable.html">Расписание</a></li>
+            {% if check_role(roles=[UserRoleGlobal.CHANGE_USER]) %}<li><a href="{{ iti.id }}/roles_edit">Роли пользователей ИТИ (учителей)</a></li>{% endif %}
+            <li><a href="{{ iti.id }}/rating">Рейтинг</a></li>
+            <li><a href="{{ iti.id }}/timetable">Расписание</a></li>
         </ul>{% endif %}
         <br>
         <h3>Выбор года</h3>
@@ -46,16 +41,16 @@
         {% endfor %}
     </div>
     <div class="col">
-        <h2>Настройки предмета {% if subject %} {{ subject.name }}, ID: {{ subject.id }} {% endif %}</h2>
+        <h2>Настройки предмета {% if subject %} {{ subject['subject'].name }}, ID: {{ subject['subject'].id }} {% endif %}</h2>
         {% if not subject %}<p>Предмет не выбран (для выбора предмета должен быть выбран год)</p>
-        {% elif not anon and current_user.can_do(subject.id) %}<ul>
-            <li><a href="{{ iti.id }}/{{ subject.id }}.html">Результаты</a></li>
-            <li><a href="{{ iti.id }}/{{ subject.id }}.html/add_result">Редактировать</a></li>
+        {% elif check_role(user=current_user, roles=[UserRoleItiSubject.ADD_RESULT, UserRoleItiSubject.EDIT_RESULT, UserRoleItiSubject.EDIT_SCORE, UserRoleItiSubject.DELETE_RESULT, UserRoleItiSubject.SPLIT_CLASS, UserRoleItiSubject.SHARE_RESULT], iti_id=subject['iti_subject'].iti_id, iti_subject_id=subject['iti_subject'].id) %}<ul>
+            <li><a href="{{ iti.id }}/{{ subject['subject'].id }}">Результаты</a></li>
+            <li><a href="{{ iti.id }}/{{ subject['subject'].id }}/add_result">Редактировать</a></li>
         </ul>{% endif %}
         <br>
         <h3>Выбор предмета</h3>
         {% for s in subjects %}
-            <li><a href="#" onclick="chooseSubject({{ s.id }})">{{ s.name }}</a></li>
+            <li><a href="#" onclick="chooseSubject({{ s['id'] }})">{{ s['info'].name }}</a></li>
         {% endfor %}
     </div>
 </div>

@@ -1,4 +1,4 @@
-<!-- replace 1 -->
+{% raw %}{% extends "base.html" %}{% block content %}{% endraw %}
 <div class="row col-12 justify-content-center">
 	<div class="col table-col-450px">
 		<h1>Новый пользователь</h1>
@@ -6,7 +6,7 @@
 			<p>Логин: <input type="text" name="login"></p>
 			<p>Пароль: <input type="text" name="password"></p>
 			<p>Подтверждение пароля: <input type="text" name="password2"></p>
-			{% raw %}{% include "subjects.html" %}{% endraw %}
+			{% raw %}{% include "roles_global.html" %}{% endraw %}
 			<input type="submit" value="Создать">
 		</form>
 	</div>
@@ -14,7 +14,7 @@
 		<h1>Изменить роль</h1>
 		<form onsubmit="user_edit_status(this); return false;">
 			<p>ID: <input type="text" name="id"></p>
-			{% raw %}{% include "subjects.html" %}{% endraw %}
+			{% raw %}{% include "roles_global.html" %}{% endraw %}
 			<input type="submit" value="Изменить">
 		</form>
 	</div>
@@ -29,16 +29,16 @@
 			<thead><tr>
 				<th width="5%">ID</th>
 				<th width="10%">Логин</th>
-				<th width="10%">Статус</th>
+				<th width="10%">Роли</th>
 			</tr></thead>
-			{% for user in users %}{% if not user.can_do(-2) %}
+			{% for user in users %}
 			<tr>
 				<td>{{ user.id }}</td>
 				<td>{{ user.login }}</td>
-				<td>{{ user.subjects_str(subjects) }}</td>
+				<td>{{ user.roles_global_str() }}</td>
 			</tr>
-			{% endif %}{% endfor %}
+			{% endfor %}
 		</table>
 	</div>
 </div>
-<!-- replace 2 -->
+{% raw %}{% endblock %}{% endraw %}

@@ -1,0 +1,11 @@
+<h2>Роли предмета:</h2>
+<table width="100%">
+    <tr>
+        <td>
+            {% for role in UserRoleItiSubject %}
+                <p><input type="checkbox" name="status" value="{{ role.value }}"> {{ role.name }}</p>
+            {% endfor %}
+        </td>
+    </tr>
+</table>
+<p>Обычный набор ролей для предметника ADD_RESULT и SPLIT_CLASS.</p>
