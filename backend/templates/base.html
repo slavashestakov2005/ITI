@@ -13,41 +13,47 @@
     <script src="/JS/scripts.js"></script>
     <script src="/JS/requests.js"></script>
     <script src="/JS/rating_tables.js"></script>
-    <link rel="stylesheet" href="/CSS/bootstrap.min.css">
-    <link rel="stylesheet" href="/CSS/menu.css">
-    <link rel="stylesheet" href="/CSS/style.css">
-    <link rel="stylesheet" href="/CSS/style_tables.css">
-    <link rel="stylesheet" href="/CSS/media.css">
+    <!-- <link rel="stylesheet" href="/CSS/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="/CSS/output.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap" rel="stylesheet">
     <link rel="icon" href="/Images/logo.png" type="image/x-icon">
-    <link href='https://fonts.googleapis.com/css?family=Lora' rel='stylesheet'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {{ moment.include_moment() }}
     {{ moment.lang('ru') }}
 </head>
-<body>
+
+
+<body class="font-family: 'Geologica', sans-serif;"> 
 <div class="wrapper">
-    <div class="content">
-        <div class="row justify-content-between">
-            <div class="col-auto header-logo-div">
-                <a href="/"><img class="header-logo-img" src="/Images/logo.png"></a>
-            </div>
-            <div class="col-auto header-text-div">
-                <p class="header-text-p">ИНТЕЛЛЕКТУАЛЬНО <br> ТВОРЧЕСКИЕ <br>ИГРЫ</p>
-            </div>
-            <div class="col-auto">
-                <div class="dropdown">
-                    <p class="dropbtn" data-toggle="dropdown">Личный кабинет</p>
-                    <div class="dropdown-menu">
-                        {% if anon %}
-                        <a class="dropdown-item" href="/login">Войти</a>
-                        {% else %}
-                        <a class="dropdown-item" href="#" onclick="adminPanel()">Редактирование</a>
-                        <a class="dropdown-item" href="/logout">Выйти</a>
-                        {% endif %}
-                    </div>
+    <div class="navigation">
+        <div class="content nav-content">
+            <div class="links">
+                <a href="/">
+                    <img class="logo" src="/Images/logo.svg" alt="Интеллектуально творческие игры">
+                </a>
+                <div class="nav-links">
+                    <a href="results" class="link">Результаты</a>
+                    <a href="news" class="link">Новости</a>
                 </div>
             </div>
+            <div class="right-side">
+                <form method="GET" action="main">
+                    <div class="search_res">
+                        <input type="search" name="q" placeholder="Фамилия Имя Класс" class="search-inp">
+                        <button type="submit" value="" class="search-submit">
+                            <img src="/Images/search-icon.svg" alt="">
+                        </button>
+                    </div>
+                </form>
+                <button type="submit" value="" class="more">
+                    <img src="/Images/menu-icon.svg" alt="">
+                </button>
+            </div>
         </div>
+    </div>
+    <div class="content">
         <div class="header-white-line"></div>
         {% block content %}{% endblock %}
         <div class="header-white-line"></div>
