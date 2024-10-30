@@ -206,7 +206,7 @@ def share_all_results(iti: Iti):
             return render_template(url, error=', '.join(errors) + ' имеют неправильные результаты.', iti=iti)
         else:
             message_all_ratings_public(iti.id, subjects)
-            return render_template(url, error='Рейтинги обновлены', iti=iti)
+            return render_template(url, error='Результаты по предметам и рейтинги обновлены', iti=iti)
     except Exception as ex:
         import traceback
         return str(ex) + '<br><br>' + str(traceback.format_exc())
