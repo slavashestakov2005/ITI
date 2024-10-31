@@ -95,8 +95,9 @@
     let tableData = generateTeamsTableData();
     filterResults(null, null, -1, false, false);
     let cols = [];
-    for(let row of tableData) {
-        for(let i = 2; i < row.length; ++i) cols.push(i);
+    for (let row of tableData) {
+        for (let i = 2; i < row.length; ++i) cols.push(i);
+        break;
     }
     colorizePlacesCols(cols);
 </script>
