@@ -97,6 +97,7 @@ def html_render(template_name: str, output_name: str, template_folder: str = Con
         data[key] = val
     data['krsk_moment'] = krsk_time
     data = template.render(**data)
-    data += '\n' if data[-1] != '\n' else ''
+    data = '\n'.join(line for line in data.splitlines() if len(line.strip()))
+    data += '\n'
     with open(output_folder + '/' + output_name, 'w', encoding='UTF-8') as f:
         f.write(data)

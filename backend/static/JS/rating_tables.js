@@ -21,19 +21,27 @@ function orderNumber(a, b) {
 function colorizePlacesCols(cols) {
     let tables = document.getElementsByClassName('js-table-color-place');
     for(let cur_table of tables) {
+        let header = cur_table.getElementsByTagName('thead')[0];
         let table = cur_table.getElementsByTagName('tbody')[0];
-        for(let col of cols) {
+        for (let col of cols) {
             let res = new Set();
-            for(let row of table.rows) {
+            for (let row of table.rows) {
                 let cell = row.cells[col].innerText;
                 res.add(cell);
             }
-            let results = Array.from(res);
-            results.sort(orderNumber);
-            for(let row of table.rows) {
-                let cell = row.cells[col].innerText;
-                let place = results.indexOf(cell) + 1;
-                if (1 <= place && place <= 3) row.cells[col].classList.add('p' + place);
+            if (res.size == 1 && +res.keys().next().value == 0) {      // удалить столбец со всеми 0
+                header.rows[0].cells[col].style.display = 'none';
+                for (let row of table.rows) {
+                    row.cells[col].style.display = 'none';
+                }
+            } else {    // раскрасить столбец
+                let results = Array.from(res);
+                results.sort(orderNumber);
+                for (let row of table.rows) {
+                    let cell = row.cells[col].innerText;
+                    let place = results.indexOf(cell) + 1;
+                    if (1 <= place && place <= 3) row.cells[col].classList.add('p' + place);
+                }
             }
         }
     }
