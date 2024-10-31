@@ -1,0 +1,48 @@
+.main{
+    display: flex;
+    margin-bottom: 50px;
+    @media (width <= 700px) {
+        flex-direction: column;
+        justify-content: center;
+    }
+    .iti_list{
+        margin-top: 200px;
+        width: 100%;
+        justify-content: center;
+        justify-items: center;
+        text-align: center;
+    }
+    .results{
+        margin-right: 10px;
+        min-width: 400px;
+        h3{
+            margin: 8px 0 0 0;
+        }
+        .result{
+            margin: 2px 0 0 5px;
+        }
+    }
+    .news{
+        .change_iti{
+            font-size: 20px;
+            color: black;
+            text-decoration: underline;
+        }
+        .message{
+            border-radius: 0.75rem;
+            box-shadow: 0 0 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            .message-title {
+                font-weight: bold;
+                font-size: 16pt;
+            }
+            .message-date {
+                font-size: 10pt;
+            }
+            .message-content {
+                margin-top: 10px;
+                font-size: 12pt;
+            }
+        }
+    }
+}

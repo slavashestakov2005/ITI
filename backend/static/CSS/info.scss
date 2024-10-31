@@ -33,7 +33,7 @@ body{
 
 
 /* elements */
-h1{ font-size: 24pt; text-align: center; }
+h1{ font-size: 24pt; }
 h2{ font-size: 18pt; }
 h3{ font-size: 15pt; }
 h4{ font-size: 12pt; }
@@ -62,46 +62,15 @@ h4{ font-size: 12pt; }
 }
 
 
-
-/* messages */
-.message {
-    margin-left: 0;
-    margin-right: 0;
-}
-
-.message-item {
-    background-color: var(--light-grey-color);
-    margin: 15px;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-.message-item:hover {
-    box-shadow: var(--box-shadow);
-    cursor: pointer;
-}
-
-.message-title {
-    font-weight: bold;
-    font-size: 15pt;
-    text-align: center;
-}
-
-.message-date {
-    font-size: 10pt;
-}
-
-.message-content {
-    font-size: 12pt;
-}
-
 .content{
     max-width: 81rem;
     padding-inline: 2rem;
     margin-inline: auto;
 }
 
-
+.danger-text{
+    color: red;
+}
 
 /* js elements */
 .js-textarea {

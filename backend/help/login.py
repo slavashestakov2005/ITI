@@ -27,7 +27,7 @@ def load_user(id):
 @cross_origin()
 def login():
     if current_user.is_authenticated:
-        return redirect('/')
+        return redirect('/admin_panel')
     if request.method == 'POST':
         try:
             user_login = request.form['login']
