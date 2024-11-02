@@ -5,6 +5,7 @@ import json
 from backend import app
 from .help import check_access
 from .results_raw import save_result_
+from ..config import Config
 from ..database import Barcode, Iti, ItiSubject, Student, StudentClass, Subject, User
 from ..help import check_role, UserRoleIti
 
@@ -14,6 +15,12 @@ from ..help import check_role, UserRoleIti
     /<iti_id>/save_barcodes                 Сохраняет таблицу с штрих-кодами (scaner).
     /<iti_id>/<subject_id>/save_results     Сохраняет результаты по предмету (предметник).
 '''
+
+
+@app.route("/scanner_version", methods=['POST'])
+@cross_origin()
+def scanner_version():
+    return jsonify({'status': 'OK', 'version': Config.SCANNER_VERSION})
 
 
 @app.route("/<int:iti_id>/student_info", methods=['POST'])

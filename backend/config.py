@@ -13,3 +13,4 @@ class Config:
     TEMPLATES_AUTO_RELOAD = True
 
     HOST = 'http://iti.univers.su/'
+    SCANNER_VERSION = os.getenv('SCANNER_VERSION')
