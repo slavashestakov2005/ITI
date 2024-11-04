@@ -6,13 +6,13 @@
 учителя информатики Инженерной школы (Вахитова Е.Ю.).  
 С 05.09.2021 дизайн сайта сделан с помощью Bootstrap.  
 Более подробная документация:
-1. [Excel](Excel.md) -- описание Excel-таблиц;
-2. [Функциональность](functional.md) -- описание функционала сайта.
-3. [Роли](roles.md) -- описание ролей.
+1. [Excel](docs/Excel.md) -- описание Excel-таблиц;
+2. [Функциональность](docs/functional.md) -- описание функционала сайта.
+3. [Роли](docs/roles.md) -- описание ролей.
 
 
 ## Ссылки
-+ Электронная почта `iti.univers106@gmail.com` (создана 2 августа для систематизации информации).
++ Электронная почта `iti.univers106@gmail.com` (создана 2 августа 2021 года для систематизации информации).
 + [Документ](https://docs.google.com/document/d/1-kQDHJF7G2VTbGUDE-pVWSsK-hd90rPEaE97XZG1YqY/edit?usp=sharing) с предложениями по организации.
 + [Таблица](https://drive.google.com/file/d/1v1KRGQv0LXIG6qS9Tl2b0p9_R18J4shq/view?usp=sharing) с результатами ИТИ 2019 и 2020.
 + [Форма](https://docs.google.com/forms/d/e/1FAIpQLSd7FopqmHoR5Ugcg_-ZAs-guy8NHS5PSvvDsx_rYetaPMKxjw/viewform?usp=sf_link) обратной связи.
@@ -34,6 +34,7 @@
 7. Сервер работает только при открытой `cmd`, для его остановки можно в `cmd` ввести `Ctrl+C`.
 8. При обновлении кода сервера из репозитория, шаг 4 почти всегда можно пропускать.
 
+
 ## Запуск на сайтах
 Для `pythonanywhere.com` нужно создать файл `flask_app.py` вида:
 ```py
@@ -54,4 +55,9 @@ sys.path.append(os.getcwd())
 
 
 from main import app as application
+```
+
+Единственный найденный надёжный способ запустить бота на `reg.ru` (одновременно с сайтом) - это через `ssh` выполнить:
+```bash
+nohup ../../flaskenv/bin/python bot_simple.py &
 ```
