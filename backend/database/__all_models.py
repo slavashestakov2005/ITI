@@ -11,6 +11,7 @@ from .roles import *
 from .school import *
 from .student import *
 from .student_class import *
+from .student_eljur import *
 from .subject import *
 from .subject_student import *
 from .team import *

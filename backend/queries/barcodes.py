@@ -92,13 +92,12 @@ def get_barcodes(iti: Iti):
 @login_required
 @check_access(roles=[UserRoleIti.ADMIN], block=True)
 def get_excel_with_barcodes(iti: Iti):
-    MOD = 10 ** 12
     try:
         add_checksum = 'add_checksum' in request.form
-        start_barcode = int(request.form['start_barcode']) % MOD
-        end_barcode = int(request.form['end_barcode']) % MOD
+        start_barcode = iti.barcodes_start()
+        end_barcode = iti.barcodes_finish()
     except Exception:
-        return render_template('codes.html', error='Не переданы начальные и конечные коды', iti=iti)
+        return render_template('codes.html', error='У ИТИ не установлены начальные и конечные коды', iti=iti)
     store_name, send_name = FileNames.barcodes_excel(iti, start_barcode, end_barcode)
     data = []
     for code in range(start_barcode, end_barcode + 1):

@@ -6,7 +6,7 @@ class Iti(SqlAlchemyBase, Table):
     fields = ['id', 'name_in_list', 'name_on_page', 'classes', 'ind_days', 'default_ind_score', 'net_score_formula',
               'ind_res_per_day', 'ind_prize_policy', 'automatic_division', 'auto_teams', 'sum_ind_to_team',
               'sum_gr_to_ind_policy', 'sum_gr_to_super', 'super_open_policy', 'students_in_team', 'encoding_type',
-              'description', 'block']
+              'barcodes', 'description', 'block']
 
     id = sa.Column(sa.Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
     name_in_list = sa.Column(sa.String, nullable=False)
@@ -25,11 +25,24 @@ class Iti(SqlAlchemyBase, Table):
     super_open_policy = sa.Column(sa.Integer, nullable=False)
     students_in_team = sa.Column(sa.Integer, nullable=False)
     encoding_type = sa.Column(sa.Integer, nullable=False)
+    barcodes = sa.Column(sa.Integer, nullable=False)
     description = sa.Column(sa.String, nullable=False)
     block = sa.Column(sa.Integer, nullable=False)
 
     def classes_list(self):
         return list(map(int, self.classes.split(' ')))
+    
+    def barcodes_start(self) -> int:
+        parts = self.barcodes.split('-')
+        if len(parts) != 2 or parts[0] == '' or parts[1] == '':
+            raise ValueError("Диапазон штрих-кодов задан неправильно")
+        return int(parts[0]) % 10 ** 12
+
+    def barcodes_finish(self) -> int:
+        parts = self.barcodes.split('-')
+        if len(parts) != 2 or parts[0] == '' or parts[1] == '':
+            raise ValueError("Диапазон штрих-кодов задан неправильно")
+        return int(parts[1]) % 10 ** 12
 
     # TODO: change separator to ' | '
     def auto_teams_list(self):

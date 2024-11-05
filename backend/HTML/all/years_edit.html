@@ -69,6 +69,7 @@
 					<option value="1">У работы есть штрих-код</option>
 				</select>
 			</p>
+			<p>Диапазон штрих-кодов (например 1-123): <input type="text" name="barcodes"></p>
 			<p>Описание, только для просмотра администраторами:</p>
 			<p><textarea type="text" id="description_1" name="description" class="textarea-multiline-red" oninput="textInput(document, 'description_1')"></textarea></p>
 			<script>textInput(document, 'description_1');</script>
@@ -144,6 +145,7 @@
 					<option value="1">У работы есть штрих-код</option>
 				</select>
 			</p>
+			<p>Диапазон штрих-кодов (например 1-123): <input type="text" name="barcodes"></p>
 			<p>Описание, только для просмотра администраторами:</p>
 			<p><textarea type="text" id="description_2" name="description" class="textarea-multiline-red" oninput="textInput(document, 'description_2')"></textarea></p>
 			<script>textInput(document, 'description_2');</script>
@@ -178,6 +180,7 @@
 				<th width="5%">Открытость суперчемпиона</th>
 				<th width="5%">Школьников в команде</th>
 				<th width="5%">Тип кодировки</th>
+				<th width="5%">Штрих-коды</th>
 				<th width="5%">Описание</th>
 				<th width="5%">Заблокировано? (0 - нет, 1 - да)</th>
 			</tr></thead>
@@ -200,6 +203,7 @@
 				<td>{{ iti.super_open_policy }}</td>
 				<td>{{ iti.students_in_team }}</td>
 				<td>{{ iti.encoding_type }}</td>
+				<td>{{ iti.barcodes }}</td>
 				<td>{{ iti.description }}</td>
 				<td>{{ iti.block }}</td>
 			</tr>

@@ -1,3 +1,5 @@
+from sqlalchemy import or_
+
 from .__db_session import sa, SqlAlchemyBase, Table
 from .student_class import StudentClass
 
@@ -94,5 +96,15 @@ class Student(SqlAlchemyBase, Table):
         return cls.__select_by_expr__(cls.name_1 == name1, cls.name_2 == name2)
 
     @classmethod
-    def select_by_other_id(cls, other_id: int):
-        return cls.__select_by_expr__(cls.other_id == other_id, one=True)
+    def select_by_other_id(cls, other_id: int) -> list:
+        res = []
+        for part in other_id.split('|'):
+            cur = cls.__select_by_expr__(or_(
+                cls.other_id.like("{}".format(part)),
+                cls.other_id.like("%|{}".format(part)),
+                cls.other_id.like("{}|%".format(part)),
+                cls.other_id.like("%|{}|%".format(part)),
+                ))
+            for v in cur:
+                res.append(v)
+        return res

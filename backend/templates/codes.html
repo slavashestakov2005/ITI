@@ -9,11 +9,11 @@
     {% elif iti.encoding_type == 1 %}
         <p><a href="create_barcodes">Сгенерировать WORD с штрих-кодами</a></p>
         <p><a href="get_barcodes">Скачать штрих-коды в WORD</a></p>
+        <br>
+        <h2>Генерация Excel штрих-кодов</h2>
         <form action="get_excel_with_barcodes" method="post">
             <p><input type="checkbox" name="add_checksum" checked>Добавить контрольную сумму</p>
-            <p>Первый код: <input type="text" name="start_barcode"></p>
-            <p>Последний код: <input type="text" name="end_barcode"></p>
-            <p>Оба кода включительно</p>
+            <p>Берутся включительно оба кода из настроек ИТИ</p>
             <input type="submit" value="Сгенерировать">
         </form>
     {% endif %}

@@ -85,17 +85,20 @@ def save_barcodes(iti: Iti):
         user_password = request.json['user_password']
         user = User.select_by_login(user_login)
         if not user:
-            raise ValueError("Неверные логин пользователя")
+            raise ValueError("Неверный логин пользователя")
         if not user.check_password(user_password):
-            raise ValueError("Неверные пароль пользователя")
+            raise ValueError("Неверный пароль пользователя")
         if not check_role(user=user, roles=[UserRoleIti.SCANNER], iti_id=iti.id):
             raise ValueError("Пользователь не является сканером")
         value = json.loads(data)
+        start_barcode, finish_barcode = iti.barcodes_start(), iti.barcodes_finish()
         for line in value:
             student_id = line[0]
             if not Student.select(student_id):
                 raise ValueError('Школьника "{}" не существует'.format(student_id))
             for barcode in line[1:]:
+                if barcode < start_barcode or barcode > finish_barcode:
+                    raise ValueError('Штрих-код "{}" не попал в диапазон для ИТИ'.format(barcode))
                 bar = Barcode.select(iti.id, barcode)
                 if bar and bar.student_id != student_id:
                     raise ValueError('Штрих-код "{}" уже сохранён на школьника "{}"'.format(barcode, student_id))
@@ -119,14 +122,19 @@ def save_subject_results(iti: Iti, subject_id: int):
         user_password = request.json['user_password']
         user = User.select_by_login(user_login)
         if not user:
-            raise ValueError("Неверные логин пользователя")
+            raise ValueError("Неверный логин пользователя")
         if not user.check_password(user_password):
-            raise ValueError("Неверные пароль пользователя")
+            raise ValueError("Неверный пароль пользователя")
         value = json.loads(data)
         ans = {}
+        start_barcode, finish_barcode = iti.barcodes_start(), iti.barcodes_finish()
         for i, line in enumerate(value):
             student_code, result = line
-            answer = save_result_(user, iti.id, subject_id, int(student_code), str(result))
+            student_code = int(student_code)
+            if student_code < start_barcode or student_code > finish_barcode:
+                answer = 9
+            else:
+                answer = save_result_(user, iti.id, subject_id, int(student_code), str(result))
             if answer:
                 if answer not in ans:
                     ans[answer] = []
@@ -139,7 +147,8 @@ def save_subject_results(iti: Iti, subject_id: int):
                   5: 'Неправильный формат для результата в строках: ' + (','.join(ans[5]) if 5 in ans else ''),
                   6: 'Сумма баллов больше 30: ' + (','.join(ans[6]) if 6 in ans else ''),
                   7: 'Нет такого ИТИ',
-                  8: 'По этому штрих-коду результат уже сохранён: ' + (','.join(ans[8]) if 8 in ans else '')}
+                  8: 'По этому штрих-коду результат уже сохранён: ' + (','.join(ans[8]) if 8 in ans else ''),
+                  9: 'Штрих-код не попал в диапазон для ИТИ: ' + (','.join(ans[9]) if 9 in ans else '')}
         txt = [decode[key] for key in decode if key in ans]
         if len(txt):
             raise ValueError('\n'.join(txt))
