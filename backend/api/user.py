@@ -94,7 +94,7 @@ class UserResource(Resource):
             Generator.gen_users_list()
         elif args['type'] == 'password':
             args = parser_password.parse_args()
-            if not check_role(roles=[UserRoleLogin.LOGIN]):
+            if not check_role(roles=[UserRoleLogin.LOGIN_LOCAL]):
                 return ApiStatus.ACCESS_DENIED, {}
             if current_user.id != user.id:
                 return ApiStatus.ACCESS_DENIED, {}

@@ -41,7 +41,11 @@
                         {% if anon %}
                         <a class="dropdown-item" href="/login">Войти</a>
                         {% else %}
+                        {% if check_role(roles=[UserRoleLogin.LOGIN_LOCAL]) %}
                         <a class="dropdown-item" href="#" onclick="adminPanel()">Редактирование</a>
+                        {% elif check_role(roles=[UserRoleLogin.LOGIN_ELJUR]) %}
+                        <a class="dropdown-item" href="#" onclick="eljurPanel()">Мои результаты</a>
+                        {% endif %}
                         <a class="dropdown-item" href="/logout">Выйти</a>
                         {% endif %}
                     </div>

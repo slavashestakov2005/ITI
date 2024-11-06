@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Мои результаты</h1>
+<center>
+<h2>{{ student.name_1 }} {{ student.name_2 }}</h2>
+</center>
+<br>
+<div class="row">
+    {% for iti_id in results %}
+        {% set data, days, summ = results[iti_id] %}
+        {% if data.__len__() > 0 %}
+            <div class="col">
+                <h3>{{ itis[iti_id].name_in_list }}</h3>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <td width="10%">Предмет</td>
+                            <td width="10%">Место</td>
+                            <td width="10%">Баллы</td>
+                            <td width="10%">Балл в рейтинг</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in data %}
+                        <tr>
+                            {% for cell in row %}
+                            <td>{{ cell }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td colspan="3"><center>Сумма</center></td>
+                            <td>{{ summ }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}

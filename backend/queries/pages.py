@@ -49,7 +49,7 @@ def iti_excel_page(iti: Iti):
 
 @app.route("/settings")
 @cross_origin()
-@check_access(roles=[UserRoleLogin.LOGIN], block=False)
+@check_access(roles=[UserRoleLogin.LOGIN_LOCAL], block=False)
 def settings():
     params = {'password': 'Уже введён' if ConfigMail.MAIL_PASSWORD else 'Отсутствует',
               'email': ConfigMail.MAIL_USERNAME, 'admins': str(ConfigMail.ADMINS)} \

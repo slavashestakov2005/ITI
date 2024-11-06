@@ -1,5 +1,5 @@
 from enum import Enum
-from flask_login import current_user
+from flask_login import current_user, UserMixin
 
 from backend import app
 
@@ -35,15 +35,29 @@ class UserRoleItiSubject(UserRole, Enum):
 
 class UserRoleLogin(UserRole, Enum):
     NO_LOGIN = 1
-    LOGIN = 2
+    LOGIN_LOCAL = 2
+    LOGIN_ELJUR = 4
 
 
-def __check_role(user, role: UserRole, iti_id: int | None, iti_subject_id: int | None) -> bool:
+class SiteUser(UserMixin):
+    def check_role_global(self, status: UserRoleGlobal) -> bool:
+        return False
+    
+    def check_role_iti(self, iti_id: int, status: UserRoleIti) -> bool:
+        return False
+    
+    def check_role_iti_subject(self, iti_subject_id: int, status: UserRoleItiSubject) -> bool:
+        return False
+    
+    def check_role_login(self, status: UserRoleLogin) -> bool:
+        return False
+
+
+def __check_role(user: SiteUser, role: UserRole, iti_id: int | None, iti_subject_id: int | None) -> bool:
     if type(role) == UserRoleLogin:
         if role == UserRoleLogin.NO_LOGIN:
             return not user.is_authenticated
-        if role == UserRoleLogin.LOGIN:
-            return user.is_authenticated
+        return user.check_role_login(role)
     if not user.is_authenticated:
         return False
     if type(role) == UserRoleGlobal:

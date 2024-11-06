@@ -1,11 +1,10 @@
-from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from .__db_session import orm, sa, SqlAlchemyBase, Table
 from .team import Team
-from ..help import check_role, UserRoleGlobal, UserRoleIti, UserRoleItiSubject
+from ..help import check_role, SiteUser, UserRoleGlobal, UserRoleIti, UserRoleItiSubject, UserRoleLogin
 
-class User(SqlAlchemyBase, UserMixin, Table):
+class User(SqlAlchemyBase, SiteUser, Table):
     __tablename__ = 'user'
     fields = ['id', 'login', 'password']
 
@@ -49,6 +48,9 @@ class User(SqlAlchemyBase, UserMixin, Table):
     def check_role_iti_subject(self, iti_subject_id: int, status: UserRoleItiSubject) -> bool:
         self.__prepare_roles()
         return iti_subject_id in self.role_iti_subject and self.role_iti_subject[iti_subject_id] & status.value == status.value
+    
+    def check_role_login(self, status: UserRoleLogin) -> bool:
+        return status == UserRoleLogin.LOGIN_LOCAL
 
     def roles_global_str(self) -> str:
         roles = []

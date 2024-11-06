@@ -2,9 +2,10 @@ from sqlalchemy import or_
 
 from .__db_session import sa, SqlAlchemyBase, Table
 from .student_class import StudentClass
+from ..help import SiteUser, UserRoleLogin
 
 
-class Student(SqlAlchemyBase, Table):
+class Student(SqlAlchemyBase, SiteUser, Table):
     __tablename__ = 'student'
     fields = ['id', 'name_1', 'name_2', 'name_3', 'gender', 'other_id']
 
@@ -61,6 +62,9 @@ class Student(SqlAlchemyBase, Table):
         self.gender = '0'
         if s == 'Ж' or s == 'ж':
             self.gender = '1'
+    
+    def check_role_login(self, status: UserRoleLogin) -> bool:
+        return status == UserRoleLogin.LOGIN_ELJUR
 
     @staticmethod
     def sort_by_class(student):

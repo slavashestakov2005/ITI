@@ -98,6 +98,10 @@ function adminPanel(){
     go(adminPath(year, subject));
 }
 
+function eljurPanel(){
+    go('/eljur_panel');
+}
+
 function chooseYear(year){
     let subject = new URL(window.location).searchParams.get('subject');
     go(adminPath(year, subject))
