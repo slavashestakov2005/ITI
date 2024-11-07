@@ -17,4 +17,5 @@ from .subject_student import *
 from .team import *
 from .team_consent import *
 from .team_student import *
+from .tg_user import *
 from .user import *

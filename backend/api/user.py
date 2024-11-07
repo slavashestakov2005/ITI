@@ -60,9 +60,6 @@ def set_user_iti_roles(user: User, iti_id: int, roles: list[int]) -> bool:
 
 
 def set_user_iti_subject_roles(user: User, roles: list[int], iti_subject_ids: list[int], iti_id: int) -> bool:
-    print('`' * 1000)
-    print(user)
-    print(roles)
     roles = sum(roles)
     for iti_subject_id in iti_subject_ids:
         for role in UserRoleItiSubject:

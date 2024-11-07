@@ -14,3 +14,4 @@ class Config:
 
     HOST = 'http://iti.univers.su/'
     SCANNER_VERSION = os.getenv('SCANNER_VERSION')
+    BOT_KEY = os.getenv('TELEGRAM_ITI_API_KEY')
