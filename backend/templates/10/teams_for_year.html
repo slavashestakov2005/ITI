@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<center>
+    <h1>Настройки команд</h1>
+    {% if adm %}
+        <br>
+        <h3><a href="automatic_division">Автоматическое распределение</a></h3>
+        {% if error9 %} <p class="error-msg">[ {{ error9 }} ]</p> {% endif %}
+    {% endif %}
+</center>
+<br>
+
+<div class="row col-12 justify-content-center">
+    {% if adm %}
+    <div class="col table-col-450px"><center>
+        <h2>Команды:</h2>
+        <table width="85%" border="1">
+            <thead><tr>
+                <th width="5%"><center>Номер</center></th>
+                <th width="5%"><center>Вертикаль</center></th>
+                <th width="30%"><center>Название</center></th>
+            </tr></thead>
+            {% for team in teams %}
+            <tr>
+                <td>{{ team[0].id }}</td>
+                <td>{{ team[0].vertical }}</td>
+                <td>{{ team[0].name }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <form onsubmit="team_add(this); return false;"><center>
+            <h3>Новая команда:</h3>
+            <p>Название: <input type="text" name="name"></p>
+            <p>Вертикаль: <input type="text" name="latter"></p>
+            <input type="submit" value="Добавить">
+            <p>Первая буква вертикали автоматически переводится в верхний регистр.</p>
+        </center></form>
+        <form onsubmit="team_edit(this); return false;"><center>
+            <h3>Изменить команду:</h3>
+            <p>ID: <input type="text" name="id"></p>
+            <p>Новое название: <input type="text" name="name"></p>
+            <p>Новая вертикаль: <input type="text" name="latter"></p>
+            <input type="submit" value="Обновить">
+        </center></form>
+        <form onsubmit="team_delete(this); return false;"><center>
+            <h3>Удалить команду:</h3>
+            <p>ID: <input type="text" name="id"></p>
+            <input type="submit" value="Удалить">
+        </center></form>
+    </center></div>
+    <div class="col table-col-450px"><center>
+        <h2>Участники команд:</h2>
+        <form onsubmit="team_student_add(this); return false;"><center>
+            <h3>Новый участник:</h3>
+            <p>Команда (ID): <input type="text" name="team"></p>
+            <p>Участник (ID): <input type="text" name="student"></p>
+            <input type="submit" value="Добавить">
+        </center></form>
+        <form onsubmit="team_student_delete(this); return false;"><center>
+            <h3>Удалить участника:</h3>
+            <p>Команда (ID): <input type="text" name="team"></p>
+            <p>Участник (ID): <input type="text" name="student"></p>
+            <input type="submit" value="Удалить">
+        </center></form>
+    </center></div>
+    {% endif %}
+    <div class="col table-col-930px"><center>
+        <h2>Ваши команды:</h2>
+        {% for team in teams %}
+            <form onsubmit="subject_student_save(this); return false;"><center>
+                <h3>{{ team[0].name }}</h3>
+                {% set current_table_name = "students_in_team_table_number_" + (loop.index0 | string) %}
+                <table border="1" id="{{ current_table_name }}">
+                    <thead><tr>
+                        <th width="10%">Школа</th>
+                        <th width="10%">Класс</th>
+                        <th width="45%">Фамилия</th>
+                        <th width="45%">Имя</th>
+                        {% for subject in subjects %}
+                            <th width="5%">
+                                {{ subject }}
+                                <br>
+                                <button onclick="setCheckboxesInColumn('{{ current_table_name }}', {{ loop.index0 + 4 }}, true); return false;">+</button>
+                                <button onclick="setCheckboxesInColumn('{{ current_table_name }}', {{ loop.index0 + 4 }}, false); return false;">-</button>
+                            </th>
+                        {% endfor %}
+                    </tr></thead>
+                    <tbody>
+                    {% for x in team[1] %}
+                        <tr>
+                            {% for y in x %}<td>
+                                {% if not y[0] %} {{ y[1] }}
+                                {% elif y[2] %}
+                                    <input type="checkbox" name="subject" value="{{ y[0] }}_{{ y[1] }}" checked>
+                                    <input type="checkbox" name="old_subject" value="{{ y[0] }}_{{ y[1] }}" checked hidden>
+                                {% else %}
+                                    <input type="checkbox" name="subject" value="{{ y[0] }}_{{ y[1] }}">
+                                    <input type="checkbox" name="old_subject" value="{{ y[0] }}_{{ y[1] }}" hidden>
+                                {% endif %}
+                            </td>{% endfor %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                <input type="submit" value="Сохранить">
+            </center></form>
+            <br>
+        {% endfor %}
+        {% if error5 %} <p class="error-msg">[ {{ error5 }} ]</p>
+        {% endif %}
+        <h2>Отказались:</h2>
+        <table>
+            <thead><tr>
+                <th width="10%">Школа</th>
+                <th width="10%">Класс</th>
+                <th width="45%">Фамилия</th>
+                <th width="45%">Имя</th>
+            </tr></thead>
+            <tbody>
+            {% for stud in rejection %}
+            <tr>
+                <td>{{ stud.school_name(schools) }}</td>
+                <td>{{ stud.class_name() }}</td>
+                <td>{{ stud.name_1 }}</td>
+                <td>{{ stud.name_2 }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </center></div>
+</div>
+
+{% endblock %}

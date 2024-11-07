@@ -5,13 +5,26 @@
 <div class="main-new">
     <div class="results">
         <h1>Результаты</h1>
-        {% for s in subjects %}
-            <li><a href="{{s['info'].id}}">{{ s['info'].name }}</a></li>
-        {% endfor %}
+        <h3>Заглушка</h3>
+        <p class="result">Заглушка 9 класс</p>
+        <p class="result">Заглушка 8 класс</p>
+        <p class="result">Заглушка 7 класс</p>
+        <p class="result">Заглушка 6 класс</p>
+        <h3>Заглушка</h3>
+        <p class="result">Заглушка 9 класс</p>
+        <p class="result">Заглушка 8 класс</p>
+        <p class="result">Заглушка 7 класс</p>
+        <p class="result">Заглушка 6 класс</p>
+        <h3>Заглушка</h3>
+        <p class="result">Заглушка 9 класс</p>
+        <p class="result">Заглушка 8 класс</p>
+        <p class="result">Заглушка 7 класс</p>
+        <p class="result">Заглушка 6 класс</p>
     </div>
     <div class="news">       
         <h1>
             <a>Новости {{ iti.name_on_page }}</a>
+            <a href="#page_end" class="change_iti">поменять ити</a>
         </h1>
         {% for message in messages[::-1] %}
         <div class="message">
@@ -27,10 +40,9 @@
                 <div class="col-12 message-content js-html-content">
                     {{ message.content }}
                 </div>
-            </div>
+            </div></div>
         </div>
         {% endfor %}
-    </div>
         <br>
     </ul>
 </div>

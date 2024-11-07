@@ -1,0 +1,76 @@
+{% extends "base.html" %}{% block content %}
+<center><h1>Настройки предметов ИТИ</h1></center>
+<div class="row col-12 justify-content-center">
+    <div class="col-auto">
+        <form onsubmit="year_subject_save(this); return false;"><center>
+            <h2>Предметы:</h2>
+            <table width="100%">
+                <tr>
+                    <td width="50%" valign="top">
+                        <h3>Индивидуальные туры:</h3>
+                                <p><input type="checkbox" name="subject" value="2">[ 2 ] История</p>
+                                <p><input type="checkbox" name="subject" value="3">[ 3 ] Английский язык</p>
+                                <p><input type="checkbox" name="subject" value="4">[ 4 ] Русский язык</p>
+                                <p><input type="checkbox" name="subject" value="5">[ 5 ] Информатика</p>
+                                <p><input type="checkbox" name="subject" value="6">[ 6 ] ИЦН</p>
+                                <p><input type="checkbox" name="subject" value="7">[ 7 ] Математика</p>
+                                <p><input type="checkbox" name="subject" value="8">[ 8 ] Обществознание</p>
+                                <p><input type="checkbox" name="subject" value="9">[ 9 ] Естествознание</p>
+                                <p><input type="checkbox" name="subject" value="10">[ 10 ] Литература</p>
+                                <p><input type="checkbox" name="subject" value="11">[ 11 ] Искусство</p>
+                                <p><input type="checkbox" name="subject" value="20">[ 20 ] Окружающий мир</p>
+                                <p><input type="checkbox" name="subject" value="21">[ 21 ] Искусство 5-6</p>
+                                <p><input type="checkbox" name="subject" value="22">[ 22 ] Искусство 7-9</p>
+                                <p><input type="checkbox" name="subject" value="29">[ 29 ] Технология 7-8</p>
+                                <p><input type="checkbox" name="subject" value="30">[ 30 ] Финансовая грамотность</p>
+                                <p><input type="checkbox" name="subject" value="31">[ 31 ] Технология 5-6</p>
+                                <p><input type="checkbox" name="subject" value="32">[ 32 ] Литературное чтение</p>
+                    </td>
+                    <td width="50%" valign="top">
+                        <h3>Групповые туры:</h3>
+                                <p><input type="checkbox" name="subject" value="12">[ 12 ] Карусель</p>
+                                <p><input type="checkbox" name="subject" value="13">[ 13 ] Естественно-научные бои</p>
+                                <p><input type="checkbox" name="subject" value="14">[ 14 ] Коммуникативные бои</p>
+                                <p><input type="checkbox" name="subject" value="15">[ 15 ]  Литература</p>
+                                <p><input type="checkbox" name="subject" value="16">[ 16 ]  Английский язык</p>
+                                <p><input type="checkbox" name="subject" value="17">[ 17 ] Театр</p>
+                                <p><input type="checkbox" name="subject" value="18">[ 18 ] Изобретательство</p>
+                                <p><input type="checkbox" name="subject" value="19">[ 19 ]  Информатика</p>
+                                <p><input type="checkbox" name="subject" value="23">[ 23 ] Настольные игры</p>
+                                <p><input type="checkbox" name="subject" value="25">[ 25 ] «Зри в корень»</p>
+                                <p><input type="checkbox" name="subject" value="33">[ 33 ] «Мастер Шеф»</p>
+                                <p><input type="checkbox" name="subject" value="34">[ 34 ] Конструкторская задача</p>
+                                <p><input type="checkbox" name="subject" value="35">[ 35 ] Проектная задача</p>
+                        <h3>Другое:</h3>
+                                <p><input type="checkbox" name="subject" value="1">[ 1 ] Командный тур</p>
+                                <p><input type="checkbox" name="subject" value="24">[ 24 ] Бонус</p>
+                                <p><input type="checkbox" name="subject" value="26">[ 26 ] Групповой тур</p>
+                                <p><input type="checkbox" name="subject" value="27">[ 27 ] Учёт индивидуальных результатов</p>
+                    </td>
+                </tr>
+            </table>
+            <input type="submit" value="Сохранить">
+        </center></form>
+    </div>
+    <div class="col-auto"><center>
+        <h2>Расписание:</h2>
+        <form onsubmit="year_subject_edit(this, 'description'); return false;"><center>
+            <p>Предмет (номер): <input type="text" name="subject"></p>
+            <p>Классы: <input type="text" name="classes"></p>
+            <p>Кабинет: <input type="text" name="place" size="40"></p>
+            <p>
+                День: <input type="date" name="date">
+                Номер: <input type="text" name="n_d" size="5">
+            </p>
+            <p>
+                Начало: <input type="time" name="start">
+                Конец: <input type="time" name="end">
+            </p>
+            <p><input type="submit" value="Сохранить"></p>
+        </center></form>
+        <br>
+        <h2><a href="public_description">Опубликовать расписание</a></h2>
+        {% if error11 %} <p class="error-msg">[ {{ error11 }} ]</p>{% endif %}
+    </center></div>
+</div>
+{% endblock %}

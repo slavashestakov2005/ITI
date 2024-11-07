@@ -141,6 +141,11 @@ def search(iti_id: int):
         params['empty'] = not bool(len(data))
         params['summ'] = summ
     else:
+        sub = []
+        for cur_sub in ItiSubject.select_by_iti(iti.id):
+            sub.append({'info': Subject.select(cur_sub.subject_id), 'id': cur_sub.id})
+
+        params['subjects'] = sub
         params['messages'] = sorted(Message.select_by_iti(iti.id), key=Message.sort_by_time)
         params['itis'] = Iti.select_all()
     try:

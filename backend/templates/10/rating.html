@@ -1,0 +1,40 @@
+{% extends "base.html" %}{% block content %}
+<center>
+    <h1>Рейтинги</h1>
+    {% if adm %}
+    <p><a href="share_all_results">Опубликовать результаты по всем предметам</a></p>
+    <p><a href="ratings_update">Обновить рейтинги</a></p>
+    {% if error %} <p class="error-msg">[ {{ error }} ]</p>{% endif %}
+    {% endif %}
+    <br>
+    <p><a href="rating_students">Рейтинг школьников</a></p>
+    <p><a href="rating_classes">Рейтинг классов</a></p>
+    <p><a href="rating_teams">Рейтинг команд</a></p>
+    {% if adm %}
+    <p><a href="rating_students_check">Рейтинг школьников с галочками</a></p>
+    <br>
+    {% endif %}
+    {% if adm and iti.super_open_policy == 0 or not anon and iti.super_open_policy == 1 or iti.super_open_policy == 2 %}
+    <h2>Суперчемпион</h2>
+    <table class="js-table-color-place" id="sorted-table">
+        <thead><tr>
+            <th width="5%">Место</th>
+            <th width="10%">Фамилия</th>
+            <th width="10%">Имя</th>
+            <th width="5%">Школа</th>
+            <th width="5%">Класс</th>
+            <th width="5%">1&nbsp;места</th>
+            <th width="5%">2&nbsp;места</th>
+            <th width="5%">3&nbsp;места</th>
+            <th width="5%">Вместе</th>
+        </tr></thead>
+        <tbody></tbody>
+    </table>
+    {% endif %}
+</center>
+<script>
+    let results = {}, students = {};
+    let tableData = generateSuperChampionTableData();
+    filterResults(null, null, -1, false);
+</script>
+{% endblock %}
