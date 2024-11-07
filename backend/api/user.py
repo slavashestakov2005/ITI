@@ -60,9 +60,6 @@ def set_user_iti_roles(user: User, iti_id: int, roles: list[int]) -> bool:
 
 
 def set_user_iti_subject_roles(user: User, roles: list[int], iti_subject_ids: list[int], iti_id: int) -> bool:
-    print('`' * 1000)
-    print(user)
-    print(roles)
     roles = sum(roles)
     for iti_subject_id in iti_subject_ids:
         for role in UserRoleItiSubject:
@@ -94,7 +91,7 @@ class UserResource(Resource):
             Generator.gen_users_list()
         elif args['type'] == 'password':
             args = parser_password.parse_args()
-            if not check_role(roles=[UserRoleLogin.LOGIN]):
+            if not check_role(roles=[UserRoleLogin.LOGIN_LOCAL]):
                 return ApiStatus.ACCESS_DENIED, {}
             if current_user.id != user.id:
                 return ApiStatus.ACCESS_DENIED, {}

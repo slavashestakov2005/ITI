@@ -1,15 +1,16 @@
 from flask import redirect, render_template, request
 from flask_cors import cross_origin
-from flask_login import login_required
+from flask_login import current_user, login_required
 from itertools import permutations
 from jinja2 import TemplateNotFound
 import os
 from werkzeug.exceptions import NotFound
 
 from backend import app
-from .help import split_class
+from .help import check_access, split_class
 from ..config import Config
 from ..database import get_student_by_params, Message, Iti, ItiSubject, Result, Student, Subject
+from ..help import UserRoleLogin
 from ..help.errors import forbidden_error, not_found_error
 
 '''
@@ -19,6 +20,21 @@ from ..help.errors import forbidden_error, not_found_error
     /<path>                                 Возвращает статическую страницу, проверяя статус пользователя и доступ к файлу.
     /<iti_id>/main                          Рисует стартовую страницу ИТИ.
 '''
+
+
+def get_info_for_student(student: Student, year: int):
+    data, days, summ = [], {}, 0
+    for r in Result.select_for_student(student.id):
+        if r.position > 0:
+            ys = ItiSubject.select_by_id(r.iti_subject_id)
+            if ys.iti_id == year:
+                data.append([Subject.select(ys.subject_id).name, r.position, r.result, r.net_score])
+                if ys.n_d not in days:
+                    days[ys.n_d] = []
+                days[ys.n_d].append(r.net_score)
+    for x in days.values():
+        summ += sum(sorted(x, reverse=True)[:2])
+    return data, days, summ
 
 
 @app.route('/')
@@ -40,6 +56,7 @@ def main_year_page_redirect(year: int):
 @app.route('/admin_panel')
 @cross_origin()
 @login_required
+@check_access(roles=[UserRoleLogin.LOGIN_LOCAL])
 def admin_panel():
     iti, subject, sub = request.args.get('year'), request.args.get('subject'), []
     if subject:
@@ -51,6 +68,19 @@ def admin_panel():
             sub.append({'info': Subject.select(cur_sub.subject_id), 'id': cur_sub.id})
         iti = Iti.select(iti)
     return render_template('admin_panel.html', iti=iti, subject=subject, itis=Iti.select_all(), subjects=sub)
+
+
+@app.route('/eljur_panel')
+@cross_origin()
+@login_required
+@check_access(roles=[UserRoleLogin.LOGIN_ELJUR])
+def eljur_panel():
+    results = {}
+    itis = Iti.select_all()
+    for iti in itis:
+        results[iti.id] = get_info_for_student(current_user, iti.id)
+    itis = {iti.id: iti for iti in itis}
+    return render_template('eljur_panel.html', student=current_user, results=results, itis=itis)
 
 
 @app.route('/Info/<path:path>')
@@ -69,21 +99,6 @@ def static_file(path):
         return app.send_static_file(path)
     except NotFound:
         return not_found_error()
-
-
-def get_info_for_student(student: Student, year: int):
-    data, days, summ = [], {}, 0
-    for r in Result.select_for_student(student.id):
-        if r.position > 0:
-            ys = ItiSubject.select_by_id(r.iti_subject_id)
-            if ys.iti_id == year:
-                data.append([Subject.select(ys.subject_id).name, r.position, r.result, r.net_score])
-                if ys.n_d not in days:
-                    days[ys.n_d] = []
-                days[ys.n_d].append(r.net_score)
-    for x in days.values():
-        summ += sum(sorted(x, reverse=True)[:2])
-    return data, days, summ
 
 
 @app.route('/<int:iti_id>/main')

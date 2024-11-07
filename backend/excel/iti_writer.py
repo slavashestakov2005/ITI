@@ -47,6 +47,7 @@ class ExcelItiWriter(ExcelParentWriter):
         self.parse_data(School, School.select_all())
         self.parse_data(Student, Student.select_all())
         self.parse_data(StudentClass, StudentClass.select_by_iti(self.iti_id))
+        self.parse_data(StudentEljur, StudentEljur.select_all())
         self.parse_data(Subject, Subject.select_all())
         self.parse_data(SubjectStudent, subject_student)
         self.parse_data(Team, Team.select_by_iti(self.iti_id))

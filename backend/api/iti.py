@@ -25,6 +25,7 @@ parser_simple.add_argument('sum_gr_to_super', required=True, type=str_or_int)
 parser_simple.add_argument('super_open_policy', required=True, type=str_or_int)
 parser_simple.add_argument('students_in_team', required=True, type=str_or_int)
 parser_simple.add_argument('encoding_type', required=True, type=str_or_int)
+parser_simple.add_argument('barcodes', required=True, type=str)
 parser_simple.add_argument('description', required=True, type=str)
 parser_full = parser_simple.copy()
 parser_full.add_argument('id', required=True, type=int)
@@ -55,7 +56,7 @@ class ItiListResource(Resource):
                              args['default_ind_score'], args['net_score_formula'], args['ind_res_per_day'],
                              args['ind_prize_policy'], args['automatic_division'], args['auto_teams'],
                              args['sum_ind_to_team'], args['sum_gr_to_ind_policy'], args['sum_gr_to_super'], args['super_open_policy'],
-                             args['students_in_team'], args['encoding_type'], args['description'], 0)
+                             args['students_in_team'], args['encoding_type'], args['barcodes'], args['description'], 0)
         iti_id = Iti.insert(iti_info, return_id=True)
         FileCreator.create_iti(iti_id)
         Generator.gen_iti_lists()
@@ -72,7 +73,7 @@ class ItiListResource(Resource):
                         args['default_ind_score'], args['net_score_formula'], args['ind_res_per_day'],
                         args['ind_prize_policy'], args['automatic_division'], args['auto_teams'],
                         args['sum_ind_to_team'], args['sum_gr_to_ind_policy'], args['sum_gr_to_super'], args['super_open_policy'],
-                        args['students_in_team'], args['encoding_type'], args['description'], None, allow_empty=True)
+                        args['students_in_team'], args['encoding_type'], args['barcodes'], args['description'], None, allow_empty=True)
         iti_info ^= new
         Iti.update(iti_info)
         Generator.gen_iti_lists()
