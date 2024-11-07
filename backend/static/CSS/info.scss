@@ -8,7 +8,7 @@
     --footer-color: #d0daee;
     --footer-height: 150px;
     --footer-height-p10: 160px;
-    --box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    --box-shadow: 0 0 4px rgba(0,0,0,0.6);
 }
 body{
     margin: 0;
@@ -85,4 +85,13 @@ h4{ font-size: 12pt; }
     line-height: 1.2;
     margin: 0 auto;
     resize: none;
+}
+
+.input{
+    box-shadow: 0 0 4px rgba(0,0,0,0.6);
+    border: 1px solid #666;
+    background: #fff;
+    padding: 10px;
+    border-radius: 3px;
+    margin-bottom: 5px;
 }

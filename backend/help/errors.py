@@ -18,7 +18,7 @@ def stop_debug():
 
 @app.errorhandler(403)
 def forbidden_error(error=None):
-    return redirect(url_for('error', status=403))
+    return render_template('403' + '.html')
 
 
 @app.errorhandler(404)

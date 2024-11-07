@@ -33,8 +33,11 @@ def load_user(id):
 @cross_origin()
 def login():
     args = {'oauth_eljur_page': ConfigEljur.OAUTH_ELJUR_PAGE}
-    if current_user.is_authenticated:
+    from .roles import check_role, UserRoleLogin
+    if current_user.is_authenticated and check_role(user=current_user, roles=[UserRoleLogin.LOGIN_LOCAL]):
         return redirect('/admin_panel')
+    if current_user.is_authenticated and check_role(user=current_user, roles=[UserRoleLogin.LOGIN_ELJUR]):
+        return redirect('/eljur_panel')
     if request.method == 'POST':
         try:
             user_login = request.form['login']

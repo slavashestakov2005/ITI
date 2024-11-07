@@ -1,8 +1,16 @@
+
+.wrapper{
+    min-height: calc(100vh - 250px);
+    position: relative;
+}
 .footer{
-    margin-top: 200px;
+    width: 100%;
+    left: 0;
+    bottom: -250px;
+    position: absolute;
     display: flex;
     align-items: center;
-    box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    box-shadow: 0 0 4px rgba(0,0,0,0.6);
     padding-top: 20px;
     padding-bottom: 50px;
     

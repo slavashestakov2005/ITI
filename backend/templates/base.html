@@ -56,20 +56,24 @@
                         </button>
                     </div>
                 </form>
-                <a href="/login">
-                    <button class="login-btn">
-                        <img src="/Images/login-icon.svg" alt="">
-                        <!-- <a>Вход</a> -->
-                    </button>
-                </a>
+                <div class="login-logout">
+                    <a href="/login">
+                        <button class="login-btn">
+                            <img src="/Images/login-icon.svg" alt="">
+                        </button>
+                        {% if not anon %}
+                        <div class="spacer">
+                            <a href="/logout" class="button-logout">Выход</a>
+                        </div>
+                        {% endif %}
+                    </a>
+                </div>
             </div>
         </div>
     </div>
     <div class="content">
-        <div class="header-white-line"></div>
-        {% block content %}{% endblock %}
-        <div class="header-white-line"></div>
-    </div>
+            {% block content %}{% endblock %}
+    
     <div class="footer">
         <div class="container content">
             <div class="footer-boxs">

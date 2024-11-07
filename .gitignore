@@ -3,8 +3,8 @@
 *.db
 .idea
 .venv
-/backend/data/?/*.*
-/backend/templates/?/*.*
+/backend/data/*/*
+/backend/templates/*/*
 **/__pycache__/**
 flask_app.py
 passenger_wsgi.py

@@ -5,9 +5,11 @@
 <div class="main-new">
     <div class="results">
         <h1>Результаты</h1>
-        {% for s in subjects %}
-            <li><a href="{{s['info'].id}}">{{ s['info'].name }}</a></li>
-        {% endfor %}
+        <ul>
+            {% for s in subjects %}
+                <li><a href="{{s['info'].id}}">{{ s['info'].name }}</a></li>
+            {% endfor %}
+        </ul>
     </div>
     <div class="news">       
         <h1>
@@ -43,7 +45,6 @@
                 {% for i in itis %}{% if not i.block %}
                 <a href="/{{ i.id }}">{{ i.name_in_list }}</a><br>
                 {% endif %}{% endfor %}
-                <a href="#page_end">Все ИТИ</a><br>
             <br>
             {% endif %}
         </div>

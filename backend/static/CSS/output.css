@@ -8,7 +8,7 @@
   --footer-color: #d0daee;
   --footer-height: 150px;
   --footer-height-p10: 160px;
-  --box-shadow: 0 0 4px rgba(0,0,0,0.1);
+  --box-shadow: 0 0 4px rgba(0,0,0,0.6);
 }
 
 body {
@@ -105,6 +105,15 @@ h4 {
   resize: none;
 }
 
+.input {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  border: 1px solid #666;
+  background: #fff;
+  padding: 10px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+}
+
 /* table */
 table {
   display: block;
@@ -112,10 +121,15 @@ table {
   overflow: scroll;
   width: 100%;
   margin-inline: 5px;
-  height: 300px;
+  max-height: 600px;
   border-collapse: collapse;
   border: 0;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+}
+@media (width <= 700px) {
+  table {
+    margin-inline: 0;
+  }
 }
 
 .table-timetable {
@@ -155,11 +169,11 @@ table {
   width: 100%;
   height: 5rem;
   background: #FFF;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
 }
 @media (width <= 700px) {
   .navigation {
-    height: 15rem;
+    height: 13rem;
   }
 }
 
@@ -184,7 +198,6 @@ table {
   .nav-content {
     flex-direction: column;
     justify-content: center;
-    padding-top: 0.5rem;
   }
 }
 .nav-content .links {
@@ -200,7 +213,6 @@ table {
     flex-direction: column;
     justify-content: center;
     margin-left: 2px;
-    margin-bottom: 1rem;
   }
 }
 .nav-content .links .link {
@@ -208,9 +220,12 @@ table {
   margin-left: 2rem;
   font-size: 1.2rem;
   color: black;
+  text-decoration: none;
 }
-.nav-content .links .change {
-  text-decoration: solid;
+@media (width <= 700px) {
+  .nav-content .links .link {
+    margin-bottom: 1rem;
+  }
 }
 .nav-content .search_res {
   display: flex;
@@ -218,7 +233,6 @@ table {
   border-radius: 0.75rem;
 }
 .nav-content .search_res input, .nav-content .search_res button {
-  cursor: pointer;
   border: none;
   background-color: rgb(242, 242, 242);
   font-size: 1.2rem;
@@ -257,7 +271,6 @@ table {
   display: flex;
 }
 .nav-content .right-side .login-btn {
-  cursor: pointer;
   border: none;
   background-color: rgb(242, 242, 242);
   font-size: 1.2rem;
@@ -289,17 +302,60 @@ table {
     display: block;
   }
 }
+.nav-content .right-side .login-logout {
+  display: block;
+  position: relative;
+}
+.nav-content .right-side .login-logout .spacer {
+  display: none;
+  padding-top: 10px;
+  position: absolute;
+  left: 10px;
+}
+@media (width <= 700px) {
+  .nav-content .right-side .login-logout .spacer {
+    display: none;
+  }
+}
+.nav-content .right-side .login-logout .button-logout {
+  display: none;
+  padding: 5px;
+  background: #000;
+  border-radius: 5px;
+  background: red;
+  color: white;
+  text-decoration: none;
+}
+.nav-content .right-side .login-logout:hover .spacer {
+  display: block;
+}
+@media (width <= 700px) {
+  .nav-content .right-side .login-logout:hover .spacer {
+    display: none;
+  }
+}
+.nav-content .right-side .login-logout:hover .button-logout {
+  display: block;
+}
 @media (width <= 700px) {
   .nav-content .right-side {
     flex-direction: column;
   }
 }
 
+.wrapper {
+  min-height: calc(100vh - 250px);
+  position: relative;
+}
+
 .footer {
-  margin-top: 200px;
+  width: 100%;
+  left: 0;
+  bottom: -250px;
+  position: absolute;
   display: flex;
   align-items: center;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
   padding-top: 20px;
   padding-bottom: 50px;
 }
@@ -358,7 +414,17 @@ table {
 .main-new .results h3 {
   margin: 8px 0 0 0;
 }
+.main-new .results ul {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  width: fit-content;
+  padding: 20px;
+  border-radius: 0.75rem;
+}
+.main-new .results li {
+  margin-left: 20px;
+}
 .main-new .results .result {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
   margin: 2px 0 0 5px;
 }
 .main-new .news .change_iti {
@@ -369,7 +435,7 @@ table {
 .main-new .news .message {
   margin-bottom: 10px;
   border-radius: 0.75rem;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
   padding: 20px;
 }
 .main-new .news .message .message-title {

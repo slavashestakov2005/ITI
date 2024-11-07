@@ -13,12 +13,23 @@
         text-align: center;
     }
     .results{
+        
         margin-right: 10px;
         min-width: 400px;
         h3{
             margin: 8px 0 0 0;
         }
+        ul{
+            box-shadow: 0 0 4px rgba(0,0,0,0.6);
+            width: fit-content;
+            padding: 20px;
+            border-radius: 0.75rem;
+        }
+        li{
+            margin-left: 20px;
+        }
         .result{
+            box-shadow: 0 0 4px rgba(0,0,0,0.6);
             margin: 2px 0 0 5px;
         }
     }
@@ -31,7 +42,7 @@
         .message{
             margin-bottom: 10px;
             border-radius: 0.75rem;
-            box-shadow: 0 0 4px rgba(0,0,0,0.1);
+            box-shadow: 0 0 4px rgba(0,0,0,0.6);
             padding: 20px;
             .message-title {
                 font-weight: bold;
