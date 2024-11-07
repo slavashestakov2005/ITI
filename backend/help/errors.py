@@ -24,7 +24,7 @@ def forbidden_error(error=None):
 @app.errorhandler(404)
 @app.errorhandler(405)
 def not_found_error(error=None):
-    return render_template('404' + '.html')
+    return redirect(url_for('error', status=404))
 
 
 @app.errorhandler(500)

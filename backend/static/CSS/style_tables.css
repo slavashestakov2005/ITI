@@ -1,11 +1,7 @@
 /* table */
 table {
-    display: block;
     width: max-content;
-    overflow: scroll;
-    width: 100%;
-    margin-inline: 5px;
-    height: 300px;
+    max-width: 100%;
 }
 
 .table-timetable {

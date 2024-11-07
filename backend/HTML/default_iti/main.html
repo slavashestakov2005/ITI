@@ -1,62 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
-{% if not search %}
-<div class="main-new">
-    <div class="results">
-        <h1>Результаты</h1>
-        {% for s in subjects %}
-            <li><a href="{{s['info'].id}}">{{ s['info'].name }}</a></li>
-        {% endfor %}
-    </div>
-    <div class="news">       
-        <h1>
-            <a>Новости {{ iti.name_on_page }}</a>
-        </h1>
-        {% for message in messages[::-1] %}
-        <div class="message">
-            <div class="container">
-                <div class="">
-                    <span class="message-title">
-                        {{ message.title }}
-                    </span><br>
-                    <span class="message-date">
-                        {% if not message.priority %}{{ moment(message.get_time()).format('Y-MM-D HH:mm') }}{% endif %}
-                    </span>
-                </div>
-                <div class="col-12 message-content js-html-content">
-                    {{ message.content }}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-        <br>
+<div class="row col-12 justify-content-center"><div class="col-auto">
+    {% if not search %}
+    <h1>Текущие ИТИ</h1>
+    <ul>
+        {% for i in itis %}{% if not i.block %}
+        <li><a href="/{{ i.id }}">{{ i.name_in_list }}</a></li>
+        {% endif %}{% endfor %}
+        <li><a href="#page_end">Все ИТИ</a></li>
     </ul>
-</div>
-</div>
-<div class="main-new">
-    <div class="iti_list">
-        <div class="col-auto">
-            {% if not search %}
-            <h1 id="page_end">Текущие ИТИ</h1>
-                {% for i in itis %}{% if not i.block %}
-                <a href="/{{ i.id }}">{{ i.name_in_list }}</a><br>
-                {% endif %}{% endfor %}
-                <a href="#page_end">Все ИТИ</a><br>
-            <br>
-            {% endif %}
-        </div>
+    <br>
+    {% endif %}
+    <h1>Поиск результатов</h1>
+    <center><form>
+        <p><input type="search" name="q" placeholder="Фамилия Имя Класс">
+            <input type="submit" value="&#128269;"></p>
+    </form></center>
+    <br>
+</div></div>
+{% if not search %}
+<h1>Новости {{ iti.name_on_page }}</h1>
+<div class="message row col-12 justify-content-center">
+    {% for message in messages[::-1] %}
+    <div class="message-item row col-8">
+        <div class="container"><div class="row align-items-start">
+            <div class="col align-self-start">
+                <span class="message-title">{{ message.title }}</span><br>
+                <span class="message-date">{% if not message.priority %}{{ moment(message.get_time()).format('Y-MM-D HH:mm') }}{% endif %}</span>
+            </div>
+            <div class="w-100"></div>
+            <div class="col-12 message-content js-html-content">{{ message.content }}</div>
+        </div></div>
     </div>
-    <div class="iti_list">
-        <h1>Все ИТИ</h1>
-        {% for i in itis %}
-            <a href="/{{ i.id }}">{{ i.name_in_list }}</a><br>
-        {% endfor %}
-    </div>
+    {% endfor %}
 </div>
+<br>
+<h1 id="page_end">Все ИТИ</h1>
+<ul>
+    {% for i in itis %}
+        <li><a href="/{{ i.id }}">{{ i.name_in_list }}</a></li>
+    {% endfor %}
+</ul>
 {% else %}
-
 <center>
     <h2>{{ search }}</h2>
     {% if empty %} По вашему запросу ничего не найдено :(

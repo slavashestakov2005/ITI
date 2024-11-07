@@ -8,7 +8,6 @@ from ..help import get_timestamp
 
 
 def send_message_to_telegram(title, content, year):
-    return
     bot = telebot.TeleBot(os.getenv('TELEGRAM_TOKEN'))
     msg = '<b>' + title + '</b>\n' + content
     msg = re.sub(r"<!--.*-->", "", msg)

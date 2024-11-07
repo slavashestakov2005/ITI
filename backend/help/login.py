@@ -34,7 +34,7 @@ def load_user(id):
 def login():
     args = {'oauth_eljur_page': ConfigEljur.OAUTH_ELJUR_PAGE}
     if current_user.is_authenticated:
-        return redirect('/admin_panel')
+        return redirect('/')
     if request.method == 'POST':
         try:
             user_login = request.form['login']

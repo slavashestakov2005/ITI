@@ -1,1 +1,0 @@
-sass backend/static/CSS/input.scss backend/static/CSS/output.css --watch

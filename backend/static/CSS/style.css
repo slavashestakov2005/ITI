@@ -8,11 +8,7 @@
     --footer-color: #d0daee;
     --footer-height: 150px;
     --footer-height-p10: 160px;
-    --box-shadow: 0 0 4px rgba(0,0,0,0.1);
-}
-body{
-    margin: 0;
-    padding: 0;
+    --box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 
 .current_year { color: blue; }
@@ -33,7 +29,7 @@ body{
 
 
 /* elements */
-h1{ font-size: 24pt; }
+h1{ font-size: 24pt; text-align: center; }
 h2{ font-size: 18pt; }
 h3{ font-size: 15pt; }
 h4{ font-size: 12pt; }
@@ -62,15 +58,41 @@ h4{ font-size: 12pt; }
 }
 
 
-.content{
-    max-width: 81rem;
-    padding-inline: 2rem;
-    margin-inline: auto;
+
+/* messages */
+.message {
+    margin-left: 0;
+    margin-right: 0;
 }
 
-.danger-text{
-    color: red;
+.message-item {
+    background-color: var(--light-grey-color);
+    margin: 15px;
+    padding: 15px;
+    border-radius: 10px;
 }
+
+.message-item:hover {
+    box-shadow: var(--box-shadow);
+    cursor: pointer;
+}
+
+.message-title {
+    font-weight: bold;
+    font-size: 15pt;
+    text-align: center;
+}
+
+.message-date {
+    font-size: 10pt;
+}
+
+.message-content {
+    font-size: 12pt;
+}
+
+
+
 
 /* js elements */
 .js-textarea {

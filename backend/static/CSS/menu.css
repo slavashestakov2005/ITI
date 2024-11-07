@@ -1,0 +1,122 @@
+/* page */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Lora';
+}
+
+.wrapper {
+    position: relative;
+    min-height: 100%;
+}
+
+.content {
+    background-color: transparent;
+    position: relative;
+    z-index: 0;
+    margin-left: 20px;
+    margin-right: 20px;
+    min-height: 100%;
+    padding-bottom: var(--footer-height-p10);
+}
+
+
+
+/* header */
+.header-logo-img {
+    height: 80px;
+}
+
+.header-text-p {
+    font-size: 25pt;
+    text-align: center;
+    visibility: visible;
+    display: block;
+}
+
+.header-white-line {
+    background-color: transparent;
+    text-align: center;
+    padding: 2px;
+    height: 50px;
+}
+
+
+
+/* dropdown */
+.dropbtn {
+    width: 200px;
+    height: 80px;
+    text-align: center;
+    background-color: var(--dark-blue-color);
+    color: white;
+    margin: 10px;
+    border-radius: 10px;
+    border: none;
+    overflow: hidden;
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 15pt;
+    font-weight: bold;
+}
+
+.dropbtn:before {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    content: "";
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: var(--light-grey-color);
+    box-shadow: var(--box-shadow);
+    z-index: 1;
+    right: 0;
+}
+
+.dropdown-item {
+    padding-left: 12px;
+    padding-right: 12px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.dropdown-menu a:hover { background-color: var(--dark2-grey-color); }
+.dropdown:hover .dropdown-menu { display: block;  margin-top: 0; }
+.dropdown:hover .dropbtn { background-color: var(--dark-blue-color); }
+
+
+
+/* footer */
+.footer {
+    width: 100%;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: var(--footer-height);
+    background-color: var(--footer-color);
+}
+
+.footer-box {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.footer-left {
+    width: 140px;
+    text-align: left;
+}
+
+.footer-center {
+    width: 120px;
+    text-align: center;
+}
+
+.footer-right {
+    width: 240px;
+    text-align: right;
+}

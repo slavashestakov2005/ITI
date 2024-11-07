@@ -13,21 +13,19 @@
     <script src="/JS/scripts.js"></script>
     <script src="/JS/requests.js"></script>
     <script src="/JS/rating_tables.js"></script>
-    <!-- <link rel="stylesheet" href="/CSS/bootstrap.min.css"> -->
-    <link rel="stylesheet" href="/CSS/output.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="http://fonts.googleapis.com/css2?family=Geologica:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/CSS/bootstrap.min.css">
+    <link rel="stylesheet" href="/CSS/menu.css">
+    <link rel="stylesheet" href="/CSS/style.css">
+    <link rel="stylesheet" href="/CSS/style_tables.css">
+    <link rel="stylesheet" href="/CSS/media.css">
     <link rel="icon" href="/Images/logo.png" type="image/x-icon">
+    <link href='https://fonts.googleapis.com/css?family=Lora' rel='stylesheet'>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {{ moment.include_moment() }}
     {{ moment.lang('ru') }}
 </head>
-
-
-<body style="font-family: 'Geologica', sans-serif;"> 
+<body>
 <div class="wrapper">
-
     <div class="content">
         <div class="row justify-content-between">
             <div class="col-auto header-logo-div">
@@ -50,55 +48,18 @@
                         {% endif %}
                         <a class="dropdown-item" href="/logout">Выйти</a>
                         {% endif %}
-
-    <div class="navigation">
-        <div class="content nav-content">
-            <div class="links">
-                {% if iti %}
-                    <a href="/{{iti.id}}">
-                        <img class="logo" src="/Images/logo.svg" alt="Интеллектуально творческие игры">
-                    </a>
-                    <div class="nav-links">
-                        <a class="link">{{iti.name_in_list}}</a>
-                        <a href="/{{iti.id}}/main#page_end" class="link">Cменить</a>
-
                     </div>
-                {% else%}
-                <a href="/">
-                    <img class="logo" src="/Images/logo.svg" alt="Интеллектуально творческие игры">
-                </a>
-                <div class="nav-links">
-                    <a class="link">Сайт ИТИ</a>
                 </div>
-                {% endif %}
-            </div>
-            <div class="right-side">
-                <form method="GET" action="main">
-                    <div class="search_res">
-                        <input type="search" name="q" placeholder="Фамилия Имя Класс" class="search-inp">
-                        <button type="submit" value="" class="search-submit">
-                            <img src="/Images/search-icon.svg" alt="">
-                        </button>
-                    </div>
-                </form>
-                <a href="/login">
-                    <button class="login-btn">
-                        <img src="/Images/login-icon.svg" alt="">
-                        <!-- <a>Вход</a> -->
-                    </button>
-                </a>
             </div>
         </div>
-    </div>
-    <div class="content">
         <div class="header-white-line"></div>
         {% block content %}{% endblock %}
         <div class="header-white-line"></div>
     </div>
     <div class="footer">
-        <div class="container content">
-            <div class="footer-boxs">
-                <div class="box">
+        <div class="container">
+            <div class="footer-box">
+                <div class="footer-left">
                     О нас:<br>
                     <a href="/Info/organizer.html">Организаторы</a><br>
                     <a href="/Info/author.html">Авторы</a><br>
@@ -106,16 +67,16 @@
                     <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSd7FopqmHoR5Ugcg_-ZAs-guy8NHS5PSvvDsx_rYetaPMKxjw/viewform?usp=sf_link">Обратная связь</a><br>
                     <a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSeORS1_nvUFr8Z2yPB80aAEEVihzZULQcPTbEk5SfUs4JvHWA/viewform?usp=sf_link">Разработка сайта</a><br>
                 </div>
-                <div class="box">
+                <div class="footer-center">
                     О ИТИ:<br>
                     <a href="/Info/primary_rules.html">Правила НШ</a><br>
                     <a href="/Info/secondary_rules.html">Правила ОШ</a><br>
                     <a href="/Info/iti_history.html">История ИТИ</a><br>
                 </div>
-                <div class="box">
+                <div class="footer-right">
                     Контакты:<br>
-                    <a>г. Красноярск, ул. Корнеева 50</a><br>
-                    <a>iti.univers106@gmail.com</a><br>
+                    г. Красноярск, ул. Корнеева 50<br>
+                    iti.univers106@gmail.com<br>
                     <a href="http://univers.su" target="_blank">МАОУ КУГ №1 «Универс»</a><br>
                 </div>
             </div>
