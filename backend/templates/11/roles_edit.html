@@ -1,0 +1,138 @@
+{% extends "base.html" %}{% block content %}
+<div class="row col-12 justify-content-center">
+	<div class="col table-col-450px">
+		<h1>Изменить роль</h1>
+		<form onsubmit="role_edit_iti(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			{% include "roles_iti.html" %}
+			<input type="submit" value="Изменить">
+		</form>
+	</div>
+	<div class="col table-col-450px">
+		<h1>Изменить предметы</h1>
+		<form onsubmit="role_edit_iti_subject(this); return false;">
+			<p>ID: <input type="text" name="id"></p>
+			<h2>Предметы:</h2>
+			<table width="100%">
+				<tr>
+					<td width="50%" valign="top">
+						<h3>Индивидуальные туры:</h3>
+					</td>
+					<td width="50%" valign="top">
+						<h3>Групповые туры:</h3>
+						<h3>Другое:</h3>
+					</td>
+				</tr>
+			</table>
+			{% include "roles_iti_subject.html" %}
+			<input type="submit" value="Изменить">
+		</form>
+	</div>
+	<div class="col table-col-450px">
+		<table border="1">
+			<thead><tr>
+				<th width="5%">ID</th>
+				<th width="10%">Логин</th>
+				<th width="25%">ИТИ роли</th>
+                <th width="60%">Предметы</th>
+			</tr></thead>
+			<tr>
+				<td>1</td>
+				<td>slava</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>2</td>
+				<td>Savokina</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>3</td>
+				<td>Prokhodskii</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>4</td>
+				<td>Martynova</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>5</td>
+				<td>Grachev</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>6</td>
+				<td>Scanner-1</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>7</td>
+				<td>matem</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>8</td>
+				<td>english</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>9</td>
+				<td>izo</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>10</td>
+				<td>tehnolog</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>11</td>
+				<td>istor</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>12</td>
+				<td>slovo</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>13</td>
+				<td>est</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>14</td>
+				<td>info</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>15</td>
+				<td>fingr</td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>16</td>
+				<td>itsn</td>
+				<td></td>
+				<td></td>
+			</tr>
+		</table>
+	</div>
+</div>
+{% endblock %}

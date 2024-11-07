@@ -17,6 +17,9 @@ class Result(SqlAlchemyBase, Table):
         return -result.result
 
     # Table
+    @classmethod
+    def select_by_iti_subject(cls, iti_subject_id: int) -> list:
+        return cls.__select_by_expr__()
 
     @classmethod
     def select_by_iti_subject(cls, iti_subject_id: int) -> list:

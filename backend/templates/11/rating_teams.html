@@ -1,0 +1,30 @@
+{% extends "base.html" %}{% block content %}
+<center>
+    <h1>Рейтинг команд</h1>
+    <div class="row justify-content-center">
+        <div class="col-auto">
+            <table class="js-table-color-place" id="sorted-table">
+                <thead><tr>
+                    <th width="10%">Место</th>
+                    <th width="30%">Команда</th>
+                    <th width="30%">Сумма</th>
+                </tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</center>
+<script>
+    let results = {}, teams = {}, subjects = [], students = {};
+    let ind_subjects = [], ind_results = {}, iti = {'id': 11, 'name_in_list': '123', 'name_on_page': '123', 'classes': '123', 'ind_days': 123, 'default_ind_score': 123, 'net_score_formula': 0, 'ind_res_per_day': 123, 'ind_prize_policy': 0, 'automatic_division': 0, 'auto_teams': '123', 'sum_ind_to_team': 0, 'sum_gr_to_ind_policy': 0, 'sum_gr_to_super': 0, 'super_open_policy': 0, 'students_in_team': 123, 'encoding_type': 0, 'description': '123', 'block': 0};
+    let team_student = {}, ind_day_students = {};
+    let tableData = generateTeamsTableData();
+    filterResults(null, null, -1, false, false);
+    let cols = [];
+    for (let row of tableData) {
+        for (let i = 2; i < row.length; ++i) cols.push(i);
+        break;
+    }
+    colorizePlacesCols(cols);
+</script>
+{% endblock %}

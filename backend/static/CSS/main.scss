@@ -1,4 +1,4 @@
-.main{
+.main-new{
     display: flex;
     margin-bottom: 50px;
     @media (width <= 700px) {
@@ -29,6 +29,7 @@
             text-decoration: underline;
         }
         .message{
+            margin-bottom: 10px;
             border-radius: 0.75rem;
             box-shadow: 0 0 4px rgba(0,0,0,0.1);
             padding: 20px;
@@ -44,5 +45,22 @@
                 font-size: 12pt;
             }
         }
+    }
+}
+.message-item{
+    border-radius: 0.75rem;
+    box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-top: 10px;
+    .message-title {
+        font-weight: bold;
+        font-size: 16pt;
+    }
+    .message-date {
+        font-size: 10pt;
+    }
+    .message-content {
+        margin-top: 10px;
+        font-size: 12pt;
     }
 }

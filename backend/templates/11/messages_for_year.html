@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<center><h1>Объявления ИТИ</h1></center>
+
+<div class="row col-12 justify-content-center">
+   <div class="col-12"><center>
+        <h2>Объявления:</h2>
+        <table border="1">
+            <thead><tr>
+                <th width="5%">ID</th>
+                <th width="20%">Заголовок</th>
+                <th width="50%">Содержимое</th>
+                <th width="15%">Время</th>
+                <th width="10%">Приоритет</th>
+            </tr></thead>
+            {% for msg in messages %}
+            <tr>
+                <td>{{ msg.id }}</td>
+                <td>{{ msg.title }}</td>
+                <td>{{ msg.content }}</td>
+                <td>{{ moment(msg.get_time()).format('Y-MM-D HH:mm') }}</td>
+                <td>{{ msg.priority }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </center></div>
+    <div class="w-100 white-line-50px"></div>
+    <div class="col-4"><center>
+        <h3>Добавить:</h3>
+        <form onsubmit="message_add(this); return false;"><center>
+            <p><textarea name="title" class="js-textarea" placeholder="Заголовок"></textarea></p>
+            <p><textarea name="content" class="js-textarea" placeholder="Содержимое"></textarea></p>
+            <p>Время публикации (текущее по умолчанию):
+                <input type="date" name="date">
+                <input type="time" name="time">
+            </p>
+            <p>Приоритет (чем больше, тем выше будет сообщение): <input type="text" name="priority" value="0"></p>
+            <p><input type="submit" value="Добавить"></p>
+        </center></form>
+    </center></div>
+    <div class="col-4"><center>
+        <h3>Редактировать:</h3>
+        <form onsubmit="message_edit(this); return false;"><center>
+            <p>Номер: <input type="text" name="id"></p>
+            <p><textarea name="title" class="js-textarea" placeholder="Заголовок"></textarea></p>
+            <p><textarea name="content" class="js-textarea" placeholder="Содержимое"></textarea></p>
+            <p>Время публикации:
+                <input type="date" name="date">
+                <input type="time" name="time">
+            </p>
+            <p>Приоритет (чем больше, тем выше будет сообщение): <input type="text" name="priority"></p>
+            <p>Если поле оставить пустым, то измения этого параметра не произойдёт.</p>
+            <p><input type="submit" value="Сохранить"></p>
+        </center></form>
+    </center></div>
+    <div class="col-4"><center>
+        <h3>Удалить:</h3>
+        <form onsubmit="message_delete(this); return false;"><center>
+            <p>Номер: <input type="text" name="id"></p>
+            <p><input type="submit" value="Удалить"></p>
+        </center></form>
+    </center></div>
+</div>
+<script>initTextArea()</script>
+{% endblock %}

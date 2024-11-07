@@ -107,8 +107,12 @@ h4 {
 
 /* table */
 table {
+  display: block;
   width: max-content;
-  max-width: 100%;
+  overflow: scroll;
+  width: 100%;
+  margin-inline: 5px;
+  height: 300px;
 }
 
 .table-timetable {
@@ -152,7 +156,7 @@ table {
 }
 @media (width <= 700px) {
   .navigation {
-    height: 13rem;
+    height: 15rem;
   }
 }
 
@@ -177,6 +181,7 @@ table {
   .nav-content {
     flex-direction: column;
     justify-content: center;
+    padding-top: 0.5rem;
   }
 }
 .nav-content .links {
@@ -192,6 +197,7 @@ table {
     flex-direction: column;
     justify-content: center;
     margin-left: 2px;
+    margin-bottom: 1rem;
   }
 }
 .nav-content .links .link {
@@ -199,12 +205,9 @@ table {
   margin-left: 2rem;
   font-size: 1.2rem;
   color: black;
-  text-decoration: none;
 }
-@media (width <= 700px) {
-  .nav-content .links .link {
-    margin-bottom: 1rem;
-  }
+.nav-content .links .change {
+  text-decoration: solid;
 }
 .nav-content .search_res {
   display: flex;
@@ -212,6 +215,7 @@ table {
   border-radius: 0.75rem;
 }
 .nav-content .search_res input, .nav-content .search_res button {
+  cursor: pointer;
   border: none;
   background-color: rgb(242, 242, 242);
   font-size: 1.2rem;
@@ -250,6 +254,7 @@ table {
   display: flex;
 }
 .nav-content .right-side .login-btn {
+  cursor: pointer;
   border: none;
   background-color: rgb(242, 242, 242);
   font-size: 1.2rem;
@@ -288,6 +293,7 @@ table {
 }
 
 .footer {
+  margin-top: 200px;
   display: flex;
   align-items: center;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
@@ -325,51 +331,70 @@ table {
   }
 }
 
-.main {
+.main-new {
   display: flex;
   margin-bottom: 50px;
 }
 @media (width <= 700px) {
-  .main {
+  .main-new {
     flex-direction: column;
     justify-content: center;
   }
 }
-.main .iti_list {
+.main-new .iti_list {
   margin-top: 200px;
   width: 100%;
   justify-content: center;
   justify-items: center;
   text-align: center;
 }
-.main .results {
+.main-new .results {
   margin-right: 10px;
   min-width: 400px;
 }
-.main .results h3 {
+.main-new .results h3 {
   margin: 8px 0 0 0;
 }
-.main .results .result {
+.main-new .results .result {
   margin: 2px 0 0 5px;
 }
-.main .news .change_iti {
+.main-new .news .change_iti {
   font-size: 20px;
   color: black;
   text-decoration: underline;
 }
-.main .news .message {
+.main-new .news .message {
+  margin-bottom: 10px;
   border-radius: 0.75rem;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
   padding: 20px;
 }
-.main .news .message .message-title {
+.main-new .news .message .message-title {
   font-weight: bold;
   font-size: 16pt;
 }
-.main .news .message .message-date {
+.main-new .news .message .message-date {
   font-size: 10pt;
 }
-.main .news .message .message-content {
+.main-new .news .message .message-content {
+  margin-top: 10px;
+  font-size: 12pt;
+}
+
+.message-item {
+  border-radius: 0.75rem;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-top: 10px;
+}
+.message-item .message-title {
+  font-weight: bold;
+  font-size: 16pt;
+}
+.message-item .message-date {
+  font-size: 10pt;
+}
+.message-item .message-content {
   margin-top: 10px;
   font-size: 12pt;
 }

@@ -30,13 +30,22 @@
     <div class="navigation">
         <div class="content nav-content">
             <div class="links">
+                {% if iti %}
+                    <a href="/{{iti.id}}">
+                        <img class="logo" src="/Images/logo.svg" alt="Интеллектуально творческие игры">
+                    </a>
+                    <div class="nav-links">
+                        <a class="link">{{iti.name_in_list}}</a>
+                        <a href="/{{iti.id}}/main#page_end" class="link">Cменить</a>
+                    </div>
+                {% else%}
                 <a href="/">
                     <img class="logo" src="/Images/logo.svg" alt="Интеллектуально творческие игры">
                 </a>
                 <div class="nav-links">
-                    <a href="results" class="link">Результаты</a>
-                    <a href="news" class="link">Новости</a>
+                    <a class="link">Сайт ИТИ</a>
                 </div>
+                {% endif %}
             </div>
             <div class="right-side">
                 <form method="GET" action="main">

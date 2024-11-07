@@ -6,7 +6,7 @@
     background: #FFF;
     box-shadow: 0 0 4px rgba(0,0,0,0.1);
     @media (width <= 700px) {
-        height: 13rem;
+        height: 15rem;
     }
 }
 .logo{
@@ -25,6 +25,7 @@
     @media (width <= 700px) {
         flex-direction: column;
         justify-content: center;
+        padding-top: 0.5rem;
     }
     .links{
         align-items: center;
@@ -36,6 +37,7 @@
                 flex-direction: column;
                 justify-content: center;
                 margin-left: 2px;
+                margin-bottom: 1rem;
             }
         }
         .link{
@@ -43,10 +45,12 @@
             margin-left: 2rem;
             font-size: 1.2rem;
             color: black;
-            text-decoration: none;
             @media (width <= 700px) {
-                margin-bottom: 1rem;
+                // margin-bottom: 1rem;
             }
+        }
+        .change{
+            text-decoration: solid;
         }
     }
     .search_res{
@@ -54,6 +58,7 @@
         background-color: none;
         border-radius: 0.75rem;
         input, button{
+            cursor: pointer;
             border: none;
             background-color: rgb(242 242 242);
             font-size: 1.2rem;
@@ -86,6 +91,7 @@
     .right-side{
         display: flex;
         .login-btn{
+            cursor: pointer;
             border: none;
             background-color: rgb(242 242 242);
             font-size: 1.2rem;
