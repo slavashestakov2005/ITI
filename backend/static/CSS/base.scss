@@ -2,6 +2,9 @@
 .wrapper{
     min-height: calc(100vh - 250px);
     position: relative;
+    @media (width <= 700px) {
+        min-height: calc(100vh - 500px);
+    }
 }
 .footer{
     width: 100%;
@@ -13,6 +16,9 @@
     box-shadow: 0 0 4px rgba(0,0,0,0.6);
     padding-top: 20px;
     padding-bottom: 50px;
+    @media (width <= 700px) {
+        bottom: -500px;
+    }
     
     .container{
         margin: auto;

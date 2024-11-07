@@ -3,12 +3,17 @@
 
 <center>
     <h2>Результаты</h2>
+    {% for cls in results %}{% if results[cls].__len__() %} <a href="#res-div-c{{ cls }}">{{ cls }} класс</a> {% endif %}{% endfor %}
+    <br>
+    <br>
     <a href="" onclick="getSubjectExcel({{ iti.id }}, '{{ subject_name }}'); return false;">Скачать результаты в формате Excel</a>
+    <br>
+    <br>
 </center>
 <div class="row justify-content-center">
     {% set classes = [] %}
     {% for cls in results %}{% if results[cls].__len__() %}
-        <div class="col-auto">
+        <div class="col-auto" id="res-div-c{{ cls }}">
             <center>
                 {% set _ = classes.append(cls) %}
                 <h3>{{ cls }} класс</h3>

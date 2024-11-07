@@ -24,6 +24,7 @@
             width: fit-content;
             padding: 20px;
             border-radius: 0.75rem;
+            background-color: var(--light-grey-color);
         }
         li{
             margin-left: 20px;
@@ -43,6 +44,7 @@
             margin-bottom: 10px;
             border-radius: 0.75rem;
             box-shadow: 0 0 4px rgba(0,0,0,0.6);
+            background-color: var(--light-grey-color);
             padding: 20px;
             .message-title {
                 font-weight: bold;

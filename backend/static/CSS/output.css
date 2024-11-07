@@ -118,7 +118,7 @@ h4 {
 table {
   display: block;
   width: max-content;
-  overflow: scroll;
+  overflow: auto;
   width: 100%;
   margin-inline: 5px;
   max-height: 600px;
@@ -347,6 +347,11 @@ table {
   min-height: calc(100vh - 250px);
   position: relative;
 }
+@media (width <= 700px) {
+  .wrapper {
+    min-height: calc(100vh - 500px);
+  }
+}
 
 .footer {
   width: 100%;
@@ -358,6 +363,11 @@ table {
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
   padding-top: 20px;
   padding-bottom: 50px;
+}
+@media (width <= 700px) {
+  .footer {
+    bottom: -500px;
+  }
 }
 .footer .container {
   margin: auto;
@@ -419,6 +429,7 @@ table {
   width: fit-content;
   padding: 20px;
   border-radius: 0.75rem;
+  background-color: var(--light-grey-color);
 }
 .main-new .results li {
   margin-left: 20px;
@@ -436,6 +447,7 @@ table {
   margin-bottom: 10px;
   border-radius: 0.75rem;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.6);
+  background-color: var(--light-grey-color);
   padding: 20px;
 }
 .main-new .news .message .message-title {

@@ -140,7 +140,8 @@ class UserListResource(Resource):
             return ApiStatus.FAIL, {'message': 'Логин уже занят'}
         user = User.build(None, args['login'], args['password'], 0)
         user.set_password(args['password'])
-        user.set_status(args['status'])
-        User.insert(user)
+        user_id = User.insert(user, return_id=True)
+        user = User.select(user_id)
+        set_user_global_roles(user, args['status'])
         Generator.gen_users_list()
         return ApiStatus.OK, {'message': 'Пользователь создан'}
