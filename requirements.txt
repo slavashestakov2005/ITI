@@ -15,6 +15,7 @@ charset-normalizer==3.4.0
 click==8.1.7
 docxcompose==1.4.0
 docxtpl==0.18.0
+et_xmlfile==2.0.0
 Flask==3.0.3
 Flask-Cors==5.0.0
 Flask-Login==0.6.3
@@ -30,6 +31,7 @@ magic-filter==1.0.12
 MarkupSafe==3.0.2
 multidict==6.1.0
 numpy==2.0.2
+openpyxl==3.1.5
 packaging==24.1
 pandas==2.2.3
 propcache==0.2.0

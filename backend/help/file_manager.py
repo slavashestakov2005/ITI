@@ -13,7 +13,7 @@ from backend.database import Iti
 
 def get_timestamp(*args):
     if not len(args):
-        point = datetime.utcnow()
+        point = datetime.now(timezone.utc)
     else:
         point = datetime(*args, tzinfo=timezone.utc)
     return int(point.timestamp())

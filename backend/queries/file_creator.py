@@ -46,6 +46,7 @@ class FileCreator:
         subjects = [Subject.select(_) for _ in subjects]
         for subject in subjects:
             template_name = 'iti/subject_ind.html' if subject.type == 'i' else 'iti/subject_group.html'
+            args = {} if subject.type == 'i' else {'teams_size': 0}
             file_name = '{}/{}.html'.format(iti.id, subject.id)
             if not os.path.exists(file_name):
-                html_render(template_name, file_name, subject_name=subject.name, results={}, scores={}, iti=iti)
+                html_render(template_name, file_name, subject_name=subject.name, results={}, scores={}, iti=iti, **args)

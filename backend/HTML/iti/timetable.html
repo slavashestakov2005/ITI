@@ -14,7 +14,7 @@
         {% for subject in iti_subjects %}
             <tr>
                 <td>{{ subject.n_d }}</td>
-                <td>{{ krsk_moment(subject.start).strftime('%Y-%m-%d') }}</td>
+                <td>{{ krsk_moment(subject.start).strftime('%d %B %Y').replace('November', 'ноября') }}</td>
                 <td>{{ subjects[subject.subject_id].name }}</td>
                 <td>{{ subject.classes }}</td>
                 <td>{{ krsk_moment(subject.start).strftime('%H:%M') }}</td>
