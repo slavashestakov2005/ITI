@@ -111,7 +111,7 @@ def class_split_results(iti: Iti, subject_id: int):
     if not check_role(roles=[UserRoleItiSubject.SPLIT_CLASS], iti_id=iti.id, iti_subject_id=ys.id):
         return render_template('add_result.html', **params, error4='У вас не доступа к этому предмету')
     try:
-        Generator.get_results_individual_subject(iti, ys.id)
+        Generator.get_results_individual_subject(iti, subject.id)
     except ValueError as ex:
         return render_template('add_result.html', **params, error4=str(ex))
     return render_template('add_result.html', **params, error4='Школьники разделены по классам')

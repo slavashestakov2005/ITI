@@ -96,6 +96,9 @@ def info_file(path):
 @cross_origin()
 def static_file(path):
     try:
+        extension = path.split('.')[-1]
+        if extension not in Config.ALLOWED_EXTENSIONS:
+            raise NotFound("not found")
         return app.send_static_file(path)
     except NotFound:
         return not_found_error()
