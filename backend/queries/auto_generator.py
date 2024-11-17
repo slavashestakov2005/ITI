@@ -261,8 +261,11 @@ class Generator:
             result = GroupResult.select_by_team_and_subject(team_id, subject_id)
             students = teams_students[team_id]
             ind_multiply, gr_multiply = iti.sum_gr_to_ind_policy, len(students) if iti.sum_gr_to_ind_policy else 1
-            data[team_id] = {'score_ind': ind_multiply * result.result, 'score_gr': gr_multiply * result.result,
-                             'result': result.result, 'position': result.position, 'students': students}
+            if result is not None:
+                data[team_id] = {'score_ind': ind_multiply * result.result, 'score_gr': gr_multiply * result.result,
+                                 'result': result.result, 'position': result.position, 'students': students}
+            else:
+                data[team_id] = {'score_ind': 0, 'score_gr': 0, 'result': 0, 'position': 4, 'students': []}
         return data
 
     @staticmethod
@@ -478,7 +481,7 @@ class Generator:
             if '#sch-' in vertical:
                 team_name = schools[int(vertical.replace('#sch-', ''))].short_name
             else:
-                team_name = 'Команда {}'.format(vertical)
+                team_name = 'Вертикаль {}'.format(vertical)
             Team.insert(Team.build(None, team_name, iti.id, vertical))
         results, students = Generator.get_results_individual_iti(iti), Generator.__get_students(iti)
         res_for_ord = {}

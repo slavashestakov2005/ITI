@@ -32,6 +32,10 @@ body {
   background: #efa540;
 }
 
+.student_no_ind {
+  background: #e0e0e0;
+}
+
 /* lines */
 .white-line-50px {
   background-color: transparent;

@@ -247,7 +247,10 @@ function addCheckBoxes() {
     for (let row of rating_table.rows) {
         let n = row.cells.length;
         let student_id = row.cells[n - 2].innerText;
-        let cell = document.createElement('td');
+        let full_cell = document.createElement('td');
+        let cell = document.createElement('div');
+        cell.style.display = "flex";
+        cell.style.alignItems = "center";
         let template = '<input class="js-rating-check" type="checkbox" name="t" value="000_0" id="000_0">-<input type="checkbox" name="ot" value="000_0" id="000_0_old" hidden>\n' +
                          '<input class="js-rating-check" type="checkbox" name="t" value="000_1" id="000_1">?<input type="checkbox" name="ot" value="000_1" id="000_1_old" hidden>\n' +
                          '<input class="js-rating-check" type="checkbox" name="t" value="000_2" id="000_2">+<input type="checkbox" name="ot" value="000_2" id="000_2_old" hidden>\n';
@@ -267,7 +270,8 @@ function addCheckBoxes() {
             cell.children[2].checked = true;
             cell.children[3].checked = true;
         }
-        row.appendChild(cell);
+        full_cell.appendChild(cell);
+        row.appendChild(full_cell);
     }
     document.getElementById("rating_students_check_plus").innerHTML = plus_count;
     document.getElementById("rating_students_check_minus").innerHTML = minus_count;

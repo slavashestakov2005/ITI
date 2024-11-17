@@ -17,6 +17,7 @@
             </table>
         </div>
     </div>
+    {% set gray_students = namespace(exists=False, max_days=0) %}
     {% for team_id in teams %}
         <br>
         <div class="w-100"></div>
@@ -35,10 +36,13 @@
             <tbody>
                 {% set gns = namespace(rows=[], row=[]) %}
                 {% for student_id in team_student[team_id] %}
+                    {% set student_days = ind_day_students[student_id] if student_id in ind_day_students else [] %}
                     {% set _ = gns.row.append(students[student_id]['school']) %}
                     {% set _ = gns.row.append(students[student_id]['class']) %}
                     {% set _ = gns.row.append(students[student_id]['name1']) %}
                     {% set _ = gns.row.append(students[student_id]['name2']) %}
+                    {% set _ = gns.row.append(student_days.__len__()) %}
+                    {% set gray_students.max_days = gray_students.max_days if gray_students.max_days > gns.row[-1] else gns.row[-1] %}
                     {% set ns = namespace(sum={}, all_sum=0) %}
                     {% for ys_id, subject in ind_subjects %}
                         {% set subject_id = subject['id'] %}
@@ -61,8 +65,11 @@
                     {% set gns.row = [] %}
                 {% endfor %}
                 {% for row in gns.rows|sort() %}
-                    <tr>
-                        {% for item in row[:-1] %}
+                    <tr {% if row[4] < gray_students.max_days %} class="student_no_ind" {% set gray_students.exists = True %} {% endif %}>
+                        {% for item in row[:4] %}
+                            <td>{{ item }}</td>
+                        {% endfor %}
+                        {% for item in row[5:-1] %}
                             <td>{{ item }}</td>
                         {% endfor %}
                         {% raw %}{% if adm %}{% endraw %}
@@ -76,8 +83,8 @@
                     {% for i in range(ind_subjects.__len__() + 1) %}
                         {% set ns = namespace(sum=0) %}
                         {% for j in gns.rows %}
-                            {% if j[i + 4] != "—" %}
-                                {% set ns.sum = ns.sum + j[i + 4] %}
+                            {% if j[i + 5] != "—" %}
+                                {% set ns.sum = ns.sum + j[i + 5] %}
                             {% endif %}
                         {% endfor %}
                         <td>{{ ns.sum }}</td>
@@ -87,6 +94,9 @@
             </tbody>
         </table>
     {% endfor %}
+    {% if gray_students.exists %}
+        <p>Школьники, выделенные <span class="student_no_ind">серым фоном</span>, заменили заболевших школьников, и их индивидуальные результаты не идут в рейтинг команд.</p>
+    {% endif %}
 </center>
 <script>
     let results = {{ team_results }}, teams = {{ teams }}, subjects = {{ team_subjects }}, students = {{ students }};
