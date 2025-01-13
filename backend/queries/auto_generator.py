@@ -274,7 +274,9 @@ class Generator:
         data = {}
         for ys_id, info in subjects.items():
             if info['type'] != 'i':
-                data[info['id']] = Generator.get_results_group_subject(iti, ys_id, info['id'], teams)
+                res = Generator.get_results_group_subject(iti, ys_id, info['id'], teams)
+                if res is not None:
+                    data[info['id']] = res
         return data
 
 
