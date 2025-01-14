@@ -57,16 +57,31 @@
                     </div>
                 </form>
                 <div class="login-logout">
+                    {% if anon %}
                     <a href="/login">
                         <button class="login-btn">
                             <img src="/Images/login-icon.svg" alt="">
                         </button>
-                        {% if not anon %}
+                    </a>
+                    {% elif check_role(roles=[UserRoleLogin.LOGIN_LOCAL]) %}
+                    <a href="#" onclick="adminPanel()">
+                        <button class="login-btn">
+                            <img src="/Images/login-icon.svg" alt="">
+                        </button>
                         <div class="spacer">
                             <a href="/logout" class="button-logout">Выход</a>
                         </div>
-                        {% endif %}
                     </a>
+                    {% elif check_role(roles=[UserRoleLogin.LOGIN_ELJUR]) %}
+                    <a href="/eljur_panel">
+                        <button class="login-btn">
+                            <img src="/Images/login-icon.svg" alt="">
+                        </button>
+                        <div class="spacer">
+                            <a href="/logout" class="button-logout">Выход</a>
+                        </div>
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
