@@ -8,12 +8,14 @@ from .db_functions import get_feedback, get_problem
 
 async def forward_feedback(feedback_id: int, text: str):
     msg = 'Отзыв #{}:\n{}'.format(feedback_id, text)
-    await bot.send_message(chat_id=Config.TELEGRAM_ADMIN_CHAT_FEEDBACK, text=msg)
+    await bot.send_message(chat_id=Config.TELEGRAM_ADMIN_CHAT_FEEDBACK[0], text=msg,
+                           reply_to_message_id=Config.TELEGRAM_ADMIN_CHAT_FEEDBACK[1])
 
 
 async def forward_problem(problem_id: int, text: str):
     msg = 'Ошибка #{}:\n{}'.format(problem_id, text)
-    await bot.send_message(chat_id=Config.TELEGRAM_ADMIN_CHAT_PROBLEM, text=msg)
+    await bot.send_message(chat_id=Config.TELEGRAM_ADMIN_CHAT_PROBLEM[0], text=msg,
+                           reply_to_message_id=Config.TELEGRAM_ADMIN_CHAT_PROBLEM[1])
 
 
 admin_chat_router = Router()
@@ -37,7 +39,7 @@ async def cmd_admin_chat_reply_problem(problem_id: int, answer: Message):
     return await answer.answer('Ответ на ошибку #{} отправлен'.format(problem_id))
 
 
-@admin_chat_router.message(F.chat.id == Config.TELEGRAM_ADMIN_CHAT_FEEDBACK | F.chat.id == Config.TELEGRAM_ADMIN_CHAT_PROBLEM)
+@admin_chat_router.message(F.chat.id == Config.TELEGRAM_ADMIN_CHAT_FEEDBACK[0] | F.chat.id == Config.TELEGRAM_ADMIN_CHAT_PROBLEM[0])
 async def cmd_admin_chat(message: Message):
     try:
         msg = message.reply_to_message
@@ -45,9 +47,9 @@ async def cmd_admin_chat(message: Message):
             return
         reply = msg.text
         reply_id = int(reply.split(':\n')[0].split('#')[1])
-        if reply.startswith('Отзыв #') and message.chat.id == Config.TELEGRAM_ADMIN_CHAT_FEEDBACK:
+        if reply.startswith('Отзыв #') and message.chat.id == Config.TELEGRAM_ADMIN_CHAT_FEEDBACK[0]:
             return await cmd_admin_chat_reply_feedback(reply_id, message)
-        if reply.startswith('Ошибка #') and message.chat.id == Config.TELEGRAM_ADMIN_CHAT_PROBLEM:
+        if reply.startswith('Ошибка #') and message.chat.id == Config.TELEGRAM_ADMIN_CHAT_PROBLEM[0]:
             return await cmd_admin_chat_reply_problem(reply_id, message)
         return await message.answer('Бот не понял, на какой отзыв/ошибку Вы отвечали')
     except BaseException:

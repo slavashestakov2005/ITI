@@ -34,3 +34,9 @@ async def cmd_user_rules(message: Message):
 ''',
         parse_mode="HTML",
         reply_markup=contact_keyboard())
+
+
+@simple_router.message(F.text == "/chat_id")
+async def cmd_chat_id(message: Message):
+    text = 'ID чата: {}\nID топика: {}'.format(message.chat.id, message.message_thread_id)
+    return await message.answer(text)
