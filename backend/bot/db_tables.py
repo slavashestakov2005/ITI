@@ -25,5 +25,13 @@ class BotFeedback(BotBase):
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
 
+class BotProblem(BotBase):
+    __tablename__ = 'bot_problems'
+
+    telegram_id: Mapped[int] = mapped_column()
+    message: Mapped[str] = mapped_column(Text)
+    timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
+
+
 engine = create_async_engine(url='sqlite+aiosqlite:///{}'.format(Config.DB))
 async_session = async_sessionmaker(engine)

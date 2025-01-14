@@ -3,7 +3,8 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 
-from .db_functions import (add_feedback, get_all_admin_telegram_ids)
+from .cmds_admin_chat import forward_feedback, forward_problem
+from .db_functions import add_feedback, add_problem, get_all_admin_telegram_ids
 from .keyboards import create_results_keyboard
 from .queries import get_student, get_results_for_student
 
@@ -12,6 +13,10 @@ user_router = Router()
 
 
 class Feedback(StatesGroup):
+    message = State()
+
+
+class Problem(StatesGroup):
     message = State()
 
 
@@ -52,7 +57,7 @@ async def cmd_user_results(message: Message):
 Мы не смогли Вас найти, попробуйте сделать /auth ещё раз
 ''', parse_mode="HTML")
 
-    iti_id = 8
+    iti_id = 10
     results = get_results_for_student(data['student']['id'], iti_id)
     await message.reply("Предмет | Место | Баллы | Балл в рейтинг \nВаши результаты:",
                     reply_markup=create_results_keyboard(results))
@@ -68,7 +73,7 @@ async def cmd_user_feedback(message: Message, state: FSMContext) -> None:
     if await check_adm(message.from_user.id):
         return await message.answer('Вы являетесь администратором и не можете использовать эту функцию\nПропишите /start чтобы получить клавиатуру для админов')
     
-    await message.answer('Отправьте вашу проблему. Для отмены введите /cancel')
+    await message.answer('Отправьте вашу обратную связь. Для отмены введите /cancel')
     await state.set_state(Feedback.message)
 
 
@@ -76,8 +81,30 @@ async def cmd_user_feedback(message: Message, state: FSMContext) -> None:
 async def cmd_user_process_problem(message: Message, state: FSMContext) -> None:
     if await check_adm(message.from_user.id):
         return await message.answer('Вы являетесь администратором и не можете использовать эту функцию\nПропишите /start чтобы получить клавиатуру для админов')
-    
+
     feedback_text = message.text
-    await add_feedback(message.from_user.id, feedback_text)
+    feedback_id = await add_feedback(message.from_user.id, feedback_text)
+    await forward_feedback(feedback_id, feedback_text)
     await message.answer("Ваша обратная связь принята.")
+    await state.clear()
+
+
+@user_router.message(F.text == "Нашли ошибку")
+async def cmd_user_problem(message: Message, state: FSMContext) -> None:
+    if await check_adm(message.from_user.id):
+        return await message.answer('Вы являетесь администратором и не можете использовать эту функцию\nПропишите /start чтобы получить клавиатуру для админов')
+    
+    await message.answer('Отправьте вашу ошибку. Для отмены введите /cancel')
+    await state.set_state(Problem.message)
+
+
+@user_router.message(Problem.message)
+async def cmd_user_process_problem(message: Message, state: FSMContext) -> None:
+    if await check_adm(message.from_user.id):
+        return await message.answer('Вы являетесь администратором и не можете использовать эту функцию\nПропишите /start чтобы получить клавиатуру для админов')
+
+    problem_text = message.text
+    problem_id = await add_problem(message.from_user.id, problem_text)
+    await forward_problem(problem_id, problem_text)
+    await message.answer("Ваша ошибка принята.")
     await state.clear()

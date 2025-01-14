@@ -16,6 +16,9 @@ def contact_keyboard():
                 KeyboardButton(text='Мои результаты')
             ],
             [
+                KeyboardButton(text='Нашли ошибку')
+            ],
+            [
                 KeyboardButton(text='Обратная связь')
             ]
         ],

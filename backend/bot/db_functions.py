@@ -35,7 +35,7 @@ async def get_all_admin_telegram_ids() -> list[int]:
         return telegram_ids
 
 
-async def add_feedback(tg_id: int, message: str) -> BotFeedback:
+async def add_feedback(tg_id: int, message: str) -> int:
     async with async_session() as session:
         async with session.begin():
             new_feedback = BotFeedback(
@@ -44,8 +44,11 @@ async def add_feedback(tg_id: int, message: str) -> BotFeedback:
                 timestamp=datetime.now()
             )
             session.add(new_feedback)
+            await session.flush()
+            await session.refresh(new_feedback)
+            feedback_id = new_feedback.id
         await session.commit()
-        return new_feedback
+        return feedback_id
 
 
 async def get_feedback(id: int) -> BotFeedback:
@@ -81,3 +84,26 @@ async def get_feedback_count() -> int:
     async with async_session() as session:
         result = await session.execute(select(BotFeedback))
         return len(result.scalars().all())
+
+
+async def add_problem(tg_id: int, message: str) -> int:
+    async with async_session() as session:
+        async with session.begin():
+            new_problem = BotProblem(
+                telegram_id=tg_id,
+                message=message,
+                timestamp=datetime.now()
+            )
+            session.add(new_problem)
+            await session.flush()
+            await session.refresh(new_problem)
+            problem_id = new_problem.id
+        await session.commit()
+        return problem_id
+
+
+async def get_problem(id: int) -> BotProblem:
+    async with async_session() as session:
+        result = await session.execute(select(BotProblem).where(BotProblem.id == id))
+        res = result.scalars().first()
+        return res
