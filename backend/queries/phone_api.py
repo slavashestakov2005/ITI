@@ -100,6 +100,8 @@ def save_barcodes(iti: Iti):
                 if barcode < start_barcode or barcode > finish_barcode:
                     raise ValueError('Штрих-код "{}" не попал в диапазон для ИТИ'.format(barcode))
                 bar = Barcode.select(iti.id, barcode)
+                if Barcode.select(8, barcode) is not None:
+                    raise ValueError('Штрих-код "{}" использован в прошлом году (ИТИ-8)'.format(barcode))
                 if bar and bar.student_id != student_id:
                     raise ValueError('Штрих-код "{}" уже сохранён на школьника "{}"'.format(barcode, student_id))
         for line in value:
@@ -141,8 +143,8 @@ def save_subject_results(iti: Iti, subject_id: int):
                 ans[answer].append(str(i + 1))
         decode = {-1: 'Вам запрещено редактирование',
                   0: 'Несуществующий шифр в строках: ' + (','.join(ans[0]) if 0 in ans else ''),
-                  1: 'Пустые ячеёки в строках: ' + (','.join(ans[1]) if 1 in ans else ''),
-                  3: ('Такого предмета нет в этом году',),
+                  1: 'Пустые ячейки в строках: ' + (','.join(ans[1]) if 1 in ans else ''),
+                  3: 'Такого предмета нет в этом году',
                   4: 'Повтор кодов в строках: ' + (','.join(ans[4]) if 4 in ans else ''),
                   5: 'Неправильный формат для результата в строках: ' + (','.join(ans[5]) if 5 in ans else ''),
                   6: 'Сумма баллов больше 30: ' + (','.join(ans[6]) if 6 in ans else ''),

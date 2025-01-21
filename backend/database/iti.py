@@ -36,13 +36,13 @@ class Iti(SqlAlchemyBase, Table):
         parts = self.barcodes.split('-')
         if len(parts) != 2 or parts[0] == '' or parts[1] == '':
             raise ValueError("Диапазон штрих-кодов задан неправильно")
-        return int(parts[0]) % 10 ** 12
+        return int(parts[0])
 
     def barcodes_finish(self) -> int:
         parts = self.barcodes.split('-')
         if len(parts) != 2 or parts[0] == '' or parts[1] == '':
             raise ValueError("Диапазон штрих-кодов задан неправильно")
-        return int(parts[1]) % 10 ** 12
+        return int(parts[1])
 
     # TODO: change separator to ' | '
     def auto_teams_list(self):
