@@ -34,6 +34,10 @@ class FileNames:
         return '{}/diploma.xlsx'.format(iti.id), 'ИТИ {}. Дипломы.xlsx'.format(iti.id)
 
     @staticmethod
+    def diploma_excel_teamed(iti: Iti):
+        return '{}/diploma_teamed.xlsx'.format(iti.id), 'ИТИ {}. Дипломы командных школьников.xlsx'.format(iti.id)
+
+    @staticmethod
     def data_excel(iti: Iti):
         return '{}/data.xlsx'.format(iti.id), 'ИТИ {}. Все данные.xlsx'.format(iti.id)
 
@@ -44,6 +48,10 @@ class FileNames:
     @staticmethod
     def barcodes_word(iti: Iti):
         return '{}/barcodes.docx'.format(iti.id), 'ИТИ {}. Бланки для кодировки.docx'.format(iti.id)
+    
+    @staticmethod
+    def barcodes_for_teamed_word(iti: Iti):
+        return '{}/barcodes_teamed.docx'.format(iti.id), 'ИТИ {}. Бланки для кодировки командных школьников.docx'.format(iti.id)
 
     @staticmethod
     def codes_excel(iti: Iti):

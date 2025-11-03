@@ -87,6 +87,27 @@ class GroupResultNumerator:
         return self.__cur_place
 
 
+class NetScorer:
+    def __init__(self, maximum: int, best_score: float, formula: int):
+        self.maximum = maximum
+        self.best_score = best_score
+        self.formula = formula
+        self.calls = 0
+    
+    def get_net(self, score: float) -> int | float:
+        self.calls += 1
+        if self.formula == 0:
+            if 2 * self.best_score >= self.maximum:
+                return int(0.5 + score * 100 / self.best_score)
+            return int(0.5 + score * 200 / self.maximum)
+        elif self.formula == 1:
+            return score
+        elif self.formula == 2:
+            return max(10, 100 - 15 * (self.calls - 1))
+        else:
+            raise ValueError('Неверная формула вычисления балла за индивидуальный тур')
+
+
 class Generator:
     @staticmethod
     def gen_iti_lists() -> None:
@@ -147,18 +168,6 @@ class Generator:
     @staticmethod
     def gen_rules(subject: Subject) -> None:
         html_render('all/rules.html', 'Info/{}.html'.format(subject.id), subject=subject)
-
-
-    @staticmethod
-    def __get_net_score(maximum: int, best_score: float, score: float, net_score_formula: int) -> int | float:
-        if net_score_formula == 0:
-            if 2 * best_score >= maximum:
-                return int(0.5 + score * 100 / best_score)
-            return int(0.5 + score * 200 / maximum)
-        elif net_score_formula == 1:
-            return score
-        else:
-            raise ValueError('Неверная формула вычисления балла за индивидуальный тур')
 
     @staticmethod
     def __get_students(iti: Iti) -> dict[int, Student]:
@@ -289,12 +298,13 @@ class Generator:
         numerator = IndividualResultNumerator(ind_prize_policy)
         data = []
         max_result = results[0].result
+        scorer = NetScorer(possible_maximum, max_result, net_score_formula)
         for result in results:
             if result.result > possible_maximum:
                 raise ValueError('Сохранены некорректные результаты (есть участник с количеством '
                                  'баллов большим максимального)')
             people = students[result.student_id]
-            result.net_score = Generator.__get_net_score(possible_maximum, max_result, result.result, net_score_formula)
+            result.net_score = scorer.get_net(result.result)
             result.position = numerator.get_place(result.net_score)
             row = [result.position, people.name_1, people.name_2, people.school_name(schools), people.class_name(),
                 result.result, result.net_score]
@@ -318,9 +328,12 @@ class Generator:
                                                     Student.sort_by_name(students[x.student_id])))
         data = {}
         schools = School.select_id_dict()
+        score_formula = iti.net_score_formula
+        # if 36 <= subject_id <= 42:
+        #     score_formula = 2
         for cls in iti.classes_list():
             data[cls] = Generator.__gen_individual_results_table(sorted_results[cls], students, possible_max_scores[cls],
-                                                    iti.net_score_formula, iti.ind_prize_policy, schools)
+                                                    score_formula, iti.ind_prize_policy, schools)
         html_render('iti/subject_ind.html', file_name, subject_name=subject.name, results=data,
                     scores=possible_max_scores, iti=iti)
 
@@ -447,6 +460,7 @@ class Generator:
                     ind_results=ind_results, iti=iti, team_student=team_students, ind_day_students=ind_day_students)
         html_render('iti/rating.html', str(iti.id) + '/rating.html', results=super_rating, students=students)
         ExcelDiplomaWriter().write(Config.DATA_FOLDER + '/' + FileNames.diploma_excel(iti)[0], diplomas, info_subjects, students)
+        ExcelDiplomaWriter().write(Config.DATA_FOLDER + '/' + FileNames.diploma_excel_teamed(iti)[0], diplomas, info_subjects, students, students_in_teams)
 
 
     @staticmethod

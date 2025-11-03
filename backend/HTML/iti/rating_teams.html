@@ -28,10 +28,12 @@
                 <th width="10%">Класс</th>
                 <th width="10%">Фамилия</th>
                 <th width="10%">Имя</th>
+                {% raw %}{% if adm %}{% endraw %}
                 {% for subject_id, subject in ind_subjects %}
                     <th width="10%">{{ subject['short_name'] }}</th>
                 {% endfor %}
-                {% raw %}{% if adm %}<th width="10%">Сумма</th>{% endif %}{% endraw %}
+                <th width="10%">Сумма</th>
+                {% raw %}{% endif %}{% endraw %}
             </tr></thead>
             <tbody>
                 {% set gns = namespace(rows=[], row=[]) %}
@@ -69,10 +71,10 @@
                         {% for item in row[:4] %}
                             <td>{{ item }}</td>
                         {% endfor %}
-                        {% for item in row[5:-1] %}
-                            <td>{{ item }}</td>
-                        {% endfor %}
                         {% raw %}{% if adm %}{% endraw %}
+                            {% for item in row[5:-1] %}
+                                <td>{{ item }}</td>
+                            {% endfor %}
                             <td>{{ row[-1] }}</td>
                         {% raw %}{% endif %}{% endraw %}
                     </tr>

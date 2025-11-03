@@ -27,10 +27,12 @@ class ExcelDiplomaWriter(ExcelParentWriter):
     def order_gr_diploma(x):
         return x[2]['id'], x[1], x[0]['class_n'], x[0]['class_latter'], x[0]['name_all']
 
-    def write(self, filename: str, diplomas: list, subjects: dict, students: dict):
+    def write(self, filename: str, diplomas: list, subjects: dict, students: dict, teamed: set=None):
         dip1, dip2, dip3 = [], [], []
         for diploma in diplomas:
             student_id, subject_id, place = diploma
+            if teamed is not None and student_id not in teamed:
+                continue
             student, subject = students[student_id], subjects[subject_id]
             line, tp = [student, place, subject], subject['type']
             if tp == 'i':

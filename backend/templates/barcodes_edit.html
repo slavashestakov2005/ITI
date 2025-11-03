@@ -44,10 +44,16 @@
                     <tr>
                         <td>{{ barcode.code }}</td>
                         <td>{{ barcode.student_id }}</td>
-                        {% set student = students[barcode.student_id] %}
-                        <td>{{ student.name_1 }} {{ student.name_2 }} {{ student.name_3 }}</td>
-                        <td>{{ student.school_name(schools) }}</td>
-                        <td>{{ student.class_name() }}</td>
+                        {% if barcode.student_id not in students %}
+                            <td class="error-msg">Ошибка: нет школьника</td>
+                            <td class="error-msg">Ошибка: нет школьника</td>
+                            <td class="error-msg">Ошибка: нет школьника</td>
+                        {% else %}
+                            {% set student = students[barcode.student_id] %}
+                            <td>{{ student.name_1 }} {{ student.name_2 }} {{ student.name_3 }}</td>
+                            <td>{{ student.school_name(schools) }}</td>
+                            <td>{{ student.class_name() }}</td>
+                        {% endif %}
                         <td></td>
                     </tr>
                 {% endif %}{% endfor %}
@@ -56,10 +62,16 @@
                     <tr>
                         <td>{{ barcode.code }}</td>
                         <td>{{ barcode.student_id }}</td>
-                        {% set student = students[barcode.student_id] %}
-                        <td>{{ student.name_1 }} {{ student.name_2 }} {{ student.name_3 }}</td>
-                        <td>{{ student.school_name(schools) }}</td>
-                        <td>{{ student.class_name() }}</td>
+                        {% if barcode.student_id not in students %}
+                            <td class="error-msg">Ошибка: нет школьника</td>
+                            <td class="error-msg">Ошибка: нет школьника</td>
+                            <td class="error-msg">Ошибка: нет школьника</td>
+                        {% else %}
+                            {% set student = students[barcode.student_id] %}
+                            <td>{{ student.name_1 }} {{ student.name_2 }} {{ student.name_3 }}</td>
+                            <td>{{ student.school_name(schools) }}</td>
+                            <td>{{ student.class_name() }}</td>
+                        {% endif %}
                         <td>{{ subjects[results_dict[barcode.code].iti_subject_id].name }}</td>
                     </tr>
                 {% endif %}{% endfor %}

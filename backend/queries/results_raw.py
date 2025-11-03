@@ -24,7 +24,7 @@ def save_result_(user: User, year: int, subject: int, student_code: int, res: st
     result_sum = prepare_results(res)
     if result_sum is None:
         return 5
-    if result_sum > 30:
+    if result_sum > 100:
         return 6
 
     iti = Iti.select(year)

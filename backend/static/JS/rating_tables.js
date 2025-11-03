@@ -231,7 +231,10 @@ function generateStudentsTableData(addCheckBoxes=false) {
             else line.push('—');
         }
         line.push(calc_results[student_id]['group_text']);
-        if (addCheckBoxes) line.push(student_id);
+        if (addCheckBoxes) {
+            line.push(student['name1'] + ' ' + student['name2'] + ' ' + student['school'] + ' ' + student['class'])
+            line.push(student_id);
+        }
         line.push(calc_results[student_id]['all_sum']);
         lines.push(line);
     }

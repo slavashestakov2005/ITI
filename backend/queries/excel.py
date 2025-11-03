@@ -116,6 +116,16 @@ def download_diploma(iti: Iti):
     return send_file(filename, as_attachment=True, download_name=send_name)
 
 
+@app.route('/<int:iti_id>/download_diploma_teamed', methods=['GET'])
+@cross_origin()
+@login_required
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
+def download_diploma_teamed(iti: Iti):
+    store_name, send_name = FileNames.diploma_excel_teamed(iti)
+    filename = './data/' + store_name
+    return send_file(filename, as_attachment=True, download_name=send_name)
+
+
 @app.route('/<int:iti_id>/<int:subject_id>/load_result', methods=['POST'])
 @cross_origin()
 @login_required

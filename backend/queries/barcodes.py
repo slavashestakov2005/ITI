@@ -13,7 +13,7 @@ import os
 from backend import app
 from .help import check_access
 from .. import Config
-from ..database import Iti, School, Student
+from ..database import Iti, School, Student, Team, TeamStudent
 from ..excel import ExcelBarcodesWriter
 from ..help import FileNames, UserRoleIti
 
@@ -43,14 +43,9 @@ def create_barcode_blank(doc, student: Student, schools: dict):
     return st
 
 
-@app.route("/<int:iti_id>/create_barcodes")
-@cross_origin()
-@login_required
-@check_access(roles=[UserRoleIti.ADMIN], block=True)
-def create_barcodes(iti: Iti):
+def create_barcodes_body(iti: Iti, students: list[Student], names) -> None:
     if not os.path.exists(Config.WORDS_FOLDER):
         os.makedirs(Config.WORDS_FOLDER)
-    students = sorted(Student.select_by_iti(iti), key=Student.sort_by_all)
     cnt = len(students)
     barcodes_on_page = 6
     doc = DocxTemplate(Config.DATA_FOLDER + '/{}_barcodes_template.docx'.format(barcodes_on_page))
@@ -69,12 +64,39 @@ def create_barcodes(iti: Iti):
     for i in range(barcodes_on_page, cnt, barcodes_on_page):
         doc = Document(Config.WORDS_FOLDER + '/bar-{}.docx'.format(i // barcodes_on_page))
         composer.append(doc)
-    store_name, send_name = FileNames.barcodes_word(iti)
+    store_name, send_name = names(iti)
     main_doc = Config.DATA_FOLDER + "/" + store_name
     composer.save(main_doc)
     for file in glob(Config.WORDS_FOLDER + '/*.*'):
         os.remove(file)
+
+
+@app.route("/<int:iti_id>/create_barcodes")
+@cross_origin()
+@login_required
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
+def create_barcodes(iti: Iti):
+    students = sorted(Student.select_by_iti(iti), key=Student.sort_by_all)
+    create_barcodes_body(iti, students, FileNames.barcodes_word)
     return render_template('codes.html', error='Документ с листочками сгенерирован', iti=iti)
+
+
+@app.route("/<int:iti_id>/create_barcodes_for_teamed")
+@cross_origin()
+@login_required
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
+def create_barcodes_for_teamed(iti: Iti):
+    students = []
+    for team in Team.select_by_iti(iti.id):
+        cur_students = []
+        for ts in TeamStudent.select_by_team(team.id):
+            student = Student.select(ts.student_id)
+            student.load_class(iti.id)
+            cur_students.append(student)
+        cur_students.sort(key=Student.sort_by_all)
+        students.extend(cur_students)
+    create_barcodes_body(iti, students, FileNames.barcodes_for_teamed_word)
+    return render_template('codes.html', error='Документ с листочками для командных школьников сгенерирован', iti=iti)
 
 
 @app.route("/<int:iti_id>/get_barcodes")
@@ -83,6 +105,16 @@ def create_barcodes(iti: Iti):
 @check_access(roles=[UserRoleIti.ADMIN], block=True)
 def get_barcodes(iti: Iti):
     store_name, send_name = FileNames.barcodes_word(iti)
+    filename = './data/' + store_name
+    return send_file(filename, as_attachment=True, download_name=send_name)
+
+
+@app.route("/<int:iti_id>/get_barcodes_for_teamed")
+@cross_origin()
+@login_required
+@check_access(roles=[UserRoleIti.ADMIN], block=True)
+def get_barcodes_for_teamed(iti: Iti):
+    store_name, send_name = FileNames.barcodes_for_teamed_word(iti)
     filename = './data/' + store_name
     return send_file(filename, as_attachment=True, download_name=send_name)
 

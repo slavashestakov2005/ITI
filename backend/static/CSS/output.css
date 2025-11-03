@@ -141,6 +141,14 @@ table {
   max-width: 850px;
 }
 
+.table-col-1500px {
+  /* min-width: 1500px; */
+  max-width: 1500px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
 .table-col-930px {
   min-width: 930px;
   max-width: 930px;

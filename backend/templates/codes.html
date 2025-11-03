@@ -7,8 +7,12 @@
         <p><a href="create_codes?new=0">Догенерировать новые коды для школьников у которых ещё нет</a></p>
         <p><a href="get_codes">Скачать Excel со всеми кодами</a></p>
     {% elif iti.encoding_type == 1 %}
+        <h2>Всех</h2>
         <p><a href="create_barcodes">Сгенерировать WORD с штрих-кодами</a></p>
         <p><a href="get_barcodes">Скачать штрих-коды в WORD</a></p>
+        <h2>Командных</h2>
+        <p><a href="create_barcodes_for_teamed">Сгенерировать WORD с штрих-кодами командных школьников</a></p>
+        <p><a href="get_barcodes_for_teamed">Скачать штрих-коды командных школьников в WORD</a></p>
         <br>
         <h2>Генерация Excel штрих-кодов</h2>
         <form action="get_excel_with_barcodes" method="post">
