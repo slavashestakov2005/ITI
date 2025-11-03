@@ -1,10 +1,12 @@
-name: CI
+name: Build and Deploy Sphinx Docs
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - iti-v2
 
 jobs:
-
-  backend:
+  build:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,21 +24,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Lint with flake8
-        run: flake8
-
-      - name: Format check with black
-        run: black --check .
-
-      - name: Format check with isort
-        run: isort --check-only .
-
-      - name: Run tests
-        run: pytest
-        env:
-          PYTHONPATH: ${{ github.workspace }}/backend
-
       - name: Build sphinx docs
         run: |
           cd docs
           make html
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: backend/docs/_build/html

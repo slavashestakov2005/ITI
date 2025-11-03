@@ -14,3 +14,11 @@ repos:
     rev: 5.13.2
     hooks:
       - id: isort
+
+  # - repo: local
+  #   hooks:
+  #     - id: sphinx-build
+  #       name: "Build sphinx docs"
+  #       entry: python
+  #       args: ["-m", "sphinx", "-b", "html", "backend/docs", "backend/docs/_build/html"]
+  #       language: system

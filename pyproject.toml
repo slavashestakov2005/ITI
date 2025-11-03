@@ -5,4 +5,4 @@ target-version = ['py311']
 [tool.isort]
 profile = "black"
 line_length = 120
-known_first_party = ["ratings", "tests", "utils"]
+known_first_party = ["pages", "ratings", "tests", "utils"]

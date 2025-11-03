@@ -1,6 +1,9 @@
 black==24.4.2
+fastapi==0.115.7
 flake8==7.3.0
 flake8-docstrings==1.7.0
 isort==7.0.0
 pre_commit==4.3.0
+pydantic==2.9.2
 pytest==8.4.2
+Sphinx==8.1.3

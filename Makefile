@@ -13,3 +13,12 @@ pre-commit:
 
 test:
 	cd backend && python -m pytest
+
+run:
+	cd backend && python -m uvicorn main:app --reload
+
+docs:
+	cd backend/docs && make clean && make html
+
+docs-modules:
+	cd backend && sphinx-apidoc -f -o docs/ .
