@@ -32,6 +32,7 @@ python -m pre_commit autoupdate
 ```sh
 python -m pip install black
 python -m pip install flake8
+python -m pip install flake8-docstrings
 python -m pip install isort
 ```
 * Запустите проверку стиля:
