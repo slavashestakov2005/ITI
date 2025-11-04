@@ -1,6 +1,10 @@
 """Генерация рейтингов из сырых результатов."""
 
-from .score_generator import MiddleSchoolIndividualScoreGenerator, PrimarySchoolIndividualScoreGenerator, ScoreGenerator
+from ratings.score_generator import (
+    MiddleSchoolIndividualScoreGenerator,
+    PrimarySchoolIndividualScoreGenerator,
+    ScoreGenerator,
+)
 
 __all__ = [
     "MiddleSchoolIndividualScoreGenerator",

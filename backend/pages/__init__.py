@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from .simple import router as simple_router
+from pages.simple import router as simple_router
 
 router = APIRouter()
 router.include_router(simple_router)

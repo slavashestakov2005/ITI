@@ -12,6 +12,14 @@ tests.test\_ratings\_score\_generator module
    :undoc-members:
    :show-inheritance:
 
+tests.test\_utils\_converts module
+----------------------------------
+
+.. automodule:: tests.test_utils_converts
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

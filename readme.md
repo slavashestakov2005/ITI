@@ -11,71 +11,28 @@
 
 
 # Как начать разработку
-Конкретные версии библиотек можно посмотреть в `backend/requirements.txt`. Все команды указаны с префиксом `python -m`, замените на свой способ запустить питон.
+Используется питон версии `3.10` (самая новая версия, поддерживаемая хостингом), конкретные версии библиотек можно посмотреть в `backend/requirements.txt`. Основным источником правды является `Makefile` - можно или копировать команды оттуда или установить `make` и запускать например вот так: `make test`.
 
-## Make
-Если установлен `make`, то в `Makefile` есть команды для него, пользоваться ими можно вот так: `make test`.
+## Виртуальное окружение
+* `make venv-install` создаёт окружение;
+* `make venv-start` активирует окружение (точнее выводит команду для этого);
+* `make venv-finish` выключает окружение (точнее выводит команду для этого);
 
 ## Прекоммитные проверки
-* Установите библиотеку:
-```sh
-python -m pip install pre_commit
-python -m pre_commit install
-```
-* При изменений прекоммитных проверок, обновите:
-```sh
-python -m pre_commit install --hook-type pre-commit
-python -m pre_commit autoupdate
-```
-
-## Кодстайл
-* Установите библиотеки:
-```sh
-python -m pip install black
-python -m pip install flake8
-python -m pip install flake8-docstrings
-python -m pip install isort
-```
-* Запустите проверку стиля:
-```sh
-cd backend
-python -m flake8
-python -m isort --check-only .
-```
-* Или автоматически отформатируйте:
-```sh
-cd backend
-python -m black .
-python -m isort .
-```
-
-## Тесты
-* Установите библиотеку:
-```sh
-python -m pip install pytest
-```
-* Запустите тесты:
-```sh
-cd backend
-python -m pytest 
-```
+* `make lint` запускает flake8 линтер (пишет о проблемах кодстайла, не исправляет);
+* `make format` запускает black форматтер (иправляет проблемы кодстайла)
+* `make test` запуска pytest тестирование;
+* `make cov` проверяет что тестами покрыты все важные функции;
+* `make pre-commit` запускает все прекоммитные проверки, как это делает `git commit`;
 
 ## Документирование
-* Устанавливаем генератор документации:
-```sh
-python -m pip install sphinx
-```
-* Обновление документации если добавляем модуль:
-```sh
-cd backend
-sphinx-apidoc -f -o docs/ .
-```
-* Если поменяли описания:
-```sh
-cd backend/docs
-make clean
-make html
-```
+* `make docs` генерирует документацию sphinx (в репозитории лежат только `.rst` файлы, остальные игнорятся и деплоятся в github-pages);
+
+## Другое
+* `make run` запускает FastApi бекенд;
+* `make clean` удаляет venv и репорты покрытия;
+
+run clean
 
 # Авторы
 1. Шестаков Вячеслав slavashestakov2005
