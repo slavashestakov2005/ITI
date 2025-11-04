@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 @router.get("/example", response_class=HTMLResponse)
-async def get_example():
+async def get_example() -> str:
     """Пример html страницы."""
     return """<html>
     <body>
@@ -25,6 +25,6 @@ class Item(BaseModel):
 
 
 @router.get("/example_item")
-def get_item():
+def get_item() -> Item:
     """Пример возвращения класса."""
     return Item(name="name", price=3.14)

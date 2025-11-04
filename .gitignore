@@ -1,2 +1,4 @@
 **/__pycache__/**
 backend/docs/_build/
+.coverage
+htmlcov

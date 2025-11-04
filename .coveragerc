@@ -1,0 +1,9 @@
+[run]
+source =
+    backend/ratings
+    backend/utils
+
+[report]
+fail_under = 100
+exclude_lines =
+    @abc\.abstractmethod

@@ -22,3 +22,11 @@ docs:
 
 docs-modules:
 	cd backend && sphinx-apidoc -f -o docs/ .
+
+cov:
+	python -m coverage run -m pytest
+	python -m coverage report -m
+	python -m coverage html
+
+cov-clean:
+	rm htmlcov -r
