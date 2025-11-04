@@ -15,10 +15,27 @@ repos:
     hooks:
       - id: isort
 
-  # - repo: local
-  #   hooks:
-  #     - id: sphinx-build
-  #       name: "Build sphinx docs"
-  #       entry: python
-  #       args: ["-m", "sphinx", "-b", "html", "backend/docs", "backend/docs/_build/html"]
-  #       language: system
+  - repo: local
+    hooks:
+      - id: sphinx-apidoc
+        name: "Build sphinx apidoc"
+        language: system
+        entry: |
+          bash -c '
+            cd backend
+            sphinx-apidoc -f -o docs/ . || exit 1
+            git diff --quiet docs/*.rst
+            if [ $? -eq 0 ]; then
+              echo "✅ Documentation (.rst) is up to date."
+              exit 0
+            else
+              echo "❌ Generated .rst files have changed. Please:"
+              echo "    1. Review the changes:"
+              echo "       git diff $API_DIR/*.rst"
+              echo "    2. Add them to the commit:"
+              echo "       git add $API_DIR/*.rst"
+              echo "    3. Then retry the commit."
+              exit 1
+            fi
+          '
+        types: [python]

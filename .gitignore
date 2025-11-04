@@ -2,3 +2,4 @@
 backend/docs/_build/
 .coverage
 htmlcov
+.venv

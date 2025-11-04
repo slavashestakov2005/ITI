@@ -45,3 +45,16 @@ jobs:
         run: |
           coverage run -m pytest
           coverage report -m
+
+      - name: Sphinx docs consistency
+        working-directory: backend
+        run: |
+            sphinx-apidoc -f -o docs/ . || exit 1
+            git diff --quiet docs/*.rst
+            if [ $? -eq 0 ]; then
+              echo "✅ Documentation (.rst) is up to date."
+              exit 0
+            else
+              echo "❌ .rst files have changed. Please commit them"
+              exit 1
+            fi
