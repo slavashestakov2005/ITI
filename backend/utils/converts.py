@@ -1,6 +1,6 @@
 """Функции для конвертации между типами."""
 
 
-def math_round(value: float) -> int:
+def math_round(number: float) -> int:
     """Округляет число математически правильно."""
-    return int(value + 0.5)
+    return int(number + 0.5)

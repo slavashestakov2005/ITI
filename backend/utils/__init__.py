@@ -1,5 +1,5 @@
 """Разные утилиты."""
 
-from .converts import math_round
+from utils.converts import math_round
 
 __all__ = ["math_round"]

@@ -29,13 +29,13 @@ venv-finish:
 	echo Run: deactivate
 
 lint:
-	cd backend && python -m flake8
-	cd backend && python -m isort --check-only .
-	cd backend && python -m mypy .
+	python -m flake8 backend
+	python -m isort --check-only backend
+	python -m mypy backend
 
 format:
-	cd backend && python -m black .
-	cd backend && python -m isort .
+	python -m black backend
+	python -m isort backend
 
 test:
 	cd backend && python -m pytest
