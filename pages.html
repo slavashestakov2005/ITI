@@ -43,38 +43,38 @@
 <span id="pages-simple-module"></span><h2>pages.simple module<a class="headerlink" href="#module-pages.simple" title="Ссылка на этот заголовок">¶</a></h2>
 <p>Тестовые страницы.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="pages.simple.Item">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pages.simple.</span></span><span class="sig-name descname"><span class="pre">Item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pages.simple.Item" title="Ссылка на это определение">¶</a></dt>
+<dt class="sig sig-object py" id="pages.simple.ExampleItem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pages.simple.</span></span><span class="sig-name descname"><span class="pre">ExampleItem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">price</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pages.simple.ExampleItem" title="Ссылка на это определение">¶</a></dt>
 <dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
 <p>Пример класса с которым будет работать api.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pages.simple.Item.model_computed_fields">
-<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#pages.simple.Item.model_computed_fields" title="Ссылка на это определение">¶</a></dt>
+<dt class="sig sig-object py" id="pages.simple.ExampleItem.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#pages.simple.ExampleItem.model_computed_fields" title="Ссылка на это определение">¶</a></dt>
 <dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pages.simple.Item.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#pages.simple.Item.model_config" title="Ссылка на это определение">¶</a></dt>
+<dt class="sig sig-object py" id="pages.simple.ExampleItem.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#pages.simple.ExampleItem.model_config" title="Ссылка на это определение">¶</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pages.simple.Item.model_fields">
-<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'name':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True),</span> <span class="pre">'price':</span> <span class="pre">FieldInfo(annotation=float,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#pages.simple.Item.model_fields" title="Ссылка на это определение">¶</a></dt>
+<dt class="sig sig-object py" id="pages.simple.ExampleItem.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'name':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True),</span> <span class="pre">'price':</span> <span class="pre">FieldInfo(annotation=float,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#pages.simple.ExampleItem.model_fields" title="Ссылка на это определение">¶</a></dt>
 <dd><p>Metadata about the fields defined on the model,
 mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo] objects.</p>
 <p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pages.simple.Item.name">
-<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pages.simple.Item.name" title="Ссылка на это определение">¶</a></dt>
+<dt class="sig sig-object py" id="pages.simple.ExampleItem.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#pages.simple.ExampleItem.name" title="Ссылка на это определение">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pages.simple.Item.price">
-<span class="sig-name descname"><span class="pre">price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pages.simple.Item.price" title="Ссылка на это определение">¶</a></dt>
+<dt class="sig sig-object py" id="pages.simple.ExampleItem.price">
+<span class="sig-name descname"><span class="pre">price</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#pages.simple.ExampleItem.price" title="Ссылка на это определение">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -87,7 +87,7 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo] ob
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pages.simple.get_item">
-<span class="sig-prename descclassname"><span class="pre">pages.simple.</span></span><span class="sig-name descname"><span class="pre">get_item</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pages.simple.Item" title="pages.simple.Item"><span class="pre">Item</span></a></span></span><a class="headerlink" href="#pages.simple.get_item" title="Ссылка на это определение">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">pages.simple.</span></span><span class="sig-name descname"><span class="pre">get_item</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pages.simple.ExampleItem" title="pages.simple.ExampleItem"><span class="pre">ExampleItem</span></a></span></span><a class="headerlink" href="#pages.simple.get_item" title="Ссылка на это определение">¶</a></dt>
 <dd><p>Пример возвращения класса.</p>
 </dd></dl>
 
@@ -131,12 +131,12 @@ mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo] ob
 <li class="toctree-l2 current"><a class="current reference internal" href="#">pages package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-pages.simple">pages.simple module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#pages.simple.Item"><code class="docutils literal notranslate"><span class="pre">Item</span></code></a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#pages.simple.Item.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">Item.model_computed_fields</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#pages.simple.Item.model_config"><code class="docutils literal notranslate"><span class="pre">Item.model_config</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#pages.simple.Item.model_fields"><code class="docutils literal notranslate"><span class="pre">Item.model_fields</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#pages.simple.Item.name"><code class="docutils literal notranslate"><span class="pre">Item.name</span></code></a></li>
-<li class="toctree-l5"><a class="reference internal" href="#pages.simple.Item.price"><code class="docutils literal notranslate"><span class="pre">Item.price</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pages.simple.ExampleItem"><code class="docutils literal notranslate"><span class="pre">ExampleItem</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pages.simple.ExampleItem.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">ExampleItem.model_computed_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pages.simple.ExampleItem.model_config"><code class="docutils literal notranslate"><span class="pre">ExampleItem.model_config</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pages.simple.ExampleItem.model_fields"><code class="docutils literal notranslate"><span class="pre">ExampleItem.model_fields</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pages.simple.ExampleItem.name"><code class="docutils literal notranslate"><span class="pre">ExampleItem.name</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pages.simple.ExampleItem.price"><code class="docutils literal notranslate"><span class="pre">ExampleItem.price</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l4"><a class="reference internal" href="#pages.simple.get_example"><code class="docutils literal notranslate"><span class="pre">get_example()</span></code></a></li>
