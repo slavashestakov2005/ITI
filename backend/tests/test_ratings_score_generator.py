@@ -5,13 +5,13 @@ import pytest
 from ratings import MiddleSchoolIndividualScoreGenerator, PrimarySchoolIndividualScoreGenerator, ScoreGenerator
 
 
-def test_base_score_generator():
+def test_base_score_generator() -> None:
     """ScoreGenerator абстрактный класс, нельзя создать его объект."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class ScoreGenerator"):
         ScoreGenerator([])
 
 
-def test_middle_school_ind_score_generator_no_args():
+def test_middle_school_ind_score_generator_no_args() -> None:
     """В MiddleSchoolIndividualScoreGenerator нужно передавать аргументы."""
     with pytest.raises(
         TypeError, match="missing 2 required keyword-only arguments: 'all_results' and 'theoretical_maximum'"
@@ -19,13 +19,13 @@ def test_middle_school_ind_score_generator_no_args():
         MiddleSchoolIndividualScoreGenerator()
 
 
-def test_middle_school_ind_score_generator_no_key_args():
+def test_middle_school_ind_score_generator_no_key_args() -> None:
     """Аргументы в MiddleSchoolIndividualScoreGenerator должны быть именованными."""
     with pytest.raises(TypeError, match="takes 1 positional argument but 3 were give"):
         MiddleSchoolIndividualScoreGenerator([7, 4, 5], 10)
 
 
-def test_middle_school_ind_score_generator_normalization_by_participant():
+def test_middle_school_ind_score_generator_normalization_by_participant() -> None:
     """MiddleSchoolIndividualScoreGenerator нормирует по лучшему участнику."""
     generator = MiddleSchoolIndividualScoreGenerator(all_results=[4, 8, 1, 7], theoretical_maximum=10)
     assert generator.compute() == (50, 100, 13, 88)
@@ -35,13 +35,13 @@ def test_middle_school_ind_score_generator_normalization_by_participant():
     assert generator.compute() == (100,)
 
 
-def test_middle_school_ind_score_generator_normalization_by_theoretical_maximum():
+def test_middle_school_ind_score_generator_normalization_by_theoretical_maximum() -> None:
     """MiddleSchoolIndividualScoreGenerator нормирует по теоретическому максимуму."""
     generator = MiddleSchoolIndividualScoreGenerator(all_results=[4, 8, 1, 7], theoretical_maximum=100)
     assert generator.compute() == (8, 16, 2, 14)
 
 
-def test_primary_school_ind_score_generator():
+def test_primary_school_ind_score_generator() -> None:
     """PrimarySchoolIndividualScoreGenerator оставляет результаты как есть."""
     generator = PrimarySchoolIndividualScoreGenerator(all_results=[1, 7, 3, 9])
     assert generator.compute() == (1, 7, 3, 9)

@@ -1,4 +1,5 @@
 [flake8]
 max-line-length = 120
-select = D,E,F,W
-ignore = D403
+select = ANN,CFQ,D,E,F,W
+ignore = D403,ANN101,ANN102,ANN204
+max-function-length = 30
