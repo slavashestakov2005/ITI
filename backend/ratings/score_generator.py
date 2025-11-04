@@ -8,7 +8,7 @@ from utils import math_round
 class ScoreGenerator(abc.ABC):
     """Класс генерирует балл в рейтинг по сырым результатам."""
 
-    def __init__(self, *, all_results: tuple[float]):
+    def __init__(self, *, all_results: tuple[float, ...]):
         """Базовый конструктор."""
         self.__all_results = all_results
 
@@ -17,15 +17,15 @@ class ScoreGenerator(abc.ABC):
         """Возвращает по сырому результату балл в рейтинг."""
         pass
 
-    def compute(self) -> tuple[float]:
+    def compute(self) -> tuple[float, ...]:
         """Вычисляет результаты для всех участников предмета."""
-        return tuple(self._compute_score(result) for result in self.__all_results)
+        return tuple([self._compute_score(result) for result in self.__all_results])
 
 
 class MiddleSchoolIndividualScoreGenerator(ScoreGenerator):
     """Класс для результатов индивидуальных предметов в ОШ."""
 
-    def __init__(self, *, all_results: list[float], theoretical_maximum: float):
+    def __init__(self, *, all_results: tuple[float, ...], theoretical_maximum: float):
         """Сохраняем максимальный результат по предмету."""
         super().__init__(all_results=all_results)
         max_result = max(all_results)

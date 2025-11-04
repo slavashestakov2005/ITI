@@ -31,6 +31,7 @@ venv-finish:
 lint:
 	cd backend && python -m flake8
 	cd backend && python -m isort --check-only .
+	cd backend && python -m mypy .
 
 format:
 	cd backend && python -m black .

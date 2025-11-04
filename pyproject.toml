@@ -6,3 +6,6 @@ target-version = ['py310']
 profile = "black"
 line_length = 120
 known_first_party = ["pages", "ratings", "tests", "utils"]
+
+[mypy]
+python_version = "3.10"
