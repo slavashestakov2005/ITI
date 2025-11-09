@@ -4,6 +4,14 @@ tests package
 Submodules
 ----------
 
+tests.test\_ratings\_place\_generator module
+--------------------------------------------
+
+.. automodule:: tests.test_ratings_place_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 tests.test\_ratings\_score\_generator module
 --------------------------------------------
 
