@@ -4,5 +4,6 @@ select = ANN,CFQ,D,E,F,W
 ignore = D403,ANN101,ANN102,ANN204,WPS412,WPS410
 max-function-length = 30
 per-file-ignores =
+    backend/tests/test_ratings_place_generator.py: WPS221
     backend/tests/test_ratings_score_generator.py: WPS118,WPS358
     backend/tests/test_utils_converts.py: WPS218,WPS432,WPS339

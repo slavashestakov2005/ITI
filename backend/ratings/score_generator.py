@@ -6,7 +6,7 @@ from utils import math_round
 
 
 class ScoreGenerator(abc.ABC):
-    """Класс генерирует балл в рейтинг по сырым результатам."""
+    """Базовый класс для генерации балла в рейтинг по сырым результатам."""
 
     def __init__(self, *, raw_scores: tuple[float, ...]):
         """Базовый конструктор."""
