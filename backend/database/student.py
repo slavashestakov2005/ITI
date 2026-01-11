@@ -101,7 +101,7 @@ class Student(SqlAlchemyBase, SiteUser, Table):
 
     @classmethod
     def select_by_other_id(cls, other_id: int) -> list:
-        res = []
+        res = {}
         for part in other_id.split('|'):
             cur = cls.__select_by_expr__(or_(
                 cls.other_id.like("{}".format(part)),
@@ -110,5 +110,5 @@ class Student(SqlAlchemyBase, SiteUser, Table):
                 cls.other_id.like("%|{}|%".format(part)),
                 ))
             for v in cur:
-                res.append(v)
-        return res
+                res[v.id] = v
+        return list(res.values())

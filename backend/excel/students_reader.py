@@ -28,7 +28,7 @@ class ExcelStudentsReader:
                 student_id = Student.insert(new_student, return_id=True)
                 answer.append(txt.replace('REP_ID', str(student_id)))
             elif len(students) > 1:
-                answer.append("<font style='color: red'>Нашлось много</font> школьников для нового: {}, школьник пропущен".format(new_student.json()))
+                answer.append("<font style='color: red'>Нашлось много</font> школьников для нового: {}, школьник пропущен<br>{}".format(new_student.json(), "<br>".join(str(x.json()) for x in students)))
                 continue
             else:
                 old_student = students[0]
