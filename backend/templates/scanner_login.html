@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="scanner-page">
+    <div class="scanner-card scanner-login">
+        <h1>Веб-сканер ИТИ</h1>
+        <p>Доступ только для администратора.</p>
+        {% if error %}
+        <div class="scanner-alert">{{ error }}</div>
+        {% endif %}
+        <form method="post" class="scanner-form">
+            <label for="scanner-login">Логин</label>
+            <input id="scanner-login" name="login" type="text" autocomplete="username" required>
+            <label for="scanner-password">Пароль</label>
+            <input id="scanner-password" name="password" type="password" autocomplete="current-password" required>
+            <button type="submit" class="scanner-btn primary">Войти</button>
+        </form>
+    </div>
+</div>
+<link rel="stylesheet" href="/CSS/scanner.css">
+{% endblock %}
