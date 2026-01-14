@@ -144,6 +144,20 @@
     min-height: 320px;
 }
 
+#scanner-html5-wrap {
+    position: absolute;
+    inset: 0;
+    display: none;
+}
+
+#scanner-html5,
+#scanner-html5 video,
+#scanner-html5 canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .scanner-video-wrap video {
     width: 100%;
     height: 100%;

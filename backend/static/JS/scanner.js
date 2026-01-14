@@ -16,6 +16,7 @@
         status: getEl("scanner-status"),
         debug: getEl("scanner-debug"),
         video: getEl("scanner-video"),
+        html5Wrap: getEl("scanner-html5-wrap"),
         barcodePanel: getEl("scanner-barcode-panel"),
         resultPanel: getEl("scanner-result-panel"),
         barcodeStudentId: getEl("barcode-student-id"),
@@ -53,6 +54,8 @@
         detectedAny: false,
         studentFetchTimer: null,
         scanLoopId: null,
+        html5Scanner: null,
+        html5Timer: null,
     };
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const setError = (text) => setStatus(text, true);
@@ -365,6 +368,15 @@
             state.reader.reset();
             state.reader = null;
         }
+        if (state.html5Scanner) {
+            state.html5Scanner.stop().catch(() => {});
+            state.html5Scanner.clear();
+            state.html5Scanner = null;
+        }
+        if (state.html5Timer) {
+            clearInterval(state.html5Timer);
+            state.html5Timer = null;
+        }
         if (state.stream) {
             state.stream.getTracks().forEach((track) => track.stop());
             state.stream = null;
@@ -474,6 +486,59 @@
 
         try {
             let preferredDeviceId = null;
+            if ((isIOS || forceEngine === "html5") && window.Html5Qrcode) {
+                els.video.style.display = "none";
+                if (els.html5Wrap) els.html5Wrap.style.display = "block";
+                state.engine = "html5";
+                state.html5Scanner = new window.Html5Qrcode("scanner-html5");
+                const formats = window.Html5QrcodeSupportedFormats || {};
+                const config = {
+                    fps: 10,
+                    qrbox: { width: 260, height: 120 },
+                    aspectRatio: 1.777,
+                    supportedScanTypes: [window.Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+                    formatsToSupport: [
+                        formats.EAN_13,
+                        formats.EAN_8,
+                        formats.CODE_128,
+                        formats.CODE_39,
+                        formats.ITF,
+                        formats.UPC_A,
+                        formats.UPC_E,
+                    ].filter(Boolean),
+                    experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+                };
+                const onSuccess = (decodedText, decodedResult) => {
+                    state.detectedAny = true;
+                    const fmt =
+                        decodedResult &&
+                        decodedResult.result &&
+                        decodedResult.result.format &&
+                        (decodedResult.result.format.formatName || decodedResult.result.format);
+                    addBarcode(fmt || "", decodedText);
+                };
+                const onFailure = () => {};
+                await state.html5Scanner.start({ facingMode: "environment" }, config, onSuccess, onFailure);
+                state.html5Timer = setInterval(async () => {
+                    if (!state.scanning) return;
+                    state.updateCount += 1;
+                    if (state.updateCount % 3 === 0) {
+                        setDebug(
+                            `Кадры: ${state.updateCount}, найдено: ${state.detectedAny ? "да" : "нет"}, режим: ${state.engine}`
+                        );
+                    }
+                    if (state.updateCount % 6 === 0) {
+                        const { maxFrames } = getSettings();
+                        setStatus(`Сканирование... кадр ${state.updateCount} из ${maxFrames}`);
+                    }
+                    const { maxFrames } = getSettings();
+                    if (state.updateCount >= maxFrames) {
+                        await stopScan(true);
+                    }
+                }, 200);
+                setStatus("Сканирование запущено.");
+                return;
+            }
             if (forceEngine !== "zxing" && "BarcodeDetector" in window) {
                 preferredDeviceId = await pickVideoDeviceId();
                 if (preferredDeviceId) {
@@ -491,6 +556,8 @@
                     formats: ["ean_13", "ean_8", "code_128", "itf", "upc_a", "upc_e"],
                 });
                 state.engine = "native";
+                els.video.style.display = "block";
+                if (els.html5Wrap) els.html5Wrap.style.display = "none";
                 setupTorch();
                 setStatus("Сканирование запущено.");
                 scanLoop();
@@ -512,6 +579,8 @@
                 hints.set(window.ZXing.DecodeHintType.ALSO_INVERTED, true);
                 state.reader = new window.ZXing.BrowserMultiFormatReader(hints, 200);
                 state.engine = "zxing";
+                els.video.style.display = "block";
+                if (els.html5Wrap) els.html5Wrap.style.display = "none";
                 if (!preferredDeviceId) {
                     preferredDeviceId = await pickVideoDeviceId();
                 }
