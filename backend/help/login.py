@@ -6,6 +6,7 @@ from flask_login import current_user, login_user, logout_user
 from backend import app, login
 from backend.queries.help import empty_checker, split_class
 from ..database import get_student_by_params, Student, StudentEljur, TgUser, User
+from ..database.user import SCANNER_MASTER_ID, SCANNER_MASTER_LOGIN
 from ..eljur import ConfigEljur, EljurHelp, EljurLoginByOauth, EljurLoginByPassword
 
 '''
@@ -24,7 +25,10 @@ TEMPLATE, ELJUR_LOGIN = 'login.html', 'eljur_login.html'
 def load_user(id):
     id = int(id)
     if id < 0:
-        return User.select(-id)
+        user = User.select(-id)
+        if user is None and -id == SCANNER_MASTER_ID:
+            return User.select_by_login(SCANNER_MASTER_LOGIN)
+        return user
     else:
         return Student.select(id)
 
@@ -50,6 +54,8 @@ def login():
         if u is not None and u.check_password(user_password):
             u.id = -u.id
             login_user(u)
+            if u.login == SCANNER_MASTER_LOGIN:
+                return redirect('/scanner')
             return redirect('/')
         else:
             return render_template(TEMPLATE, error='Неверные логин или пароль', **args)

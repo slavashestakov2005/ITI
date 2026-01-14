@@ -8,3 +8,4 @@
 **/__pycache__/**
 flask_app.py
 passenger_wsgi.py
+backend/ssl/

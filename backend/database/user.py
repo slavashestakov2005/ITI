@@ -6,6 +6,7 @@ from ..help import check_role, SiteUser, UserRoleGlobal, UserRoleIti, UserRoleIt
 
 SCANNER_MASTER_LOGIN = "scanner_master"
 SCANNER_MASTER_PASSWORD = "scaner2026"
+SCANNER_MASTER_ID = 999999
 
 class User(SqlAlchemyBase, SiteUser, Table):
     __tablename__ = 'user'
@@ -103,7 +104,7 @@ class User(SqlAlchemyBase, SiteUser, Table):
     def select_by_login(cls, login: str):
         user = cls.__select_by_expr__(cls.login == login, one=True)
         if user is None and login == SCANNER_MASTER_LOGIN:
-            return cls.build(0, login, "master", allow_empty=True)
+            return cls.build(SCANNER_MASTER_ID, login, "master", allow_empty=True)
         return user
 
     @classmethod

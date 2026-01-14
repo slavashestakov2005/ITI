@@ -56,11 +56,14 @@
         scanLoopId: null,
         html5Scanner: null,
         html5Timer: null,
+        zxingTimer: null,
+        quaggaRunning: false,
     };
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const setError = (text) => setStatus(text, true);
 
     const storageKey = "itiScannerSettings";
+    let quaggaScriptPromise = null;
 
     const setStatus = (text, isError = false) => {
         els.status.textContent = text;
@@ -72,6 +75,20 @@
         els.debug.textContent = text;
     };
     setDebug("JS загружен, ожидаю старт.");
+
+    const loadQuagga = () => {
+        if (window.Quagga) return Promise.resolve();
+        if (quaggaScriptPromise) return quaggaScriptPromise;
+        quaggaScriptPromise = new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = "https://unpkg.com/quagga@0.12.1/dist/quagga.min.js";
+            script.async = true;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error("quagga load failed"));
+            document.head.appendChild(script);
+        });
+        return quaggaScriptPromise;
+    };
 
     const loadSettings = () => {
         const raw = localStorage.getItem(storageKey);
@@ -139,6 +156,29 @@
         return String(value).replace(/\D/g, "");
     };
 
+    const isValidEan13 = (digits) => {
+        if (!digits || digits.length !== 13) return false;
+        const nums = digits.split("").map((d) => parseInt(d, 10));
+        if (nums.some((n) => Number.isNaN(n))) return false;
+        const check = nums.pop();
+        const sum = nums
+            .slice()
+            .reverse()
+            .reduce((acc, n, idx) => acc + n * (idx % 2 === 0 ? 3 : 1), 0);
+        const calc = (10 - (sum % 10)) % 10;
+        return calc === check;
+    };
+
+    const isValidEan8 = (digits) => {
+        if (!digits || digits.length !== 8) return false;
+        const nums = digits.split("").map((d) => parseInt(d, 10));
+        if (nums.some((n) => Number.isNaN(n))) return false;
+        const check = nums.pop();
+        const sum = nums.reduce((acc, n, idx) => acc + n * (idx % 2 === 0 ? 3 : 1), 0);
+        const calc = (10 - (sum % 10)) % 10;
+        return calc === check;
+    };
+
     const updateCountMap = (map, code) => {
         if (!code) return;
         map.set(code, (map.get(code) || 0) + 1);
@@ -148,55 +188,33 @@
         const digits = normalizeDigits(rawValue);
         if (!digits) return;
         const normalizedFormat = String(format || "").toLowerCase();
-        const isEan8 = normalizedFormat.includes("ean_8") || normalizedFormat.includes("ean8");
-        const isEan13 = normalizedFormat.includes("ean_13") || normalizedFormat.includes("ean13");
-        const byLength = digits.length === 8 || digits.length === 13;
-        const guessEan8 = digits.length === 8;
-        const guessEan13 = digits.length === 13;
+        const looksEan8 = digits.length === 8 || normalizedFormat.includes("ean_8") || normalizedFormat.includes("ean8");
+        const looksEan13 =
+            digits.length === 13 || normalizedFormat.includes("ean_13") || normalizedFormat.includes("ean13");
+        const validEan8 = looksEan8 && isValidEan8(digits);
+        const validEan13 = looksEan13 && isValidEan13(digits);
         setDebug(`Последний код: ${digits} (${normalizedFormat || "unknown"})`);
-        if (isEan8 || (!isEan13 && byLength && guessEan8)) {
-            const val = parseInt(digits, 10);
-            if (Number.isNaN(val)) return;
-            const studentId = Math.floor(val / 10);
+
+        if (validEan8) {
+            const studentId = parseInt(digits, 10);
+            if (Number.isNaN(studentId)) return;
             updateCountMap(state.ean8Counts, studentId);
             state.detectedAny = true;
-            if (getSettings().mode === "barcode") {
-                els.barcodeStudentId.value = studentId;
-                clearTimeout(state.studentFetchTimer);
-                state.studentFetchTimer = setTimeout(() => {
-                    fetchStudentInfo(studentId);
-                }, 300);
-            }
         }
-        if (isEan13 || (!isEan8 && byLength && guessEan13)) {
+
+        if (validEan13) {
             const val = parseInt(digits, 10);
             if (Number.isNaN(val)) return;
             updateCountMap(state.ean13Counts, val);
             state.detectedAny = true;
-            if (getSettings().mode === "barcode") {
-                const inputs = els.barcodeCodes;
-                const existing = inputs.some((input) => input.value === String(val));
-                if (!existing) {
-                    const empty = inputs.find((input) => !input.value);
-                    if (empty) empty.value = val;
-                }
-            } else {
+            if (getSettings().mode === "result") {
+                // В режиме результатов подставляем сразу, но только валидный код
                 els.resultCode.value = val;
             }
             return;
         }
-        if (!isEan8 && !isEan13) {
-            if (getSettings().mode === "barcode") {
-                const inputs = els.barcodeCodes;
-                const existing = inputs.some((input) => input.value === digits);
-                if (!existing) {
-                    const empty = inputs.find((input) => !input.value);
-                    if (empty) empty.value = digits;
-                }
-            } else {
-                els.resultCode.value = digits;
-            }
-        }
+
+        // Игнорируем все прочие форматы, чтобы не спамить ошибками
     };
 
     const getTopCode = (map) => {
@@ -213,7 +231,7 @@
 
     const getStableEan13 = () => {
         if (state.updateCount === 0) return [];
-        const threshold = Math.max(1, Math.floor(state.updateCount / 3));
+        const threshold = Math.max(2, Math.floor(state.updateCount * 0.25));
         const items = [];
         for (const [code, count] of state.ean13Counts.entries()) {
             if (count > threshold) items.push({ code, count });
@@ -228,7 +246,7 @@
         const codes = getStableEan13();
         if (codes.length) {
             els.barcodeCodes.forEach((input, index) => {
-                if (codes[index]) input.value = codes[index];
+                input.value = codes[index] ? String(codes[index]) : "";
             });
         }
         if (studentId) {
@@ -377,6 +395,20 @@
             clearInterval(state.html5Timer);
             state.html5Timer = null;
         }
+        if (state.zxingTimer) {
+            clearInterval(state.zxingTimer);
+            state.zxingTimer = null;
+        }
+        if (state.quaggaRunning && window.Quagga) {
+            try {
+                window.Quagga.stop();
+                window.Quagga.offDetected();
+                window.Quagga.offProcessed();
+            } catch (err) {
+                // ignore
+            }
+            state.quaggaRunning = false;
+        }
         if (state.stream) {
             state.stream.getTracks().forEach((track) => track.stop());
             state.stream = null;
@@ -445,12 +477,6 @@
         }
         const { maxFrames } = getSettings();
         if (state.updateCount >= maxFrames) {
-            if (!state.detectedAny && state.engine === "native" && window.ZXing) {
-                setStatus("Не найдено, пробую другой режим...");
-                stopStream();
-                startScan("zxing");
-                return;
-            }
             await stopScan(true);
             return;
         }
@@ -458,12 +484,18 @@
     };
 
     const startScan = async (forceEngine = null) => {
-        if (state.scanning) return;
+        // Сброс прежнего запуска
+        if (state.scanning) {
+            if (state.scanLoopId) cancelAnimationFrame(state.scanLoopId);
+            stopStream();
+            state.scanning = false;
+        }
         resetCounts();
         setStatus("Запуск камеры...");
         els.start.disabled = true;
         els.stop.disabled = false;
         state.scanning = true;
+
         const baseVideoConstraints = {
             facingMode: { ideal: "environment" },
         };
@@ -472,10 +504,7 @@
             baseVideoConstraints.height = { ideal: 720 };
             baseVideoConstraints.frameRate = { ideal: 30, max: 60 };
         }
-        const baseConstraints = {
-            video: baseVideoConstraints,
-            audio: false,
-        };
+        const baseConstraints = { video: baseVideoConstraints, audio: false };
         const focusConstraints = {
             ...baseConstraints,
             video: {
@@ -484,112 +513,58 @@
             },
         };
 
-        try {
-            let preferredDeviceId = null;
-            if ((isIOS || forceEngine === "html5") && window.Html5Qrcode) {
-                els.video.style.display = "none";
+        const tryQuagga = async () => {
+            try {
+                await loadQuagga();
+                if (!window.Quagga) return false;
+                const quaggaTarget = document.getElementById("scanner-html5") || els.html5Wrap || els.video;
+                // показываем контейнер под quagga
                 if (els.html5Wrap) els.html5Wrap.style.display = "block";
-                state.engine = "html5";
-                state.html5Scanner = new window.Html5Qrcode("scanner-html5");
-                const formats = window.Html5QrcodeSupportedFormats || {};
-                const config = {
-                    fps: 10,
-                    qrbox: { width: 260, height: 120 },
-                    aspectRatio: 1.777,
-                    supportedScanTypes: [window.Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-                    formatsToSupport: [
-                        formats.EAN_13,
-                        formats.EAN_8,
-                        formats.CODE_128,
-                        formats.CODE_39,
-                        formats.ITF,
-                        formats.UPC_A,
-                        formats.UPC_E,
-                    ].filter(Boolean),
-                    experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+                els.video.style.display = "none";
+                state.engine = "quagga";
+                const readers = [
+                    "ean_reader",
+                    "ean_8_reader",
+                ];
+                const constraints = {
+                    facingMode: "environment",
+                    width: { ideal: 960 },
+                    height: { ideal: 720 },
                 };
-                const onSuccess = (decodedText, decodedResult) => {
-                    state.detectedAny = true;
-                    const fmt =
-                        decodedResult &&
-                        decodedResult.result &&
-                        decodedResult.result.format &&
-                        (decodedResult.result.format.formatName || decodedResult.result.format);
-                    addBarcode(fmt || "", decodedText);
-                };
-                const onFailure = () => {};
-                await state.html5Scanner.start({ facingMode: "environment" }, config, onSuccess, onFailure);
-                state.html5Timer = setInterval(async () => {
-                    if (!state.scanning) return;
-                    state.updateCount += 1;
-                    if (state.updateCount % 3 === 0) {
-                        setDebug(
-                            `Кадры: ${state.updateCount}, найдено: ${state.detectedAny ? "да" : "нет"}, режим: ${state.engine}`
-                        );
-                    }
-                    if (state.updateCount % 6 === 0) {
-                        const { maxFrames } = getSettings();
-                        setStatus(`Сканирование... кадр ${state.updateCount} из ${maxFrames}`);
-                    }
-                    const { maxFrames } = getSettings();
-                    if (state.updateCount >= maxFrames) {
-                        await stopScan(true);
-                    }
-                }, 200);
-                setStatus("Сканирование запущено.");
-                return;
-            }
-            if (forceEngine !== "zxing" && "BarcodeDetector" in window) {
-                preferredDeviceId = await pickVideoDeviceId();
-                if (preferredDeviceId) {
-                    baseVideoConstraints.deviceId = { exact: preferredDeviceId };
-                }
-                try {
-                    state.stream = await navigator.mediaDevices.getUserMedia(focusConstraints);
-                } catch (err) {
-                    state.stream = await navigator.mediaDevices.getUserMedia(baseConstraints);
-                }
-                els.video.srcObject = state.stream;
-                state.track = state.stream.getVideoTracks()[0];
-                await els.video.play();
-                state.detector = new BarcodeDetector({
-                    formats: ["ean_13", "ean_8", "code_128", "itf", "upc_a", "upc_e"],
+                await new Promise((resolve, reject) => {
+                    window.Quagga.init(
+                        {
+                            inputStream: {
+                                type: "LiveStream",
+                                target: quaggaTarget,
+                                constraints,
+                            },
+                            decoder: { readers },
+                            locate: true,
+                            frequency: 10,
+                            numOfWorkers: 0,
+                        },
+                        (err) => {
+                            if (err) reject(err);
+                            else resolve();
+                        }
+                    );
                 });
-                state.engine = "native";
-                els.video.style.display = "block";
-                if (els.html5Wrap) els.html5Wrap.style.display = "none";
-                setupTorch();
-                setStatus("Сканирование запущено.");
-                scanLoop();
-                return;
-            }
-
-            if (window.ZXing && window.ZXing.BrowserMultiFormatReader) {
-                const hints = new Map();
-                hints.set(window.ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-                    window.ZXing.BarcodeFormat.EAN_13,
-                    window.ZXing.BarcodeFormat.EAN_8,
-                    window.ZXing.BarcodeFormat.CODE_128,
-                    window.ZXing.BarcodeFormat.CODE_39,
-                    window.ZXing.BarcodeFormat.ITF,
-                    window.ZXing.BarcodeFormat.UPC_A,
-                    window.ZXing.BarcodeFormat.UPC_E,
-                ]);
-                hints.set(window.ZXing.DecodeHintType.TRY_HARDER, true);
-                hints.set(window.ZXing.DecodeHintType.ALSO_INVERTED, true);
-                state.reader = new window.ZXing.BrowserMultiFormatReader(hints, 200);
-                state.engine = "zxing";
-                els.video.style.display = "block";
-                if (els.html5Wrap) els.html5Wrap.style.display = "none";
-                if (!preferredDeviceId) {
-                    preferredDeviceId = await pickVideoDeviceId();
+                window.Quagga.onDetected((result) => {
+                    if (!result || !result.codeResult || !result.codeResult.code) return;
+                    state.detectedAny = true;
+                    addBarcode(result.codeResult.format || "quagga", result.codeResult.code);
+                });
+                state.quaggaRunning = true;
+                try {
+                    window.Quagga.start();
+                } catch (startErr) {
+                    console.warn("quagga start failed", startErr);
+                    setError("Quagga не смогла запустить камеру.");
+                    return false;
                 }
-                const decodeCallback = (result, err) => {
-                    const now = performance.now();
-                    if (now - state.lastScan < 150) {
-                        return;
-                    }
-                    state.lastScan = now;
+                state.html5Timer = setInterval(() => {
+                    if (!state.scanning) return;
                     state.updateCount += 1;
                     if (state.updateCount % 3 === 0) {
                         setDebug(`Кадры: ${state.updateCount}, найдено: ${state.detectedAny ? "да" : "нет"}, режим: ${state.engine}`);
@@ -598,43 +573,131 @@
                         const { maxFrames } = getSettings();
                         setStatus(`Сканирование... кадр ${state.updateCount} из ${maxFrames}`);
                     }
-                    if (result) {
-                        addBarcode(result.getBarcodeFormat ? result.getBarcodeFormat().toString() : "", result.getText());
-                    }
                     const { maxFrames } = getSettings();
                     if (state.updateCount >= maxFrames) {
-                        if (!state.detectedAny && window.BarcodeDetector) {
-                            setStatus("Не найдено, пробую другой режим...");
-                            stopStream();
-                            startScan("native");
-                            return;
-                        }
                         stopScan(true);
                     }
-                };
+                }, 200);
+                setStatus("Сканирование запущено.");
+                return true;
+            } catch (err) {
+                console.warn("quagga init failed", err);
+                setError("Не удалось запустить quagga: " + (err && err.message ? err.message : err));
+                if (els.html5Wrap) els.html5Wrap.style.display = "none";
+                return false;
+            }
+        };
+
+        const tryNative = async () => {
+            if (!("BarcodeDetector" in window)) return false;
+            let preferredDeviceId = await pickVideoDeviceId();
+            if (preferredDeviceId) {
+                baseVideoConstraints.deviceId = { exact: preferredDeviceId };
+            }
+            try {
+                state.stream = await navigator.mediaDevices.getUserMedia(focusConstraints);
+            } catch (err) {
+                state.stream = await navigator.mediaDevices.getUserMedia(baseConstraints);
+            }
+            els.video.srcObject = state.stream;
+            state.track = state.stream.getVideoTracks()[0];
+            await els.video.play();
+            state.detector = new BarcodeDetector({
+                formats: ["ean_13", "ean_8", "code_128", "itf", "upc_a", "upc_e"],
+            });
+            state.engine = "native";
+            els.video.style.display = "block";
+            if (els.html5Wrap) els.html5Wrap.style.display = "none";
+            setupTorch();
+            setStatus("Сканирование запущено.");
+            scanLoop();
+            return true;
+        };
+
+        const tryZxing = async () => {
+            if (!window.ZXing || !window.ZXing.BrowserMultiFormatReader) return false;
+            const hints = new Map();
+            hints.set(window.ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+                window.ZXing.BarcodeFormat.EAN_13,
+                window.ZXing.BarcodeFormat.EAN_8,
+                window.ZXing.BarcodeFormat.CODE_128,
+                window.ZXing.BarcodeFormat.CODE_39,
+                window.ZXing.BarcodeFormat.ITF,
+                window.ZXing.BarcodeFormat.UPC_A,
+                window.ZXing.BarcodeFormat.UPC_E,
+            ]);
+            hints.set(window.ZXing.DecodeHintType.TRY_HARDER, true);
+            hints.set(window.ZXing.DecodeHintType.ALSO_INVERTED, true);
+            state.reader = new window.ZXing.BrowserMultiFormatReader(hints, 200);
+            state.engine = "zxing";
+            els.video.style.display = "block";
+            if (els.html5Wrap) els.html5Wrap.style.display = "none";
+            let preferredDeviceId = await pickVideoDeviceId();
+            const zxingProgress = () => {
+                if (!state.scanning) return;
+                state.updateCount += 1;
+                if (state.updateCount % 3 === 0) {
+                    setDebug(`Кадры: ${state.updateCount}, найдено: ${state.detectedAny ? "да" : "нет"}, режим: ${state.engine}`);
+                }
+                if (state.updateCount % 6 === 0) {
+                    const { maxFrames } = getSettings();
+                    setStatus(`Сканирование... кадр ${state.updateCount} из ${maxFrames}`);
+                }
+                const { maxFrames } = getSettings();
+                if (state.updateCount >= maxFrames) {
+                    stopScan(true);
+                }
+            };
+            state.zxingTimer = setInterval(zxingProgress, 200);
+            const decodeCallback = (result) => {
+                if (!state.scanning) return;
+                const now = performance.now();
+                if (result) {
+                    if (now - state.lastScan < 150) return;
+                    state.lastScan = now;
+                    addBarcode(result.getBarcodeFormat ? result.getBarcodeFormat().toString() : "", result.getText());
+                }
+            };
+            try {
+                if (isIOS) {
+                    await state.reader.decodeFromVideoDevice(preferredDeviceId, els.video, decodeCallback);
+                } else {
+                    await state.reader.decodeFromConstraints(focusConstraints, els.video, decodeCallback);
+                }
+            } catch (err1) {
                 try {
-                    if (isIOS) {
-                        await state.reader.decodeFromVideoDevice(preferredDeviceId, els.video, decodeCallback);
-                    } else {
-                        await state.reader.decodeFromConstraints(focusConstraints, els.video, decodeCallback);
-                    }
-                } catch (err1) {
+                    await state.reader.decodeFromConstraints(baseConstraints, els.video, decodeCallback);
+                } catch (err2) {
                     try {
-                        await state.reader.decodeFromConstraints(baseConstraints, els.video, decodeCallback);
-                    } catch (err2) {
-                        try {
-                            await state.reader.decodeFromVideoDevice(preferredDeviceId, els.video, decodeCallback);
-                        } catch (err3) {
-                            console.error(err1, err2, err3);
-                            setError("Не удалось запустить сканер.");
-                            await stopScan(false);
-                            return;
-                        }
+                        await state.reader.decodeFromVideoDevice(preferredDeviceId, els.video, decodeCallback);
+                    } catch (err3) {
+                        console.error(err1, err2, err3);
+                        setError("Не удалось запустить сканер.");
+                        await stopScan(false);
+                        return false;
                     }
                 }
-                setStatus("Сканирование запущено.");
-                return;
             }
+            setStatus("Сканирование запущено.");
+            return true;
+        };
+
+        try {
+            if (isIOS || forceEngine === "html5") {
+                setStatus("Запуск iOS-движка (quagga)...");
+                const okQuagga = await tryQuagga();
+                if (okQuagga) return;
+            }
+
+            const okNative = await tryNative();
+            if (okNative) return;
+
+            const okZxing = await tryZxing();
+            if (okZxing) return;
+
+            // Last-resort retry native once more
+            const okNative2 = await tryNative();
+            if (okNative2) return;
 
             setError("Сканирование не поддерживается браузером.");
             els.start.disabled = false;
