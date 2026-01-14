@@ -341,6 +341,10 @@
         if (!state.scanning || !state.detector) return;
         state.updateCount += 1;
         const now = performance.now();
+        if (state.updateCount % 6 === 0) {
+            const { maxFrames } = getSettings();
+            setStatus(`Сканирование... кадр ${state.updateCount} из ${maxFrames}`);
+        }
         if (now - state.lastScan > 150) {
             state.lastScan = now;
             try {
@@ -395,6 +399,10 @@
                 state.reader = new window.ZXing.BrowserMultiFormatReader();
                 await state.reader.decodeFromConstraints(constraints, els.video, (result, err) => {
                     state.updateCount += 1;
+                    if (state.updateCount % 6 === 0) {
+                        const { maxFrames } = getSettings();
+                        setStatus(`Сканирование... кадр ${state.updateCount} из ${maxFrames}`);
+                    }
                     if (result) {
                         addBarcode(result.getBarcodeFormat ? result.getBarcodeFormat().toString() : "", result.getText());
                     }
@@ -440,6 +448,20 @@
     loadSettings();
     updateModeView();
 
+    const params = new URLSearchParams(window.location.search);
+    const itiParam = params.get("iti");
+    const subjectParam = params.get("subject");
+    const modeParam = params.get("mode");
+    if (itiParam && !els.itiId.value) els.itiId.value = itiParam;
+    if (subjectParam && !els.subjectId.value) els.subjectId.value = subjectParam;
+    if (modeParam) els.mode.value = modeParam;
+    if (subjectParam && !modeParam) els.mode.value = "result";
+    updateModeView();
+    saveSettings();
+    if (subjectParam) {
+        fetchSubjectInfo();
+    }
+
     els.mode.addEventListener("change", () => {
         updateModeView();
         saveSettings();
@@ -450,6 +472,11 @@
     });
 
     els.subjectLoad.addEventListener("click", fetchSubjectInfo);
+    let subjectTimer = null;
+    els.subjectId.addEventListener("input", () => {
+        clearTimeout(subjectTimer);
+        subjectTimer = setTimeout(fetchSubjectInfo, 500);
+    });
     els.start.addEventListener("click", startScan);
     els.stop.addEventListener("click", () => stopScan(false));
     els.torch.addEventListener("click", toggleTorch);
