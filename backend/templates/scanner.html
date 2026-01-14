@@ -61,6 +61,7 @@
                 <button id="scanner-torch" class="scanner-btn ghost" type="button" disabled>Подсветка</button>
             </div>
             <div id="scanner-status" class="scanner-status">Готов к сканированию.</div>
+            <div id="scanner-debug" class="scanner-hint"></div>
         </section>
 
         <section class="scanner-card" id="scanner-barcode-panel">
@@ -106,7 +107,7 @@
             <h2>Результат</h2>
             <div class="scanner-field">
                 <label for="result-code">Код работы (EAN-13)</label>
-                <input id="result-code" type="number" inputmode="numeric">
+                <input id="result-code" type="text" inputmode="numeric" pattern="[0-9]*">
             </div>
             <div class="scanner-field">
                 <label for="result-score">Результат</label>
@@ -122,5 +123,5 @@
 
 <link rel="stylesheet" href="/CSS/scanner.css">
 <script defer src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
-<script defer src="/JS/scanner.js"></script>
+<script defer src="/JS/scanner.js?v=8"></script>
 {% endblock %}

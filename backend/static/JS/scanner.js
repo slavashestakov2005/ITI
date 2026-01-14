@@ -14,6 +14,7 @@
         stop: getEl("scanner-stop"),
         torch: getEl("scanner-torch"),
         status: getEl("scanner-status"),
+        debug: getEl("scanner-debug"),
         video: getEl("scanner-video"),
         barcodePanel: getEl("scanner-barcode-panel"),
         resultPanel: getEl("scanner-result-panel"),
@@ -44,12 +45,17 @@
         stream: null,
         track: null,
         torchOn: false,
+        engine: null,
         ean8Counts: new Map(),
         ean13Counts: new Map(),
         updateCount: 0,
         lastScan: 0,
+        detectedAny: false,
+        studentFetchTimer: null,
         scanLoopId: null,
     };
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const setError = (text) => setStatus(text, true);
 
     const storageKey = "itiScannerSettings";
 
@@ -58,6 +64,11 @@
         els.status.style.color = isError ? "#a62727" : "#2f3b4e";
         els.status.style.background = isError ? "#ffe6e6" : "#f0f4fa";
     };
+    const setDebug = (text) => {
+        if (!els.debug) return;
+        els.debug.textContent = text;
+    };
+    setDebug("JS загружен, ожидаю старт.");
 
     const loadSettings = () => {
         const raw = localStorage.getItem(storageKey);
@@ -100,6 +111,9 @@
         state.ean8Counts.clear();
         state.ean13Counts.clear();
         state.updateCount = 0;
+        state.detectedAny = false;
+        state.lastScan = 0;
+        setDebug("Сканирование не начато.");
     };
 
     const normalizeDigits = (value) => {
@@ -116,16 +130,54 @@
         const digits = normalizeDigits(rawValue);
         if (!digits) return;
         const normalizedFormat = String(format || "").toLowerCase();
-        if (normalizedFormat.includes("ean_8") || normalizedFormat.includes("ean8")) {
+        const isEan8 = normalizedFormat.includes("ean_8") || normalizedFormat.includes("ean8");
+        const isEan13 = normalizedFormat.includes("ean_13") || normalizedFormat.includes("ean13");
+        const byLength = digits.length === 8 || digits.length === 13;
+        const guessEan8 = digits.length === 8;
+        const guessEan13 = digits.length === 13;
+        setDebug(`Последний код: ${digits} (${normalizedFormat || "unknown"})`);
+        if (isEan8 || (!isEan13 && byLength && guessEan8)) {
             const val = parseInt(digits, 10);
             if (Number.isNaN(val)) return;
             const studentId = Math.floor(val / 10);
             updateCountMap(state.ean8Counts, studentId);
+            state.detectedAny = true;
+            if (getSettings().mode === "barcode") {
+                els.barcodeStudentId.value = studentId;
+                clearTimeout(state.studentFetchTimer);
+                state.studentFetchTimer = setTimeout(() => {
+                    fetchStudentInfo(studentId);
+                }, 300);
+            }
         }
-        if (normalizedFormat.includes("ean_13") || normalizedFormat.includes("ean13")) {
+        if (isEan13 || (!isEan8 && byLength && guessEan13)) {
             const val = parseInt(digits, 10);
             if (Number.isNaN(val)) return;
             updateCountMap(state.ean13Counts, val);
+            state.detectedAny = true;
+            if (getSettings().mode === "barcode") {
+                const inputs = els.barcodeCodes;
+                const existing = inputs.some((input) => input.value === String(val));
+                if (!existing) {
+                    const empty = inputs.find((input) => !input.value);
+                    if (empty) empty.value = val;
+                }
+            } else {
+                els.resultCode.value = val;
+            }
+            return;
+        }
+        if (!isEan8 && !isEan13) {
+            if (getSettings().mode === "barcode") {
+                const inputs = els.barcodeCodes;
+                const existing = inputs.some((input) => input.value === digits);
+                if (!existing) {
+                    const empty = inputs.find((input) => !input.value);
+                    if (empty) empty.value = digits;
+                }
+            } else {
+                els.resultCode.value = digits;
+            }
         }
     };
 
@@ -156,9 +208,11 @@
         const studentId = getTopCode(state.ean8Counts);
         if (studentId) els.barcodeStudentId.value = studentId;
         const codes = getStableEan13();
-        els.barcodeCodes.forEach((input, index) => {
-            input.value = codes[index] || "";
-        });
+        if (codes.length) {
+            els.barcodeCodes.forEach((input, index) => {
+                if (codes[index]) input.value = codes[index];
+            });
+        }
         if (studentId) {
             await fetchStudentInfo(studentId);
         }
@@ -166,7 +220,9 @@
 
     const fillResultFields = () => {
         const bestCode = getTopCode(state.ean13Counts);
-        if (bestCode) els.resultCode.value = bestCode;
+        if (bestCode) {
+            els.resultCode.value = bestCode;
+        }
     };
 
     const updateModeView = () => {
@@ -301,6 +357,7 @@
         }
         state.detector = null;
         state.torchOn = false;
+        state.engine = null;
         els.torch.disabled = true;
     };
 
@@ -341,6 +398,9 @@
         if (!state.scanning || !state.detector) return;
         state.updateCount += 1;
         const now = performance.now();
+        if (state.updateCount % 3 === 0) {
+            setDebug(`Кадры: ${state.updateCount}, найдено: ${state.detectedAny ? "да" : "нет"}, режим: ${state.engine}`);
+        }
         if (state.updateCount % 6 === 0) {
             const { maxFrames } = getSettings();
             setStatus(`Сканирование... кадр ${state.updateCount} из ${maxFrames}`);
@@ -358,37 +418,56 @@
         }
         const { maxFrames } = getSettings();
         if (state.updateCount >= maxFrames) {
+            if (!state.detectedAny && state.engine === "native" && window.ZXing) {
+                setStatus("Не найдено, пробую другой режим...");
+                stopStream();
+                startScan("zxing");
+                return;
+            }
             await stopScan(true);
             return;
         }
         state.scanLoopId = requestAnimationFrame(scanLoop);
     };
 
-    const startScan = async () => {
+    const startScan = async (forceEngine = null) => {
         if (state.scanning) return;
         resetCounts();
         setStatus("Запуск камеры...");
         els.start.disabled = true;
         els.stop.disabled = false;
         state.scanning = true;
-        const constraints = {
+        const baseConstraints = {
             video: {
                 facingMode: { ideal: "environment" },
                 width: { ideal: 1280 },
                 height: { ideal: 720 },
                 frameRate: { ideal: 30, max: 60 },
-                advanced: [{ focusMode: "continuous" }],
             },
             audio: false,
         };
+        const focusConstraints = {
+            ...baseConstraints,
+            video: {
+                ...baseConstraints.video,
+                advanced: [{ focusMode: "continuous" }],
+            },
+        };
 
         try {
-            if ("BarcodeDetector" in window) {
-                state.stream = await navigator.mediaDevices.getUserMedia(constraints);
+            if (forceEngine !== "zxing" && "BarcodeDetector" in window) {
+                try {
+                    state.stream = await navigator.mediaDevices.getUserMedia(focusConstraints);
+                } catch (err) {
+                    state.stream = await navigator.mediaDevices.getUserMedia(baseConstraints);
+                }
                 els.video.srcObject = state.stream;
                 state.track = state.stream.getVideoTracks()[0];
                 await els.video.play();
-                state.detector = new BarcodeDetector({ formats: ["ean_13", "ean_8"] });
+                state.detector = new BarcodeDetector({
+                    formats: ["ean_13", "ean_8", "code_128", "itf", "upc_a", "upc_e"],
+                });
+                state.engine = "native";
                 setupTorch();
                 setStatus("Сканирование запущено.");
                 scanLoop();
@@ -396,9 +475,30 @@
             }
 
             if (window.ZXing && window.ZXing.BrowserMultiFormatReader) {
-                state.reader = new window.ZXing.BrowserMultiFormatReader();
-                await state.reader.decodeFromConstraints(constraints, els.video, (result, err) => {
+                const hints = new Map();
+                hints.set(window.ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+                    window.ZXing.BarcodeFormat.EAN_13,
+                    window.ZXing.BarcodeFormat.EAN_8,
+                    window.ZXing.BarcodeFormat.CODE_128,
+                    window.ZXing.BarcodeFormat.CODE_39,
+                    window.ZXing.BarcodeFormat.ITF,
+                    window.ZXing.BarcodeFormat.UPC_A,
+                    window.ZXing.BarcodeFormat.UPC_E,
+                ]);
+                hints.set(window.ZXing.DecodeHintType.TRY_HARDER, true);
+                hints.set(window.ZXing.DecodeHintType.ALSO_INVERTED, true);
+                state.reader = new window.ZXing.BrowserMultiFormatReader(hints, 200);
+                state.engine = "zxing";
+                const decodeCallback = (result, err) => {
+                    const now = performance.now();
+                    if (now - state.lastScan < 150) {
+                        return;
+                    }
+                    state.lastScan = now;
                     state.updateCount += 1;
+                    if (state.updateCount % 3 === 0) {
+                        setDebug(`Кадры: ${state.updateCount}, найдено: ${state.detectedAny ? "да" : "нет"}, режим: ${state.engine}`);
+                    }
                     if (state.updateCount % 6 === 0) {
                         const { maxFrames } = getSettings();
                         setStatus(`Сканирование... кадр ${state.updateCount} из ${maxFrames}`);
@@ -408,20 +508,42 @@
                     }
                     const { maxFrames } = getSettings();
                     if (state.updateCount >= maxFrames) {
+                        if (!state.detectedAny && window.BarcodeDetector) {
+                            setStatus("Не найдено, пробую другой режим...");
+                            stopStream();
+                            startScan("native");
+                            return;
+                        }
                         stopScan(true);
                     }
-                });
+                };
+                try {
+                    await state.reader.decodeFromConstraints(focusConstraints, els.video, decodeCallback);
+                } catch (err1) {
+                    try {
+                        await state.reader.decodeFromConstraints(baseConstraints, els.video, decodeCallback);
+                    } catch (err2) {
+                        try {
+                            await state.reader.decodeFromVideoDevice(null, els.video, decodeCallback);
+                        } catch (err3) {
+                            console.error(err1, err2, err3);
+                            setError("Не удалось запустить сканер.");
+                            await stopScan(false);
+                            return;
+                        }
+                    }
+                }
                 setStatus("Сканирование запущено.");
                 return;
             }
 
-            setStatus("Сканирование не поддерживается браузером.", true);
+            setError("Сканирование не поддерживается браузером.");
             els.start.disabled = false;
             els.stop.disabled = true;
             state.scanning = false;
         } catch (err) {
             console.error(err);
-            setStatus("Не удалось запустить камеру.", true);
+            setError("Не удалось запустить камеру.");
             els.start.disabled = false;
             els.stop.disabled = true;
             state.scanning = false;
