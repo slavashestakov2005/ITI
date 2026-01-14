@@ -437,19 +437,22 @@
         els.start.disabled = true;
         els.stop.disabled = false;
         state.scanning = true;
+        const baseVideoConstraints = {
+            facingMode: { ideal: "environment" },
+        };
+        if (!isIOS) {
+            baseVideoConstraints.width = { ideal: 1280 };
+            baseVideoConstraints.height = { ideal: 720 };
+            baseVideoConstraints.frameRate = { ideal: 30, max: 60 };
+        }
         const baseConstraints = {
-            video: {
-                facingMode: { ideal: "environment" },
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
-                frameRate: { ideal: 30, max: 60 },
-            },
+            video: baseVideoConstraints,
             audio: false,
         };
         const focusConstraints = {
             ...baseConstraints,
             video: {
-                ...baseConstraints.video,
+                ...baseVideoConstraints,
                 advanced: [{ focusMode: "continuous" }],
             },
         };
@@ -518,7 +521,11 @@
                     }
                 };
                 try {
-                    await state.reader.decodeFromConstraints(focusConstraints, els.video, decodeCallback);
+                    if (isIOS) {
+                        await state.reader.decodeFromVideoDevice(null, els.video, decodeCallback);
+                    } else {
+                        await state.reader.decodeFromConstraints(focusConstraints, els.video, decodeCallback);
+                    }
                 } catch (err1) {
                     try {
                         await state.reader.decodeFromConstraints(baseConstraints, els.video, decodeCallback);
