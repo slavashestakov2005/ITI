@@ -107,6 +107,21 @@
         maxFrames: Math.max(5, parseInt(els.maxFrames.value || "30", 10)),
     });
 
+    const pickVideoDeviceId = async () => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return null;
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videos = devices.filter((device) => device.kind === "videoinput");
+            if (!videos.length) return null;
+            const preferred = videos.find((device) => /back|rear|environment|wide/i.test(device.label));
+            if (preferred) return preferred.deviceId;
+            return videos[videos.length - 1].deviceId || null;
+        } catch (err) {
+            console.warn("Device enumeration failed", err);
+            return null;
+        }
+    };
+
     const resetCounts = () => {
         state.ean8Counts.clear();
         state.ean13Counts.clear();
@@ -458,7 +473,12 @@
         };
 
         try {
+            let preferredDeviceId = null;
             if (forceEngine !== "zxing" && "BarcodeDetector" in window) {
+                preferredDeviceId = await pickVideoDeviceId();
+                if (preferredDeviceId) {
+                    baseVideoConstraints.deviceId = { exact: preferredDeviceId };
+                }
                 try {
                     state.stream = await navigator.mediaDevices.getUserMedia(focusConstraints);
                 } catch (err) {
@@ -492,6 +512,9 @@
                 hints.set(window.ZXing.DecodeHintType.ALSO_INVERTED, true);
                 state.reader = new window.ZXing.BrowserMultiFormatReader(hints, 200);
                 state.engine = "zxing";
+                if (!preferredDeviceId) {
+                    preferredDeviceId = await pickVideoDeviceId();
+                }
                 const decodeCallback = (result, err) => {
                     const now = performance.now();
                     if (now - state.lastScan < 150) {
@@ -522,7 +545,7 @@
                 };
                 try {
                     if (isIOS) {
-                        await state.reader.decodeFromVideoDevice(null, els.video, decodeCallback);
+                        await state.reader.decodeFromVideoDevice(preferredDeviceId, els.video, decodeCallback);
                     } else {
                         await state.reader.decodeFromConstraints(focusConstraints, els.video, decodeCallback);
                     }
@@ -531,7 +554,7 @@
                         await state.reader.decodeFromConstraints(baseConstraints, els.video, decodeCallback);
                     } catch (err2) {
                         try {
-                            await state.reader.decodeFromVideoDevice(null, els.video, decodeCallback);
+                            await state.reader.decodeFromVideoDevice(preferredDeviceId, els.video, decodeCallback);
                         } catch (err3) {
                             console.error(err1, err2, err3);
                             setError("Не удалось запустить сканер.");
