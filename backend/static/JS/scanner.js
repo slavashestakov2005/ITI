@@ -516,9 +516,9 @@
                 await loadQuagga();
                 if (!window.Quagga) return false;
                 const quaggaTarget = document.getElementById("scanner-html5") || els.html5Wrap || els.video;
-                // показываем контейнер под quagga
+                // показываем контейнер под quagga и готовим превью
                 if (els.html5Wrap) els.html5Wrap.style.display = "block";
-                els.video.style.display = "none";
+                els.video.style.display = "block";
                 state.engine = "quagga";
                 const readers = [
                     "ean_reader",
@@ -556,6 +556,15 @@
                 state.quaggaRunning = true;
                 try {
                     window.Quagga.start();
+                    // привязываем активный трек к video, чтобы был явный превью-поток
+                    const track = window.Quagga.CameraAccess && window.Quagga.CameraAccess.getActiveTrack
+                        ? window.Quagga.CameraAccess.getActiveTrack()
+                        : null;
+                    if (track) {
+                        const previewStream = new MediaStream([track]);
+                        els.video.srcObject = previewStream;
+                        await els.video.play();
+                    }
                 } catch (startErr) {
                     console.warn("quagga start failed", startErr);
                     setError("Quagga не смогла запустить камеру.");

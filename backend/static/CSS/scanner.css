@@ -148,7 +148,8 @@
     position: absolute;
     inset: 0;
     display: none;
-    background: #0b1220;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 1;
 }
 
 #scanner-html5,
@@ -164,6 +165,8 @@
     height: 100%;
     object-fit: cover;
     background: #0b1220;
+    position: relative;
+    z-index: 2;
 }
 
 .scanner-overlay {
@@ -177,6 +180,7 @@
     gap: 12px;
     color: #ffffff;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5));
+    z-index: 3;
 }
 
 .scanner-target {
