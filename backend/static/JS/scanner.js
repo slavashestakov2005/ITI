@@ -78,6 +78,32 @@
     };
     toggleFound(false);
 
+    const ensurePreview = async () => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+        if (state.previewStream) {
+            els.video.srcObject = state.previewStream;
+            els.video.style.display = "block";
+            els.video.play().catch(() => {});
+            return;
+        }
+        const previewConstraints = {
+            video: {
+                facingMode: { ideal: "environment" },
+                width: { ideal: 640 },
+                height: { ideal: 360 },
+            },
+            audio: false,
+        };
+        try {
+            state.previewStream = await navigator.mediaDevices.getUserMedia(previewConstraints);
+            els.video.srcObject = state.previewStream;
+            els.video.style.display = "block";
+            await els.video.play();
+        } catch (err) {
+            console.warn("preview stream failed", err);
+        }
+    };
+
     const loadQuagga = () => {
         if (window.Quagga) return Promise.resolve();
         if (quaggaScriptPromise) return quaggaScriptPromise;
@@ -412,9 +438,11 @@
             state.stream = null;
             state.track = null;
         }
+        // previewStream оставляем живой, чтобы не было чёрного экрана
         if (state.previewStream) {
-            state.previewStream.getTracks().forEach((track) => track.stop());
-            state.previewStream = null;
+            els.video.srcObject = state.previewStream;
+            els.video.style.display = "block";
+            els.video.play().catch(() => {});
         }
         state.detector = null;
         state.torchOn = false;
@@ -494,19 +522,18 @@
             state.scanning = false;
         }
         resetCounts();
-        setStatus("Запуск камеры...");
+        setStatus("Готов к сканированию.");
         els.start.disabled = true;
         els.stop.disabled = false;
         state.scanning = true;
+        await ensurePreview();
 
         const baseVideoConstraints = {
             facingMode: { ideal: "environment" },
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+            frameRate: { ideal: 30, max: 60 },
         };
-        if (!isIOS) {
-            baseVideoConstraints.width = { ideal: 1280 };
-            baseVideoConstraints.height = { ideal: 720 };
-            baseVideoConstraints.frameRate = { ideal: 30, max: 60 };
-        }
         const baseConstraints = { video: baseVideoConstraints, audio: false };
         const focusConstraints = {
             ...baseConstraints,
@@ -797,6 +824,8 @@
     els.barcodeClear.addEventListener("click", clearBarcodeFields);
     els.resultSave.addEventListener("click", saveResult);
     els.resultClear.addEventListener("click", clearResultFields);
+
+    ensurePreview();
 
     window.addEventListener("beforeunload", () => {
         stopStream();
