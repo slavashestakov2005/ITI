@@ -517,7 +517,7 @@
                 if (!window.Quagga) return false;
                 const quaggaTarget = document.getElementById("scanner-html5") || els.html5Wrap || els.video;
                 // показываем контейнер под quagga и готовим превью
-                if (els.html5Wrap) els.html5Wrap.style.display = "block";
+                if (els.html5Wrap) els.html5Wrap.style.display = "none";
                 els.video.style.display = "block";
                 state.engine = "quagga";
                 const readers = [
@@ -691,7 +691,6 @@
 
         try {
             if (isIOS || forceEngine === "html5") {
-                setStatus("Запуск iOS-движка (quagga)...");
                 const okQuagga = await tryQuagga();
                 if (okQuagga) return;
             }
