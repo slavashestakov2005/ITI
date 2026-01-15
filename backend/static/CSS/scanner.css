@@ -138,7 +138,7 @@
 
 .scanner-video-wrap {
     position: relative;
-    background: #0b1220;
+    background: radial-gradient(circle at 20% 20%, #1b2740 0%, #0f1628 60%, #0b1220 100%);
     border-radius: 16px;
     overflow: hidden;
     min-height: 320px;
@@ -148,6 +148,7 @@
     position: absolute;
     inset: 0;
     display: none;
+    background: #0b1220;
 }
 
 #scanner-html5,
@@ -162,6 +163,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    background: #0b1220;
 }
 
 .scanner-overlay {
@@ -187,6 +189,15 @@
 .scanner-text {
     font-size: 13px;
     opacity: 0.9;
+}
+
+.scanner-found {
+    display: none;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #e8ff8b;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .scanner-status {

@@ -20,7 +20,11 @@ class ResultListResource(Resource):
     @api_group()
     def post(self):
         args = parser_full.parse_args()
-        code = save_result_(current_user, args['year'], args['subject'], args['code'], args['result'])
+        answer = save_result_(current_user, args['year'], args['subject'], args['code'], args['result'])
+        max_allowed = None
+        code = answer
+        if isinstance(answer, tuple):
+            code, max_allowed = answer
         if code == -1:
             return ApiStatus.ACCESS_DENIED, {}
         elif code == 1:
@@ -35,7 +39,10 @@ class ResultListResource(Resource):
         elif code == 5:
             return ApiStatus.FAIL, {'message': 'Некорректные данные'}
         elif code == 6:
-            return ApiStatus.FAIL, {'message': 'Сумма баллов больше 30'}
+            msg = 'Сумма баллов больше допустимого'
+            if max_allowed is not None:
+                msg += f' (максимум {max_allowed})'
+            return ApiStatus.FAIL, {'message': msg}
         elif code == 7:
             return ApiStatus.FAIL, {'message': 'Нет такого ИТИ'}
         elif code == 8:

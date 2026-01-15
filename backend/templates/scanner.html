@@ -21,14 +21,6 @@
                 <input id="scanner-subject-id" type="number" inputmode="numeric" placeholder="Нужен для результатов">
             </div>
             <div class="scanner-field">
-                <label for="scanner-user-login">Логин пользователя (сканер)</label>
-                <input id="scanner-user-login" type="text" autocomplete="username">
-            </div>
-            <div class="scanner-field">
-                <label for="scanner-user-password">Пароль пользователя</label>
-                <input id="scanner-user-password" type="password" autocomplete="current-password">
-            </div>
-            <div class="scanner-field">
                 <label for="scanner-mode">Режим</label>
                 <select id="scanner-mode">
                     <option value="barcode">Штрих-коды (ученик + коды)</option>
@@ -56,6 +48,7 @@
                 <div class="scanner-overlay">
                     <div class="scanner-target"></div>
                     <div class="scanner-text">Наведите камеру на код</div>
+                    <div id="scanner-found" class="scanner-found" aria-live="polite">КОД НАЙДЕН</div>
                 </div>
             </div>
             <div class="scanner-controls">
@@ -64,7 +57,6 @@
                 <button id="scanner-torch" class="scanner-btn ghost" type="button" disabled>Подсветка</button>
             </div>
             <div id="scanner-status" class="scanner-status">Готов к сканированию.</div>
-            <div id="scanner-debug" class="scanner-hint"></div>
         </section>
 
         <section class="scanner-card" id="scanner-barcode-panel">
@@ -127,5 +119,5 @@
 <link rel="stylesheet" href="/CSS/scanner.css">
 <script defer src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
 <script defer src="https://unpkg.com/quagga@0.12.1/dist/quagga.min.js"></script>
-<script defer src="/JS/scanner.js?v=19"></script>
+<script defer src="/JS/scanner.js?v=20"></script>
 {% endblock %}

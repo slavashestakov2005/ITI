@@ -4,8 +4,7 @@
     const els = {
         itiId: getEl("scanner-iti-id"),
         subjectId: getEl("scanner-subject-id"),
-        login: getEl("scanner-user-login"),
-        password: getEl("scanner-user-password"),
+        found: getEl("scanner-found"),
         mode: getEl("scanner-mode"),
         maxFrames: getEl("scanner-max-frames"),
         subjectLoad: getEl("scanner-subject-load"),
@@ -14,7 +13,6 @@
         stop: getEl("scanner-stop"),
         torch: getEl("scanner-torch"),
         status: getEl("scanner-status"),
-        debug: getEl("scanner-debug"),
         video: getEl("scanner-video"),
         html5Wrap: getEl("scanner-html5-wrap"),
         barcodePanel: getEl("scanner-barcode-panel"),
@@ -63,6 +61,8 @@
     const setError = (text) => setStatus(text, true);
 
     const storageKey = "itiScannerSettings";
+    const DEFAULT_LOGIN = "scanner_master";
+    const DEFAULT_PASSWORD = "scaner2026";
     let quaggaScriptPromise = null;
 
     const setStatus = (text, isError = false) => {
@@ -70,11 +70,12 @@
         els.status.style.color = isError ? "#a62727" : "#2f3b4e";
         els.status.style.background = isError ? "#ffe6e6" : "#f0f4fa";
     };
-    const setDebug = (text) => {
-        if (!els.debug) return;
-        els.debug.textContent = text;
+    const setDebug = () => {};
+    const toggleFound = (visible) => {
+        if (!els.found) return;
+        els.found.style.display = visible ? "block" : "none";
     };
-    setDebug("JS загружен, ожидаю старт.");
+    toggleFound(false);
 
     const loadQuagga = () => {
         if (window.Quagga) return Promise.resolve();
@@ -97,8 +98,6 @@
             const settings = JSON.parse(raw);
             if (settings.itiId) els.itiId.value = settings.itiId;
             if (settings.subjectId) els.subjectId.value = settings.subjectId;
-            if (settings.login) els.login.value = settings.login;
-            if (settings.password) els.password.value = settings.password;
             if (settings.mode) els.mode.value = settings.mode;
             if (settings.maxFrames) els.maxFrames.value = settings.maxFrames;
         } catch (err) {
@@ -110,8 +109,6 @@
         const settings = {
             itiId: els.itiId.value,
             subjectId: els.subjectId.value,
-            login: els.login.value,
-            password: els.password.value,
             mode: els.mode.value,
             maxFrames: els.maxFrames.value,
         };
@@ -121,8 +118,8 @@
     const getSettings = () => ({
         itiId: (els.itiId.value || "").trim(),
         subjectId: (els.subjectId.value || "").trim(),
-        login: (els.login.value || "").trim(),
-        password: els.password.value || "",
+        login: DEFAULT_LOGIN,
+        password: DEFAULT_PASSWORD,
         mode: els.mode.value,
         maxFrames: Math.max(5, parseInt(els.maxFrames.value || "30", 10)),
     });
@@ -148,7 +145,7 @@
         state.updateCount = 0;
         state.detectedAny = false;
         state.lastScan = 0;
-        setDebug("Сканирование не начато.");
+        toggleFound(false);
     };
 
     const normalizeDigits = (value) => {
@@ -193,7 +190,7 @@
             digits.length === 13 || normalizedFormat.includes("ean_13") || normalizedFormat.includes("ean13");
         const validEan8 = looksEan8 && isValidEan8(digits);
         const validEan13 = looksEan13 && isValidEan13(digits);
-        setDebug(`Последний код: ${digits} (${normalizedFormat || "unknown"})`);
+        toggleFound(validEan8 || validEan13);
 
         if (validEan8) {
             const studentId = parseInt(digits, 10);
@@ -425,6 +422,7 @@
         state.scanning = false;
         if (state.scanLoopId) cancelAnimationFrame(state.scanLoopId);
         stopStream();
+        toggleFound(false);
         els.start.disabled = false;
         els.stop.disabled = true;
         if (auto) setStatus("Сканирование завершено.");
@@ -751,7 +749,7 @@
         saveSettings();
     });
 
-    [els.itiId, els.subjectId, els.login, els.password, els.maxFrames].forEach((input) => {
+    [els.itiId, els.subjectId, els.maxFrames].forEach((input) => {
         input.addEventListener("input", saveSettings);
     });
 
