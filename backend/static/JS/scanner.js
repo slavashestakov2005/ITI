@@ -56,6 +56,7 @@
         html5Timer: null,
         zxingTimer: null,
         quaggaRunning: false,
+        previewStream: null,
     };
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const setError = (text) => setStatus(text, true);
@@ -411,6 +412,10 @@
             state.stream = null;
             state.track = null;
         }
+        if (state.previewStream) {
+            state.previewStream.getTracks().forEach((track) => track.stop());
+            state.previewStream = null;
+        }
         state.detector = null;
         state.torchOn = false;
         state.engine = null;
@@ -690,6 +695,16 @@
         };
 
         try {
+            // заранее открываем превью-поток, чтобы не было чёрного экрана
+            try {
+                state.previewStream = await navigator.mediaDevices.getUserMedia(baseConstraints);
+                els.video.srcObject = state.previewStream;
+                els.video.style.display = "block";
+                await els.video.play();
+            } catch (previewErr) {
+                console.warn("preview stream failed", previewErr);
+            }
+
             if (isIOS || forceEngine === "html5") {
                 const okQuagga = await tryQuagga();
                 if (okQuagga) return;
