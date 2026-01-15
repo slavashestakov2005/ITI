@@ -438,7 +438,7 @@
             state.stream = null;
             state.track = null;
         }
-        // previewStream оставляем живой, чтобы не было чёрного экрана
+        // восстановить превью, если оно есть
         if (state.previewStream) {
             els.video.srcObject = state.previewStream;
             els.video.style.display = "block";
@@ -455,6 +455,7 @@
         state.scanning = false;
         if (state.scanLoopId) cancelAnimationFrame(state.scanLoopId);
         stopStream();
+        ensurePreview();
         toggleFound(false);
         els.start.disabled = false;
         els.stop.disabled = true;
@@ -527,6 +528,11 @@
         els.stop.disabled = false;
         state.scanning = true;
         await ensurePreview();
+        // На время реального сканирования освобождаем превью-поток, чтобы камера была доступна движкам
+        if (state.previewStream) {
+            state.previewStream.getTracks().forEach((track) => track.stop());
+            state.previewStream = null;
+        }
 
         const baseVideoConstraints = {
             facingMode: { ideal: "environment" },
