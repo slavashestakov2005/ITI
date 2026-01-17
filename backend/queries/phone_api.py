@@ -8,6 +8,33 @@ from .results_raw import save_result_
 from ..config import Config
 from ..database import Barcode, Iti, ItiSubject, Student, StudentClass, Subject, User
 from ..help import check_role, UserRoleIti
+from flask_login import current_user
+
+
+def _resolve_user(user_login: str | None, user_password: str | None):
+    """
+    Возвращает пользователя: по логину/паролю, либо текущего авторизованного.
+    """
+    if getattr(current_user, "is_authenticated", False) and hasattr(current_user, "check_role"):
+        if getattr(current_user, "login", None):
+            user = User.select_by_login(current_user.login)
+            if user:
+                return user
+        try:
+            uid = abs(int(current_user.id))
+            user = User.select(uid)
+            if user:
+                return user
+        except Exception:
+            pass
+    if user_login:
+        user = User.select_by_login(user_login)
+        if not user:
+            raise ValueError("Неверные логин пользователя")
+        if user_password is not None and not user.check_password(user_password):
+            raise ValueError("Неверный пароль пользователя")
+        return user
+    raise ValueError("Требуется авторизация")
 
 '''
     /<iti_id>/student_info                  Возвращает информацию по ID школьника (scaner).
@@ -29,13 +56,9 @@ def scanner_version():
 def student_info(iti: Iti):
     try:
         student_id = request.json['student_id']
-        user_login = request.json['user_login']
-        user_password = request.json['user_password']
-        user = User.select_by_login(user_login)
-        if not user:
-            raise ValueError("Неверные логин пользователя")
-        if not user.check_password(user_password):
-            raise ValueError("Неверные пароль пользователя")
+        user_login = request.json.get('user_login')
+        user_password = request.json.get('user_password')
+        user = _resolve_user(user_login, user_password)
         if not check_role(user=user, roles=[UserRoleIti.SCANNER], iti_id=iti.id):
             raise ValueError("Пользователь не является сканером")
         student = Student.select(student_id)
@@ -55,13 +78,9 @@ def student_info(iti: Iti):
 def subject_info(iti: Iti):
     try:
         subject_id = request.json['subject_id']
-        user_login = request.json['user_login']
-        user_password = request.json['user_password']
-        user = User.select_by_login(user_login)
-        if not user:
-            raise ValueError("Неверные логин пользователя")
-        if not user.check_password(user_password):
-            raise ValueError("Неверные пароль пользователя")
+        user_login = request.json.get('user_login')
+        user_password = request.json.get('user_password')
+        user = _resolve_user(user_login, user_password)
         if not check_role(user=user, roles=[UserRoleIti.SCANNER], iti_id=iti.id):
             raise ValueError("Пользователь не является сканером")
         subject = Subject.select(subject_id)
@@ -81,13 +100,9 @@ def subject_info(iti: Iti):
 def save_barcodes(iti: Iti):
     try:
         data = request.json['data']
-        user_login = request.json['user_login']
-        user_password = request.json['user_password']
-        user = User.select_by_login(user_login)
-        if not user:
-            raise ValueError("Неверный логин пользователя")
-        if not user.check_password(user_password):
-            raise ValueError("Неверный пароль пользователя")
+        user_login = request.json.get('user_login')
+        user_password = request.json.get('user_password')
+        user = _resolve_user(user_login, user_password)
         if not check_role(user=user, roles=[UserRoleIti.SCANNER], iti_id=iti.id):
             raise ValueError("Пользователь не является сканером")
         value = json.loads(data)
@@ -120,13 +135,9 @@ def save_barcodes(iti: Iti):
 def save_subject_results(iti: Iti, subject_id: int):
     try:
         data = request.json['data']
-        user_login = request.json['user_login']
-        user_password = request.json['user_password']
-        user = User.select_by_login(user_login)
-        if not user:
-            raise ValueError("Неверный логин пользователя")
-        if not user.check_password(user_password):
-            raise ValueError("Неверный пароль пользователя")
+        user_login = request.json.get('user_login')
+        user_password = request.json.get('user_password')
+        user = _resolve_user(user_login, user_password)
         value = json.loads(data)
         ans = {}
         start_barcode, finish_barcode = iti.barcodes_start(), iti.barcodes_finish()
@@ -138,16 +149,22 @@ def save_subject_results(iti: Iti, subject_id: int):
             else:
                 answer = save_result_(user, iti.id, subject_id, int(student_code), str(result))
             if answer:
+                extra = None
+                if isinstance(answer, tuple):
+                    answer, extra = answer
                 if answer not in ans:
                     ans[answer] = []
-                ans[answer].append(str(i + 1))
+                if answer == 6 and extra is not None:
+                    ans[answer].append(f"{i + 1} (макс {extra})")
+                else:
+                    ans[answer].append(str(i + 1))
         decode = {-1: 'Вам запрещено редактирование',
                   0: 'Несуществующий шифр в строках: ' + (','.join(ans[0]) if 0 in ans else ''),
                   1: 'Пустые ячейки в строках: ' + (','.join(ans[1]) if 1 in ans else ''),
                   3: 'Такого предмета нет в этом году',
                   4: 'Повтор кодов в строках: ' + (','.join(ans[4]) if 4 in ans else ''),
                   5: 'Неправильный формат для результата в строках: ' + (','.join(ans[5]) if 5 in ans else ''),
-                  6: 'Сумма баллов больше 30: ' + (','.join(ans[6]) if 6 in ans else ''),
+                  6: 'Сумма баллов превышает максимум: ' + (','.join(ans[6]) if 6 in ans else ''),
                   7: 'Нет такого ИТИ',
                   8: 'По этому штрих-коду результат уже сохранён: ' + (','.join(ans[8]) if 8 in ans else ''),
                   9: 'Штрих-код не попал в диапазон для ИТИ: ' + (','.join(ans[9]) if 9 in ans else '')}

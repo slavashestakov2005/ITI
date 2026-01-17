@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="scanner-page">
+    <div class="scanner-header">
+        <div>
+            <h1>Веб-сканер ИТИ</h1>
+            <p class="scanner-subtitle">Сканирование штрих-кодов с улучшенной фокусировкой камеры.</p>
+        </div>
+    </div>
+
+    <div class="scanner-grid">
+        <section class="scanner-card">
+            <h2>Доступ и настройки</h2>
+            <div class="scanner-chips">
+                <div id="scanner-info-iti" class="scanner-chip">ИТИ: не задан</div>
+                <div id="scanner-info-subject" class="scanner-chip">Предмет: не задан</div>
+            </div>
+            <div class="scanner-field">
+                <label for="scanner-mode">Режим</label>
+                <select id="scanner-mode">
+                    <option value="barcode">Штрих-коды (ученик + коды)</option>
+                    <option value="result">Результаты по предмету</option>
+                </select>
+            </div>
+            <div class="scanner-field">
+                <label for="scanner-max-frames">Глубина сканирования</label>
+                <input id="scanner-max-frames" type="number" inputmode="numeric" placeholder="30" value="30">
+                <div class="scanner-hint">Чем больше значение, тем стабильнее результат.</div>
+            </div>
+        </section>
+
+        <section class="scanner-card scanner-video">
+            <h2>Камера</h2>
+            <div class="scanner-video-wrap">
+                <div id="scanner-html5-wrap">
+                    <div id="scanner-html5"></div>
+                </div>
+                <video id="scanner-video" autoplay muted playsinline></video>
+                <div class="scanner-overlay">
+                    <div class="scanner-target"></div>
+                    <div class="scanner-text">Наведите камеру на код</div>
+                    <div id="scanner-found" class="scanner-found" aria-live="polite">КОД НАЙДЕН</div>
+                </div>
+            </div>
+            <div class="scanner-controls">
+                <button id="scanner-start" class="scanner-btn primary" type="button">Старт</button>
+                <button id="scanner-stop" class="scanner-btn" type="button" disabled>Стоп</button>
+                <button id="scanner-torch" class="scanner-btn ghost" type="button" disabled>Подсветка</button>
+            </div>
+            <div id="scanner-status" class="scanner-status">Готов к сканированию.</div>
+        </section>
+
+        <section class="scanner-card" id="scanner-barcode-panel">
+            <h2>Штрих-коды</h2>
+            <div class="scanner-field">
+                <label for="barcode-student-id">Код школьника (EAN-8)</label>
+                <input id="barcode-student-id" type="number" inputmode="numeric">
+            </div>
+            <div class="scanner-row">
+                <div class="scanner-field">
+                    <label for="barcode-student-name1">Фамилия</label>
+                    <input id="barcode-student-name1" type="text" readonly>
+                </div>
+                <div class="scanner-field">
+                    <label for="barcode-student-name2">Имя</label>
+                    <input id="barcode-student-name2" type="text" readonly>
+                </div>
+            </div>
+            <div class="scanner-row">
+                <div class="scanner-field">
+                    <label for="barcode-student-class">Класс</label>
+                    <input id="barcode-student-class" type="text" readonly>
+                </div>
+            </div>
+            <div class="scanner-field">
+                <label>Коды работ (EAN-13)</label>
+                <div class="scanner-codes">
+                    <input id="barcode-code-1" type="number" inputmode="numeric">
+                    <input id="barcode-code-2" type="number" inputmode="numeric">
+                    <input id="barcode-code-3" type="number" inputmode="numeric">
+                    <input id="barcode-code-4" type="number" inputmode="numeric">
+                    <input id="barcode-code-5" type="number" inputmode="numeric">
+                </div>
+            </div>
+            <div class="scanner-controls">
+                <button id="barcode-fetch-student" class="scanner-btn ghost" type="button">Проверить ученика</button>
+                <button id="barcode-save" class="scanner-btn primary" type="button">Сохранить штрих-коды</button>
+                <button id="barcode-clear" class="scanner-btn" type="button">Очистить поля</button>
+            </div>
+        </section>
+
+        <section class="scanner-card" id="scanner-result-panel">
+            <h2>Результат</h2>
+            <div class="scanner-field">
+                <label for="result-code">Код работы (EAN-13)</label>
+                <input id="result-code" type="text" inputmode="numeric" pattern="[0-9]*">
+            </div>
+            <div class="scanner-field">
+                <label for="result-score">Результат</label>
+                <input id="result-score" type="text" placeholder="Например, 27.5">
+            </div>
+            <div class="scanner-controls">
+                <button id="result-save" class="scanner-btn primary" type="button">Сохранить результат</button>
+                <button id="result-clear" class="scanner-btn" type="button">Очистить поля</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<link rel="stylesheet" href="/CSS/scanner.css">
+<script defer src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
+<script defer src="https://unpkg.com/quagga@0.12.1/dist/quagga.min.js"></script>
+<script defer src="/JS/scanner.js?v=21"></script>
+{% endblock %}

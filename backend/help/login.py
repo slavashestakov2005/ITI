@@ -22,11 +22,13 @@ TEMPLATE, ELJUR_LOGIN = 'login.html', 'eljur_login.html'
 # id < 0 - User; id > 0 - Student
 @login.user_loader
 def load_user(id):
-    id = int(id)
-    if id < 0:
-        return User.select(-id)
-    else:
-        return Student.select(id)
+    try:
+        id_int = int(id)
+    except Exception:
+        return None
+    if id_int < 0:
+        return User.select(-id_int)
+    return Student.select(id_int)
 
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -51,8 +53,7 @@ def login():
             u.id = -u.id
             login_user(u)
             return redirect('/')
-        else:
-            return render_template(TEMPLATE, error='Неверные логин или пароль', **args)
+        return render_template(TEMPLATE, error='Неверные логин или пароль', **args)
     return render_template(TEMPLATE, **args)
 
 

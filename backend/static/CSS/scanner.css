@@ -1,0 +1,249 @@
+.scanner-page {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 0 48px;
+}
+
+.scanner-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.scanner-header h1 {
+    margin: 0 0 8px;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.scanner-subtitle {
+    margin: 0;
+    color: #566070;
+    font-size: 15px;
+}
+
+.scanner-link {
+    text-decoration: none;
+    color: #1f5bd7;
+    font-weight: 600;
+}
+
+.scanner-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.scanner-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 12px 30px rgba(20, 35, 56, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.scanner-card h2 {
+    margin: 0 0 4px;
+    font-size: 20px;
+}
+
+.scanner-login {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.scanner-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.scanner-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.scanner-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.scanner-field label {
+    font-size: 13px;
+    color: #3a4658;
+    font-weight: 600;
+}
+
+.scanner-field input,
+.scanner-field select {
+    border: 1px solid #d6dbe4;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+    outline: none;
+}
+
+.scanner-field input:focus,
+.scanner-field select:focus {
+    border-color: #1f5bd7;
+    box-shadow: 0 0 0 3px rgba(31, 91, 215, 0.15);
+}
+
+.scanner-hint {
+    font-size: 12px;
+    color: #6c7788;
+}
+
+.scanner-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.scanner-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    background: #e9edf4;
+    color: #334155;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.scanner-btn.primary {
+    background: #1f5bd7;
+    color: #ffffff;
+}
+
+.scanner-btn.ghost {
+    background: transparent;
+    border: 1px solid #c8d1e0;
+}
+
+.scanner-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.scanner-video {
+    grid-column: span 2;
+}
+
+.scanner-video-wrap {
+    position: relative;
+    background: radial-gradient(circle at 20% 20%, #1b2740 0%, #0f1628 60%, #0b1220 100%);
+    border-radius: 16px;
+    overflow: hidden;
+    min-height: 320px;
+}
+
+#scanner-html5-wrap {
+    position: absolute;
+    inset: 0;
+    display: none;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
+
+#scanner-html5,
+#scanner-html5 video,
+#scanner-html5 canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.scanner-video-wrap video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #0b1220;
+    position: relative;
+    z-index: 2;
+}
+
+.scanner-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+    color: #ffffff;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5));
+    z-index: 3;
+}
+
+.scanner-target {
+    width: min(260px, 70%);
+    height: 120px;
+    border: 2px dashed rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+}
+
+.scanner-text {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.scanner-found {
+    display: none;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #e8ff8b;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.scanner-status {
+    font-size: 13px;
+    color: #2f3b4e;
+    background: #f0f4fa;
+    padding: 8px 10px;
+    border-radius: 10px;
+}
+
+.scanner-alert {
+    background: #ffe6e6;
+    color: #a62727;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.scanner-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.scanner-chip {
+    background: #eef2ff;
+    color: #1c2a5f;
+    border-radius: 12px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.scanner-codes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+@media (max-width: 900px) {
+    .scanner-video {
+        grid-column: span 1;
+    }
+}

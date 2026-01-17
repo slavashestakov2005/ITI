@@ -85,7 +85,8 @@ class User(SqlAlchemyBase, SiteUser, Table):
 
     @classmethod
     def select_by_login(cls, login: str):
-        return cls.__select_by_expr__(cls.login == login, one=True)
+        user = cls.__select_by_expr__(cls.login == login, one=True)
+        return user
 
     @classmethod
     def update_by_login(cls, user) -> None:
