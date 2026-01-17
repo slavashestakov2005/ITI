@@ -2,13 +2,9 @@
     const getEl = (id) => document.getElementById(id);
 
     const els = {
-        itiId: getEl("scanner-iti-id"),
-        subjectId: getEl("scanner-subject-id"),
         found: getEl("scanner-found"),
         mode: getEl("scanner-mode"),
         maxFrames: getEl("scanner-max-frames"),
-        subjectLoad: getEl("scanner-subject-load"),
-        subjectName: getEl("scanner-subject-name"),
         start: getEl("scanner-start"),
         stop: getEl("scanner-stop"),
         torch: getEl("scanner-torch"),
@@ -57,13 +53,13 @@
         zxingTimer: null,
         quaggaRunning: false,
         previewStream: null,
+        itiId: "",
+        subjectId: "",
     };
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const setError = (text) => setStatus(text, true);
 
     const storageKey = "itiScannerSettings";
-    const DEFAULT_LOGIN = "scanner_master";
-    const DEFAULT_PASSWORD = "scaner2026";
     let quaggaScriptPromise = null;
 
     const setStatus = (text, isError = false) => {
@@ -104,6 +100,10 @@
         }
     };
 
+    const params = new URLSearchParams(window.location.search);
+    state.itiId = params.get("iti") || "";
+    state.subjectId = params.get("subject") || "";
+
     const loadQuagga = () => {
         if (window.Quagga) return Promise.resolve();
         if (quaggaScriptPromise) return quaggaScriptPromise;
@@ -123,8 +123,6 @@
         if (!raw) return;
         try {
             const settings = JSON.parse(raw);
-            if (settings.itiId) els.itiId.value = settings.itiId;
-            if (settings.subjectId) els.subjectId.value = settings.subjectId;
             if (settings.mode) els.mode.value = settings.mode;
             if (settings.maxFrames) els.maxFrames.value = settings.maxFrames;
         } catch (err) {
@@ -134,8 +132,6 @@
 
     const saveSettings = () => {
         const settings = {
-            itiId: els.itiId.value,
-            subjectId: els.subjectId.value,
             mode: els.mode.value,
             maxFrames: els.maxFrames.value,
         };
@@ -143,10 +139,10 @@
     };
 
     const getSettings = () => ({
-        itiId: (els.itiId.value || "").trim(),
-        subjectId: (els.subjectId.value || "").trim(),
-        login: DEFAULT_LOGIN,
-        password: DEFAULT_PASSWORD,
+        itiId: (state.itiId || "").trim(),
+        subjectId: (state.subjectId || "").trim(),
+        login: "",
+        password: "",
         mode: els.mode.value,
         maxFrames: Math.max(5, parseInt(els.maxFrames.value || "30", 10)),
     });
@@ -290,8 +286,6 @@
         const isBarcode = mode === "barcode";
         els.barcodePanel.style.display = isBarcode ? "flex" : "none";
         els.resultPanel.style.display = isBarcode ? "none" : "flex";
-        els.subjectId.disabled = isBarcode;
-        els.subjectLoad.disabled = isBarcode;
     };
 
     const postJson = async (url, data) => {
@@ -303,41 +297,15 @@
         return response.json();
     };
 
-    const fetchSubjectInfo = async () => {
-        const { itiId, subjectId, login, password } = getSettings();
-        if (!itiId || !subjectId || !login || !password) {
-            els.subjectName.textContent = "Заполните ИТИ, предмет и логин.";
-            return;
-        }
-        try {
-            const data = await postJson(`/${itiId}/subject_info`, {
-                subject_id: subjectId,
-                user_login: login,
-                user_password: password,
-            });
-            if (data.status === "OK") {
-                els.subjectName.textContent = data.subject.name;
-                setStatus("Данные предмета обновлены.");
-            } else {
-                els.subjectName.textContent = "Предмет не найден.";
-                setStatus(`Ошибка: ${data.msg || "нет доступа"}`, true);
-            }
-        } catch (err) {
-            setStatus("Не удалось получить предмет.", true);
-        }
-    };
-
     const fetchStudentInfo = async (studentId) => {
-        const { itiId, login, password } = getSettings();
-        if (!itiId || !login || !password) {
-            setStatus("Заполните ИТИ и логин.", true);
+        const { itiId } = getSettings();
+        if (!itiId) {
+            setStatus("В URL нет iti.", true);
             return;
         }
         try {
             const data = await postJson(`/${itiId}/student_info`, {
                 student_id: studentId,
-                user_login: login,
-                user_password: password,
             });
             if (data.status === "OK") {
                 els.barcodeName1.value = data.student.name_1 || "";
@@ -352,10 +320,10 @@
     };
 
     const saveBarcodes = async () => {
-        const { itiId, login, password } = getSettings();
+        const { itiId } = getSettings();
         const studentId = (els.barcodeStudentId.value || "").trim();
-        if (!itiId || !login || !password || !studentId) {
-            setStatus("Заполните ИТИ, логин и код школьника.", true);
+        if (!itiId || !studentId) {
+            setStatus("В URL нет iti или не указан код школьника.", true);
             return;
         }
         const codes = els.barcodeCodes
@@ -381,19 +349,17 @@
     };
 
     const saveResult = async () => {
-        const { itiId, subjectId, login, password } = getSettings();
+        const { itiId, subjectId } = getSettings();
         const code = (els.resultCode.value || "").trim();
         const result = (els.resultScore.value || "").trim();
-        if (!itiId || !subjectId || !login || !password || !code || !result) {
-            setStatus("Заполните ИТИ, предмет, логин, код и результат.", true);
+        if (!itiId || !subjectId || !code || !result) {
+            setStatus("В URL нет iti/subject или не заполнены код/результат.", true);
             return;
         }
         const payload = [[code, result.replace(",", ".")]];
         try {
             const data = await postJson(`/${itiId}/${subjectId}/save_results`, {
                 data: JSON.stringify(payload),
-                user_login: login,
-                user_password: password,
             });
             if (data.status === "OK") {
                 setStatus("Результат сохранен.");
@@ -781,23 +747,20 @@
         els.resultScore.value = "";
     };
 
-    if (!els.itiId) return;
-
     loadSettings();
     updateModeView();
 
-    const params = new URLSearchParams(window.location.search);
-    const itiParam = params.get("iti");
     const subjectParam = params.get("subject");
     const modeParam = params.get("mode");
-    if (itiParam && !els.itiId.value) els.itiId.value = itiParam;
-    if (subjectParam && !els.subjectId.value) els.subjectId.value = subjectParam;
     if (modeParam) els.mode.value = modeParam;
     if (subjectParam && !modeParam) els.mode.value = "result";
     updateModeView();
     saveSettings();
-    if (subjectParam) {
-        fetchSubjectInfo();
+    if (!state.itiId) {
+        setStatus("Добавьте ?iti=... в адресной строке.", true);
+    }
+    if (els.resultPanel && els.resultPanel.style.display !== "none" && !state.subjectId) {
+        setStatus("Для режима результатов нужен ?subject=...", true);
     }
 
     els.mode.addEventListener("change", () => {
@@ -805,15 +768,8 @@
         saveSettings();
     });
 
-    [els.itiId, els.subjectId, els.maxFrames].forEach((input) => {
+    [els.maxFrames].forEach((input) => {
         input.addEventListener("input", saveSettings);
-    });
-
-    els.subjectLoad.addEventListener("click", fetchSubjectInfo);
-    let subjectTimer = null;
-    els.subjectId.addEventListener("input", () => {
-        clearTimeout(subjectTimer);
-        subjectTimer = setTimeout(fetchSubjectInfo, 500);
     });
     els.start.addEventListener("click", startScan);
     els.stop.addEventListener("click", () => stopScan(false));

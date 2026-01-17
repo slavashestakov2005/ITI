@@ -13,14 +13,6 @@
         <section class="scanner-card">
             <h2>Доступ и настройки</h2>
             <div class="scanner-field">
-                <label for="scanner-iti-id">ИТИ ID</label>
-                <input id="scanner-iti-id" type="number" inputmode="numeric" placeholder="Например, 9">
-            </div>
-            <div class="scanner-field">
-                <label for="scanner-subject-id">Предмет ID</label>
-                <input id="scanner-subject-id" type="number" inputmode="numeric" placeholder="Нужен для результатов">
-            </div>
-            <div class="scanner-field">
                 <label for="scanner-mode">Режим</label>
                 <select id="scanner-mode">
                     <option value="barcode">Штрих-коды (ученик + коды)</option>
@@ -32,10 +24,7 @@
                 <input id="scanner-max-frames" type="number" inputmode="numeric" placeholder="30" value="30">
                 <div class="scanner-hint">Чем больше значение, тем стабильнее результат.</div>
             </div>
-            <div class="scanner-field">
-                <button id="scanner-subject-load" class="scanner-btn ghost" type="button">Обновить предмет</button>
-                <div id="scanner-subject-name" class="scanner-hint">Предмет не выбран.</div>
-            </div>
+            <div class="scanner-hint">ИТИ и предмет берутся из параметров URL (?iti=&subject=).</div>
         </section>
 
         <section class="scanner-card scanner-video">

@@ -4,10 +4,6 @@ from .__db_session import orm, sa, SqlAlchemyBase, Table
 from .team import Team
 from ..help import check_role, SiteUser, UserRoleGlobal, UserRoleIti, UserRoleItiSubject, UserRoleLogin
 
-SCANNER_MASTER_LOGIN = "scanner_master"
-SCANNER_MASTER_PASSWORD = "scaner2026"
-SCANNER_MASTER_ID = 999999
-
 class User(SqlAlchemyBase, SiteUser, Table):
     __tablename__ = 'user'
     fields = ['id', 'login', 'password']
@@ -20,12 +16,7 @@ class User(SqlAlchemyBase, SiteUser, Table):
     __role_iti_subject = orm.relationship("RoleItiSubject", lazy='joined')
 
     def check_password(self, password) -> bool:
-        if self.login == SCANNER_MASTER_LOGIN:
-            return password == SCANNER_MASTER_PASSWORD
         return check_password_hash(self.password, password)
-
-    def __is_scanner_master(self) -> bool:
-        return self.login == SCANNER_MASTER_LOGIN
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -47,26 +38,18 @@ class User(SqlAlchemyBase, SiteUser, Table):
             self.role_iti_subject = {role.iti_subject_id: role.role for role in self.__role_iti_subject}
 
     def check_role_global(self, status: UserRoleGlobal) -> bool:
-        if self.__is_scanner_master():
-            return True
         self.__prepare_roles()
         return self.role_global & status.value == status.value
 
     def check_role_iti(self, iti_id: int, status: UserRoleIti) -> bool:
-        if self.__is_scanner_master():
-            return True
         self.__prepare_roles()
         return iti_id in self.role_iti and self.role_iti[iti_id] & status.value == status.value
 
     def check_role_iti_subject(self, iti_subject_id: int, status: UserRoleItiSubject) -> bool:
-        if self.__is_scanner_master():
-            return True
         self.__prepare_roles()
         return iti_subject_id in self.role_iti_subject and self.role_iti_subject[iti_subject_id] & status.value == status.value
     
     def check_role_login(self, status: UserRoleLogin) -> bool:
-        if self.__is_scanner_master():
-            return True
         return status == UserRoleLogin.LOGIN_LOCAL
 
     def roles_global_str(self) -> str:
@@ -103,8 +86,6 @@ class User(SqlAlchemyBase, SiteUser, Table):
     @classmethod
     def select_by_login(cls, login: str):
         user = cls.__select_by_expr__(cls.login == login, one=True)
-        if user is None and login == SCANNER_MASTER_LOGIN:
-            return cls.build(SCANNER_MASTER_ID, login, "master", allow_empty=True)
         return user
 
     @classmethod
