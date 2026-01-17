@@ -31,6 +31,8 @@
         resultScore: getEl("result-score"),
         resultSave: getEl("result-save"),
         resultClear: getEl("result-clear"),
+        infoIti: getEl("scanner-info-iti"),
+        infoSubject: getEl("scanner-info-subject"),
     };
 
     const state = {
@@ -103,6 +105,17 @@
     const params = new URLSearchParams(window.location.search);
     state.itiId = params.get("iti") || "";
     state.subjectId = params.get("subject") || "";
+
+    const updateInfo = () => {
+        if (els.infoIti) {
+            els.infoIti.textContent = `ИТИ: ${state.itiId || "не задан"}`;
+        }
+        if (els.infoSubject) {
+            const subjLabel = state.subjectId ? state.subjectId : "не задан";
+            els.infoSubject.textContent = `Предмет: ${subjLabel}`;
+        }
+    };
+    updateInfo();
 
     const loadQuagga = () => {
         if (window.Quagga) return Promise.resolve();
@@ -754,6 +767,7 @@
     const modeParam = params.get("mode");
     if (modeParam) els.mode.value = modeParam;
     if (subjectParam && !modeParam) els.mode.value = "result";
+    updateInfo();
     updateModeView();
     saveSettings();
     if (!state.itiId) {

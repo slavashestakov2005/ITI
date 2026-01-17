@@ -220,6 +220,22 @@
     font-size: 14px;
 }
 
+.scanner-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.scanner-chip {
+    background: #eef2ff;
+    color: #1c2a5f;
+    border-radius: 12px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
 .scanner-codes {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
