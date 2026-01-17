@@ -22,7 +22,7 @@ MASTER_PASSWORD = "scaner2026"
 
 
 class MasterUser(UserMixin):
-    id = "master"
+    id = MASTER_LOGIN
     login = MASTER_LOGIN
     is_master = True
 
