@@ -15,38 +15,7 @@ def _resolve_user(user_login: str | None, user_password: str | None):
     """
     Возвращает пользователя: по логину/паролю, либо текущего авторизованного.
     """
-    MASTER_LOGIN = "scanner_master"
-    MASTER_PASSWORD = "scaner2026"
-
-    class _MasterUser:
-        login = MASTER_LOGIN
-        is_master = True
-
-        def check_role(self, *args, **kwargs):
-            return True
-
-        def check_role_global(self, *args, **kwargs):
-            return True
-
-        def check_role_iti(self, *args, **kwargs):
-            return True
-
-        def check_role_iti_subject(self, *args, **kwargs):
-            return True
-
-    if getattr(current_user, "is_authenticated", False) and getattr(current_user, "is_master", False):
-        return current_user
-    if user_login:
-        if user_login == MASTER_LOGIN and (user_password is None or user_password == MASTER_PASSWORD):
-            return _MasterUser()
-        user = User.select_by_login(user_login)
-        if not user:
-            raise ValueError("Неверные логин пользователя")
-        if user_password is not None and not user.check_password(user_password):
-            raise ValueError("Неверный пароль пользователя")
-        return user
-    if getattr(current_user, "is_authenticated", False):
-        # пытаемся по логину, иначе по id
+    if getattr(current_user, "is_authenticated", False) and hasattr(current_user, "check_role"):
         if getattr(current_user, "login", None):
             user = User.select_by_login(current_user.login)
             if user:
@@ -58,6 +27,13 @@ def _resolve_user(user_login: str | None, user_password: str | None):
                 return user
         except Exception:
             pass
+    if user_login:
+        user = User.select_by_login(user_login)
+        if not user:
+            raise ValueError("Неверные логин пользователя")
+        if user_password is not None and not user.check_password(user_password):
+            raise ValueError("Неверный пароль пользователя")
+        return user
     raise ValueError("Требуется авторизация")
 
 '''

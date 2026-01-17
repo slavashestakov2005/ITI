@@ -1,7 +1,7 @@
 from datetime import datetime
 from flask import redirect, render_template, request
 from flask_cors import cross_origin
-from flask_login import UserMixin, current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user
 
 from backend import app, login
 from backend.queries.help import empty_checker, split_class
@@ -17,39 +17,11 @@ from ..eljur import ConfigEljur, EljurHelp, EljurLoginByOauth, EljurLoginByPassw
 
 
 TEMPLATE, ELJUR_LOGIN = 'login.html', 'eljur_login.html'
-MASTER_LOGIN = "scanner_master"
-MASTER_PASSWORD = "scaner2026"
-
-
-class MasterUser(UserMixin):
-    id = MASTER_LOGIN
-    login = MASTER_LOGIN
-    is_master = True
-
-    def check_password(self, password):
-        return password == MASTER_PASSWORD
-
-    def check_role(self, *args, **kwargs):
-        return True
-
-    def check_role_global(self, *args, **kwargs):
-        return True
-
-    def check_role_iti(self, *args, **kwargs):
-        return True
-
-    def check_role_iti_subject(self, *args, **kwargs):
-        return True
-
-    def check_role_login(self, *args, **kwargs):
-        return True
 
 
 # id < 0 - User; id > 0 - Student
 @login.user_loader
 def load_user(id):
-    if str(id) == MASTER_LOGIN:
-        return MasterUser()
     try:
         id_int = int(id)
     except Exception:
@@ -76,9 +48,6 @@ def login():
         except Exception:
             return render_template(TEMPLATE, error='Некорректные данные', **args)
 
-        if user_login == MASTER_LOGIN and user_password == MASTER_PASSWORD:
-            login_user(MasterUser())
-            return redirect('/scanner')
         u = User.select_by_login(user_login)
         if u is not None and u.check_password(user_password):
             u.id = -u.id
