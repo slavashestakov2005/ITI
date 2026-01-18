@@ -4,6 +4,22 @@ tests package
 Submodules
 ----------
 
+tests.test\_pipeline\_data\_class module
+----------------------------------------
+
+.. automodule:: tests.test_pipeline_data_class
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+tests.test\_pipeline\_node module
+---------------------------------
+
+.. automodule:: tests.test_pipeline_node
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 tests.test\_ratings\_place\_generator module
 --------------------------------------------
 

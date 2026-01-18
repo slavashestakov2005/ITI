@@ -1,21 +1,21 @@
-utils package
-=============
+pipeline package
+================
 
 Submodules
 ----------
 
-utils.converts module
----------------------
+pipeline.data\_class module
+---------------------------
 
-.. automodule:: utils.converts
+.. automodule:: pipeline.data_class
    :members:
    :undoc-members:
    :show-inheritance:
 
-utils.read module
------------------
+pipeline.node module
+--------------------
 
-.. automodule:: utils.read
+.. automodule:: pipeline.node
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ utils.read module
 Module contents
 ---------------
 
-.. automodule:: utils
+.. automodule:: pipeline
    :members:
    :undoc-members:
    :show-inheritance:

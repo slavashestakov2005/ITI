@@ -6,6 +6,7 @@ backend
 
    main
    pages
+   pipeline
    ratings
    tests
    utils
