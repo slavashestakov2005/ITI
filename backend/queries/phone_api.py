@@ -15,7 +15,7 @@ def _resolve_user(user_login: str | None, user_password: str | None):
     """
     Возвращает пользователя: по логину/паролю, либо текущего авторизованного.
     """
-    if getattr(current_user, "is_authenticated", False) and hasattr(current_user, "check_role"):
+    if current_user.is_authenticated:
         return current_user
     if user_login:
         user = User.select_by_login(user_login)
@@ -154,7 +154,7 @@ def save_subject_results(iti: Iti, subject_id: int):
                   3: 'Такого предмета нет в этом году',
                   4: 'Повтор кодов в строках: ' + (','.join(ans[4]) if 4 in ans else ''),
                   5: 'Неправильный формат для результата в строках: ' + (','.join(ans[5]) if 5 in ans else ''),
-                  6: 'Сумма баллов превышает максимум: ' + (','.join(ans[6]) if 6 in ans else ''),
+                  6: 'Сумма баллов превышает максимум в строках: ' + (','.join(ans[6]) if 6 in ans else ''),
                   7: 'Нет такого ИТИ',
                   8: 'По этому штрих-коду результат уже сохранён: ' + (','.join(ans[8]) if 8 in ans else ''),
                   9: 'Штрих-код не попал в диапазон для ИТИ: ' + (','.join(ans[9]) if 9 in ans else '')}
