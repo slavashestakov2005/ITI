@@ -16,17 +16,7 @@ def _resolve_user(user_login: str | None, user_password: str | None):
     Возвращает пользователя: по логину/паролю, либо текущего авторизованного.
     """
     if getattr(current_user, "is_authenticated", False) and hasattr(current_user, "check_role"):
-        if getattr(current_user, "login", None):
-            user = User.select_by_login(current_user.login)
-            if user:
-                return user
-        try:
-            uid = abs(int(current_user.id))
-            user = User.select(uid)
-            if user:
-                return user
-        except Exception:
-            pass
+        return current_user
     if user_login:
         user = User.select_by_login(user_login)
         if not user:
