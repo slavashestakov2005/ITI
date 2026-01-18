@@ -1,7 +1,7 @@
 """Классы для передачи по пайплайну."""
 
 import abc
-from typing import Any, Iterable
+from typing import Any, Iterator
 
 from utils import sorted_dict_keys
 
@@ -18,7 +18,7 @@ class PipelineBaseObject(abc.ABC):
 class PipelineObject(PipelineBaseObject):
     """Класс для описания объекта (например строки таблицы) ."""
 
-    def __init__(self, **kwargs: dict[str, Any]):
+    def __init__(self, **kwargs: Any):
         """Сохраняем словарь как есть."""
         self._fields = kwargs
 
@@ -62,7 +62,7 @@ class PipelineTable(PipelineBaseObject):
         """Вывод объекта."""
         return f"PipelineTable({self._rows})"
 
-    def __iter__(self) -> Iterable[PipelineObject]:
+    def __iter__(self) -> Iterator[PipelineObject]:
         """Итерация по строкам таблицы."""
         return iter(self._rows)
 
