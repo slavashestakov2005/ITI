@@ -19,9 +19,6 @@ endif
 
 IS_RECOMENDED_PYTHON := $(shell python3 -c 'import sys; print(1 if ".".join(map(str, sys.version_info[:2])) == 3.10 else 0)')
 
-check-python:
-	
-
 venv-install:
 ifeq ($(IS_RECOMENDED_PYTHON), 1)
 	python -m venv .venv
@@ -35,7 +32,7 @@ endif
 
 venv-start:
 	echo Run: $(VENV_ACTIVATE)
-	
+
 venv-finish:
 	echo Run: deactivate
 
