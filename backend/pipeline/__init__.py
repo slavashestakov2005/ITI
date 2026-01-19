@@ -1,4 +1,4 @@
-"""Генерация рейтингов из сырых результатов."""
+"""Ядро пайплайнов."""
 
 from pipeline.data_class import PipelineBaseObject, PipelineRow, PipelineTable
 from pipeline.node import (
