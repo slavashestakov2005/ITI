@@ -1,21 +1,11 @@
 """Классы для передачи по пайплайну."""
 
-import abc
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator
 
 from utils import sorted_dict_keys
 
 
-class PipelineBaseObject(abc.ABC):
-    """Базовый класс объекта пайплайна."""
-
-    @abc.abstractmethod
-    def validate(self, expected: dict[str, type]) -> None:
-        """Валидация объекта."""
-        raise NotImplementedError
-
-
-class PipelineObject(PipelineBaseObject):
+class PipelineRow:
     """Класс для описания объекта (например строки таблицы) ."""
 
     def __init__(self, **kwargs: Any):
@@ -27,7 +17,7 @@ class PipelineObject(PipelineBaseObject):
         try:
             return self._fields[name]
         except KeyError:
-            raise AttributeError(f"Field {name} not found in PipelineObject")
+            raise AttributeError(f"Field {name} not found in PipelineRow")
 
     def __repr__(self) -> str:
         """Вывод объекта."""
@@ -45,24 +35,24 @@ class PipelineObject(PipelineBaseObject):
                 raise AttributeError(f"Expected type {typ} for key {key} got {our_type}")
 
 
-class PipelineTable(PipelineBaseObject):
+class PipelineTable:
     """Класс для описания таблицы объектов."""
 
     def __init__(self):
         """В начале таблица пустая."""
         self._rows = []
 
-    def append(self, row: PipelineObject) -> None:
+    def append(self, row: PipelineRow) -> None:
         """Добавляем строку в таблицу."""
-        if not isinstance(row, PipelineObject):
-            raise TypeError(f"Expected PipelineObject in PipelineTable.append, got {type(row)}")
+        if not isinstance(row, PipelineRow):
+            raise TypeError(f"Expected PipelineRow in PipelineTable.append, got {type(row)}")
         self._rows.append(row)
 
     def __repr__(self) -> str:
         """Вывод объекта."""
         return f"PipelineTable({self._rows})"
 
-    def __iter__(self) -> Iterator[PipelineObject]:
+    def __iter__(self) -> Iterator[PipelineRow]:
         """Итерация по строкам таблицы."""
         return iter(self._rows)
 
@@ -74,3 +64,7 @@ class PipelineTable(PipelineBaseObject):
         """Валидация объекта."""
         for row in self._rows:
             row.validate(expected)
+
+
+PipelineBaseObject = PipelineRow | PipelineTable
+PipelineCallback = Callable[[PipelineBaseObject], PipelineBaseObject]

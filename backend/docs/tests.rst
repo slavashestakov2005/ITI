@@ -44,6 +44,14 @@ tests.test\_utils\_converts module
    :undoc-members:
    :show-inheritance:
 
+tests.test\_utils\_read module
+------------------------------
+
+.. automodule:: tests.test_utils_read
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

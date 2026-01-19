@@ -1,6 +1,6 @@
 """Генерация рейтингов из сырых результатов."""
 
-from pipeline.data_class import PipelineBaseObject, PipelineObject, PipelineTable
+from pipeline.data_class import PipelineBaseObject, PipelineRow, PipelineTable
 from pipeline.node import (
     PipelineNodeSpec,
     PipelineNodeType,
@@ -11,7 +11,7 @@ from pipeline.node import (
 
 __all__ = [
     "PipelineBaseObject",
-    "PipelineObject",
+    "PipelineRow",
     "PipelineTable",
     "PipelineObjectPrimitiveType",
     "PipelineObjectType",
