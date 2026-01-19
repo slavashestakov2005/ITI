@@ -17,14 +17,25 @@ else
 	RMDIR := rm -rf .venv htmlcov
 endif
 
+IS_RECOMENDED_PYTHON := $(shell python3 -c 'import sys; print(1 if ".".join(map(str, sys.version_info[:2])) == 3.10 else 0)')
+
+check-python:
+	
+
 venv-install:
+ifeq ($(IS_RECOMENDED_PYTHON), 1)
 	python -m venv .venv
 	$(PYTHON) -m pip install --upgrade pip
 	$(PIP) install -r backend/requirements.txt
+else
+	@echo "Recommended python version is 3.10"
+	@echo "Your default python version hasn't been tested"
+	@echo "You can create venv and install requirements manually"
+endif
 
 venv-start:
 	echo Run: $(VENV_ACTIVATE)
-
+	
 venv-finish:
 	echo Run: deactivate
 
