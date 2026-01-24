@@ -1,10 +1,10 @@
 name: Enforce user branch pattern
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
-    branches: ['*']
+    branches: ['**']
 
 jobs:
   validate-user-branch:
@@ -14,11 +14,18 @@ jobs:
         env:
           EXPECTED_PREFIX: "users/${{ github.actor }}/"
           ACTUAL_BRANCH: ${{ github.head_ref || github.ref_name }}
-        run: |          
+        run: |
+
+          if [[ "$ACTUAL_BRANCH" =~ ^features/ ]]; then
+            echo "✅ Features branch detected - skipping user validation"
+            exit 0
+          fi
+
           if [[ ! "$ACTUAL_BRANCH" =~ ^$EXPECTED_PREFIX ]]; then
             echo "::error::Invalid branch name for user ${{ github.actor }}"
-            echo "Your branches must start with: $EXPECTED_PREFIX"
-            echo "Example: $EXPECTED_PREFIXfeature-name"
+            echo "Your branches is $ACTUAL_BRANCH but must start with: $EXPECTED_PREFIX"
+            echo "Example: ${EXPECTED_PREFIX}feature-name"
             exit 1
           fi
+
           echo "✅ Branch name valid for user ${{ github.actor }}"
