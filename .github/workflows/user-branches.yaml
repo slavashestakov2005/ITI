@@ -21,5 +21,4 @@ jobs:
             echo "Example: $EXPECTED_PREFIXfeature-name"
             exit 1
           fi
-          
           echo "✅ Branch name valid for user ${{ github.actor }}"
