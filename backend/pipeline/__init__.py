@@ -1,5 +1,6 @@
 """Ядро пайплайнов."""
 
+from pipeline.core import Engine
 from pipeline.data_class import PipelineBaseObject, PipelineRow, PipelineTable
 from pipeline.node import (
     PipelineNodeSpec,
@@ -10,6 +11,7 @@ from pipeline.node import (
 )
 
 __all__ = [
+    "Engine",
     "PipelineBaseObject",
     "PipelineRow",
     "PipelineTable",

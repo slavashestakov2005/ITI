@@ -4,6 +4,14 @@ tests package
 Submodules
 ----------
 
+tests.test\_pipeline\_core module
+---------------------------------
+
+.. automodule:: tests.test_pipeline_core
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 tests.test\_pipeline\_data\_class module
 ----------------------------------------
 

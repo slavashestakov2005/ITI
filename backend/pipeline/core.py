@@ -9,7 +9,7 @@ from pipeline.node import PipelineNodeSpec, PipelineNodeType
 class Engine:
     """Класс для работы с пайплайном."""
 
-    _callbacks: dict[str, PipelineCallback]
+    _callbacks: dict[str, PipelineCallback] = {}
 
     def __init__(self, specs: dict[str, PipelineNodeSpec]):
         """Сохраняем список всех нод."""
@@ -32,13 +32,7 @@ class Engine:
     @classmethod
     def callback(cls, fn: PipelineCallback) -> None:
         """Декоратор для регистрации callback."""
-
-        def wrapped(inp: PipelineBaseObject) -> PipelineBaseObject:  # noqa: WPS430
-            out = fn(inp)
-            out.validate({})
-            return out
-
-        cls._callbacks[fn.__name__] = wrapped
+        cls._callbacks[fn.__name__] = fn
 
     def run(self, target: str) -> PipelineBaseObject:
         """Вычисляет один таргет."""
@@ -64,17 +58,18 @@ class Engine:
         spec = self.specs[node_name]
         match spec.type:
             case PipelineNodeType.DB_READ:
-                cb = self._get_cb(spec)
+                cb = Engine._get_cb(spec)
                 out = cb(PipelineRow())
             case PipelineNodeType.MERGER:
                 out = self._make_object_from_deps(spec.input)
             case PipelineNodeType.AGGREGATOR:
-                cb = self._get_cb(spec)
+                cb = Engine._get_cb(spec)
                 inp = self._make_object_from_deps(spec.input)
                 out = cb(inp)
             case _:
                 raise ValueError("Unsupported PipelineNodeType")
 
+        out.validate(spec.output)
         self._cache[node_name] = out
         return out
 

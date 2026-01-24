@@ -1,29 +1,38 @@
 """Тесты на классы пайплайна."""
 
 import re
+from typing import Optional
 
 import pytest
 
-from pipeline import PipelineRow, PipelineTable
+from pipeline import PipelineObjectTypeConstraint, PipelineRow, PipelineTable
+
+
+def make_validator(row_or_table: str, columns: dict[str, str]) -> Optional[PipelineObjectTypeConstraint]:
+    """Создаёт ограничение на типы."""
+    return PipelineObjectTypeConstraint.from_raw_cfg({"type": row_or_table, "columns": columns})
 
 
 def test_pipeline_row_validation() -> None:
     """В PipelineRow типы полей должны проходить валидацию."""
-    with pytest.raises(AttributeError, match="Expected type <class 'float'> for key num got <class 'int'>"):
+    with pytest.raises(
+        AttributeError, match="Expected type PipelineObjectPrimitiveType.FLOAT for key num got <class 'int'>"
+    ):
         row = PipelineRow(text="text", num=5)
-        row.validate({"text": str, "num": float})
+        row.validate(make_validator("row", {"text": "str", "num": "float"}))
     with pytest.raises(AttributeError, match=re.escape("Expected attributes ['text'] got ['num', 'text']")):
         row = PipelineRow(text="text", num=5)
-        row.validate({"text": str})
+        row.validate(make_validator("row", {"text": "str"}))
     with pytest.raises(AttributeError, match=re.escape("Expected attributes ['num', 'text'] got ['text']")):
         row = PipelineRow(text="text")
-        row.validate({"text": str, "num": float})
+        row.validate(make_validator("row", {"text": "str", "num": "float"}))
 
 
 def test_pipeline_row_attributes() -> None:
     """В PipelineRow обращение к полям через точку."""
     row = PipelineRow(text="text", num=5, num2=3.14)
-    row.validate({"text": str, "num": int, "num2": float})
+    row.validate(None)
+    row.validate(make_validator("row", {"text": "str", "num": "int", "num2": "float"}))
     assert row.text == "text"
     assert row.num == 5
     assert row.num2 == 3.14
@@ -40,7 +49,7 @@ def test_pipeline_table_validation() -> None:
     table.append(PipelineRow(text="text"))
     table.append(PipelineRow(text="text", num=5))
     with pytest.raises(AttributeError, match=re.escape("Expected attributes ['text'] got ['num', 'text']")):
-        table.validate({"text": str})
+        table.validate(make_validator("row", {"text": "str"}))
 
 
 def test_pipeline_table_attributes() -> None:
@@ -49,7 +58,8 @@ def test_pipeline_table_attributes() -> None:
     table.append(PipelineRow(num=1, text="one"))
     table.append(PipelineRow(num=2, text="two"))
     table.append(PipelineRow(num=3, text="three"))
-    table.validate({"num": int, "text": str})
+    table.validate(None)
+    table.validate(make_validator("table", {"num": "int", "text": "str"}))
     assert len(table) == 3
     assert repr(table) == (
         "PipelineTable([PipelineRow({'num': 1, 'text': 'one'}), "

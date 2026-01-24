@@ -1,7 +1,8 @@
 """Классы для передачи по пайплайну."""
 
-from typing import Any, Callable, Iterator
+from typing import Any, Callable, Iterator, Optional
 
+from pipeline.node import PipelineObjectTypeConstraint
 from utils import sorted_dict_keys
 
 
@@ -23,15 +24,17 @@ class PipelineRow:
         """Вывод объекта."""
         return f"PipelineRow({self._fields})"
 
-    def validate(self, expected: dict[str, type]) -> None:
+    def validate(self, scheme: Optional[PipelineObjectTypeConstraint]) -> None:
         """Валидация объекта."""
+        if scheme is None:
+            return
         our_attrs = sorted_dict_keys(self._fields)
-        expected_attrs = sorted_dict_keys(expected)
+        expected_attrs = sorted_dict_keys(scheme.columns)
         if our_attrs != expected_attrs:
             raise AttributeError(f"Expected attributes {expected_attrs} got {our_attrs}")
-        for key, typ in expected.items():
+        for key, typ in scheme.columns.items():
             our_type = type(self._fields[key])
-            if our_type != typ:
+            if our_type != typ.py_type():
                 raise AttributeError(f"Expected type {typ} for key {key} got {our_type}")
 
 
@@ -60,10 +63,12 @@ class PipelineTable:
         """Число строк таблицы."""
         return len(self._rows)
 
-    def validate(self, expected: dict[str, type]) -> None:
+    def validate(self, scheme: Optional[PipelineObjectTypeConstraint]) -> None:
         """Валидация объекта."""
+        if scheme is None:
+            return
         for row in self._rows:
-            row.validate(expected)
+            row.validate(scheme)
 
 
 PipelineBaseObject = PipelineRow | PipelineTable

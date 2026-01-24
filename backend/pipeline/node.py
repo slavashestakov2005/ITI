@@ -123,8 +123,8 @@ class PipelineNodeSpec:
     def _validate_db_read(self) -> None:
         if self.callback == "":
             raise ValueError("Callback for DB_READ cannot be empty")
-        if len(self.input) == 0:
-            raise ValueError("Input for DB_READ cannot be empty")
+        # if len(self.input) == 0:
+        #     raise ValueError("Input for DB_READ cannot be empty")
         if self.output is None:
             raise ValueError("Output for DB_READ cannot be empty")
 

@@ -119,22 +119,6 @@ output:
             ),
         )
 
-    with pytest.raises(ValueError, match="Input for DB_READ cannot be empty"):
-        PipelineNodeSpec.from_raw_cfg(
-            "db_iti_subjects",
-            read_from_yaml_str(
-                """
-type: db_read
-callback: select_subjects_info_for_iti
-output:
-  type: table
-  columns:
-    subject_id: int
-    about: str
-"""
-            ),
-        )
-
     with pytest.raises(ValueError, match="Output for DB_READ cannot be empty"):
         PipelineNodeSpec.from_raw_cfg(
             "db_iti_subjects",
