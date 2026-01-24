@@ -34,6 +34,11 @@ class Engine:
         """Декоратор для регистрации callback."""
         cls._callbacks[fn.__name__] = fn
 
+    @classmethod
+    def clear(cls) -> None:
+        """Очищает список колбеков."""
+        cls._callbacks = {}
+
     def run(self, target: str) -> PipelineBaseObject:
         """Вычисляет один таргет."""
         self._cache.clear()

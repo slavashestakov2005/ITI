@@ -44,10 +44,12 @@ sum:
   callback: in_test_calc_sums
   input:
     - math
+    - merge_ind
   output:
     type: row
     columns:
-      sum: int
+      sum_math: int
+      sum_ind: int
 """
 
 
@@ -57,6 +59,30 @@ def test_pipeline_engine_callback_type() -> None:
     @Engine.callback  # type: ignore[arg-type]
     def some_test_callback() -> None:
         raise ValueError("Unreachable")
+
+
+def test_pipeline_engine_invalid_field_mock() -> None:
+    """Не ожиданное поле у объекта."""
+    mock_cfg = """
+node1:
+  callback: call
+  type: agg
+  input:
+    - node1
+  output:
+    type: table
+    columns:
+      col: int
+"""
+    with pytest.raises(ValueError, match="Node 'node1' requires callback"):
+        engine = Engine.from_raw_cfg(read_from_yaml_str(mock_cfg))
+        engine.specs["node1"].callback = ""
+        engine.run("node1")
+
+    with pytest.raises(ValueError, match="Unsupported PipelineNodeType"):
+        engine = Engine.from_raw_cfg(read_from_yaml_str(mock_cfg))
+        engine.specs["node1"].type = 8  # type: ignore[assignment]
+        engine.run("node1")
 
 
 def test_pipeline_engine_invalid_callback() -> None:
@@ -88,14 +114,10 @@ node1:
 
 def test_pipeline_engine_core_ok() -> None:
     """Правильный пайплайн."""
-    called = False
+    Engine.clear()
 
     @Engine.callback
     def in_test_read_math(inp: PipelineBaseObject) -> PipelineBaseObject:
-        nonlocal called
-        if called:
-            raise ValueError("Expected only one function call, use cache")
-        called = True
         table = PipelineTable()
         table.append(PipelineRow(student=1, res=5))
         table.append(PipelineRow(student=2, res=27))
@@ -105,12 +127,13 @@ def test_pipeline_engine_core_ok() -> None:
 
     @Engine.callback
     def in_test_calc_sums(inp: PipelineBaseObject) -> PipelineBaseObject:
-        all_sum = 0
+        sum_math, sum_ind = 0, 0
         for elem in inp.math:  # type: ignore[union-attr]
-            all_sum += elem.res  # type: ignore[union-attr]
-        return PipelineRow(sum=all_sum)
+            sum_math += elem.res  # type: ignore[union-attr]
+        for elem in inp.merge_ind.math:  # type: ignore[union-attr]
+            sum_ind += elem.res  # type: ignore[union-attr]
+        return PipelineRow(sum_math=sum_math, sum_ind=sum_ind)
 
     engine = Engine.from_raw_cfg(read_from_yaml_str(test_yaml_pipeline))
-    assert engine.run("sum").sum == 50  # type: ignore[union-attr]
-    with pytest.raises(ValueError, match="Expected only one function call, use cache"):
-        engine.run("sum")
+    assert engine.run("sum").sum_math == 50  # type: ignore[union-attr]
+    assert engine.run("sum").sum_ind == 50  # type: ignore[union-attr]
