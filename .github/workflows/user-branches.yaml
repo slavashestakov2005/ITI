@@ -10,22 +10,36 @@ jobs:
   validate-user-branch:
     runs-on: ubuntu-latest
     steps:
-      - name: Check if branch follows user pattern
-        env:
-          EXPECTED_PREFIX: "users/${{ github.actor }}/"
-          ACTUAL_BRANCH: ${{ github.head_ref || github.ref_name }}
+      - name: Extract branch name safely
+        id: extract
         run: |
-
-          if [[ "$ACTUAL_BRANCH" =~ ^features/ ]]; then
-            echo "✅ Features branch detected - skipping user validation"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BRANCH="${{ github.event.pull_request.head.ref }}"
+          else
+            BRANCH="${GITHUB_REF#refs/heads/}"
+          fi
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+      - name: Validate branch
+        env:
+          BRANCH: ${{ steps.extract.outputs.branch }}
+          USER: ${{ github.actor }}
+        run: |
+          echo "Checking: user='$USER', branch='$BRANCH'"
+          
+          if [[ -z "$BRANCH" ]]; then
+            echo "⚠️ Empty branch name - skipping (post-merge)"
             exit 0
           fi
-
-          if [[ ! "$ACTUAL_BRANCH" =~ ^$EXPECTED_PREFIX ]]; then
-            echo "::error::Invalid branch name for user ${{ github.actor }}"
-            echo "Your branches is $ACTUAL_BRANCH but must start with: $EXPECTED_PREFIX"
-            echo "Example: ${EXPECTED_PREFIX}feature-name"
-            exit 1
+          
+          if [[ "$BRANCH" =~ ^features/ ]]; then
+            echo "✅ Features branch - allowed"
+            exit 0
           fi
-
-          echo "✅ Branch name valid for user ${{ github.actor }}"
+          
+          if [[ "$BRANCH" =~ ^users/$USER/ ]]; then
+            echo "✅ User branch - allowed"
+            exit 0
+          fi
+          
+          echo "::error::Branch '$BRANCH' invalid for user '$USER'"
+          exit 1
