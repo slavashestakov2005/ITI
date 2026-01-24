@@ -1,10 +1,10 @@
 name: Enforce user branch pattern
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
-    branches: ['*']
+    branches: ['**']
 
 jobs:
   validate-user-branch:
