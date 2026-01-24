@@ -2,8 +2,13 @@
 
 from typing import Any
 
-from pipeline.node import PipelineNodeSpec, PipelineNodeType
+from pipeline.node import Node, node_from_raw_cfg
 from pipeline.object import Callback, Object, Row
+
+
+def not_found_callback(inp: Object) -> Object:
+    """Заглушка для нод без пользовательских колбеков."""
+    raise ValueError("Callback was empty in yaml, but called")
 
 
 class Engine:
@@ -11,9 +16,9 @@ class Engine:
 
     _callbacks: dict[str, Callback] = {}
 
-    def __init__(self, specs: dict[str, PipelineNodeSpec]):
+    def __init__(self, specs: dict[str, Node]):
         """Сохраняем список всех нод."""
-        self.specs = specs
+        self._specs = specs
         self._cache: dict[str, Any] = {}
 
     @classmethod
@@ -26,7 +31,7 @@ class Engine:
         for name, node in raw_cfg.items():
             if not isinstance(name, str):
                 raise ValueError("node_name in pipeline must be a string")
-            specs[name] = PipelineNodeSpec.from_raw_cfg(name, node)
+            specs[name] = node_from_raw_cfg(node)
         return cls(specs)
 
     @classmethod
@@ -45,36 +50,24 @@ class Engine:
         return self._eval(target)
 
     @classmethod
-    def _get_cb(cls, spec: PipelineNodeSpec) -> Callback:
-        if not spec.callback:
-            raise ValueError(f"Node '{spec.name}' requires callback")
-        if spec.callback not in cls._callbacks:
-            raise KeyError(f"Callback '{spec.callback}' not registered")
-        return cls._callbacks[spec.callback]
+    def _get_callback(cls, callback: str) -> Callback:
+        if not callback:
+            return not_found_callback
+        if callback not in cls._callbacks:
+            raise KeyError(f"Callback '{callback}' not registered")
+        return cls._callbacks[callback]
 
     def _eval(self, node_name: str) -> Object:
         """Вычисляет один таргет."""
         cached = self._cache.get(node_name)
         if cached is not None:
             return cached
-        if node_name not in self.specs:
+        if node_name not in self._specs:
             raise KeyError(f"Unknown node '{node_name}'")
 
-        spec = self.specs[node_name]
-        match spec.type:
-            case PipelineNodeType.DB_READ:
-                cb = Engine._get_cb(spec)
-                out = cb(Row())
-            case PipelineNodeType.MERGER:
-                out = self._make_object_from_deps(spec.input)
-            case PipelineNodeType.AGGREGATOR:
-                cb = Engine._get_cb(spec)
-                inp = self._make_object_from_deps(spec.input)
-                out = cb(inp)
-            case _:
-                raise ValueError("Unsupported PipelineNodeType")
-
-        out.validate(spec.output)
+        spec = self._specs[node_name]
+        inp = self._make_object_from_deps(spec.input)
+        out = spec.compute(self._get_callback(spec.callback), inp)
         self._cache[node_name] = out
         return out
 

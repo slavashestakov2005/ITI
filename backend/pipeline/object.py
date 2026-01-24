@@ -1,8 +1,8 @@
 """Классы для передачи по пайплайну."""
 
+from dataclasses import dataclass
 from typing import Any, Callable, Iterator, Optional
 
-from pipeline.node import PipelineObjectTypeConstraint
 from utils import sorted_dict_keys
 
 
@@ -24,7 +24,7 @@ class Row:
         """Вывод объекта."""
         return f"Row({self._fields})"
 
-    def validate(self, scheme: Optional[PipelineObjectTypeConstraint]) -> None:
+    def validate(self, scheme: Optional["ObjectConstraint"]) -> None:
         """Валидация объекта."""
         if scheme is None:
             return
@@ -34,7 +34,7 @@ class Row:
             raise AttributeError(f"Expected attributes {expected_attrs} got {our_attrs}")
         for key, typ in scheme.columns.items():
             our_type = type(self._fields[key])
-            if our_type != typ.py_type():
+            if our_type != typ:
                 raise AttributeError(f"Expected type {typ} for key {key} got {our_type}")
 
 
@@ -63,7 +63,7 @@ class Table:
         """Число строк таблицы."""
         return len(self._rows)
 
-    def validate(self, scheme: Optional[PipelineObjectTypeConstraint]) -> None:
+    def validate(self, scheme: Optional["ObjectConstraint"]) -> None:
         """Валидация объекта."""
         if scheme is None:
             return
@@ -71,5 +71,57 @@ class Table:
             row.validate(scheme)
 
 
+PrimitiveType = type[str] | type[int] | type[float]
 Object = Row | Table
+ObjectType = type[Row] | type[Table]
 Callback = Callable[[Object], Object]
+
+
+def primitive_type(name: str) -> PrimitiveType:
+    """Возвращает примитивный тип по строке."""
+    match name:
+        case "str":
+            return str
+        case "int":
+            return int
+        case "float":
+            return float
+        case _:
+            raise ValueError(f"Unknown value for PrimitiveType: {name}")
+
+
+def object_type(name: str) -> ObjectType:
+    """Возвращает тип объекта пайплайна по строке."""
+    match name:
+        case "row":
+            return Row
+        case "table":
+            return Table
+        case _:
+            raise ValueError(f"Unknown value for ObjectType: {name}")
+
+
+@dataclass
+class ObjectConstraint:
+    """Ограничение на передаваемый объект - строка/таблица + типы полей."""
+
+    columns: dict[str, PrimitiveType]
+    type: ObjectType
+
+    def validate(self) -> None:
+        """Валидирует объект."""
+        assert len(self.columns) > 0, "ObjectConstraint.columns cannot be empty"
+
+    @classmethod
+    def from_raw_cfg(cls, raw_cfg: Any) -> Optional["ObjectConstraint"]:
+        """Создаёт объект из словаря."""
+        if raw_cfg is None:
+            return None
+        assert isinstance(raw_cfg, dict), "Raw config for ObjectConstraint need be dict"
+        columns = raw_cfg.get("columns", {})
+        constraint = cls(
+            type=object_type(raw_cfg["type"]),
+            columns={col: primitive_type(typ) for col, typ in columns.items()},
+        )
+        constraint.validate()
+        return constraint

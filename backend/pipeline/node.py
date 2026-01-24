@@ -1,145 +1,107 @@
 """Классы для описания нод пайплайна."""
 
-from dataclasses import dataclass
-from enum import Enum
+import abc
 from typing import Any, Optional
 
-
-class PipelineObjectPrimitiveType(Enum):
-    """Перечисление примитивных типов."""
-
-    STR = ("str", str)
-    INT = ("int", int)
-    FLOAT = ("float", float)
-
-    def py_type(self) -> type:
-        """Соответствующий питоновский тип."""
-        return self.value[1]  # noqa: WPS110
-
-    @classmethod
-    def from_string(cls, name: str) -> "PipelineObjectPrimitiveType":
-        """Создает enum из строки."""
-        for member in cls:
-            if member.value[0] == name:
-                return member
-        raise ValueError(f"Unknown value for PipelineObjectPrimitiveType: {name}")
+from pipeline.object import Callback, Object, ObjectConstraint
 
 
-class PipelineObjectType(Enum):
-    """Тип передаваемого объекта - строка или таблица."""
+class Node(abc.ABC):
+    """Базовый класс для одной ноды пайплана."""
 
-    ROW = "row"
-    TABLE = "table"
+    def __init__(self, *, callback: str, input: list[str], output: Optional[ObjectConstraint]):
+        """Базовый конструктор."""
+        self.callback = callback
+        self.input = input
+        self.output = output
 
-    @classmethod
-    def from_string(cls, name: str) -> "PipelineObjectType":
-        """Создает enum из строки."""
-        for member in cls:
-            if member.value == name:
-                return member
-        raise ValueError(f"Unknown value for PipelineObjectType: {name}")
+    @abc.abstractmethod
+    def validate(self) -> None:
+        """Валидирует ноду."""
+        raise NotImplementedError
+
+    def compute(self, func: Callback, inp: Object) -> Object:
+        """Вычисляет ноду."""
+        res = self._compute(func, inp)
+        res.validate(self.output)
+        return res
+
+    @abc.abstractmethod
+    def _compute(self, func: Callback, inp: Object) -> Object:
+        """Реализация вычислений."""
+        raise NotImplementedError
 
 
-@dataclass
-class PipelineObjectTypeConstraint:
-    """Ограничение на передаваемый объект - строка/таблица + типы полей."""
-
-    type: PipelineObjectType
-    columns: dict[str, PipelineObjectPrimitiveType]
+class NodeDbRead(Node):
+    """Нода чтения из БД."""
 
     def validate(self) -> None:
-        """Валидирует объект."""
-        assert len(self.columns) > 0, "PipelineObjectTypeConstraint.columns cannot be empty"
-
-    @classmethod
-    def from_raw_cfg(cls, raw_cfg: Any) -> Optional["PipelineObjectTypeConstraint"]:
-        """Создаёт объект из словаря."""
-        if raw_cfg is None:
-            return None
-        assert isinstance(raw_cfg, dict), "Raw config for PipelineObjectTypeConstraint need be dict"
-        columns = raw_cfg.get("columns", {})
-        constraint = cls(
-            type=PipelineObjectType.from_string(raw_cfg["type"]),
-            columns={col: PipelineObjectPrimitiveType.from_string(typ) for col, typ in columns.items()},
-        )
-        constraint.validate()
-        return constraint
-
-
-class PipelineNodeType(Enum):
-    """Хранит тип ноды пайплайна."""
-
-    DB_READ = "db_read"
-    MERGER = "merger"
-    AGGREGATOR = "agg"
-
-    @classmethod
-    def from_string(cls, name: str) -> "PipelineNodeType":
-        """Создает enum из строки."""
-        for member in cls:
-            if member.value == name:
-                return member
-        raise ValueError(f"Unknown value for PipelineNodeType: {name}")
-
-
-@dataclass
-class PipelineNodeSpec:
-    """Хранит описание ноды пайплайна."""
-
-    name: str
-    type: PipelineNodeType
-    callback: str
-    input: list[str]
-    output: Optional[PipelineObjectTypeConstraint]
-
-    def validate(self) -> None:
-        """Валидирует объект."""
-        if self.name == "":
-            raise ValueError("Name cannot be empty")
-        match self.type:
-            case PipelineNodeType.DB_READ:
-                return self._validate_db_read()
-            case PipelineNodeType.MERGER:
-                return self._validate_merger()
-            case PipelineNodeType.AGGREGATOR:
-                return self._validate_aggregator()
-            case _:
-                raise ValueError("Unknown PipelineNodeType in PipelineNodeSpec")
-
-    @classmethod
-    def from_raw_cfg(cls, node_name: str, raw_cfg: Any) -> "PipelineNodeSpec":
-        """Создаёт объект из словаря."""
-        assert isinstance(raw_cfg, dict), "Raw config for PipelineNodeSpec need be dict"
-        spec = cls(
-            name=node_name,
-            type=PipelineNodeType.from_string(raw_cfg["type"]),
-            callback=raw_cfg.get("callback", ""),
-            input=raw_cfg.get("input", []),
-            output=PipelineObjectTypeConstraint.from_raw_cfg(raw_cfg.get("output", None)),
-        )
-        spec.validate()
-        return spec
-
-    def _validate_db_read(self) -> None:
+        """Валидирует NodeDbRead."""
         if self.callback == "":
-            raise ValueError("Callback for DB_READ cannot be empty")
-        # if len(self.input) == 0:
-        #     raise ValueError("Input for DB_READ cannot be empty")
+            raise ValueError("Callback for NodeDbRead cannot be empty")
         if self.output is None:
-            raise ValueError("Output for DB_READ cannot be empty")
+            raise ValueError("Output for NodeDbRead cannot be empty")
 
-    def _validate_merger(self) -> None:
+    def _compute(self, func: Callback, inp: Object) -> Object:
+        """Читаем из БД."""
+        return func(inp)
+
+
+class NodeMerger(Node):
+    """Нода объединения выходов других нод."""
+
+    def validate(self) -> None:
+        """Валидирует NodeMerger."""
         if self.callback != "":
-            raise ValueError("Callback for MERGER is autogenerated")
+            raise ValueError("Callback for NodeMerger is autogenerated")
         if len(self.input) == 0:
-            raise ValueError("Input for MERGER cannot be empty")
+            raise ValueError("Input for NodeMerger cannot be empty")
         if self.output is not None:
-            raise ValueError("Output for MERGE is autogenerated")
+            raise ValueError("Output for NodeMerger is autogenerated")
 
-    def _validate_aggregator(self) -> None:
+    def _compute(self, func: Callback, inp: Object) -> Object:
+        """Объединяем входы."""
+        return inp
+
+
+class NodeAggregator(Node):
+    """Обычная промежуточная нода."""
+
+    def validate(self) -> None:
+        """Валидирует NodeAggregator."""
         if self.callback == "":
-            raise ValueError("Callback for AGGREGATOR cannot be empty")
+            raise ValueError("Callback for NodeAggregator cannot be empty")
         if len(self.input) == 0:
-            raise ValueError("Input for AGGREGATOR cannot be empty")
+            raise ValueError("Input for NodeAggregator cannot be empty")
         if self.output is None:
-            raise ValueError("Output for AGGREGATOR cannot be empty")
+            raise ValueError("Output for NodeAggregator cannot be empty")
+
+    def _compute(self, func: Callback, inp: Object) -> Object:
+        """Выполняем пользовательский код."""
+        return func(inp)
+
+
+def node_type(name: str) -> type[Node]:
+    """Получает тип ноды по строке."""
+    match name:
+        case "db_read":
+            return NodeDbRead
+        case "merger":
+            return NodeMerger
+        case "agg":
+            return NodeAggregator
+        case _:
+            raise ValueError(f"Unknown value for PipelineNodeType: {name}")
+
+
+def node_from_raw_cfg(raw_cfg: Any) -> Node:
+    """Создаёт ноду из словаря."""
+    assert isinstance(raw_cfg, dict), "Raw config for Node need be dict"
+    node_cls = node_type(raw_cfg["type"])
+    spec = node_cls(
+        callback=raw_cfg.get("callback", ""),
+        input=raw_cfg.get("input", []),
+        output=ObjectConstraint.from_raw_cfg(raw_cfg.get("output", None)),
+    )
+    spec.validate()
+    return spec

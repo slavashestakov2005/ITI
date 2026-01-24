@@ -5,19 +5,18 @@ from typing import Optional
 
 import pytest
 
-from pipeline import PipelineObjectTypeConstraint, Row, Table
+from pipeline import Row, Table
+from pipeline.object import ObjectConstraint
 
 
-def make_validator(row_or_table: str, columns: dict[str, str]) -> Optional[PipelineObjectTypeConstraint]:
+def make_validator(row_or_table: str, columns: dict[str, str]) -> Optional[ObjectConstraint]:
     """Создаёт ограничение на типы."""
-    return PipelineObjectTypeConstraint.from_raw_cfg({"type": row_or_table, "columns": columns})
+    return ObjectConstraint.from_raw_cfg({"type": row_or_table, "columns": columns})
 
 
 def test_pipeline_row_validation() -> None:
     """В Row типы полей должны проходить валидацию."""
-    with pytest.raises(
-        AttributeError, match="Expected type PipelineObjectPrimitiveType.FLOAT for key num got <class 'int'>"
-    ):
+    with pytest.raises(AttributeError, match="Expected type <class 'float'> for key num got <class 'int'>"):
         row = Row(text="text", num=5)
         row.validate(make_validator("row", {"text": "str", "num": "float"}))
     with pytest.raises(AttributeError, match=re.escape("Expected attributes ['text'] got ['num', 'text']")):

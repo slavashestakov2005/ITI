@@ -3,6 +3,7 @@
 import pytest
 
 from pipeline import Engine, Object, Row, Table
+from pipeline.engine import not_found_callback
 from utils import read_from_yaml_str
 
 
@@ -61,33 +62,12 @@ def test_pipeline_engine_callback_type() -> None:
         raise ValueError("Unreachable")
 
 
-def test_pipeline_engine_invalid_field_mock() -> None:
-    """Не ожиданное поле у объекта."""
-    mock_cfg = """
-node1:
-  callback: call
-  type: agg
-  input:
-    - node1
-  output:
-    type: table
-    columns:
-      col: int
-"""
-    with pytest.raises(ValueError, match="Node 'node1' requires callback"):
-        engine = Engine.from_raw_cfg(read_from_yaml_str(mock_cfg))
-        engine.specs["node1"].callback = ""
-        engine.run("node1")
-
-    with pytest.raises(ValueError, match="Unsupported PipelineNodeType"):
-        engine = Engine.from_raw_cfg(read_from_yaml_str(mock_cfg))
-        engine.specs["node1"].type = 8  # type: ignore[assignment]
-        engine.run("node1")
-
-
 def test_pipeline_engine_invalid_callback() -> None:
     """Нет колбеков."""
     Engine.clear()
+
+    with pytest.raises(ValueError, match="Callback was empty in yaml, but called"):
+        not_found_callback(Row())
 
     with pytest.raises(KeyError, match="Unknown node 'math'"):
         engine = Engine.from_raw_cfg(
@@ -101,14 +81,14 @@ node1:
             )
         )
         engine.run("node1")
-    with pytest.raises(KeyError, match="Callback 'in_test_calc_sums' not registered"):
+    with pytest.raises(KeyError, match="Callback 'in_test_read_math' not registered"):
         engine = Engine.from_raw_cfg(read_from_yaml_str(test_yaml_pipeline))
         engine.run("sum")
-    with pytest.raises(KeyError, match="Callback 'in_test_read_math' not registered"):
+    with pytest.raises(KeyError, match="Callback 'in_test_calc_sums' not registered"):
 
-        @Engine.callback  # type: ignore[arg-type]
-        def in_test_calc_sums() -> None:
-            raise ValueError("Unreachable")
+        @Engine.callback
+        def in_test_read_math(inp: Object) -> Object:
+            return Row(student=1, res=1)
 
         engine = Engine.from_raw_cfg(read_from_yaml_str(test_yaml_pipeline))
         engine.run("sum")

@@ -2,77 +2,69 @@
 
 import pytest
 
-from pipeline import (
-    PipelineNodeSpec,
-    PipelineNodeType,
-    PipelineObjectPrimitiveType,
-    PipelineObjectType,
-    PipelineObjectTypeConstraint,
-)
+from pipeline import Row, Table
+from pipeline.node import NodeAggregator, NodeDbRead, NodeMerger, node_from_raw_cfg, node_type
+from pipeline.object import ObjectConstraint, object_type, primitive_type
 from utils import read_from_yaml_str
 
 
 def test_pipeline_object_primitive_type() -> None:
-    """PipelineObjectPrimitiveType конструируется из строки."""
-    assert PipelineObjectPrimitiveType.from_string("str") == PipelineObjectPrimitiveType.STR
-    assert PipelineObjectPrimitiveType.STR.py_type() == str
-    assert PipelineObjectPrimitiveType.from_string("int") == PipelineObjectPrimitiveType.INT
-    assert PipelineObjectPrimitiveType.INT.py_type() == int
-    assert PipelineObjectPrimitiveType.from_string("float") == PipelineObjectPrimitiveType.FLOAT
-    assert PipelineObjectPrimitiveType.FLOAT.py_type() == float
-    with pytest.raises(ValueError, match="Unknown value for PipelineObjectPrimitiveType: dict"):
-        PipelineObjectPrimitiveType.from_string("dict")
-    with pytest.raises(ValueError, match="Unknown value for PipelineObjectPrimitiveType: "):
-        PipelineObjectPrimitiveType.from_string("")
+    """PrimitiveType конструируется из строки."""
+    assert primitive_type("str") == str
+    assert primitive_type("int") == int
+    assert primitive_type("float") == float
+    with pytest.raises(ValueError, match="Unknown value for PrimitiveType: dict"):
+        primitive_type("dict")
+    with pytest.raises(ValueError, match="Unknown value for PrimitiveType: "):
+        primitive_type("")
 
 
 def test_pipeline_object_type() -> None:
-    """PipelineObjectType конструируется из строки."""
-    assert PipelineObjectType.from_string("row") == PipelineObjectType.ROW
-    assert PipelineObjectType.from_string("table") == PipelineObjectType.TABLE
-    with pytest.raises(ValueError, match="Unknown value for PipelineObjectType: other"):
-        PipelineObjectType.from_string("other")
+    """ObjectType конструируется из строки."""
+    assert object_type("row") == Row
+    assert object_type("table") == Table
+    with pytest.raises(ValueError, match="Unknown value for ObjectType: other"):
+        object_type("other")
 
 
 def test_pipeline_object_type_constraint() -> None:
-    """PipelineObjectType конструируется из словарей и валидируется."""
-    with pytest.raises(AssertionError, match="Raw config for PipelineObjectTypeConstraint need be dict"):
-        PipelineObjectTypeConstraint.from_raw_cfg("hahaha")
-    with pytest.raises(ValueError, match="Unknown value for PipelineObjectType: no"):
-        PipelineObjectTypeConstraint.from_raw_cfg({"type": "no"})
-    with pytest.raises(AssertionError, match="PipelineObjectTypeConstraint.columns cannot be empty"):
-        PipelineObjectTypeConstraint.from_raw_cfg({"type": "table"})
+    """ObjectType конструируется из словарей и валидируется."""
+    with pytest.raises(AssertionError, match="Raw config for ObjectConstraint need be dict"):
+        ObjectConstraint.from_raw_cfg("hahaha")
+    with pytest.raises(ValueError, match="Unknown value for ObjectType: no"):
+        ObjectConstraint.from_raw_cfg({"type": "no"})
+    with pytest.raises(AssertionError, match="ObjectConstraint.columns cannot be empty"):
+        ObjectConstraint.from_raw_cfg({"type": "table"})
     with pytest.raises(AttributeError, match="'list' object has no attribute 'items'"):
-        PipelineObjectTypeConstraint.from_raw_cfg({"type": "table", "columns": []})
-    with pytest.raises(ValueError, match="Unknown value for PipelineObjectPrimitiveType: no"):
-        PipelineObjectTypeConstraint.from_raw_cfg({"type": "table", "columns": {"col1": "no"}})
-    constraint = PipelineObjectTypeConstraint.from_raw_cfg(
+        ObjectConstraint.from_raw_cfg({"type": "table", "columns": []})
+    with pytest.raises(ValueError, match="Unknown value for PrimitiveType: no"):
+        ObjectConstraint.from_raw_cfg({"type": "table", "columns": {"col1": "no"}})
+    constraint = ObjectConstraint.from_raw_cfg(
         {"type": "table", "columns": {"col1": "int", "col2": "str", "col3": "float"}}
     )
     assert constraint is not None
-    assert constraint.type == PipelineObjectType.TABLE
+    assert constraint.type == Table
     assert constraint.columns == {
-        "col1": PipelineObjectPrimitiveType.INT,
-        "col2": PipelineObjectPrimitiveType.STR,
-        "col3": PipelineObjectPrimitiveType.FLOAT,
+        "col1": int,
+        "col2": str,
+        "col3": float,
     }
 
 
 def test_pipeline_node_type() -> None:
     """PipelineNodeType конструируется из строки."""
-    assert PipelineNodeType.from_string("db_read") == PipelineNodeType.DB_READ
-    assert PipelineNodeType.from_string("merger") == PipelineNodeType.MERGER
-    assert PipelineNodeType.from_string("agg") == PipelineNodeType.AGGREGATOR
+    assert node_type("db_read") == NodeDbRead
+    assert node_type("merger") == NodeMerger
+    assert node_type("agg") == NodeAggregator
     with pytest.raises(ValueError, match="Unknown value for PipelineNodeType: do"):
-        PipelineNodeType.from_string("do")
+        node_type("do")
     with pytest.raises(ValueError, match="Unknown value for PipelineNodeType: "):
-        PipelineNodeType.from_string("")
+        node_type("")
 
 
 def test_pipeline_node_spec_db_read_ok() -> None:
-    """PipelineNodeSpec.DB_READ конструируется из словарей правильно."""
-    spec = PipelineNodeSpec.from_raw_cfg(
-        "db_iti_subjects",
+    """NodeDbRead конструируется из словарей правильно."""
+    spec = node_from_raw_cfg(
         read_from_yaml_str(
             """
 type: db_read
@@ -87,24 +79,22 @@ output:
 """
         ),
     )
-    assert spec.name == "db_iti_subjects"
-    assert spec.type == PipelineNodeType.DB_READ
+    assert isinstance(spec, NodeDbRead)
     assert spec.callback == "select_subjects_info_for_iti"
     assert spec.input == ["iti_id"]
-    assert spec.output == PipelineObjectTypeConstraint(
-        type=PipelineObjectType.TABLE,
+    assert spec.output == ObjectConstraint(
+        type=Table,
         columns={
-            "subject_id": PipelineObjectPrimitiveType.INT,
-            "about": PipelineObjectPrimitiveType.STR,
+            "subject_id": int,
+            "about": str,
         },
     )
 
 
 def test_pipeline_node_db_spec_read_fail() -> None:  # noqa: CFQ001
-    """PipelineNodeSpec.DB_READ проверяет входы."""
-    with pytest.raises(ValueError, match="Callback for DB_READ cannot be empty"):
-        PipelineNodeSpec.from_raw_cfg(
-            "db_iti_subjects",
+    """NodeDbRead проверяет входы."""
+    with pytest.raises(ValueError, match="Callback for NodeDbRead cannot be empty"):
+        node_from_raw_cfg(
             read_from_yaml_str(
                 """
 type: db_read
@@ -119,9 +109,8 @@ output:
             ),
         )
 
-    with pytest.raises(ValueError, match="Output for DB_READ cannot be empty"):
-        PipelineNodeSpec.from_raw_cfg(
-            "db_iti_subjects",
+    with pytest.raises(ValueError, match="Output for NodeDbRead cannot be empty"):
+        node_from_raw_cfg(
             read_from_yaml_str(
                 """
 type: db_read
@@ -134,9 +123,8 @@ input:
 
 
 def test_pipeline_node_spec_merger_ok() -> None:
-    """PipelineNodeSpec.MERGER конструируется из словарей правильно."""
-    spec = PipelineNodeSpec.from_raw_cfg(
-        "all_ind_res",
+    """NodeMerger конструируется из словарей правильно."""
+    spec = node_from_raw_cfg(
         read_from_yaml_str(
             """
 type: merger
@@ -147,18 +135,16 @@ input:
 """
         ),
     )
-    assert spec.name == "all_ind_res"
-    assert spec.type == PipelineNodeType.MERGER
+    assert isinstance(spec, NodeMerger)
     assert spec.callback == ""
     assert spec.input == ["math", "rus", "eng"]
     assert spec.output is None
 
 
 def test_pipeline_node_spec_merger_fail() -> None:
-    """PipelineNodeSpec.MERGER проверяет входы."""
-    with pytest.raises(ValueError, match="Callback for MERGER is autogenerated"):
-        PipelineNodeSpec.from_raw_cfg(
-            "all_ind_res",
+    """NodeMerger проверяет входы."""
+    with pytest.raises(ValueError, match="Callback for NodeMerger is autogenerated"):
+        node_from_raw_cfg(
             read_from_yaml_str(
                 """
 type: merger
@@ -171,9 +157,8 @@ input:
             ),
         )
 
-    with pytest.raises(ValueError, match="Input for MERGER cannot be empty"):
-        PipelineNodeSpec.from_raw_cfg(
-            "all_ind_res",
+    with pytest.raises(ValueError, match="Input for NodeMerger cannot be empty"):
+        node_from_raw_cfg(
             read_from_yaml_str(
                 """
 type: merger
@@ -181,9 +166,8 @@ type: merger
             ),
         )
 
-    with pytest.raises(ValueError, match="Output for MERGE is autogenerated"):
-        PipelineNodeSpec.from_raw_cfg(
-            "all_ind_res",
+    with pytest.raises(ValueError, match="Output for NodeMerger is autogenerated"):
+        node_from_raw_cfg(
             read_from_yaml_str(
                 """
 type: merger
@@ -201,9 +185,8 @@ output:
 
 
 def test_pipeline_node_spec_agg_ok() -> None:
-    """PipelineNodeSpec.AGGREGATOR конструируется из словарей правильно."""
-    spec = PipelineNodeSpec.from_raw_cfg(
-        "ind_agg",
+    """NodeAggregator конструируется из словарей правильно."""
+    spec = node_from_raw_cfg(
         read_from_yaml_str(
             """
 type: agg
@@ -218,25 +201,23 @@ output:
 """
         ),
     )
-    assert spec.name == "ind_agg"
-    assert spec.type == PipelineNodeType.AGGREGATOR
+    assert isinstance(spec, NodeAggregator)
     assert spec.callback == "ind_agg_calc"
     assert spec.input == ["all_ind_res", "db_iti_subjects"]
-    assert spec.output == PipelineObjectTypeConstraint(
-        type=PipelineObjectType.TABLE,
+    assert spec.output == ObjectConstraint(
+        type=Table,
         columns={
-            "student_id": PipelineObjectPrimitiveType.INT,
-            "place": PipelineObjectPrimitiveType.INT,
-            "total_score": PipelineObjectPrimitiveType.FLOAT,
+            "student_id": int,
+            "place": int,
+            "total_score": float,
         },
     )
 
 
 def test_pipeline_node_spec_agg_fail() -> None:  # noqa: CFQ001
-    """PipelineNodeSpec.AGGREGATOR проверяет входы."""
-    with pytest.raises(ValueError, match="Callback for AGGREGATOR cannot be empty"):
-        PipelineNodeSpec.from_raw_cfg(
-            "ind_agg",
+    """NodeAggregator проверяет входы."""
+    with pytest.raises(ValueError, match="Callback for NodeAggregator cannot be empty"):
+        node_from_raw_cfg(
             read_from_yaml_str(
                 """
 type: agg
@@ -251,9 +232,8 @@ output:
             ),
         )
 
-    with pytest.raises(ValueError, match="Input for AGGREGATOR cannot be empty"):
-        PipelineNodeSpec.from_raw_cfg(
-            "ind_agg",
+    with pytest.raises(ValueError, match="Input for NodeAggregator cannot be empty"):
+        node_from_raw_cfg(
             read_from_yaml_str(
                 """
 type: agg
@@ -268,47 +248,13 @@ output:
             ),
         )
 
-    with pytest.raises(ValueError, match="Output for AGGREGATOR cannot be empty"):
-        PipelineNodeSpec.from_raw_cfg(
-            "ind_agg",
+    with pytest.raises(ValueError, match="Output for NodeAggregator cannot be empty"):
+        node_from_raw_cfg(
             read_from_yaml_str(
                 """
 type: agg
 callback: ind_agg_calc
 input: [all_ind_res, db_iti_subjects]
-"""
-            ),
-        )
-
-
-def test_pipeline_node_spec_some_checks_fail() -> None:
-    """Разные проверки на валидность."""
-    with pytest.raises(ValueError, match="Unknown PipelineNodeType in PipelineNodeSpec"):
-        spec = PipelineNodeSpec.from_raw_cfg(
-            "all_ind_res",
-            read_from_yaml_str(
-                """
-type: merger
-input:
-  - math
-  - rus
-  - eng
-"""
-            ),
-        )
-        spec.type = 7  # type: ignore[assignment]
-        spec.validate()
-
-    with pytest.raises(ValueError, match="Name cannot be empty"):
-        spec = PipelineNodeSpec.from_raw_cfg(
-            "",
-            read_from_yaml_str(
-                """
-type: merger
-input:
-  - math
-  - rus
-  - eng
 """
             ),
         )
