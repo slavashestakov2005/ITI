@@ -1,0 +1,24 @@
+name: Enforce user branch pattern
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: ['*']
+
+jobs:
+  validate-user-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if branch follows user pattern
+        env:
+          EXPECTED_PREFIX: "users/${{ github.actor }}/"
+          ACTUAL_BRANCH: ${{ github.head_ref || github.ref_name }}
+        run: |          
+          if [[ ! "$ACTUAL_BRANCH" =~ ^$EXPECTED_PREFIX ]]; then
+            echo "::error::Invalid branch name for user ${{ github.actor }}"
+            echo "Your branches must start with: $EXPECTED_PREFIX"
+            echo "Example: $EXPECTED_PREFIXfeature-name"
+            exit 1
+          fi
+          echo "✅ Branch name valid for user ${{ github.actor }}"
