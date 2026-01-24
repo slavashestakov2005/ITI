@@ -119,3 +119,67 @@ def test_pipeline_engine_core_ok() -> None:
     engine = Engine.from_raw_cfg(read_from_yaml_str(test_yaml_pipeline))
     assert engine.run("sum").sum_math == 50  # type: ignore[union-attr]
     assert engine.run("sum").sum_ind == 50  # type: ignore[union-attr]
+
+
+def test_real_pipeline() -> None:
+    """Пример реального пайплайна."""
+    Engine.clear()
+    pipeline = """
+math:
+  type: db_read
+  callback: in_test_read_math
+  output:
+    type: table
+    columns:
+      student: int
+      res: int
+students:
+  type: db_read
+  callback: in_test_read_students
+  output:
+    type: table
+    columns:
+      id: int
+      name: str
+decode_math:
+  type: agg
+  callback: in_test_decode_math
+  input:
+    - math
+    - students
+  output:
+    type: table
+    columns:
+      name: str
+      score: int
+"""
+    engine = Engine.from_raw_cfg(read_from_yaml_str(pipeline))
+
+    @Engine.callback
+    def in_test_read_math(inp: Object) -> Object:
+        table = Table()
+        table.append(Row(student=1, res=5))
+        table.append(Row(student=2, res=27))
+        table.append(Row(student=123, res=10))
+        return table
+
+    @Engine.callback
+    def in_test_read_students(inp: Object) -> Object:
+        table = Table()
+        table.append(Row(id=1, name="Slava"))
+        table.append(Row(id=2, name="Dima"))
+        table.append(Row(id=3, name="Dan"))
+        return table
+
+    @Engine.callback
+    def in_test_decode_math(inp: Object) -> Object:
+        decode = {stud.id: stud.name for stud in inp.students}  # type: ignore[union-attr]
+        table = Table()
+        for res in inp.math:  # type: ignore[union-attr]
+            name = decode.get(res.student)  # type: ignore[union-attr]
+            if name is not None:
+                table.append(Row(name=decode[res.student], score=res.res))  # type: ignore[union-attr]
+        return table
+
+    res = engine.run("decode_math")
+    assert repr(res) == "Table([Row({'name': 'Slava', 'score': 5}), Row({'name': 'Dima', 'score': 27})])"
