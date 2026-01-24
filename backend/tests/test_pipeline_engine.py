@@ -2,7 +2,7 @@
 
 import pytest
 
-from pipeline import Engine, PipelineBaseObject, PipelineRow, PipelineTable
+from pipeline import Engine, Object, Row, Table
 from utils import read_from_yaml_str
 
 
@@ -87,6 +87,8 @@ node1:
 
 def test_pipeline_engine_invalid_callback() -> None:
     """Нет колбеков."""
+    Engine.clear()
+
     with pytest.raises(KeyError, match="Unknown node 'math'"):
         engine = Engine.from_raw_cfg(
             read_from_yaml_str(
@@ -117,22 +119,22 @@ def test_pipeline_engine_core_ok() -> None:
     Engine.clear()
 
     @Engine.callback
-    def in_test_read_math(inp: PipelineBaseObject) -> PipelineBaseObject:
-        table = PipelineTable()
-        table.append(PipelineRow(student=1, res=5))
-        table.append(PipelineRow(student=2, res=27))
-        table.append(PipelineRow(student=3, res=1))
-        table.append(PipelineRow(student=4, res=17))
+    def in_test_read_math(inp: Object) -> Object:
+        table = Table()
+        table.append(Row(student=1, res=5))
+        table.append(Row(student=2, res=27))
+        table.append(Row(student=3, res=1))
+        table.append(Row(student=4, res=17))
         return table
 
     @Engine.callback
-    def in_test_calc_sums(inp: PipelineBaseObject) -> PipelineBaseObject:
+    def in_test_calc_sums(inp: Object) -> Object:
         sum_math, sum_ind = 0, 0
         for elem in inp.math:  # type: ignore[union-attr]
             sum_math += elem.res  # type: ignore[union-attr]
         for elem in inp.merge_ind.math:  # type: ignore[union-attr]
             sum_ind += elem.res  # type: ignore[union-attr]
-        return PipelineRow(sum_math=sum_math, sum_ind=sum_ind)
+        return Row(sum_math=sum_math, sum_ind=sum_ind)
 
     engine = Engine.from_raw_cfg(read_from_yaml_str(test_yaml_pipeline))
     assert engine.run("sum").sum_math == 50  # type: ignore[union-attr]

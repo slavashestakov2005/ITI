@@ -2,14 +2,14 @@
 
 from typing import Any
 
-from pipeline.data_class import PipelineBaseObject, PipelineCallback, PipelineRow
 from pipeline.node import PipelineNodeSpec, PipelineNodeType
+from pipeline.object import Callback, Object, Row
 
 
 class Engine:
     """Класс для работы с пайплайном."""
 
-    _callbacks: dict[str, PipelineCallback] = {}
+    _callbacks: dict[str, Callback] = {}
 
     def __init__(self, specs: dict[str, PipelineNodeSpec]):
         """Сохраняем список всех нод."""
@@ -30,7 +30,7 @@ class Engine:
         return cls(specs)
 
     @classmethod
-    def callback(cls, fn: PipelineCallback) -> None:
+    def callback(cls, fn: Callback) -> None:
         """Декоратор для регистрации callback."""
         cls._callbacks[fn.__name__] = fn
 
@@ -39,20 +39,20 @@ class Engine:
         """Очищает список колбеков."""
         cls._callbacks = {}
 
-    def run(self, target: str) -> PipelineBaseObject:
+    def run(self, target: str) -> Object:
         """Вычисляет один таргет."""
         self._cache.clear()
         return self._eval(target)
 
     @classmethod
-    def _get_cb(cls, spec: PipelineNodeSpec) -> PipelineCallback:
+    def _get_cb(cls, spec: PipelineNodeSpec) -> Callback:
         if not spec.callback:
             raise ValueError(f"Node '{spec.name}' requires callback")
         if spec.callback not in cls._callbacks:
             raise KeyError(f"Callback '{spec.callback}' not registered")
         return cls._callbacks[spec.callback]
 
-    def _eval(self, node_name: str) -> PipelineBaseObject:
+    def _eval(self, node_name: str) -> Object:
         """Вычисляет один таргет."""
         cached = self._cache.get(node_name)
         if cached is not None:
@@ -64,7 +64,7 @@ class Engine:
         match spec.type:
             case PipelineNodeType.DB_READ:
                 cb = Engine._get_cb(spec)
-                out = cb(PipelineRow())
+                out = cb(Row())
             case PipelineNodeType.MERGER:
                 out = self._make_object_from_deps(spec.input)
             case PipelineNodeType.AGGREGATOR:
@@ -78,6 +78,6 @@ class Engine:
         self._cache[node_name] = out
         return out
 
-    def _make_object_from_deps(self, deps: list[str]) -> PipelineBaseObject:
+    def _make_object_from_deps(self, deps: list[str]) -> Object:
         """Вычисляет зависимости и складывает в объект."""
-        return PipelineRow(**{inp: self._eval(inp) for inp in deps})
+        return Row(**{inp: self._eval(inp) for inp in deps})

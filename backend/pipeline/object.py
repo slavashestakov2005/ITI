@@ -6,7 +6,7 @@ from pipeline.node import PipelineObjectTypeConstraint
 from utils import sorted_dict_keys
 
 
-class PipelineRow:
+class Row:
     """Класс для описания объекта (например строки таблицы) ."""
 
     def __init__(self, **kwargs: Any):
@@ -18,11 +18,11 @@ class PipelineRow:
         try:
             return self._fields[name]
         except KeyError:
-            raise AttributeError(f"Field {name} not found in PipelineRow")
+            raise AttributeError(f"Field {name} not found in Row")
 
     def __repr__(self) -> str:
         """Вывод объекта."""
-        return f"PipelineRow({self._fields})"
+        return f"Row({self._fields})"
 
     def validate(self, scheme: Optional[PipelineObjectTypeConstraint]) -> None:
         """Валидация объекта."""
@@ -38,24 +38,24 @@ class PipelineRow:
                 raise AttributeError(f"Expected type {typ} for key {key} got {our_type}")
 
 
-class PipelineTable:
+class Table:
     """Класс для описания таблицы объектов."""
 
     def __init__(self):
         """В начале таблица пустая."""
         self._rows = []
 
-    def append(self, row: PipelineRow) -> None:
+    def append(self, row: Row) -> None:
         """Добавляем строку в таблицу."""
-        if not isinstance(row, PipelineRow):
-            raise TypeError(f"Expected PipelineRow in PipelineTable.append, got {type(row)}")
+        if not isinstance(row, Row):
+            raise TypeError(f"Expected Row in Table.append, got {type(row)}")
         self._rows.append(row)
 
     def __repr__(self) -> str:
         """Вывод объекта."""
-        return f"PipelineTable({self._rows})"
+        return f"Table({self._rows})"
 
-    def __iter__(self) -> Iterator[PipelineRow]:
+    def __iter__(self) -> Iterator[Row]:
         """Итерация по строкам таблицы."""
         return iter(self._rows)
 
@@ -71,5 +71,5 @@ class PipelineTable:
             row.validate(scheme)
 
 
-PipelineBaseObject = PipelineRow | PipelineTable
-PipelineCallback = Callable[[PipelineBaseObject], PipelineBaseObject]
+Object = Row | Table
+Callback = Callable[[Object], Object]

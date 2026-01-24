@@ -4,18 +4,10 @@ pipeline package
 Submodules
 ----------
 
-pipeline.core module
---------------------
+pipeline.engine module
+----------------------
 
-.. automodule:: pipeline.core
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-pipeline.data\_class module
----------------------------
-
-.. automodule:: pipeline.data_class
+.. automodule:: pipeline.engine
    :members:
    :undoc-members:
    :show-inheritance:
@@ -24,6 +16,14 @@ pipeline.node module
 --------------------
 
 .. automodule:: pipeline.node
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pipeline.object module
+----------------------
+
+.. automodule:: pipeline.object
    :members:
    :undoc-members:
    :show-inheritance:

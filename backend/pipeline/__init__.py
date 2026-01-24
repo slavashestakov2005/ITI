@@ -1,7 +1,6 @@
 """Ядро пайплайнов."""
 
-from pipeline.core import Engine
-from pipeline.data_class import PipelineBaseObject, PipelineRow, PipelineTable
+from pipeline.engine import Engine
 from pipeline.node import (
     PipelineNodeSpec,
     PipelineNodeType,
@@ -9,12 +8,13 @@ from pipeline.node import (
     PipelineObjectType,
     PipelineObjectTypeConstraint,
 )
+from pipeline.object import Object, Row, Table
 
 __all__ = [
     "Engine",
-    "PipelineBaseObject",
-    "PipelineRow",
-    "PipelineTable",
+    "Object",
+    "Row",
+    "Table",
     "PipelineObjectPrimitiveType",
     "PipelineObjectType",
     "PipelineObjectTypeConstraint",
