@@ -43,6 +43,7 @@ jobs:
 
       - name: Check coverage
         run: |
+          cd backend
           coverage run -m pytest
           coverage report -m
 
