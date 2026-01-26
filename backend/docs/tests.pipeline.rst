@@ -4,26 +4,26 @@ tests.pipeline package
 Submodules
 ----------
 
-tests.pipeline.engine module
-----------------------------
+tests.pipeline.test\_node module
+--------------------------------
 
-.. automodule:: tests.pipeline.engine
+.. automodule:: tests.pipeline.test_node
    :members:
    :undoc-members:
    :show-inheritance:
 
-tests.pipeline.node module
---------------------------
+tests.pipeline.test\_node\_executor module
+------------------------------------------
 
-.. automodule:: tests.pipeline.node
+.. automodule:: tests.pipeline.test_node_executor
    :members:
    :undoc-members:
    :show-inheritance:
 
-tests.pipeline.object module
-----------------------------
+tests.pipeline.test\_object module
+----------------------------------
 
-.. automodule:: tests.pipeline.object
+.. automodule:: tests.pipeline.test_object
    :members:
    :undoc-members:
    :show-inheritance:

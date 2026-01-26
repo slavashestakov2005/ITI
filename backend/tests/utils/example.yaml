@@ -1,0 +1,9 @@
+type: db_read
+callback: select_subjects_info_for_iti
+input:
+  - iti_id
+output:
+  type: table
+  columns:
+    subject_id: int
+    about: str

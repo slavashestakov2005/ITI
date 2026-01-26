@@ -1,6 +1,6 @@
 """Проверяет утилиты чтения."""
 
-from utils import read_from_yaml_str
+from utils import read_from_yaml_str, read_from_yaml_file
 
 
 def test_read_from_yaml_str() -> None:
@@ -30,3 +30,21 @@ output:
             },
         },
     }
+    
+def test_read_from_yaml_file() -> None:
+    """Проверяем чтение ямла в объект."""
+    parsed = read_from_yaml_file('tests/utils/example.yaml')
+    assert parsed == {
+        "type": "db_read",
+        "callback": "select_subjects_info_for_iti",
+        "input": ["iti_id"],
+        "output": {
+            "type": "table",
+            "columns": {
+                "subject_id": "int",
+                "about": "str",
+            },
+        },
+    }
+    
+    
