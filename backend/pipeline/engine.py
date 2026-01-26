@@ -12,7 +12,7 @@ def not_found_callback(inp: Object) -> Object:
 
 
 class Engine:
-    """Класс для работы с пайплайном."""
+    """Класс для обработки нод."""
 
     _callbacks: dict[str, Callback] = {}
 
@@ -45,7 +45,7 @@ class Engine:
         cls._callbacks = {}
 
     def run(self, target: str) -> Object:
-        """Вычисляет один таргет."""
+        """Вычисляет одну ноду."""
         self._cache.clear()
         return self._eval(target)
 

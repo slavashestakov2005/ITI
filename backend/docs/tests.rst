@@ -1,32 +1,16 @@
 tests package
 =============
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tests.pipeline
+
 Submodules
 ----------
-
-tests.test\_pipeline\_engine module
------------------------------------
-
-.. automodule:: tests.test_pipeline_engine
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tests.test\_pipeline\_node module
----------------------------------
-
-.. automodule:: tests.test_pipeline_node
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tests.test\_pipeline\_object module
------------------------------------
-
-.. automodule:: tests.test_pipeline_object
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 tests.test\_ratings\_place\_generator module
 --------------------------------------------
