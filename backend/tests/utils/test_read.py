@@ -34,7 +34,7 @@ output:
 
 def test_read_from_yaml_file() -> None:
     """Проверяем чтение ямла в объект."""
-    parsed = read_from_yaml_file("backend/tests/utils/example.yaml")
+    parsed = read_from_yaml_file("tests/utils/example.yaml")
     assert parsed == {
         "type": "db_read",
         "callback": "select_subjects_info_for_iti",

@@ -49,9 +49,9 @@ test:
 	cd backend && python -m pytest
 
 cov:
-	python -m coverage run -m pytest
-	python -m coverage report -m
-	python -m coverage html
+	cd backend && python -m coverage run -m pytest
+	cd backend && python -m coverage report -m
+	cd backend && python -m coverage html
 
 pre-commit:
 	python -m pre_commit run --all-files

@@ -1,8 +1,8 @@
 [run]
 source =
-    backend/pipeline
-    backend/ratings
-    backend/utils
+    pipeline
+    ratings
+    utils
 
 [report]
 fail_under = 100
