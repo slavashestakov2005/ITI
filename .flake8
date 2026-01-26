@@ -9,4 +9,5 @@ per-file-ignores =
     backend/tests/pipeline/test_object.py: WPS226,WPS432,WPS446,WPS459
     backend/tests/test_ratings_place_generator.py: WPS221
     backend/tests/test_ratings_score_generator.py: WPS118,WPS358
-    backend/tests/utils/test_read.py: WPS218,WPS432,WPS339
+    backend/tests/utils/test_converts.py: WPS218,WPS432,WPS339
+    backend/tests/utils/test_read.py: WPS218,WPS432,WPS339,WPS226

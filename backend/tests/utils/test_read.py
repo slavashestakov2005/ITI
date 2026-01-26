@@ -1,6 +1,6 @@
 """Проверяет утилиты чтения."""
 
-from utils import read_from_yaml_str, read_from_yaml_file
+from utils import read_from_yaml_file, read_from_yaml_str
 
 
 def test_read_from_yaml_str() -> None:
@@ -30,7 +30,8 @@ output:
             },
         },
     }
-    
+
+
 def test_read_from_yaml_file() -> None:
     """Проверяем чтение ямла в объект."""
     parsed = read_from_yaml_file('tests/utils/example.yaml')
@@ -46,5 +47,3 @@ def test_read_from_yaml_file() -> None:
             },
         },
     }
-    
-    
