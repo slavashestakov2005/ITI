@@ -269,7 +269,7 @@
         const digits = normalizeDigits(rawValue);
         if (!digits) return;
         const mode = getSettings().mode;
-        const minHits = mode === "barcode" ? 2 : 1;
+        const minHits = 1;
         if (quality !== null && quality > QUAGGA_ERROR_THRESHOLD) {
             return;
         }
