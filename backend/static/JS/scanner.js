@@ -61,6 +61,8 @@
         subjectId: "",
         studentLocked: false,
         studentId: null,
+        lastAcceptedEan8At: 0,
+        lastAcceptedEan13At: 0,
     };
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const setError = (text) => setStatus(text, true);
@@ -190,6 +192,8 @@
         toggleFound(false);
         state.studentLocked = false;
         state.studentId = null;
+        state.lastAcceptedEan8At = 0;
+        state.lastAcceptedEan13At = 0;
     };
 
     const normalizeDigits = (value) => {
@@ -226,6 +230,7 @@
     };
 
     const EAN_STABLE_MS = 800;
+    const ACCEPT_COOLDOWN_MS = 350;
 
     const updateStability = (map, code, minHits) => {
         const now = Date.now();
@@ -244,7 +249,7 @@
         const digits = normalizeDigits(rawValue);
         if (!digits) return;
         const mode = getSettings().mode;
-        const minHits = mode === "result" ? 1 : 2;
+        const minHits = 1;
         const normalizedFormat = String(format || "").toLowerCase();
         const looksEan8 = digits.length === 8 || normalizedFormat.includes("ean_8") || normalizedFormat.includes("ean8");
         const looksEan13 =
@@ -260,6 +265,9 @@
                 if (!state.studentLocked || state.studentId === studentId) {
                     const stable = updateStability(state.ean8Meta, studentId, minHits);
                     if (stable) {
+                        const now = Date.now();
+                        if (now - state.lastAcceptedEan8At < ACCEPT_COOLDOWN_MS) return;
+                        state.lastAcceptedEan8At = now;
                         state.studentLocked = true;
                         state.studentId = studentId;
                         updateCountMap(state.ean8Counts, studentId);
@@ -283,6 +291,9 @@
             if (Number.isNaN(val)) return;
             const stable = updateStability(state.ean13Meta, val, minHits);
             if (!stable) return;
+            const now = Date.now();
+            if (now - state.lastAcceptedEan13At < ACCEPT_COOLDOWN_MS) return;
+            state.lastAcceptedEan13At = now;
             updateCountMap(state.ean13Counts, val);
             state.detectedAny = true;
             if (mode === "result") {
