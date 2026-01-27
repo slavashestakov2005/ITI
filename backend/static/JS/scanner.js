@@ -230,7 +230,7 @@
     };
 
     const EAN_STABLE_MS = 800;
-    const ACCEPT_COOLDOWN_MS = 250;
+    const ACCEPT_COOLDOWN_MS = 120;
 
     const updateStability = (map, code, minHits) => {
         const now = Date.now();
