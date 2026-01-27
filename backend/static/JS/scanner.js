@@ -230,7 +230,8 @@
     };
 
     const EAN_STABLE_MS = 800;
-    const ACCEPT_COOLDOWN_MS = 120;
+    const ACCEPT_COOLDOWN_MS = 150;
+    const QUAGGA_ERROR_THRESHOLD = 0.2;
 
     const updateStability = (map, code, minHits) => {
         const now = Date.now();
@@ -245,11 +246,14 @@
         return meta.hits >= minHits;
     };
 
-    const addBarcode = (format, rawValue) => {
+    const addBarcode = (format, rawValue, quality = null) => {
         const digits = normalizeDigits(rawValue);
         if (!digits) return;
         const mode = getSettings().mode;
-        const minHits = 1;
+        const minHits = mode === "barcode" ? 2 : 1;
+        if (quality !== null && quality > QUAGGA_ERROR_THRESHOLD) {
+            return;
+        }
         const normalizedFormat = String(format || "").toLowerCase();
         const looksEan8 = digits.length === 8 || normalizedFormat.includes("ean_8") || normalizedFormat.includes("ean8");
         const looksEan13 =
@@ -636,8 +640,17 @@
                 });
                 window.Quagga.onDetected((result) => {
                     if (!result || !result.codeResult || !result.codeResult.code) return;
+                    let quality = null;
+                    if (result.codeResult.decodedCodes && result.codeResult.decodedCodes.length) {
+                        const errors = result.codeResult.decodedCodes
+                            .map((c) => c.error)
+                            .filter((e) => typeof e === "number");
+                        if (errors.length) {
+                            quality = errors.reduce((a, b) => a + b, 0) / errors.length;
+                        }
+                    }
                     state.detectedAny = true;
-                    addBarcode(result.codeResult.format || "quagga", result.codeResult.code);
+                    addBarcode(result.codeResult.format || "quagga", result.codeResult.code, quality);
                 });
                 state.quaggaRunning = true;
                 try {
