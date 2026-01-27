@@ -45,6 +45,8 @@
         engine: null,
         ean8Counts: new Map(),
         ean13Counts: new Map(),
+        ean8Meta: new Map(),
+        ean13Meta: new Map(),
         updateCount: 0,
         lastScan: 0,
         detectedAny: false,
@@ -57,6 +59,8 @@
         previewStream: null,
         itiId: "",
         subjectId: "",
+        studentLocked: false,
+        studentId: null,
     };
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const setError = (text) => setStatus(text, true);
@@ -178,10 +182,14 @@
     const resetCounts = () => {
         state.ean8Counts.clear();
         state.ean13Counts.clear();
+        state.ean8Meta.clear();
+        state.ean13Meta.clear();
         state.updateCount = 0;
         state.detectedAny = false;
         state.lastScan = 0;
         toggleFound(false);
+        state.studentLocked = false;
+        state.studentId = null;
     };
 
     const normalizeDigits = (value) => {
@@ -217,6 +225,23 @@
         map.set(code, (map.get(code) || 0) + 1);
     };
 
+    const EAN_STABLE_MS = 800;
+    const EAN8_MIN_HITS = 2;
+    const EAN13_MIN_HITS = 2;
+
+    const updateStability = (map, code, minHits) => {
+        const now = Date.now();
+        const meta = map.get(code) || { hits: 0, last: 0 };
+        if (now - meta.last <= EAN_STABLE_MS) {
+            meta.hits += 1;
+        } else {
+            meta.hits = 1;
+        }
+        meta.last = now;
+        map.set(code, meta);
+        return meta.hits >= minHits;
+    };
+
     const addBarcode = (format, rawValue) => {
         const digits = normalizeDigits(rawValue);
         if (!digits) return;
@@ -231,18 +256,37 @@
         if (validEan8) {
             const studentId = parseInt(digits, 10);
             if (Number.isNaN(studentId)) return;
-            updateCountMap(state.ean8Counts, studentId);
-            state.detectedAny = true;
+            if (getSettings().mode === "barcode") {
+                if (!state.studentLocked || state.studentId === studentId) {
+                    const stable = updateStability(state.ean8Meta, studentId, EAN8_MIN_HITS);
+                    if (stable) {
+                        state.studentLocked = true;
+                        state.studentId = studentId;
+                        updateCountMap(state.ean8Counts, studentId);
+                        state.detectedAny = true;
+                    }
+                }
+            }
         }
 
         if (validEan13) {
+            if (getSettings().mode === "barcode" && !state.studentLocked) {
+                return;
+            }
             const val = parseInt(digits, 10);
             if (Number.isNaN(val)) return;
+            const stable = updateStability(state.ean13Meta, val, EAN13_MIN_HITS);
+            if (!stable) return;
             updateCountMap(state.ean13Counts, val);
             state.detectedAny = true;
             if (getSettings().mode === "result") {
                 // В режиме результатов подставляем сразу, но только валидный код
                 els.resultCode.value = val;
+            }
+            if (getSettings().mode === "barcode" && state.ean13Counts.size >= els.barcodeCodes.length) {
+                setTimeout(() => {
+                    stopScan(true);
+                }, 0);
             }
             return;
         }
@@ -264,7 +308,7 @@
 
     const getStableEan13 = () => {
         if (state.updateCount === 0) return [];
-        const threshold = Math.max(2, Math.floor(state.updateCount * 0.25));
+        const threshold = 1;
         const items = [];
         for (const [code, count] of state.ean13Counts.entries()) {
             if (count > threshold) items.push({ code, count });
