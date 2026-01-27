@@ -19,8 +19,8 @@
             <div class="scanner-field">
                 <label for="scanner-mode">Режим</label>
                 <select id="scanner-mode">
-                    <option value="barcode">Штрих-коды (ученик + коды)</option>
-                    <!-- <option value="result">Результаты по предмету</option> -->
+                    {% if x == 0 %} <option value="result">Результаты по предмету</option> {% endif %}
+                    {% if x == 1 %} <option value="barcode">Штрих-коды (ученик + коды)</option> {% endif %}
                 </select>
             </div>
             <div class="scanner-field">
@@ -46,7 +46,25 @@
             <div id="scanner-status" class="scanner-status">Готов к сканированию.</div>
             <div id="scanner-found" class="scanner-found" aria-live="polite">КОД НАЙДЕН</div>
         </section>
-
+        
+        {% if x == 0 %}
+        <section class="scanner-card" id="scanner-result-panel">
+            <h2>Результат</h2>
+            <div class="scanner-field">
+                <label for="result-code">Код работы (EAN-13)</label>
+                <input id="result-code" type="text" inputmode="numeric" pattern="[0-9]*">
+            </div>
+            <div class="scanner-field">
+                <label for="result-score">Результат</label>
+                <input id="result-score" type="text" placeholder="Например, 27.5">
+            </div>
+            <div class="scanner-controls">
+                <button id="result-save" class="scanner-btn primary" type="button">Сохранить результат</button>
+                <button id="result-clear" class="scanner-btn" type="button">Очистить поля</button>
+            </div>
+        </section>
+        {% endif %}
+        {% if x == 1 %}
         <section class="scanner-card" id="scanner-barcode-panel">
             <h2>Штрих-коды</h2>
             <div class="scanner-field">
@@ -85,7 +103,7 @@
                 <button id="barcode-clear" class="scanner-btn" type="button">Очистить поля</button>
             </div>
         </section>
-
+        {% endif %}
     </div>
 </div>
 
