@@ -18,15 +18,13 @@
             </div>
             <div class="scanner-field">
                 <label for="scanner-mode">Режим</label>
-                <select id="scanner-mode">
                     <!-- {% if x == 0 %} <option value="result">Результаты по предмету</option> {% endif %}
                     {% if x == 1 %} <option value="barcode">Штрих-коды (ученик + коды)</option>{% endif %} -->
-                    {% if x == 0 %}
-                        <span id="scanner-mode-result">Результаты по предмету</span>
-                    {% elif x == 1 %}
-                        <span id="scanner-mode-barcode">Штрих-коды (ученик + коды)</span>
-                    {% endif %}
-                </select>
+                {% if x == 0 %}
+                    <span id="scanner-mode-result">Результаты по предмету</span>
+                {% elif x == 1 %}
+                    <span id="scanner-mode-barcode">Штрих-коды (ученик + коды)</span>
+                {% endif %}
             </div>
             <div class="scanner-field">
                 <label for="scanner-max-frames">Глубина сканирования</label>
