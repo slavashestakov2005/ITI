@@ -37,11 +37,6 @@
                     <div id="scanner-html5"></div>
                 </div>
                 <video id="scanner-video" autoplay muted playsinline></video>
-                <div class="scanner-overlay">
-                    <div class="scanner-target"></div>
-                    <div class="scanner-text">Наведите камеру на код</div>
-                    <div id="scanner-found" class="scanner-found" aria-live="polite">КОД НАЙДЕН</div>
-                </div>
             </div>
             <div class="scanner-controls">
                 <button id="scanner-start" class="scanner-btn primary" type="button">Старт</button>
@@ -49,6 +44,7 @@
                 <button id="scanner-torch" class="scanner-btn ghost" type="button" disabled>Подсветка</button>
             </div>
             <div id="scanner-status" class="scanner-status">Готов к сканированию.</div>
+            <div id="scanner-found" class="scanner-found" aria-live="polite">КОД НАЙДЕН</div>
         </section>
 
         <section class="scanner-card" id="scanner-barcode-panel">
@@ -111,5 +107,5 @@
 <link rel="stylesheet" href="/CSS/scanner.css">
 <script defer src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
 <script defer src="https://unpkg.com/quagga@0.12.1/dist/quagga.min.js"></script>
-<script defer src="/JS/scanner.js?v=22"></script>
+<script defer src="/JS/scanner.js?v=23"></script>
 {% endblock %}

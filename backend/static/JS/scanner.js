@@ -230,7 +230,7 @@
     };
 
     const EAN_STABLE_MS = 800;
-    const ACCEPT_COOLDOWN_MS = 350;
+    const ACCEPT_COOLDOWN_MS = 250;
 
     const updateStability = (map, code, minHits) => {
         const now = Date.now();
@@ -284,9 +284,6 @@
         }
 
         if (validEan13) {
-            if (mode === "barcode" && !state.studentLocked) {
-                return;
-            }
             const val = parseInt(digits, 10);
             if (Number.isNaN(val)) return;
             const stable = updateStability(state.ean13Meta, val, minHits);
@@ -612,8 +609,8 @@
                 ];
                 const constraints = {
                     facingMode: "environment",
-                    width: { ideal: 960 },
-                    height: { ideal: 720 },
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
                 };
                 await new Promise((resolve, reject) => {
                     window.Quagga.init(
