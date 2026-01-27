@@ -235,15 +235,34 @@
 
     const updateStability = (map, code, minHits) => {
         const now = Date.now();
-        const meta = map.get(code) || { hits: 0, last: 0 };
+        const meta = map.get(code) || { hits: 0, last: 0, lastAccepted: 0 };
         if (now - meta.last <= EAN_STABLE_MS) {
             meta.hits += 1;
         } else {
             meta.hits = 1;
         }
         meta.last = now;
+        meta.stable = meta.hits >= minHits;
         map.set(code, meta);
-        return meta.hits >= minHits;
+        return meta;
+    };
+
+    const normalizeEan8Digits = (digits) => {
+        if (digits.length === 8 && isValidEan8(digits)) return digits;
+        if (digits.length === 7) {
+            const padded = `0${digits}`;
+            if (isValidEan8(padded)) return padded;
+        }
+        return null;
+    };
+
+    const normalizeEan13Digits = (digits) => {
+        if (digits.length === 13 && isValidEan13(digits)) return digits;
+        if (digits.length === 12) {
+            const padded = `0${digits}`;
+            if (isValidEan13(padded)) return padded;
+        }
+        return null;
     };
 
     const addBarcode = (format, rawValue, quality = null) => {
@@ -258,26 +277,27 @@
         const looksEan8 = digits.length === 8 || normalizedFormat.includes("ean_8") || normalizedFormat.includes("ean8");
         const looksEan13 =
             digits.length === 13 || normalizedFormat.includes("ean_13") || normalizedFormat.includes("ean13");
-        const validEan8 = looksEan8 && isValidEan8(digits);
-        const validEan13 = looksEan13 && isValidEan13(digits);
-        toggleFound(validEan8 || validEan13);
+        const ean8Digits = looksEan8 ? normalizeEan8Digits(digits) : null;
+        const ean13Digits = looksEan13 ? normalizeEan13Digits(digits) : null;
+        toggleFound(Boolean(ean8Digits || ean13Digits));
 
-        if (validEan8) {
-            const studentId = parseInt(digits, 10);
+        if (ean8Digits) {
+            const studentId = parseInt(ean8Digits, 10);
             if (Number.isNaN(studentId)) return;
             if (mode === "barcode") {
                 if (!state.studentLocked || state.studentId === studentId) {
-                    const stable = updateStability(state.ean8Meta, studentId, minHits);
-                    if (stable) {
+                    const meta = updateStability(state.ean8Meta, String(studentId), minHits);
+                    if (meta.stable) {
                         const now = Date.now();
-                        if (now - state.lastAcceptedEan8At < ACCEPT_COOLDOWN_MS) return;
-                        state.lastAcceptedEan8At = now;
+                        if (now - meta.lastAccepted < ACCEPT_COOLDOWN_MS) return;
+                        meta.lastAccepted = now;
+                        state.ean8Meta.set(String(studentId), meta);
                         state.studentLocked = true;
                         state.studentId = studentId;
-                        updateCountMap(state.ean8Counts, studentId);
+                        updateCountMap(state.ean8Counts, String(studentId));
                         state.detectedAny = true;
                         // заполняем сразу
-                        els.barcodeStudentId.value = studentId;
+                        els.barcodeStudentId.value = ean8Digits;
                         clearTimeout(state.studentFetchTimer);
                         state.studentFetchTimer = setTimeout(() => {
                             fetchStudentInfo(studentId);
@@ -287,26 +307,27 @@
             }
         }
 
-        if (validEan13) {
-            const val = parseInt(digits, 10);
-            if (Number.isNaN(val)) return;
-            const stable = updateStability(state.ean13Meta, val, minHits);
-            if (!stable) return;
+        if (ean13Digits) {
+            const valNum = parseInt(ean13Digits, 10);
+            if (Number.isNaN(valNum)) return;
+            const meta = updateStability(state.ean13Meta, ean13Digits, minHits);
+            if (!meta.stable) return;
             const now = Date.now();
-            if (now - state.lastAcceptedEan13At < ACCEPT_COOLDOWN_MS) return;
-            state.lastAcceptedEan13At = now;
-            updateCountMap(state.ean13Counts, val);
+            if (now - meta.lastAccepted < ACCEPT_COOLDOWN_MS) return;
+            meta.lastAccepted = now;
+            state.ean13Meta.set(ean13Digits, meta);
+            updateCountMap(state.ean13Counts, ean13Digits);
             state.detectedAny = true;
             if (mode === "result") {
                 // В режиме результатов подставляем сразу, но только валидный код
-                els.resultCode.value = val;
+                els.resultCode.value = ean13Digits;
             }
             if (mode === "barcode") {
                 const inputs = els.barcodeCodes;
-                const existing = inputs.some((input) => input.value === String(val));
+                const existing = inputs.some((input) => input.value === ean13Digits);
                 if (!existing) {
                     const empty = inputs.find((input) => !input.value);
-                    if (empty) empty.value = val;
+                    if (empty) empty.value = ean13Digits;
                 }
             }
             if (mode === "barcode" && state.ean13Counts.size >= els.barcodeCodes.length) {
@@ -345,22 +366,25 @@
 
     const fillBarcodeFields = async () => {
         const studentId = getTopCode(state.ean8Counts);
-        if (studentId) els.barcodeStudentId.value = studentId;
+        if (studentId) els.barcodeStudentId.value = String(studentId).padStart(8, "0");
         const codes = getStableEan13();
         if (codes.length) {
             els.barcodeCodes.forEach((input, index) => {
-                input.value = codes[index] ? String(codes[index]) : "";
+                input.value = codes[index] ? String(codes[index]).padStart(13, "0") : "";
             });
         }
         if (studentId) {
-            await fetchStudentInfo(studentId);
+            const sid = parseInt(String(studentId), 10);
+            if (!Number.isNaN(sid)) {
+                await fetchStudentInfo(sid);
+            }
         }
     };
 
     const fillResultFields = () => {
         const bestCode = getTopCode(state.ean13Counts);
         if (bestCode) {
-            els.resultCode.value = bestCode;
+            els.resultCode.value = String(bestCode).padStart(13, "0");
         }
     };
 
