@@ -111,7 +111,6 @@
     };
 
     const params = new URLSearchParams(window.location.search);
-    const forcedEngine = (params.get("engine") || "").toLowerCase();
     state.itiId = params.get("iti") || "";
     state.subjectId = params.get("subject") || "";
 
@@ -790,7 +789,7 @@
                         stopScan(true);
                     }
                 }, 200);
-                setStatus(`Сканирование запущено. Режим: ${state.engine}`);
+                setStatus("Сканирование запущено.");
                 return true;
             } catch (err) {
                 console.warn("quagga init failed", err);
@@ -821,7 +820,7 @@
             els.video.style.display = "block";
             if (els.html5Wrap) els.html5Wrap.style.display = "none";
             setupTorch();
-            setStatus(`Сканирование запущено. Режим: ${state.engine}`);
+            setStatus("Сканирование запущено.");
             scanLoop();
             return true;
         };
@@ -890,7 +889,7 @@
                     }
                 }
             }
-            setStatus(`Сканирование запущено. Режим: ${state.engine}`);
+            setStatus("Сканирование запущено.");
             return true;
         };
 
@@ -903,19 +902,6 @@
                 await els.video.play();
             } catch (previewErr) {
                 console.warn("preview stream failed", previewErr);
-            }
-
-            if (forcedEngine) {
-                if (forcedEngine === "native") {
-                    const okNative = await tryNative();
-                    if (okNative) return;
-                } else if (forcedEngine === "zxing") {
-                    const okZxing = await tryZxing();
-                    if (okZxing) return;
-                } else if (forcedEngine === "quagga") {
-                    const okQuagga = await tryQuagga();
-                    if (okQuagga) return;
-                }
             }
 
             if (isIOS || forceEngine === "html5") {
