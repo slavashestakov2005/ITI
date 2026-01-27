@@ -6,8 +6,8 @@ from .help import check_access
 from ..help import UserRoleLogin
 
 
-@app.route("/scanner", methods=["GET"])
+@app.route("/scanner_barcode", methods=["GET"])
 @login_required
 @check_access(roles=[UserRoleLogin.LOGIN_LOCAL])
-def scanner_page():
-    return render_template("scanner.html")
+def scanner_barcode():
+    return render_template("scanner_barcode.html")

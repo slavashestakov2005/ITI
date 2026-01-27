@@ -11,7 +11,8 @@
             {% if check_role(roles=[UserRoleGlobal.CHANGE_SUBJECT]) %}<li><a href="subjects_edit">Создать предмет</a></li>{% endif %}
             {% if check_role(roles=[UserRoleGlobal.CHANGE_SCHOOL]) %}<li><a href="school_edit">Создать школу</a></li>{% endif %}
             {% if check_role(roles=[UserRoleGlobal.FULL]) %}<li><a href="upload_excel">Загрузить Excel на сайт</a></li>{% endif %}
-            <li><a href="/scanner">Веб-сканер ИТИ</a></li>
+            <li><a href="/scanner_barcode">Веб-сканер ИТИ для записи результатов</a></li>
+            <li><a href="/scanner_result">Веб-сканер ИТИ штрих-коды</a></li>
             <li><a target="_blank" href="https://drive.google.com/drive/folders/1WF8ALf5ctRKGO5r7q5AP5IopGNHC8Va5?usp=drive_link">Приложение «ИТИ-сканер»</a></li>
             <li><a target="_blank" href="https://github.com/slavashestakov2005/ITI">Github (с описанием всех Excel документов в частности)</a></li>
         </ul>
@@ -31,7 +32,8 @@
             <li><a href="{{ iti.id }}/codes">Коды участников</a></li>
             {% if iti.encoding_type == 1 %}<li><a href="{{ iti.id }}/barcodes_edit">Редактирование штрих-кодов работ</a></li>{% endif %}
             <li><a href="{{ iti.id }}/excel">Excel таблицы с данными</a></li>
-            <li><a href="/scanner?iti={{ iti.id }}">Веб-сканер ИТИ</a></li>
+            <li><a href="/scanner_barcode?iti={{ iti.id }}">Веб-сканер ИТИ штрих-коды</a></li>
+            <li><a href="/scanner_result?iti={{ iti.id }}">Веб-сканер ИТИ для записи результатов</a></li>
             {% endif %}
             {% if check_role(roles=[UserRoleGlobal.CHANGE_USER]) %}<li><a href="{{ iti.id }}/roles_edit">Роли пользователей ИТИ (учителей)</a></li>{% endif %}
             <li><a href="{{ iti.id }}/rating">Рейтинг</a></li>
@@ -49,7 +51,8 @@
         {% elif check_role(user=current_user, roles=[UserRoleItiSubject.ADD_RESULT, UserRoleItiSubject.EDIT_RESULT, UserRoleItiSubject.EDIT_SCORE, UserRoleItiSubject.DELETE_RESULT, UserRoleItiSubject.SPLIT_CLASS, UserRoleItiSubject.SHARE_RESULT], iti_id=subject['iti_subject'].iti_id, iti_subject_id=subject['iti_subject'].id) %}<ul>
             <li><a href="{{ iti.id }}/{{ subject['subject'].id }}">Результаты</a></li>
             <li><a href="{{ iti.id }}/{{ subject['subject'].id }}/add_result">Редактировать</a></li>
-            <li><a href="/scanner?iti={{ iti.id }}&subject={{ subject['subject'].id }}">Веб-сканер предмета</a></li>
+            <li><a href="/scanner_barcode?iti={{ iti.id }}&subject={{ subject['subject'].id }}">Веб-сканер ИТИ штрих-коды</a></li>
+            <li><a href="/scanner_result?iti={{ iti.id }}&subject={{ subject['subject'].id }}">Веб-сканер ИТИ для записи результатов</a></li>
         </ul>{% endif %}
         <br>
         <h3>Выбор предмета</h3>

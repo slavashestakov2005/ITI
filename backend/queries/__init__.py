@@ -14,4 +14,5 @@ import backend.queries.codes
 import backend.queries.excel
 import backend.queries.phone_api
 import backend.queries.bot_api
-import backend.queries.scanner_web
+import backend.queries.scanner_web_result
+import backend.queries.scanner_web_barcode
