@@ -226,8 +226,6 @@
     };
 
     const EAN_STABLE_MS = 800;
-    const EAN8_MIN_HITS = 2;
-    const EAN13_MIN_HITS = 2;
 
     const updateStability = (map, code, minHits) => {
         const now = Date.now();
@@ -245,6 +243,8 @@
     const addBarcode = (format, rawValue) => {
         const digits = normalizeDigits(rawValue);
         if (!digits) return;
+        const mode = getSettings().mode;
+        const minHits = mode === "result" ? 1 : 2;
         const normalizedFormat = String(format || "").toLowerCase();
         const looksEan8 = digits.length === 8 || normalizedFormat.includes("ean_8") || normalizedFormat.includes("ean8");
         const looksEan13 =
@@ -256,34 +256,48 @@
         if (validEan8) {
             const studentId = parseInt(digits, 10);
             if (Number.isNaN(studentId)) return;
-            if (getSettings().mode === "barcode") {
+            if (mode === "barcode") {
                 if (!state.studentLocked || state.studentId === studentId) {
-                    const stable = updateStability(state.ean8Meta, studentId, EAN8_MIN_HITS);
+                    const stable = updateStability(state.ean8Meta, studentId, minHits);
                     if (stable) {
                         state.studentLocked = true;
                         state.studentId = studentId;
                         updateCountMap(state.ean8Counts, studentId);
                         state.detectedAny = true;
+                        // заполняем сразу
+                        els.barcodeStudentId.value = studentId;
+                        clearTimeout(state.studentFetchTimer);
+                        state.studentFetchTimer = setTimeout(() => {
+                            fetchStudentInfo(studentId);
+                        }, 300);
                     }
                 }
             }
         }
 
         if (validEan13) {
-            if (getSettings().mode === "barcode" && !state.studentLocked) {
+            if (mode === "barcode" && !state.studentLocked) {
                 return;
             }
             const val = parseInt(digits, 10);
             if (Number.isNaN(val)) return;
-            const stable = updateStability(state.ean13Meta, val, EAN13_MIN_HITS);
+            const stable = updateStability(state.ean13Meta, val, minHits);
             if (!stable) return;
             updateCountMap(state.ean13Counts, val);
             state.detectedAny = true;
-            if (getSettings().mode === "result") {
+            if (mode === "result") {
                 // В режиме результатов подставляем сразу, но только валидный код
                 els.resultCode.value = val;
             }
-            if (getSettings().mode === "barcode" && state.ean13Counts.size >= els.barcodeCodes.length) {
+            if (mode === "barcode") {
+                const inputs = els.barcodeCodes;
+                const existing = inputs.some((input) => input.value === String(val));
+                if (!existing) {
+                    const empty = inputs.find((input) => !input.value);
+                    if (empty) empty.value = val;
+                }
+            }
+            if (mode === "barcode" && state.ean13Counts.size >= els.barcodeCodes.length) {
                 setTimeout(() => {
                     stopScan(true);
                 }, 0);
