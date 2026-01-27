@@ -582,11 +582,8 @@
         }
         const { maxFrames } = getSettings();
         if (state.updateCount >= maxFrames) {
-            if (getSettings().mode === "result") {
-                await stopScan(true);
-                return;
-            }
-            state.updateCount = 0;
+            await stopScan(true);
+            return;
         }
         state.scanLoopId = requestAnimationFrame(scanLoop);
     };
@@ -705,11 +702,7 @@
                     }
                     const { maxFrames } = getSettings();
                     if (state.updateCount >= maxFrames) {
-                        if (getSettings().mode === "result") {
-                            stopScan(true);
-                        } else {
-                            state.updateCount = 0;
-                        }
+                        stopScan(true);
                     }
                 }, 200);
                 setStatus("Сканирование запущено.");
@@ -779,11 +772,7 @@
                 }
                     const { maxFrames } = getSettings();
                     if (state.updateCount >= maxFrames) {
-                        if (getSettings().mode === "result") {
-                            stopScan(true);
-                        } else {
-                            state.updateCount = 0;
-                        }
+                        stopScan(true);
                     }
                 };
             state.zxingTimer = setInterval(zxingProgress, 200);
