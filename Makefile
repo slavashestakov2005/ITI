@@ -46,7 +46,7 @@ format:
 	python -m isort backend
 
 test:
-	cd backend && python -m pytest
+	python -m pytest
 
 cov:
 	python -m coverage run -m pytest

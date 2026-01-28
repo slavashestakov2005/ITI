@@ -1,10 +1,10 @@
 """Ядро пайплайнов."""
 
-from pipeline.engine import Engine
+from pipeline.node_executor import NodeExecutor
 from pipeline.object import Object, Row, Table
 
 __all__ = [
-    "Engine",
+    "NodeExecutor",
     "Object",
     "Row",
     "Table",

@@ -1,4 +1,4 @@
-"""Ядро вычислений пайплайна."""
+"""Класс для вычесления нод."""
 
 from typing import Any
 
@@ -11,8 +11,8 @@ def not_found_callback(inp: Object) -> Object:
     raise ValueError("Callback was empty in yaml, but called")
 
 
-class Engine:
-    """Класс для работы с пайплайном."""
+class NodeExecutor:
+    """Класс для обработки нод."""
 
     _callbacks: dict[str, Callback] = {}
 
@@ -22,8 +22,8 @@ class Engine:
         self._cache: dict[str, Any] = {}
 
     @classmethod
-    def from_raw_cfg(cls, raw_cfg: Any) -> "Engine":
-        """Читаем пайплайн из ямла."""
+    def from_raw_cfg(cls, raw_cfg: Any) -> "NodeExecutor":
+        """Читаем пайплайн из ямла и возвращяем готовый обьект."""
         if not isinstance(raw_cfg, dict):
             raise ValueError("Top-level pipeline config must be a mapping: node_name -> node_cfg")
 
@@ -45,12 +45,13 @@ class Engine:
         cls._callbacks = {}
 
     def run(self, target: str) -> Object:
-        """Вычисляет один таргет."""
+        """Запускает вычисление ноды."""
         self._cache.clear()
         return self._eval(target)
 
     @classmethod
     def _get_callback(cls, callback: str) -> Callback:
+        """Возвращяет калбек по названию."""
         if not callback:
             return not_found_callback
         if callback not in cls._callbacks:
@@ -58,7 +59,7 @@ class Engine:
         return cls._callbacks[callback]
 
     def _eval(self, node_name: str) -> Object:
-        """Вычисляет один таргет."""
+        """Рекурсивно вычисляет ноды."""
         cached = self._cache.get(node_name)
         if cached is not None:
             return cached

@@ -4,18 +4,18 @@ pipeline package
 Submodules
 ----------
 
-pipeline.engine module
-----------------------
-
-.. automodule:: pipeline.engine
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 pipeline.node module
 --------------------
 
 .. automodule:: pipeline.node
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pipeline.node\_executor module
+------------------------------
+
+.. automodule:: pipeline.node_executor
    :members:
    :undoc-members:
    :show-inheritance:
