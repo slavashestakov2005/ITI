@@ -1,4 +1,3 @@
-import logging
 from .__parent_writer__ import ExcelParentWriter
 
 
@@ -29,19 +28,10 @@ class ExcelDiplomaWriter(ExcelParentWriter):
         return x[2]['id'], x[1], x[0]['class_n'], x[0]['class_latter'], x[0]['name_all']
 
     def write(self, filename: str, diplomas: list, subjects: dict, students: dict):
-        missing_students = set()
-        missing_subjects = set()
         dip1, dip2, dip3 = [], [], []
         for diploma in diplomas:
             student_id, subject_id, place = diploma
-            student = students.get(student_id)
-            subject = subjects.get(subject_id)
-            if student is None:
-                missing_students.add(student_id)
-                continue
-            if subject is None:
-                missing_subjects.add(subject_id)
-                continue
+            student, subject = students[student_id], subjects[subject_id]
             line, tp = [student, place, subject], subject['type']
             if tp == 'i':
                 dip1.append(line)
@@ -49,12 +39,6 @@ class ExcelDiplomaWriter(ExcelParentWriter):
                 dip2.append(line)
             else:
                 dip3.append(line)
-        if missing_students or missing_subjects:
-            logging.warning(
-                "Diploma writer skipped missing entries: students=%s subjects=%s",
-                sorted(missing_students),
-                sorted(missing_subjects),
-            )
         dip1.sort(key=ExcelDiplomaWriter.order_ind_diploma)
         dip2.sort(key=ExcelDiplomaWriter.order_gr_diploma)
         dip3.sort(key=ExcelDiplomaWriter.order_gr_diploma)
