@@ -13,4 +13,4 @@ def read_from_yaml_str(yaml_str: str) -> Any:
 def read_from_yaml_file(file_path: str) -> Any:
     """Читает yaml из файла."""
     with open(file_path, "r") as yaml_file:
-        return yaml.safe_load(yaml_file)
+        return read_from_yaml_str(yaml_file.read())
