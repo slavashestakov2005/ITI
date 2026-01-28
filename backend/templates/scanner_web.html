@@ -18,13 +18,9 @@
             </div>
             <div class="scanner-field">
                 <label for="scanner-mode">Режим</label>
-                    <!-- {% if x == 0 %} <option value="result">Результаты по предмету</option> {% endif %}
-                    {% if x == 1 %} <option value="barcode">Штрих-коды (ученик + коды)</option>{% endif %} -->
-                {% if x == 0 %}
-                    <span id="scanner-mode-result">Результаты по предмету</span>
-                {% elif x == 1 %}
-                    <span id="scanner-mode-barcode">Штрих-коды (ученик + коды)</span>
-                {% endif %}
+                <select id="scanner-mode">
+                    {% if x == 0 %} <option value="result">Результаты по предмету</option> {% elif x == 1 %} <option value="barcode">Штрих-коды (ученик + коды)</option> {% endif %}
+                </select>
             </div>
             <div class="scanner-field">
                 <label for="scanner-max-frames">Глубина сканирования</label>
@@ -50,8 +46,7 @@
             <div id="scanner-found" class="scanner-found" aria-live="polite">КОД НАЙДЕН</div>
         </section>
         
-        {% if x == 0 %}
-        <section class="scanner-card" id="scanner-result-panel">
+        <section class="scanner-card" id="scanner-result-panel" {% if x != 0 %}hidden{% endif %}>
             <h2>Результат</h2>
             <div class="scanner-field">
                 <label for="result-code">Код работы (EAN-13)</label>
@@ -66,9 +61,7 @@
                 <button id="result-clear" class="scanner-btn" type="button">Очистить поля</button>
             </div>
         </section>
-        {% endif %}
-        {% if x == 1 %}
-        <section class="scanner-card" id="scanner-barcode-panel">
+        <section class="scanner-card" id="scanner-barcode-panel" {% if x != 1%}hidden{% endif %}>
             <h2>Штрих-коды</h2>
             <div class="scanner-field">
                 <label for="barcode-student-id">Код школьника (EAN-8)</label>
@@ -106,7 +99,6 @@
                 <button id="barcode-clear" class="scanner-btn" type="button">Очистить поля</button>
             </div>
         </section>
-        {% endif %}
     </div>
 </div>
 
