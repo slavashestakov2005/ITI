@@ -169,32 +169,6 @@
     z-index: 2;
 }
 
-.scanner-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 12px;
-    color: #ffffff;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5));
-    z-index: 3;
-}
-
-.scanner-target {
-    width: min(260px, 70%);
-    height: 120px;
-    border: 2px dashed rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-}
-
-.scanner-text {
-    font-size: 13px;
-    opacity: 0.9;
-}
-
 .scanner-found {
     display: none;
     font-size: 22px;
@@ -202,6 +176,7 @@
     letter-spacing: 1px;
     color: #e8ff8b;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    margin-top: 8px;
 }
 
 .scanner-status {

@@ -19,13 +19,12 @@
             <div class="scanner-field">
                 <label for="scanner-mode">Режим</label>
                 <select id="scanner-mode">
-                    <option value="barcode">Штрих-коды (ученик + коды)</option>
-                    <option value="result">Результаты по предмету</option>
+                    {% if x == 0 %} <option value="result">Результаты по предмету</option> {% elif x == 1 %} <option value="barcode">Штрих-коды (ученик + коды)</option> {% endif %}
                 </select>
             </div>
             <div class="scanner-field">
                 <label for="scanner-max-frames">Глубина сканирования</label>
-                <input id="scanner-max-frames" type="number" inputmode="numeric" placeholder="30" value="30">
+                <input id="scanner-max-frames" type="number" inputmode="numeric" placeholder="80" value="80">
                 <div class="scanner-hint">Чем больше значение, тем стабильнее результат.</div>
             </div>
         </section>
@@ -37,11 +36,6 @@
                     <div id="scanner-html5"></div>
                 </div>
                 <video id="scanner-video" autoplay muted playsinline></video>
-                <div class="scanner-overlay">
-                    <div class="scanner-target"></div>
-                    <div class="scanner-text">Наведите камеру на код</div>
-                    <div id="scanner-found" class="scanner-found" aria-live="polite">КОД НАЙДЕН</div>
-                </div>
             </div>
             <div class="scanner-controls">
                 <button id="scanner-start" class="scanner-btn primary" type="button">Старт</button>
@@ -49,9 +43,25 @@
                 <button id="scanner-torch" class="scanner-btn ghost" type="button" disabled>Подсветка</button>
             </div>
             <div id="scanner-status" class="scanner-status">Готов к сканированию.</div>
+            <div id="scanner-found" class="scanner-found" aria-live="polite">КОД НАЙДЕН</div>
         </section>
-
-        <section class="scanner-card" id="scanner-barcode-panel">
+        
+        <section class="scanner-card" id="scanner-result-panel" {% if x != 0 %}hidden{% endif %}>
+            <h2>Результат</h2>
+            <div class="scanner-field">
+                <label for="result-code">Код работы (EAN-13)</label>
+                <input id="result-code" type="text" inputmode="numeric" pattern="[0-9]*">
+            </div>
+            <div class="scanner-field">
+                <label for="result-score">Результат</label>
+                <input id="result-score" type="text" placeholder="Например, 27.5">
+            </div>
+            <div class="scanner-controls">
+                <button id="result-save" class="scanner-btn primary" type="button">Сохранить результат</button>
+                <button id="result-clear" class="scanner-btn" type="button">Очистить поля</button>
+            </div>
+        </section>
+        <section class="scanner-card" id="scanner-barcode-panel" {% if x != 1%}hidden{% endif %}>
             <h2>Штрих-коды</h2>
             <div class="scanner-field">
                 <label for="barcode-student-id">Код школьника (EAN-8)</label>
@@ -89,27 +99,11 @@
                 <button id="barcode-clear" class="scanner-btn" type="button">Очистить поля</button>
             </div>
         </section>
-
-        <section class="scanner-card" id="scanner-result-panel">
-            <h2>Результат</h2>
-            <div class="scanner-field">
-                <label for="result-code">Код работы (EAN-13)</label>
-                <input id="result-code" type="text" inputmode="numeric" pattern="[0-9]*">
-            </div>
-            <div class="scanner-field">
-                <label for="result-score">Результат</label>
-                <input id="result-score" type="text" placeholder="Например, 27.5">
-            </div>
-            <div class="scanner-controls">
-                <button id="result-save" class="scanner-btn primary" type="button">Сохранить результат</button>
-                <button id="result-clear" class="scanner-btn" type="button">Очистить поля</button>
-            </div>
-        </section>
     </div>
 </div>
 
 <link rel="stylesheet" href="/CSS/scanner.css">
 <script defer src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
 <script defer src="https://unpkg.com/quagga@0.12.1/dist/quagga.min.js"></script>
-<script defer src="/JS/scanner.js?v=21"></script>
+<script defer src="/JS/scanner.js?v=49"></script>
 {% endblock %}

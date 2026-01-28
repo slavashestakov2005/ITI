@@ -10,5 +10,6 @@
 				"cmd": ".vscode\\copy_data.bat ${file}"
 			}
 		]
-	}
+	},
+	"git.ignoreLimitWarning": true
 }

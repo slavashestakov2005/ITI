@@ -45,6 +45,8 @@
         engine: null,
         ean8Counts: new Map(),
         ean13Counts: new Map(),
+        ean8Meta: new Map(),
+        ean13Meta: new Map(),
         updateCount: 0,
         lastScan: 0,
         detectedAny: false,
@@ -57,8 +59,14 @@
         previewStream: null,
         itiId: "",
         subjectId: "",
+        studentLocked: false,
+        studentId: null,
+        lastAcceptedEan8At: 0,
+        lastAcceptedEan13At: 0,
     };
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const SCAN_THROTTLE_MS = isAndroid ? 80 : 150;
     const setError = (text) => setStatus(text, true);
 
     const storageKey = "itiScannerSettings";
@@ -151,14 +159,18 @@
         localStorage.setItem(storageKey, JSON.stringify(settings));
     };
 
-    const getSettings = () => ({
-        itiId: (state.itiId || "").trim(),
-        subjectId: (state.subjectId || "").trim(),
-        login: "",
-        password: "",
-        mode: els.mode.value,
-        maxFrames: Math.max(5, parseInt(els.maxFrames.value || "30", 10)),
-    });
+    const getSettings = () => {
+        const parsedFrames = parseInt(els.maxFrames.value || "", 10);
+        const safeFrames = Number.isFinite(parsedFrames) && parsedFrames > 0 ? parsedFrames : 30;
+        return {
+            itiId: (state.itiId || "").trim(),
+            subjectId: (state.subjectId || "").trim(),
+            login: "",
+            password: "",
+            mode: els.mode.value,
+            maxFrames: Math.max(5, safeFrames),
+        };
+    };
 
     const pickVideoDeviceId = async () => {
         if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return null;
@@ -178,10 +190,16 @@
     const resetCounts = () => {
         state.ean8Counts.clear();
         state.ean13Counts.clear();
+        state.ean8Meta.clear();
+        state.ean13Meta.clear();
         state.updateCount = 0;
         state.detectedAny = false;
         state.lastScan = 0;
         toggleFound(false);
+        state.studentLocked = false;
+        state.studentId = null;
+        state.lastAcceptedEan8At = 0;
+        state.lastAcceptedEan13At = 0;
     };
 
     const normalizeDigits = (value) => {
@@ -217,32 +235,185 @@
         map.set(code, (map.get(code) || 0) + 1);
     };
 
-    const addBarcode = (format, rawValue) => {
+    const EAN_STABLE_MS = 800;
+    const ACCEPT_COOLDOWN_MS = 150;
+    const QUAGGA_ERROR_THRESHOLD = 0.2;
+
+    const updateStability = (map, code, minHits) => {
+        const now = Date.now();
+        const meta = map.get(code) || { hits: 0, last: 0 };
+        if (now - meta.last <= EAN_STABLE_MS) {
+            meta.hits += 1;
+        } else {
+            meta.hits = 1;
+        }
+        meta.last = now;
+        map.set(code, meta);
+        return meta.hits >= minHits;
+    };
+
+    const addBarcodeLegacyAndroid = (format, rawValue, quality = null) => {
         const digits = normalizeDigits(rawValue);
         if (!digits) return;
+        const mode = getSettings().mode;
+        const minHitsEan8 = mode === "barcode" ? 2 : 1;
+        const minHitsEan13 = mode === "barcode" ? 1 : 1;
+        if (quality !== null && quality > QUAGGA_ERROR_THRESHOLD) {
+            return;
+        }
         const normalizedFormat = String(format || "").toLowerCase();
         const looksEan8 = digits.length === 8 || normalizedFormat.includes("ean_8") || normalizedFormat.includes("ean8");
         const looksEan13 =
-            digits.length === 13 || normalizedFormat.includes("ean_13") || normalizedFormat.includes("ean13");
+            digits.length === 13 ||
+            digits.length === 12 ||
+            normalizedFormat.includes("ean_13") ||
+            normalizedFormat.includes("ean13") ||
+            normalizedFormat.includes("upc");
         const validEan8 = looksEan8 && isValidEan8(digits);
-        const validEan13 = looksEan13 && isValidEan13(digits);
+        let ean13Digits = null;
+        if (looksEan13) {
+            if (digits.length === 12) ean13Digits = `0${digits}`;
+            else ean13Digits = digits;
+        }
+        const validEan13 =
+            Boolean(ean13Digits) &&
+            (mode === "barcode" ? ean13Digits.length === 13 : isValidEan13(ean13Digits));
         toggleFound(validEan8 || validEan13);
 
         if (validEan8) {
             const studentId = parseInt(digits, 10);
             if (Number.isNaN(studentId)) return;
-            updateCountMap(state.ean8Counts, studentId);
-            state.detectedAny = true;
+            if (mode === "barcode") {
+                if (!state.studentLocked || state.studentId === studentId) {
+                    const stable = updateStability(state.ean8Meta, studentId, minHitsEan8);
+                    if (stable) {
+                        const now = Date.now();
+                        if (now - state.lastAcceptedEan8At < ACCEPT_COOLDOWN_MS) return;
+                        state.lastAcceptedEan8At = now;
+                        state.studentLocked = true;
+                        state.studentId = studentId;
+                        updateCountMap(state.ean8Counts, studentId);
+                        state.detectedAny = true;
+                        // заполняем сразу
+                        els.barcodeStudentId.value = studentId;
+                        clearTimeout(state.studentFetchTimer);
+                        state.studentFetchTimer = setTimeout(() => {
+                            fetchStudentInfo(studentId);
+                        }, 300);
+                    }
+                }
+            }
         }
 
-        if (validEan13) {
-            const val = parseInt(digits, 10);
+        if (validEan13 && ean13Digits) {
+            const val = parseInt(ean13Digits, 10);
             if (Number.isNaN(val)) return;
+            const stable = updateStability(state.ean13Meta, val, minHitsEan13);
+            if (!stable) return;
+            const now = Date.now();
+            if (now - state.lastAcceptedEan13At < ACCEPT_COOLDOWN_MS) return;
+            state.lastAcceptedEan13At = now;
             updateCountMap(state.ean13Counts, val);
             state.detectedAny = true;
-            if (getSettings().mode === "result") {
+            if (mode === "result") {
                 // В режиме результатов подставляем сразу, но только валидный код
                 els.resultCode.value = val;
+            }
+            if (mode === "barcode") {
+                const inputs = els.barcodeCodes;
+                const existing = inputs.some((input) => input.value === String(val));
+                if (!existing) {
+                    const empty = inputs.find((input) => !input.value);
+                    if (empty) empty.value = val;
+                }
+            }
+            if (mode === "barcode" && state.ean13Counts.size >= els.barcodeCodes.length) {
+                setTimeout(() => {
+                    stopScan(true);
+                }, 0);
+            }
+        }
+    };
+
+    const addBarcode = (format, rawValue, quality = null) => {
+        if (isAndroid) {
+            addBarcodeLegacyAndroid(format, rawValue, quality);
+            return;
+        }
+        const digits = normalizeDigits(rawValue);
+        if (!digits) return;
+        const mode = getSettings().mode;
+        const minHitsEan8 = mode === "barcode" ? 2 : 1;
+        const minHitsEan13 = mode === "barcode" ? 1 : 1;
+        if (quality !== null && quality > QUAGGA_ERROR_THRESHOLD) {
+            return;
+        }
+        const normalizedFormat = String(format || "").toLowerCase();
+        const looksEan8 = digits.length === 8 || normalizedFormat.includes("ean_8") || normalizedFormat.includes("ean8");
+        const looksEan13 =
+            digits.length === 13 || normalizedFormat.includes("ean_13") || normalizedFormat.includes("ean13");
+        const validEan8 = looksEan8 && isValidEan8(digits);
+        let ean13Digits = null;
+        if (looksEan13) {
+            if (digits.length === 12) ean13Digits = `0${digits}`;
+            else ean13Digits = digits;
+        }
+        const validEan13 =
+            Boolean(ean13Digits) &&
+            (mode === "barcode" ? ean13Digits.length === 13 : isValidEan13(ean13Digits));
+        toggleFound(validEan8 || validEan13);
+
+        if (validEan8) {
+            const studentId = parseInt(digits, 10);
+            if (Number.isNaN(studentId)) return;
+            if (mode === "barcode") {
+                if (!state.studentLocked || state.studentId === studentId) {
+                    const stable = updateStability(state.ean8Meta, studentId, minHitsEan8);
+                    if (stable) {
+                        const now = Date.now();
+                        if (now - state.lastAcceptedEan8At < ACCEPT_COOLDOWN_MS) return;
+                        state.lastAcceptedEan8At = now;
+                        state.studentLocked = true;
+                        state.studentId = studentId;
+                        updateCountMap(state.ean8Counts, studentId);
+                        state.detectedAny = true;
+                        // заполняем сразу
+                        els.barcodeStudentId.value = studentId;
+                        clearTimeout(state.studentFetchTimer);
+                        state.studentFetchTimer = setTimeout(() => {
+                            fetchStudentInfo(studentId);
+                        }, 300);
+                    }
+                }
+            }
+        }
+
+        if (validEan13 && ean13Digits) {
+            const val = parseInt(ean13Digits, 10);
+            if (Number.isNaN(val)) return;
+            const stable = updateStability(state.ean13Meta, val, minHitsEan13);
+            if (!stable) return;
+            const now = Date.now();
+            if (now - state.lastAcceptedEan13At < ACCEPT_COOLDOWN_MS) return;
+            state.lastAcceptedEan13At = now;
+            updateCountMap(state.ean13Counts, val);
+            state.detectedAny = true;
+            if (mode === "result") {
+                // В режиме результатов подставляем сразу, но только валидный код
+                els.resultCode.value = val;
+            }
+            if (mode === "barcode") {
+                const inputs = els.barcodeCodes;
+                const existing = inputs.some((input) => input.value === String(val));
+                if (!existing) {
+                    const empty = inputs.find((input) => !input.value);
+                    if (empty) empty.value = val;
+                }
+            }
+            if (mode === "barcode" && state.ean13Counts.size >= els.barcodeCodes.length) {
+                setTimeout(() => {
+                    stopScan(true);
+                }, 0);
             }
             return;
         }
@@ -264,7 +435,7 @@
 
     const getStableEan13 = () => {
         if (state.updateCount === 0) return [];
-        const threshold = Math.max(2, Math.floor(state.updateCount * 0.25));
+        const threshold = 1;
         const items = [];
         for (const [code, count] of state.ean13Counts.entries()) {
             if (count > threshold) items.push({ code, count });
@@ -275,11 +446,18 @@
 
     const fillBarcodeFields = async () => {
         const studentId = getTopCode(state.ean8Counts);
-        if (studentId) els.barcodeStudentId.value = studentId;
-        const codes = getStableEan13();
+        if (studentId && !els.barcodeStudentId.value) {
+            els.barcodeStudentId.value = studentId;
+        }
+        const existing = new Set(
+            els.barcodeCodes.map((input) => (input.value || "").trim()).filter((val) => val.length > 0)
+        );
+        const codes = getStableEan13().filter((code) => !existing.has(String(code)));
         if (codes.length) {
-            els.barcodeCodes.forEach((input, index) => {
-                input.value = codes[index] ? String(codes[index]) : "";
+            els.barcodeCodes.forEach((input) => {
+                if (input.value) return;
+                const next = codes.shift();
+                if (next !== undefined) input.value = String(next);
             });
         }
         if (studentId) {
@@ -475,7 +653,7 @@
             const { maxFrames } = getSettings();
             setStatus(`Сканирование... кадр ${state.updateCount} из ${maxFrames}`);
         }
-        if (now - state.lastScan > 150) {
+        if (now - state.lastScan > SCAN_THROTTLE_MS) {
             state.lastScan = now;
             try {
                 const codes = await state.detector.detect(els.video);
@@ -543,8 +721,8 @@
                 ];
                 const constraints = {
                     facingMode: "environment",
-                    width: { ideal: 960 },
-                    height: { ideal: 720 },
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
                 };
                 await new Promise((resolve, reject) => {
                     window.Quagga.init(
@@ -567,8 +745,17 @@
                 });
                 window.Quagga.onDetected((result) => {
                     if (!result || !result.codeResult || !result.codeResult.code) return;
+                    let quality = null;
+                    if (result.codeResult.decodedCodes && result.codeResult.decodedCodes.length) {
+                        const errors = result.codeResult.decodedCodes
+                            .map((c) => c.error)
+                            .filter((e) => typeof e === "number");
+                        if (errors.length) {
+                            quality = errors.reduce((a, b) => a + b, 0) / errors.length;
+                        }
+                    }
                     state.detectedAny = true;
-                    addBarcode(result.codeResult.format || "quagga", result.codeResult.code);
+                    addBarcode(result.codeResult.format || "quagga", result.codeResult.code, quality);
                 });
                 state.quaggaRunning = true;
                 try {
@@ -667,23 +854,23 @@
                     const { maxFrames } = getSettings();
                     setStatus(`Сканирование... кадр ${state.updateCount} из ${maxFrames}`);
                 }
-                const { maxFrames } = getSettings();
-                if (state.updateCount >= maxFrames) {
-                    stopScan(true);
-                }
-            };
+                    const { maxFrames } = getSettings();
+                    if (state.updateCount >= maxFrames) {
+                        stopScan(true);
+                    }
+                };
             state.zxingTimer = setInterval(zxingProgress, 200);
             const decodeCallback = (result) => {
                 if (!state.scanning) return;
                 const now = performance.now();
                 if (result) {
-                    if (now - state.lastScan < 150) return;
+                    if (now - state.lastScan < SCAN_THROTTLE_MS) return;
                     state.lastScan = now;
                     addBarcode(result.getBarcodeFormat ? result.getBarcodeFormat().toString() : "", result.getText());
                 }
             };
             try {
-                if (isIOS) {
+                if (isIOS || isAndroid) {
                     await state.reader.decodeFromVideoDevice(preferredDeviceId, els.video, decodeCallback);
                 } else {
                     await state.reader.decodeFromConstraints(focusConstraints, els.video, decodeCallback);
@@ -722,11 +909,22 @@
                 if (okQuagga) return;
             }
 
-            const okNative = await tryNative();
-            if (okNative) return;
+            if (isAndroid) {
+                const okNative = await tryNative();
+                if (okNative) return;
 
-            const okZxing = await tryZxing();
-            if (okZxing) return;
+                const okZxing = await tryZxing();
+                if (okZxing) return;
+
+                const okQuagga = await tryQuagga();
+                if (okQuagga) return;
+            } else {
+                const okNative = await tryNative();
+                if (okNative) return;
+
+                const okZxing = await tryZxing();
+                if (okZxing) return;
+            }
 
             // Last-resort retry native once more
             const okNative2 = await tryNative();
