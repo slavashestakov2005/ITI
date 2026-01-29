@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="79.128891mm"
+   height="79.128891mm"
+   viewBox="0 0 79.128891 79.128891"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (ebf0e940, 2025-05-08)"
+   sodipodi:docname="icon.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.1821958"
+     inkscape:cx="126.03665"
+     inkscape:cy="166.21612"
+     inkscape:window-width="1456"
+     inkscape:window-height="878"
+     inkscape:window-x="7"
+     inkscape:window-y="42"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1">
+    <rect
+       x="-3.2214799"
+       y="-2.5771839"
+       width="304.1077"
+       height="303.46341"
+       id="rect2" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-65.356781,-90.245071)">
+    <rect
+       style="fill:#000000;stroke:#000000;stroke-width:3;stroke-opacity:0.989324"
+       id="rect1"
+       width="76.128891"
+       height="76.128891"
+       x="66.856781"
+       y="91.745071"
+       ry="16.592194" />
+    <path
+       id="path3"
+       style="font-size:50.8px;font-family:Sathu;-inkscape-font-specification:Sathu;fill:#ffffff;stroke-width:3.3341;stroke-opacity:0.989324"
+       d="m 91.432464,114.17171 v 4.3316 h 8.287175 l -12.72824,19.57496 v -23.66926 h -5.100984 v 31.03831 h 5.100984 l 15.368491,-23.5917 c 0,0 0.0216,23.5283 0.0216,23.5917 h 5.10099 c 4.75224,-8.0547 10.22487,-15.96657 15.36849,-23.862 v 23.6247 h 5.10099 v -31.03831 h -5.10099 l -15.36849,23.63511 v -19.30351 h 10.90519 v -4.3316 z"
+       sodipodi:nodetypes="ccccccccccccccccccccc" />
+  </g>
+</svg>
