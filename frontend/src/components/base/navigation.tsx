@@ -1,23 +1,23 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
-import { ModeToggle } from "@/components/navigation/mode-toggle";
+import { ModeToggle } from "@/components/base/mode-toggle";
 
 /* ================== CONFIG ================== */
 
 const APP_CONFIG = {
-  siteName: "Интелектуально творческие игры",
+  siteName: "ИТИ-2027",
   mobileBreakpoint: "md",
 };
 
 const NAV_ITEMS = [
   { label: "Главная", href: "/" },
   { label: "Результаты", href: "/results" },
-  { label: "Новости", href: "/news" },
   { label: "Учительская", href: "/teacher-room" },
+  { label: "О нас", href: "/news" },
 ] as const;
 
 /* ============================================ */
@@ -27,10 +27,10 @@ export default function Layout() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col">
       <header className="border-b">
         <div
-          className="container mx-auto flex items-center justify-between h-14 px-4"
+          className="container mx-auto flex items-center justify-between h-14 px-4 max-w-6xl"
         >
           <Link to="/" className="text-base font-semibold">
             {APP_CONFIG.siteName}
@@ -91,10 +91,6 @@ export default function Layout() {
           </nav>
         </div>
       </header>
-
-      <main className="flex-1 container mx-auto px-4 py-6">
-        <Outlet />
-      </main>
     </div>
   );
 }
