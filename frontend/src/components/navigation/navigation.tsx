@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { ModeToggle } from "@/components/navigation/mode-toggle";
 
 /* ================== CONFIG ================== */
 
@@ -43,7 +44,7 @@ export default function Layout() {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="pt-10">
+              <SheetContent side="right" className="pt-10 max-w-xs">
                 <nav className="flex flex-col gap-2 mx-2">
                   {NAV_ITEMS.map((item) => {
                     const isActive = location.pathname === item.href;
@@ -64,6 +65,7 @@ export default function Layout() {
                       </Link>
                     );
                   })}
+                  <ModeToggle />
                 </nav>
               </SheetContent>
             </Sheet>
@@ -85,6 +87,7 @@ export default function Layout() {
                 </Button>
               );
             })}
+            <ModeToggle />
           </nav>
         </div>
       </header>
