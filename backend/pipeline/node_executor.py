@@ -4,6 +4,7 @@ from typing import Any
 
 from pipeline.node import Node, node_from_raw_cfg
 from pipeline.object import Callback, Object, Row
+from utils import YAML
 
 
 def not_found_callback(inp: Object) -> Object:
@@ -22,7 +23,7 @@ class NodeExecutor:
         self._cache: dict[str, Any] = {}
 
     @classmethod
-    def from_raw_cfg(cls, raw_cfg: Any) -> "NodeExecutor":
+    def from_raw_cfg(cls, raw_cfg: YAML) -> "NodeExecutor":
         """Читаем пайплайн из ямла и возвращяем готовый обьект."""
         if not isinstance(raw_cfg, dict):
             raise ValueError("Top-level pipeline config must be a mapping: node_name -> node_cfg")

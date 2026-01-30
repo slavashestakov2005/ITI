@@ -16,11 +16,11 @@ def test_pipeline_node_executor_invalid_yaml() -> None:
             read_from_yaml_str(
                 """
 node1:
-  type: merger
+  type: merge
   input:
     - math
 2:
-  type: merger
+  type: merge
   input:
     - math
 """
@@ -38,10 +38,10 @@ math:
       student: int
       res: int
 merge_ind:
-  type: merger
+  type: merge
   input: [math]
 sum:
-  type: agg
+  type: func
   callback: in_test_calc_sums
   input:
     - math
@@ -74,7 +74,7 @@ def test_pipeline_node_executor_invalid_callback() -> None:
             read_from_yaml_str(
                 """
 node1:
-  type: merger
+  type: merge
   input:
     - math
 """
@@ -142,7 +142,7 @@ students:
       id: int
       name: str
 decode_math:
-  type: agg
+  type: func
   callback: in_test_decode_math
   input:
     - math

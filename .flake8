@@ -1,8 +1,9 @@
 [flake8]
 max-line-length = 120
 select = ANN,CFQ,D,E,F,W
-ignore = D403,ANN101,ANN102,ANN204,ANN401,WPS214,WPS412,WPS410
+ignore = D403,ANN101,ANN102,ANN204,WPS412,WPS410
 max-function-length = 30
+max-methods = 10
 per-file-ignores =
     backend/tests/pipeline/test_node_executor.py: CFQ001,WPS226,WPS430,WPS432,WPS519
     backend/tests/pipeline/test_node.py: WPS202,WPS218,WPS226

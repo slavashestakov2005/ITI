@@ -77,7 +77,7 @@ students:
       id: int
       name: str
 decode_math:
-  type: agg
+  type: func
   callback: in_test_decode_math
   input:
     - math

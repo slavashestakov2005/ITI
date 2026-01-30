@@ -3,17 +3,17 @@
 from dataclasses import dataclass
 from typing import Any, Callable, Iterator, Optional
 
-from utils import sorted_dict_keys
+from utils import YAML, sorted_dict_keys
 
 
 class Row:
     """Класс для описания объекта (например строки таблицы) ."""
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: Any):  # noqa: ANN401
         """Сохраняем словарь как есть."""
         self._fields = kwargs
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name: str) -> Any:  # noqa: ANN401
         """Получение полей через точку."""
         try:
             return self._fields[name]
@@ -113,7 +113,7 @@ class ObjectConstraint:
         assert len(self.columns) > 0, "ObjectConstraint.columns cannot be empty"
 
     @classmethod
-    def from_raw_cfg(cls, raw_cfg: Any) -> Optional["ObjectConstraint"]:
+    def from_raw_cfg(cls, raw_cfg: YAML) -> Optional["ObjectConstraint"]:
         """Создаёт объект из словаря."""
         if raw_cfg is None:
             return None
