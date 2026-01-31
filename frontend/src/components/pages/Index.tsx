@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from "@/components/ui/dialog";
 import { ArrowRight, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const NEWS_ITEMS = [
   {
@@ -39,8 +40,10 @@ export default function InfoPage() {
         <p className="max-w-2xl text-muted-foreground text-center">
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
         </p>
-        <Button className="mt-5">
-          Перейти к результатам
+        <Button className="mt-5" key={"/results"}>
+          <Link to={"/results"}>
+            Перейти к результатам
+          </Link>
           <ArrowRight className="h-4 w-4" />
         </Button>
       </section>
