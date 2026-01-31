@@ -1,10 +1,9 @@
 """FastApi обработчики, возвращающие html страницы."""
 
 from fastapi import APIRouter
-
-from pages.simple import router as simple_router
+from news.create import router as create_router
 
 router = APIRouter()
-router.include_router(simple_router)
+router.include_router(create_router)
 
 __all__ = ["router"]

@@ -4,8 +4,11 @@ backend
 .. toctree::
    :maxdepth: 4
 
+   config
+   database
    main
-   pages
+   models
+   news
    ratings
    tests
    utils

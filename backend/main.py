@@ -1,8 +1,8 @@
 """Создаёт экземпляр приложения."""
 
 from fastapi import FastAPI
-
-from pages import router as pages_router
+from news import router
 
 app = FastAPI()
-app.include_router(pages_router)
+
+app.include_router(router)
