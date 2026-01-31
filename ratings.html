@@ -16,7 +16,7 @@
     <link rel="index" title="Алфавитный указатель" href="genindex.html" />
     <link rel="search" title="Поиск" href="search.html" />
     <link rel="next" title="tests package" href="tests.html" />
-    <link rel="prev" title="pages package" href="pages.html" />
+    <link rel="prev" title="pipeline package" href="pipeline.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -39,125 +39,14 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Ссылка на этот заголовок">¶</a></h2>
 </section>
-<section id="module-ratings.place_generator">
-<span id="ratings-place-generator-module"></span><h2>ratings.place_generator module<a class="headerlink" href="#module-ratings.place_generator" title="Ссылка на этот заголовок">¶</a></h2>
-<p>Генерирует место в рейтинге по сырым результатам.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.place_generator.MiddleSchoolIndividualPlaceGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.place_generator.</span></span><span class="sig-name descname"><span class="pre">MiddleSchoolIndividualPlaceGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.place_generator.MiddleSchoolIndividualPlaceGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <a class="reference internal" href="#ratings.place_generator.PlaceGenerator" title="ratings.place_generator.PlaceGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlaceGenerator</span></code></a></p>
-<p>Класс для мест индивидуальных предметов в ОШ.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.place_generator.PlaceGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.place_generator.</span></span><span class="sig-name descname"><span class="pre">PlaceGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.place_generator.PlaceGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Базовый класс для генерации места в рейтинге по сырым результатам.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="ratings.place_generator.PlaceGenerator.compute">
-<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ratings.place_generator.PlaceGenerator.compute" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Вычисляет места для всех участников предмета.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.place_generator.PrimarySchoolIndividualPlaceGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.place_generator.</span></span><span class="sig-name descname"><span class="pre">PrimarySchoolIndividualPlaceGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.place_generator.PrimarySchoolIndividualPlaceGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <a class="reference internal" href="#ratings.place_generator.PlaceGenerator" title="ratings.place_generator.PlaceGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlaceGenerator</span></code></a></p>
-<p>Класс для результатов индивидуальных предметов в НШ.</p>
-</dd></dl>
-
+<section id="ratings-place-generator-module">
+<h2>ratings.place_generator module<a class="headerlink" href="#ratings-place-generator-module" title="Ссылка на этот заголовок">¶</a></h2>
 </section>
-<section id="module-ratings.score_generator">
-<span id="ratings-score-generator-module"></span><h2>ratings.score_generator module<a class="headerlink" href="#module-ratings.score_generator" title="Ссылка на этот заголовок">¶</a></h2>
-<p>Генерирует балл в рейтинг по сырым результатам.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.score_generator.MiddleSchoolIndividualScoreGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.score_generator.</span></span><span class="sig-name descname"><span class="pre">MiddleSchoolIndividualScoreGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theoretical_maximum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.score_generator.MiddleSchoolIndividualScoreGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <a class="reference internal" href="#ratings.score_generator.ScoreGenerator" title="ratings.score_generator.ScoreGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScoreGenerator</span></code></a></p>
-<p>Класс для результатов индивидуальных предметов в ОШ.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.score_generator.PrimarySchoolIndividualScoreGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.score_generator.</span></span><span class="sig-name descname"><span class="pre">PrimarySchoolIndividualScoreGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.score_generator.PrimarySchoolIndividualScoreGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <a class="reference internal" href="#ratings.score_generator.ScoreGenerator" title="ratings.score_generator.ScoreGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScoreGenerator</span></code></a></p>
-<p>Класс для результатов индивидуальных предметов в НШ.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.score_generator.ScoreGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.score_generator.</span></span><span class="sig-name descname"><span class="pre">ScoreGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.score_generator.ScoreGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Базовый класс для генерации балла в рейтинг по сырым результатам.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="ratings.score_generator.ScoreGenerator.compute">
-<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ratings.score_generator.ScoreGenerator.compute" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Вычисляет результаты для всех участников предмета.</p>
-</dd></dl>
-
-</dd></dl>
-
+<section id="ratings-score-generator-module">
+<h2>ratings.score_generator module<a class="headerlink" href="#ratings-score-generator-module" title="Ссылка на этот заголовок">¶</a></h2>
 </section>
-<section id="module-ratings">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ratings" title="Ссылка на этот заголовок">¶</a></h2>
-<p>Генерация рейтингов из сырых результатов.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.MiddleSchoolIndividualPlaceGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.</span></span><span class="sig-name descname"><span class="pre">MiddleSchoolIndividualPlaceGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.MiddleSchoolIndividualPlaceGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <a class="reference internal" href="#ratings.place_generator.PlaceGenerator" title="ratings.place_generator.PlaceGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlaceGenerator</span></code></a></p>
-<p>Класс для мест индивидуальных предметов в ОШ.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.MiddleSchoolIndividualScoreGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.</span></span><span class="sig-name descname"><span class="pre">MiddleSchoolIndividualScoreGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">theoretical_maximum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.MiddleSchoolIndividualScoreGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <a class="reference internal" href="#ratings.score_generator.ScoreGenerator" title="ratings.score_generator.ScoreGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScoreGenerator</span></code></a></p>
-<p>Класс для результатов индивидуальных предметов в ОШ.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.PlaceGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.</span></span><span class="sig-name descname"><span class="pre">PlaceGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.PlaceGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Базовый класс для генерации места в рейтинге по сырым результатам.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="ratings.PlaceGenerator.compute">
-<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ratings.PlaceGenerator.compute" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Вычисляет места для всех участников предмета.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.PrimarySchoolIndividualPlaceGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.</span></span><span class="sig-name descname"><span class="pre">PrimarySchoolIndividualPlaceGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.PrimarySchoolIndividualPlaceGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <a class="reference internal" href="#ratings.place_generator.PlaceGenerator" title="ratings.place_generator.PlaceGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlaceGenerator</span></code></a></p>
-<p>Класс для результатов индивидуальных предметов в НШ.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.PrimarySchoolIndividualScoreGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.</span></span><span class="sig-name descname"><span class="pre">PrimarySchoolIndividualScoreGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.PrimarySchoolIndividualScoreGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <a class="reference internal" href="#ratings.score_generator.ScoreGenerator" title="ratings.score_generator.ScoreGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScoreGenerator</span></code></a></p>
-<p>Класс для результатов индивидуальных предметов в НШ.</p>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="ratings.ScoreGenerator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ratings.</span></span><span class="sig-name descname"><span class="pre">ScoreGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ratings.ScoreGenerator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Базовый класс для генерации балла в рейтинг по сырым результатам.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="ratings.ScoreGenerator.compute">
-<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#ratings.ScoreGenerator.compute" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Вычисляет результаты для всех участников предмета.</p>
-</dd></dl>
-
-</dd></dl>
-
+<section id="module-contents">
+<h2>Module contents<a class="headerlink" href="#module-contents" title="Ссылка на этот заголовок">¶</a></h2>
 </section>
 </section>
 
@@ -192,41 +81,12 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">backend</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pages.html">pages package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html">pipeline package</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">ratings package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ratings.place_generator">ratings.place_generator module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.place_generator.MiddleSchoolIndividualPlaceGenerator"><code class="docutils literal notranslate"><span class="pre">MiddleSchoolIndividualPlaceGenerator</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.place_generator.PlaceGenerator"><code class="docutils literal notranslate"><span class="pre">PlaceGenerator</span></code></a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#ratings.place_generator.PlaceGenerator.compute"><code class="docutils literal notranslate"><span class="pre">PlaceGenerator.compute()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.place_generator.PrimarySchoolIndividualPlaceGenerator"><code class="docutils literal notranslate"><span class="pre">PrimarySchoolIndividualPlaceGenerator</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ratings.score_generator">ratings.score_generator module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.score_generator.MiddleSchoolIndividualScoreGenerator"><code class="docutils literal notranslate"><span class="pre">MiddleSchoolIndividualScoreGenerator</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.score_generator.PrimarySchoolIndividualScoreGenerator"><code class="docutils literal notranslate"><span class="pre">PrimarySchoolIndividualScoreGenerator</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.score_generator.ScoreGenerator"><code class="docutils literal notranslate"><span class="pre">ScoreGenerator</span></code></a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#ratings.score_generator.ScoreGenerator.compute"><code class="docutils literal notranslate"><span class="pre">ScoreGenerator.compute()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-ratings">Module contents</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.MiddleSchoolIndividualPlaceGenerator"><code class="docutils literal notranslate"><span class="pre">MiddleSchoolIndividualPlaceGenerator</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.MiddleSchoolIndividualScoreGenerator"><code class="docutils literal notranslate"><span class="pre">MiddleSchoolIndividualScoreGenerator</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.PlaceGenerator"><code class="docutils literal notranslate"><span class="pre">PlaceGenerator</span></code></a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#ratings.PlaceGenerator.compute"><code class="docutils literal notranslate"><span class="pre">PlaceGenerator.compute()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.PrimarySchoolIndividualPlaceGenerator"><code class="docutils literal notranslate"><span class="pre">PrimarySchoolIndividualPlaceGenerator</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.PrimarySchoolIndividualScoreGenerator"><code class="docutils literal notranslate"><span class="pre">PrimarySchoolIndividualScoreGenerator</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ratings.ScoreGenerator"><code class="docutils literal notranslate"><span class="pre">ScoreGenerator</span></code></a><ul>
-<li class="toctree-l5"><a class="reference internal" href="#ratings.ScoreGenerator.compute"><code class="docutils literal notranslate"><span class="pre">ScoreGenerator.compute()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#ratings-place-generator-module">ratings.place_generator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ratings-score-generator-module">ratings.score_generator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tests.html">tests package</a></li>
@@ -240,7 +100,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
   <li><a href="modules.html">backend</a><ul>
-      <li>Previous: <a href="pages.html" title="предыдущая глава">pages package</a></li>
+      <li>Previous: <a href="pipeline.html" title="предыдущая глава">pipeline package</a></li>
       <li>Next: <a href="tests.html" title="следующая глава">tests package</a></li>
   </ul></li>
   </ul></li>

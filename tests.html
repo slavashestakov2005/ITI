@@ -15,7 +15,7 @@
     <script src="_static/translations.js?v=5b699b7f"></script>
     <link rel="index" title="Алфавитный указатель" href="genindex.html" />
     <link rel="search" title="Поиск" href="search.html" />
-    <link rel="next" title="utils package" href="utils.html" />
+    <link rel="next" title="tests.pipeline package" href="tests.pipeline.html" />
     <link rel="prev" title="ratings package" href="ratings.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -36,86 +36,36 @@
             
   <section id="tests-package">
 <h1>tests package<a class="headerlink" href="#tests-package" title="Ссылка на этот заголовок">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Ссылка на этот заголовок">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tests.pipeline.html">tests.pipeline package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests.pipeline.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.pipeline.html#tests-pipeline-test-node-module">tests.pipeline.test_node module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.pipeline.html#tests-pipeline-test-node-executor-module">tests.pipeline.test_node_executor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.pipeline.html#tests-pipeline-test-object-module">tests.pipeline.test_object module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.pipeline.html#module-tests.pipeline">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tests.utils.html">tests.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tests.utils.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.utils.html#tests-utils-test-converts-module">tests.utils.test_converts module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.utils.html#tests-utils-test-read-module">tests.utils.test_read module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.utils.html#module-tests.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Ссылка на этот заголовок">¶</a></h2>
 </section>
-<section id="module-tests.test_ratings_place_generator">
-<span id="tests-test-ratings-place-generator-module"></span><h2>tests.test_ratings_place_generator module<a class="headerlink" href="#module-tests.test_ratings_place_generator" title="Ссылка на этот заголовок">¶</a></h2>
-<p>Тесты на генерацию результатов из сырых баллов.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_ratings_place_generator.test_base_place_generator">
-<span class="sig-prename descclassname"><span class="pre">tests.test_ratings_place_generator.</span></span><span class="sig-name descname"><span class="pre">test_base_place_generator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_ratings_place_generator.test_base_place_generator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>PlaceGenerator абстрактный класс, нельзя создать его объект.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_ratings_place_generator.test_middle_school_ind_place_generator">
-<span class="sig-prename descclassname"><span class="pre">tests.test_ratings_place_generator.</span></span><span class="sig-name descname"><span class="pre">test_middle_school_ind_place_generator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_ratings_place_generator.test_middle_school_ind_place_generator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>MiddleSchoolIndividualPlaceGenerator выдаёт места в естественном порядке.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_ratings_place_generator.test_middle_school_sorting_in_place_generator">
-<span class="sig-prename descclassname"><span class="pre">tests.test_ratings_place_generator.</span></span><span class="sig-name descname"><span class="pre">test_middle_school_sorting_in_place_generator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_ratings_place_generator.test_middle_school_sorting_in_place_generator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Результаты должны быть отсортированы от больших к меньшим.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_ratings_place_generator.test_primary_school_ind_place_generator">
-<span class="sig-prename descclassname"><span class="pre">tests.test_ratings_place_generator.</span></span><span class="sig-name descname"><span class="pre">test_primary_school_ind_place_generator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_ratings_place_generator.test_primary_school_ind_place_generator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>PrimarySchoolIndividualPlaceGenerator выдаёт все призовые места.</p>
-</dd></dl>
-
+<section id="tests-test-ratings-place-generator-module">
+<h2>tests.test_ratings_place_generator module<a class="headerlink" href="#tests-test-ratings-place-generator-module" title="Ссылка на этот заголовок">¶</a></h2>
 </section>
-<section id="module-tests.test_ratings_score_generator">
-<span id="tests-test-ratings-score-generator-module"></span><h2>tests.test_ratings_score_generator module<a class="headerlink" href="#module-tests.test_ratings_score_generator" title="Ссылка на этот заголовок">¶</a></h2>
-<p>Тесты на генерацию результатов из сырых баллов.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_ratings_score_generator.test_base_score_generator">
-<span class="sig-prename descclassname"><span class="pre">tests.test_ratings_score_generator.</span></span><span class="sig-name descname"><span class="pre">test_base_score_generator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_ratings_score_generator.test_base_score_generator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>ScoreGenerator абстрактный класс, нельзя создать его объект.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_ratings_score_generator.test_middle_school_ind_score_generator_no_args">
-<span class="sig-prename descclassname"><span class="pre">tests.test_ratings_score_generator.</span></span><span class="sig-name descname"><span class="pre">test_middle_school_ind_score_generator_no_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_no_args" title="Ссылка на это определение">¶</a></dt>
-<dd><p>В MiddleSchoolIndividualScoreGenerator нужно передавать аргументы.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_ratings_score_generator.test_middle_school_ind_score_generator_no_key_args">
-<span class="sig-prename descclassname"><span class="pre">tests.test_ratings_score_generator.</span></span><span class="sig-name descname"><span class="pre">test_middle_school_ind_score_generator_no_key_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_no_key_args" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Аргументы в MiddleSchoolIndividualScoreGenerator должны быть именованными.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_ratings_score_generator.test_middle_school_ind_score_generator_normalization_by_participant">
-<span class="sig-prename descclassname"><span class="pre">tests.test_ratings_score_generator.</span></span><span class="sig-name descname"><span class="pre">test_middle_school_ind_score_generator_normalization_by_participant</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_normalization_by_participant" title="Ссылка на это определение">¶</a></dt>
-<dd><p>MiddleSchoolIndividualScoreGenerator нормирует по лучшему участнику.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_ratings_score_generator.test_middle_school_ind_score_generator_normalization_by_theoretical_maximum">
-<span class="sig-prename descclassname"><span class="pre">tests.test_ratings_score_generator.</span></span><span class="sig-name descname"><span class="pre">test_middle_school_ind_score_generator_normalization_by_theoretical_maximum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_normalization_by_theoretical_maximum" title="Ссылка на это определение">¶</a></dt>
-<dd><p>MiddleSchoolIndividualScoreGenerator нормирует по теоретическому максимуму.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_ratings_score_generator.test_primary_school_ind_score_generator">
-<span class="sig-prename descclassname"><span class="pre">tests.test_ratings_score_generator.</span></span><span class="sig-name descname"><span class="pre">test_primary_school_ind_score_generator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_ratings_score_generator.test_primary_school_ind_score_generator" title="Ссылка на это определение">¶</a></dt>
-<dd><p>PrimarySchoolIndividualScoreGenerator оставляет результаты как есть.</p>
-</dd></dl>
-
-</section>
-<section id="module-tests.test_utils_converts">
-<span id="tests-test-utils-converts-module"></span><h2>tests.test_utils_converts module<a class="headerlink" href="#module-tests.test_utils_converts" title="Ссылка на этот заголовок">¶</a></h2>
-<p>Тесты на функции конвертации.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="tests.test_utils_converts.test_math_round">
-<span class="sig-prename descclassname"><span class="pre">tests.test_utils_converts.</span></span><span class="sig-name descname"><span class="pre">test_math_round</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#tests.test_utils_converts.test_math_round" title="Ссылка на это определение">¶</a></dt>
-<dd><p>Проверяем что math_round округляет правильно.</p>
-</dd></dl>
-
+<section id="tests-test-ratings-score-generator-module">
+<h2>tests.test_ratings_score_generator module<a class="headerlink" href="#tests-test-ratings-score-generator-module" title="Ссылка на этот заголовок">¶</a></h2>
 </section>
 <section id="module-tests">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-tests" title="Ссылка на этот заголовок">¶</a></h2>
@@ -154,29 +104,17 @@
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">backend</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pages.html">pages package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html">pipeline package</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ratings.html">ratings package</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">tests package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="tests.pipeline.html">tests.pipeline package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tests.utils.html">tests.utils package</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-tests.test_ratings_place_generator">tests.test_ratings_place_generator module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_ratings_place_generator.test_base_place_generator"><code class="docutils literal notranslate"><span class="pre">test_base_place_generator()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_ratings_place_generator.test_middle_school_ind_place_generator"><code class="docutils literal notranslate"><span class="pre">test_middle_school_ind_place_generator()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_ratings_place_generator.test_middle_school_sorting_in_place_generator"><code class="docutils literal notranslate"><span class="pre">test_middle_school_sorting_in_place_generator()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_ratings_place_generator.test_primary_school_ind_place_generator"><code class="docutils literal notranslate"><span class="pre">test_primary_school_ind_place_generator()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-tests.test_ratings_score_generator">tests.test_ratings_score_generator module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_ratings_score_generator.test_base_score_generator"><code class="docutils literal notranslate"><span class="pre">test_base_score_generator()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_no_args"><code class="docutils literal notranslate"><span class="pre">test_middle_school_ind_score_generator_no_args()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_no_key_args"><code class="docutils literal notranslate"><span class="pre">test_middle_school_ind_score_generator_no_key_args()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_normalization_by_participant"><code class="docutils literal notranslate"><span class="pre">test_middle_school_ind_score_generator_normalization_by_participant()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_normalization_by_theoretical_maximum"><code class="docutils literal notranslate"><span class="pre">test_middle_school_ind_score_generator_normalization_by_theoretical_maximum()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_ratings_score_generator.test_primary_school_ind_score_generator"><code class="docutils literal notranslate"><span class="pre">test_primary_school_ind_score_generator()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-tests.test_utils_converts">tests.test_utils_converts module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#tests.test_utils_converts.test_math_round"><code class="docutils literal notranslate"><span class="pre">test_math_round()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#tests-test-ratings-place-generator-module">tests.test_ratings_place_generator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tests-test-ratings-score-generator-module">tests.test_ratings_score_generator module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-tests">Module contents</a></li>
 </ul>
 </li>
@@ -191,7 +129,7 @@
   <li><a href="index.html">Documentation overview</a><ul>
   <li><a href="modules.html">backend</a><ul>
       <li>Previous: <a href="ratings.html" title="предыдущая глава">ratings package</a></li>
-      <li>Next: <a href="utils.html" title="следующая глава">utils package</a></li>
+      <li>Next: <a href="tests.pipeline.html" title="следующая глава">tests.pipeline package</a></li>
   </ul></li>
   </ul></li>
 </ul>
