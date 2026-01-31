@@ -3,7 +3,12 @@ max-line-length = 120
 select = ANN,CFQ,D,E,F,W
 ignore = D403,ANN101,ANN102,ANN204,WPS412,WPS410
 max-function-length = 30
+max-methods = 10
 per-file-ignores =
+    backend/tests/pipeline/test_node_executor.py: CFQ001,WPS226,WPS430,WPS432,WPS519
+    backend/tests/pipeline/test_node.py: WPS202,WPS218,WPS226
+    backend/tests/pipeline/test_object.py: WPS226,WPS432,WPS446,WPS459
     backend/tests/test_ratings_place_generator.py: WPS221
     backend/tests/test_ratings_score_generator.py: WPS118,WPS358
-    backend/tests/test_utils_converts.py: WPS218,WPS432,WPS339
+    backend/tests/utils/test_converts.py: WPS218,WPS432,WPS339
+    backend/tests/utils/test_read.py: WPS218,WPS432,WPS339,WPS226

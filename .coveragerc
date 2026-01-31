@@ -1,5 +1,6 @@
 [run]
 source =
+    backend/pipeline
     backend/ratings
     backend/utils
 
