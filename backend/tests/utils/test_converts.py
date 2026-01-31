@@ -1,6 +1,6 @@
 """Тесты на функции конвертации."""
 
-from utils import math_round
+from utils import math_round, sorted_dict_keys
 
 
 def test_math_round() -> None:
@@ -11,3 +11,8 @@ def test_math_round() -> None:
     assert math_round(4.49) == 4
     assert math_round(4.50) == 5
     assert math_round(4.51) == 5
+
+
+def test_sorted_dict_keys() -> None:
+    """Проверяем что sorted_dict_keys правильный."""
+    assert sorted_dict_keys({"2": 1, "1": 2}) == ["1", "2"]

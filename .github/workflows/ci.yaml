@@ -30,10 +30,9 @@ jobs:
         run: isort --check-only .
 
       - name: Run tests
-        working-directory: backend
         run: pytest
         env:
-          PYTHONPATH: ${{ github.workspace }}/backend
+          PYTHONPATH: ${{ github.workspace }}
 
       - name: Build sphinx docs
         working-directory: backend

@@ -1,6 +1,15 @@
 tests package
 =============
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   tests.pipeline
+   tests.utils
+
 Submodules
 ----------
 
@@ -16,14 +25,6 @@ tests.test\_ratings\_score\_generator module
 --------------------------------------------
 
 .. automodule:: tests.test_ratings_score_generator
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tests.test\_utils\_converts module
-----------------------------------
-
-.. automodule:: tests.test_utils_converts
    :members:
    :undoc-members:
    :show-inheritance:

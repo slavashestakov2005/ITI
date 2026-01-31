@@ -7,8 +7,9 @@ backend
    config
    database
    main
+   pages
+   pipeline
    models
-   news
    ratings
    tests
    utils

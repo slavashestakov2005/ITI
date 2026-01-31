@@ -12,6 +12,14 @@ utils.converts module
    :undoc-members:
    :show-inheritance:
 
+utils.read module
+-----------------
+
+.. automodule:: utils.read
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
