@@ -7,9 +7,8 @@ backend
    config
    database
    main
-   pages
-   pipeline
    models
+   pipeline
    ratings
    tests
    utils
