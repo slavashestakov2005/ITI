@@ -3,13 +3,47 @@
   <head>
     <meta charset="utf-8" />
     <title>API Reference</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://cdn.jsdelivr.net/npm/redoc@2.1.5/bundles/redoc.standalone.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@5.3.0/swagger-ui.css">
     <style>
-      body { margin: 0; }
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin: 0;
+            background: #fafafa;
+        }
     </style>
   </head>
   <body>
-    <redoc spec-url="openapi.json"></redoc>
+    <div id="swagger-ui"></div>
+    <script src="https://unpkg.com/swagger-ui-dist@5.3.0/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.3.0/swagger-ui-standalone-preset.js"></script>
+    <script>
+        const spec = {'openapi': '3.1.0', 'info': {'title': 'FastAPI', 'version': '0.1.0'}, 'paths': {'/example': {'get': {'summary': 'Get Example', 'description': 'Пример html страницы.', 'operationId': 'get_example_example_get', 'responses': {'200': {'description': 'Successful Response', 'content': {'text/html': {'schema': {'type': 'string'}}}}}}}, '/example_item': {'get': {'summary': 'Get Item', 'description': 'Пример возвращения класса.', 'operationId': 'get_item_example_item_get', 'responses': {'200': {'description': 'Successful Response', 'content': {'application/json': {'schema': {'$ref': '#/components/schemas/ExampleItem'}}}}}}}}, 'components': {'schemas': {'ExampleItem': {'properties': {'name': {'type': 'string', 'title': 'Name'}, 'price': {'type': 'number', 'title': 'Price'}}, 'type': 'object', 'required': ['name', 'price'], 'title': 'ExampleItem', 'description': 'Пример класса с которым будет работать api.'}}}};
+        window.onload = function() {
+            const ui = SwaggerUIBundle({
+                spec: spec,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout"
+            });
+            
+            window.ui = ui;
+        };
+    </script>
   </body>
 </html>
