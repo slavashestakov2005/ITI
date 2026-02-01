@@ -8,23 +8,22 @@ utils.converts module
 ---------------------
 
 .. automodule:: utils.converts
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
 utils.read module
 -----------------
 
 .. automodule:: utils.read
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   :members:
+   :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :show-inheritance:
+   :undoc-members:

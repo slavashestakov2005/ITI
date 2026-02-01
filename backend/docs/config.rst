@@ -2,6 +2,6 @@ config module
 =============
 
 .. automodule:: config
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :show-inheritance:
+   :undoc-members:

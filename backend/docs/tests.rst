@@ -5,16 +5,17 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
-    tests.database
-    tests.pipeline
-    tests.ratings
-    tests.utils
+   tests.database
+   tests.pipeline
+   tests.ratings
+   tests.utils
 
 Module contents
 ---------------
 
 .. automodule:: tests
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :show-inheritance:
+   :undoc-members:
