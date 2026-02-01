@@ -57,6 +57,7 @@ pre-commit:
 	python -m pre_commit run --all-files
 
 docs:
+	cd backend/docs && python fast_api_docs.py
 	cd backend && sphinx-apidoc -f -o docs/ .
 	cd backend/docs && make clean && make html
 

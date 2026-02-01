@@ -6,9 +6,9 @@
 ITI-v2 documentation
 ====================
 
-Add your content using ``reStructuredText`` syntax. See the
-`reStructuredText <https://www.sphinx-doc.org/en/master/usage/restructuredtext/index.html>`_
-documentation for details.
+.. raw:: html
+
+   Вторая версия сайта ИТИ, пытающаяся исправить все проблемы предыдущей. API сайта доступно на <a href="fast_api.html">странице</a>.
 
 
 .. toctree::

@@ -11,8 +11,8 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath(".."))
-sys.path.insert(0, os.path.abspath("../tests"))
+sys.path.insert(0, os.path.abspath("../../"))
+sys.path.insert(0, os.path.abspath("../../backend"))
 
 project = "ITI-v2"
 copyright = "2025, Love ITI monkeys"
@@ -33,3 +33,7 @@ language = "ru"
 
 html_theme = "alabaster"
 html_static_path = ["_static"]
+html_extra_path = [
+    "fast_api.html",
+    "openapi.json",
+]
