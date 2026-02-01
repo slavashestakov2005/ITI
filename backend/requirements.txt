@@ -1,5 +1,7 @@
 coverage==7.13.2
-fastapi==0.128.0
+"fastapi[standard]==0.128.0"
 pytest==9.0.2
 PyYAML==6.0.3
 sqlmodel==0.0.31
+black==26.1.0
+flake8==7.3.0
