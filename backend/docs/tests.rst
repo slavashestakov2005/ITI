@@ -36,5 +36,5 @@ Module contents
 
 .. automodule:: tests
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

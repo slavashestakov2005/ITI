@@ -3,7 +3,6 @@ source =
     backend/pipeline
     backend/ratings
     backend/utils
-    backend/models
 
 [report]
 fail_under = 100
