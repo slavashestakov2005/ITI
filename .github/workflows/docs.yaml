@@ -26,6 +26,9 @@ jobs:
 
       - name: Build sphinx docs
         run: |
+          cd docs
+          python fast_api_docs.py
+          cd ..
           sphinx-apidoc -f -o docs/ .
           cd docs
           make html

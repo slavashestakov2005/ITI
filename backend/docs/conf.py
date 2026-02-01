@@ -8,6 +8,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import json
 import os
 import sys
 
@@ -33,7 +34,10 @@ language = "ru"
 
 html_theme = "alabaster"
 html_static_path = ["_static"]
-html_extra_path = [
-    "fast_api.html",
-    "openapi.json",
-]
+html_extra_path = ["openapi.json"]
+html_additional_pages = {"fast_api": "fast_api.html"}
+
+with open("openapi.json", "r", encoding="utf-8") as api_file:
+    openapi_data = json.load(api_file)
+
+html_context = {"openapi_data": openapi_data}
