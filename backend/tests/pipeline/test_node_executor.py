@@ -12,9 +12,7 @@ def test_pipeline_node_executor_invalid_yaml() -> None:
     with pytest.raises(ValueError, match="Top-level pipeline config must be a mapping: node_name -> node_cfg"):
         NodeExecutor.from_raw_cfg("expect_dict_here")
     with pytest.raises(ValueError, match="node_name in pipeline must be a string"):
-        NodeExecutor.from_raw_cfg(
-            read_from_yaml_str(
-                """
+        NodeExecutor.from_raw_cfg(read_from_yaml_str("""
 node1:
   type: merge
   input:
@@ -23,9 +21,7 @@ node1:
   type: merge
   input:
     - math
-"""
-            )
-        )
+"""))
 
 
 test_yaml_pipeline = """
@@ -70,16 +66,12 @@ def test_pipeline_node_executor_invalid_callback() -> None:
         not_found_callback(Row())
 
     with pytest.raises(KeyError, match="Unknown node 'math'"):
-        node_executor = NodeExecutor.from_raw_cfg(
-            read_from_yaml_str(
-                """
+        node_executor = NodeExecutor.from_raw_cfg(read_from_yaml_str("""
 node1:
   type: merge
   input:
     - math
-"""
-            )
-        )
+"""))
         node_executor.run("node1")
     with pytest.raises(KeyError, match="Callback 'in_test_read_math' not registered"):
         node_executor = NodeExecutor.from_raw_cfg(read_from_yaml_str(test_yaml_pipeline))
