@@ -11,7 +11,6 @@ Subpackages
    tests.ratings
    tests.utils
 
-
 Submodules
 ----------
 
