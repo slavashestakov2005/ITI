@@ -7,7 +7,7 @@ utils.converts module
 ---------------------
 
 
-. automodule:: utils.converts
+.. automodule:: utils.converts
    :members:
    :undoc-members:
    :show-inheritance:
