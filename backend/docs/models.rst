@@ -4,14 +4,6 @@ models package
 Submodules
 ----------
 
-models.news module
-------------------
-
-.. automodule:: models.news
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 models.user module
 ------------------
 

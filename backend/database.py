@@ -1,8 +1,8 @@
 """Работа с БД."""
 
-import config
+from config import Config
 from sqlmodel import SQLModel, create_engine
 
-engine = create_engine(config.DB_URL)
+engine = create_engine(Config.db_url)
 
 SQLModel.metadata.create_all(engine)

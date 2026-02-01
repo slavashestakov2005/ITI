@@ -13,6 +13,14 @@ Subpackages
 Submodules
 ----------
 
+tests.test\_database module
+---------------------------
+
+.. automodule:: tests.test_database
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 tests.test\_ratings\_place\_generator module
 --------------------------------------------
 

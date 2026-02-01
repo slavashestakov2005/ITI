@@ -1,4 +1,6 @@
 """Config."""
 
-SECRET = "super_secret_code"
-DB_URL = "sqlite:///database.db"
+
+class Config:
+    secret = "super_secret_code"
+    db_url = "sqlite:///database.db"

@@ -17,7 +17,7 @@ else
 	RMDIR := rm -rf .venv htmlcov
 endif
 
-IS_RECOMENDED_PYTHON := $(shell python3 -c 'import sys; print(1 if ".".join(map(str, sys.version_info[:2])) == 3.10 else 0)')
+IS_RECOMENDED_PYTHON := $(shell python3 -c 'import sys; print(1 if ".".join(map(str, sys.version_info[:2])) == "3.14" else 0)')
 
 venv-install:
 ifeq ($(IS_RECOMENDED_PYTHON), 1)
@@ -25,7 +25,7 @@ ifeq ($(IS_RECOMENDED_PYTHON), 1)
 	$(PYTHON) -m pip install --upgrade pip
 	$(PIP) install -r backend/requirements.txt
 else
-	@echo "Recommended python version is 3.10"
+	@echo "Recommended python version is 3.14"
 	@echo "Your default python version hasn't been tested"
 	@echo "You can create venv and install requirements manually"
 endif
@@ -60,8 +60,8 @@ docs:
 	cd backend && sphinx-apidoc -f -o docs/ .
 	cd backend/docs && make clean && make html
 
-run:
-	cd backend && python -m uvicorn main:app --reload
+run-dev:
+	cd backend && fastapi dev
 
 clean:
 	$(RMDIR)

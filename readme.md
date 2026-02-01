@@ -25,7 +25,7 @@
 | <sub>Прекоммитные проверки</sub> | `make cov` | Проверяет покрытие тестами важных функций |
 | <sub>Прекоммитные проверки</sub> | `make pre-commit` | Запускает все прекоммитные проверки (как `git commit`) |
 | <sub>Документирование</sub> | `make docs` | Генерирует документацию Sphinx (деплой в GitHub Pages) |
-| <sub>Другое</sub> | `make run` | Запускает FastAPI backend |
+| <sub>Другое</sub> | `run-dev` | Запускает FastAPI backend |
 | <sub>Другое</sub> | `make clean` | Удаляет виртуальное окружение и отчёты покрытия |
 
 

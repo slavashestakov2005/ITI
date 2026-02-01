@@ -1,10 +1,9 @@
 """Модель пользователя."""
 
-from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
 
-class User(SQLModel, BaseModel, table=True):
+class User(SQLModel, table=True):
     """Модель пользователя."""
 
     id: int | None = Field(default=None, primary_key=True)
