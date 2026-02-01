@@ -3,5 +3,3 @@ backend/docs/_build/
 .coverage
 htmlcov
 .venv
-backend/database.db
-database_test.db
