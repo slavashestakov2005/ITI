@@ -5,6 +5,7 @@ backend
    :maxdepth: 4
 
    main
+   pages
    pipeline
    ratings
    tests
