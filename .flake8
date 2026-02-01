@@ -12,3 +12,4 @@ per-file-ignores =
     backend/tests/test_ratings_score_generator.py: WPS118,WPS358
     backend/tests/utils/test_converts.py: WPS218,WPS432,WPS339
     backend/tests/utils/test_read.py: WPS218,WPS432,WPS339,WPS226
+    backend/tests/database/test_database.py: E402

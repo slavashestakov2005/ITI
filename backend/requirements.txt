@@ -5,3 +5,4 @@ PyYAML==6.0.3
 sqlmodel==0.0.31
 black==26.1.0
 flake8==7.3.0
+isort==7.0.0

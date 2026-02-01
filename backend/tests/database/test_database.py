@@ -1,4 +1,3 @@
-import pytest
 from config import Config
 from models import User
 
@@ -32,4 +31,4 @@ def test_user_pop():
 
     with Session(engine) as session:
         get_user = session.exec(select(User).where(User.login == "test")).first()
-        assert get_user == None
+        assert get_user is None
