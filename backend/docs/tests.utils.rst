@@ -9,21 +9,21 @@ tests.utils.test\_converts module
 
 .. automodule:: tests.utils.test_converts
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 tests.utils.test\_read module
 -----------------------------
 
 .. automodule:: tests.utils.test_read
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: tests.utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
