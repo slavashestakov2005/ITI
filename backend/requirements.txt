@@ -9,3 +9,4 @@ flake8==7.3.0
 isort==7.0.0
 sphinx==2.0.1
 pre_commit==4.5.1
+jinja2==3.0.3
