@@ -5,42 +5,16 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
 
-   tests.pipeline
-   tests.utils
-
-Submodules
-----------
-
-tests.test\_database module
----------------------------
-
-.. automodule:: tests.test_database
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tests.test\_ratings\_place\_generator module
---------------------------------------------
-
-.. automodule:: tests.test_ratings_place_generator
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-tests.test\_ratings\_score\_generator module
---------------------------------------------
-
-.. automodule:: tests.test_ratings_score_generator
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    tests.database
+    tests.pipeline
+    tests.ratings
+    tests.utils
 
 Module contents
 ---------------
 
 .. automodule:: tests
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    :members:
+    :undoc-members:
+    :show-inheritance:
