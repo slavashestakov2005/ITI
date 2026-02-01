@@ -9,13 +9,13 @@ pages.simple module
 
 .. automodule:: pages.simple
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: pages
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

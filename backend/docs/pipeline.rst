@@ -9,29 +9,29 @@ pipeline.node module
 
 .. automodule:: pipeline.node
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 pipeline.node\_executor module
 ------------------------------
 
 .. automodule:: pipeline.node_executor
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 pipeline.object module
 ----------------------
 
 .. automodule:: pipeline.object
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: pipeline
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

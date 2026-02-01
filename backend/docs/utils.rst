@@ -4,26 +4,23 @@ utils package
 Submodules
 ----------
 
-utils.converts module
----------------------
-
-.. automodule:: utils.converts
+. automodule:: utils.converts
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 utils.read module
 -----------------
 
 .. automodule:: utils.read
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: utils
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:

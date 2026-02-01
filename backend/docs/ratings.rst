@@ -9,21 +9,21 @@ ratings.place\_generator module
 
 .. automodule:: ratings.place_generator
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 ratings.score\_generator module
 -------------------------------
 
 .. automodule:: ratings.score_generator
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
 
 Module contents
 ---------------
 
 .. automodule:: ratings
    :members:
-   :show-inheritance:
    :undoc-members:
+   :show-inheritance:
