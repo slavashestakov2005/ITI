@@ -39,18 +39,264 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Ссылка на этот заголовок">¶</a></h2>
 </section>
-<section id="pipeline-node-module">
-<h2>pipeline.node module<a class="headerlink" href="#pipeline-node-module" title="Ссылка на этот заголовок">¶</a></h2>
+<section id="module-pipeline.node">
+<span id="pipeline-node-module"></span><h2>pipeline.node module<a class="headerlink" href="#module-pipeline.node" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Классы для описания нод пайплайна.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.node.Node">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.node.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.ObjectConstraint" title="pipeline.object.ObjectConstraint"><span class="pre">ObjectConstraint</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.node.Node" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Базовый класс для одной ноды пайплана.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.node.Node.compute">
+<span class="sig-name descname"><span class="pre">compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#pipeline.node.Node.compute" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Вычисляет ноду.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.node.Node.validate">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.node.Node.validate" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Валидирует ноду.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.node.NodeDbRead">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.node.</span></span><span class="sig-name descname"><span class="pre">NodeDbRead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.ObjectConstraint" title="pipeline.object.ObjectConstraint"><span class="pre">ObjectConstraint</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.node.NodeDbRead" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <a class="reference internal" href="#pipeline.node.Node" title="pipeline.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p>
+<p>Нода чтения из БД.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.node.NodeDbRead.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.node.NodeDbRead.validate" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Валидирует NodeDbRead.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.node.NodeFunc">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.node.</span></span><span class="sig-name descname"><span class="pre">NodeFunc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.ObjectConstraint" title="pipeline.object.ObjectConstraint"><span class="pre">ObjectConstraint</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.node.NodeFunc" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <a class="reference internal" href="#pipeline.node.Node" title="pipeline.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p>
+<p>Обычная промежуточная нода.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.node.NodeFunc.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.node.NodeFunc.validate" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Валидирует NodeFunc.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.node.NodeMerge">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.node.</span></span><span class="sig-name descname"><span class="pre">NodeMerge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.ObjectConstraint" title="pipeline.object.ObjectConstraint"><span class="pre">ObjectConstraint</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.node.NodeMerge" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <a class="reference internal" href="#pipeline.node.Node" title="pipeline.node.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">Node</span></code></a></p>
+<p>Нода объединения выходов других нод.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.node.NodeMerge.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.node.NodeMerge.validate" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Валидирует NodeMerge.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pipeline.node.node_from_raw_cfg">
+<span class="sig-prename descclassname"><span class="pre">pipeline.node.</span></span><span class="sig-name descname"><span class="pre">node_from_raw_cfg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pipeline.node.Node" title="pipeline.node.Node"><span class="pre">Node</span></a></span></span><a class="headerlink" href="#pipeline.node.node_from_raw_cfg" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Создаёт ноду из словаря.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pipeline.node.node_type">
+<span class="sig-prename descclassname"><span class="pre">pipeline.node.</span></span><span class="sig-name descname"><span class="pre">node_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pipeline.node.Node" title="pipeline.node.Node"><span class="pre">Node</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pipeline.node.node_type" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Получает тип ноды по строке.</p>
+</dd></dl>
+
 </section>
-<section id="pipeline-node-executor-module">
-<h2>pipeline.node_executor module<a class="headerlink" href="#pipeline-node-executor-module" title="Ссылка на этот заголовок">¶</a></h2>
+<section id="module-pipeline.node_executor">
+<span id="pipeline-node-executor-module"></span><h2>pipeline.node_executor module<a class="headerlink" href="#module-pipeline.node_executor" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Класс для вычесления нод.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.node_executor.NodeExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.node_executor.</span></span><span class="sig-name descname"><span class="pre">NodeExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.node.Node" title="pipeline.node.Node"><span class="pre">Node</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.node_executor.NodeExecutor" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Класс для обработки нод.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.node_executor.NodeExecutor.callback">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.node_executor.NodeExecutor.callback" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Декоратор для регистрации callback.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.node_executor.NodeExecutor.clear">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.node_executor.NodeExecutor.clear" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Очищает список колбеков.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.node_executor.NodeExecutor.from_raw_cfg">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_raw_cfg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pipeline.node_executor.NodeExecutor" title="pipeline.node_executor.NodeExecutor"><span class="pre">NodeExecutor</span></a></span></span><a class="headerlink" href="#pipeline.node_executor.NodeExecutor.from_raw_cfg" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Читаем пайплайн из ямла и возвращяем готовый обьект.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.node_executor.NodeExecutor.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#pipeline.node_executor.NodeExecutor.run" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Запускает вычисление ноды.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pipeline.node_executor.not_found_callback">
+<span class="sig-prename descclassname"><span class="pre">pipeline.node_executor.</span></span><span class="sig-name descname"><span class="pre">not_found_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#pipeline.node_executor.not_found_callback" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Заглушка для нод без пользовательских колбеков.</p>
+</dd></dl>
+
 </section>
-<section id="pipeline-object-module">
-<h2>pipeline.object module<a class="headerlink" href="#pipeline-object-module" title="Ссылка на этот заголовок">¶</a></h2>
+<section id="module-pipeline.object">
+<span id="pipeline-object-module"></span><h2>pipeline.object module<a class="headerlink" href="#module-pipeline.object" title="Ссылка на этот заголовок">¶</a></h2>
+<p>Классы для передачи по пайплайну.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.object.ObjectConstraint">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.object.</span></span><span class="sig-name descname"><span class="pre">ObjectConstraint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.object.ObjectConstraint" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Ограничение на передаваемый объект - строка/таблица + типы полей.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipeline.object.ObjectConstraint.columns">
+<span class="sig-name descname"><span class="pre">columns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pipeline.object.ObjectConstraint.columns" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.object.ObjectConstraint.from_raw_cfg">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_raw_cfg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pipeline.object.ObjectConstraint" title="pipeline.object.ObjectConstraint"><span class="pre">ObjectConstraint</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.object.ObjectConstraint.from_raw_cfg" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Создаёт объект из словаря.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pipeline.object.ObjectConstraint.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#pipeline.object.ObjectConstraint.type" title="Ссылка на это определение">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.object.ObjectConstraint.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.object.ObjectConstraint.validate" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Валидирует объект.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.object.Row">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.object.</span></span><span class="sig-name descname"><span class="pre">Row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.object.Row" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Класс для описания объекта (например строки таблицы) .</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.object.Row.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scheme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.ObjectConstraint" title="pipeline.object.ObjectConstraint"><span class="pre">ObjectConstraint</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.object.Row.validate" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Валидация объекта.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.object.Table">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.object.</span></span><span class="sig-name descname"><span class="pre">Table</span></span><a class="headerlink" href="#pipeline.object.Table" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Класс для описания таблицы объектов.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.object.Table.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.object.Table.append" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Добавляем строку в таблицу.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.object.Table.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scheme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.ObjectConstraint" title="pipeline.object.ObjectConstraint"><span class="pre">ObjectConstraint</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.object.Table.validate" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Валидация объекта.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pipeline.object.object_type">
+<span class="sig-prename descclassname"><span class="pre">pipeline.object.</span></span><span class="sig-name descname"><span class="pre">object_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pipeline.object.object_type" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Возвращает тип объекта пайплайна по строке.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pipeline.object.primitive_type">
+<span class="sig-prename descclassname"><span class="pre">pipeline.object.</span></span><span class="sig-name descname"><span class="pre">primitive_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">type</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#pipeline.object.primitive_type" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Возвращает примитивный тип по строке.</p>
+</dd></dl>
+
 </section>
 <section id="module-pipeline">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pipeline" title="Ссылка на этот заголовок">¶</a></h2>
-<p>Модуль для тестов pipeline.</p>
+<p>Ядро пайплайнов.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.NodeExecutor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.</span></span><span class="sig-name descname"><span class="pre">NodeExecutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">specs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.node.Node" title="pipeline.node.Node"><span class="pre">Node</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.NodeExecutor" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <a class="reference internal" href="#module-pipeline.object" title="pipeline.object"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Класс для обработки нод.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.NodeExecutor.callback">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.NodeExecutor.callback" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Декоратор для регистрации callback.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.NodeExecutor.clear">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.NodeExecutor.clear" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Очищает список колбеков.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.NodeExecutor.from_raw_cfg">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_raw_cfg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pipeline.node_executor.NodeExecutor" title="pipeline.node_executor.NodeExecutor"><span class="pre">NodeExecutor</span></a></span></span><a class="headerlink" href="#pipeline.NodeExecutor.from_raw_cfg" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Читаем пайплайн из ямла и возвращяем готовый обьект.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.NodeExecutor.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#pipeline.object.Table" title="pipeline.object.Table"><span class="pre">Table</span></a></span></span><a class="headerlink" href="#pipeline.NodeExecutor.run" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Запускает вычисление ноды.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.Row">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.</span></span><span class="sig-name descname"><span class="pre">Row</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.Row" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <a class="reference internal" href="#module-pipeline.object" title="pipeline.object"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Класс для описания объекта (например строки таблицы) .</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.Row.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scheme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.ObjectConstraint" title="pipeline.object.ObjectConstraint"><span class="pre">ObjectConstraint</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.Row.validate" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Валидация объекта.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pipeline.Table">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.</span></span><span class="sig-name descname"><span class="pre">Table</span></span><a class="headerlink" href="#pipeline.Table" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Базовые классы: <a class="reference internal" href="#module-pipeline.object" title="pipeline.object"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Класс для описания таблицы объектов.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.Table.append">
+<span class="sig-name descname"><span class="pre">append</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.Row" title="pipeline.object.Row"><span class="pre">Row</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.Table.append" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Добавляем строку в таблицу.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pipeline.Table.validate">
+<span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scheme</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#pipeline.object.ObjectConstraint" title="pipeline.object.ObjectConstraint"><span class="pre">ObjectConstraint</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#pipeline.Table.validate" title="Ссылка на это определение">¶</a></dt>
+<dd><p>Валидация объекта.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -87,10 +333,79 @@
 <li class="toctree-l2"><a class="reference internal" href="pages.html">pages package</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">pipeline package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pipeline-node-module">pipeline.node module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pipeline-node-executor-module">pipeline.node_executor module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pipeline-object-module">pipeline.object module</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-pipeline">Module contents</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pipeline.node">pipeline.node module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.node.Node"><code class="docutils literal notranslate"><span class="pre">Node</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.node.Node.compute"><code class="docutils literal notranslate"><span class="pre">Node.compute()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.node.Node.validate"><code class="docutils literal notranslate"><span class="pre">Node.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.node.NodeDbRead"><code class="docutils literal notranslate"><span class="pre">NodeDbRead</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.node.NodeDbRead.validate"><code class="docutils literal notranslate"><span class="pre">NodeDbRead.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.node.NodeFunc"><code class="docutils literal notranslate"><span class="pre">NodeFunc</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.node.NodeFunc.validate"><code class="docutils literal notranslate"><span class="pre">NodeFunc.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.node.NodeMerge"><code class="docutils literal notranslate"><span class="pre">NodeMerge</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.node.NodeMerge.validate"><code class="docutils literal notranslate"><span class="pre">NodeMerge.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.node.node_from_raw_cfg"><code class="docutils literal notranslate"><span class="pre">node_from_raw_cfg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.node.node_type"><code class="docutils literal notranslate"><span class="pre">node_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pipeline.node_executor">pipeline.node_executor module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.node_executor.NodeExecutor"><code class="docutils literal notranslate"><span class="pre">NodeExecutor</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.node_executor.NodeExecutor.callback"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.callback()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.node_executor.NodeExecutor.clear"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.clear()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.node_executor.NodeExecutor.from_raw_cfg"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.from_raw_cfg()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.node_executor.NodeExecutor.run"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.node_executor.not_found_callback"><code class="docutils literal notranslate"><span class="pre">not_found_callback()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pipeline.object">pipeline.object module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.object.ObjectConstraint"><code class="docutils literal notranslate"><span class="pre">ObjectConstraint</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.object.ObjectConstraint.columns"><code class="docutils literal notranslate"><span class="pre">ObjectConstraint.columns</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.object.ObjectConstraint.from_raw_cfg"><code class="docutils literal notranslate"><span class="pre">ObjectConstraint.from_raw_cfg()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.object.ObjectConstraint.type"><code class="docutils literal notranslate"><span class="pre">ObjectConstraint.type</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.object.ObjectConstraint.validate"><code class="docutils literal notranslate"><span class="pre">ObjectConstraint.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.object.Row"><code class="docutils literal notranslate"><span class="pre">Row</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.object.Row.validate"><code class="docutils literal notranslate"><span class="pre">Row.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.object.Table"><code class="docutils literal notranslate"><span class="pre">Table</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.object.Table.append"><code class="docutils literal notranslate"><span class="pre">Table.append()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.object.Table.validate"><code class="docutils literal notranslate"><span class="pre">Table.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.object.object_type"><code class="docutils literal notranslate"><span class="pre">object_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.object.primitive_type"><code class="docutils literal notranslate"><span class="pre">primitive_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-pipeline">Module contents</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.NodeExecutor"><code class="docutils literal notranslate"><span class="pre">NodeExecutor</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.NodeExecutor.callback"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.callback()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.NodeExecutor.clear"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.clear()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.NodeExecutor.from_raw_cfg"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.from_raw_cfg()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.NodeExecutor.run"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.Row"><code class="docutils literal notranslate"><span class="pre">Row</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.Row.validate"><code class="docutils literal notranslate"><span class="pre">Row.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="#pipeline.Table"><code class="docutils literal notranslate"><span class="pre">Table</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.Table.append"><code class="docutils literal notranslate"><span class="pre">Table.append()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="#pipeline.Table.validate"><code class="docutils literal notranslate"><span class="pre">Table.validate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ratings.html">ratings package</a></li>

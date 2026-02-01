@@ -59,49 +59,176 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pipeline.html">pipeline package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pipeline.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pipeline.html#pipeline-node-module">pipeline.node module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pipeline.html#pipeline-node-executor-module">pipeline.node_executor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pipeline.html#pipeline-object-module">pipeline.object module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pipeline.html#module-pipeline">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html#module-pipeline.node">pipeline.node module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.node.Node"><code class="docutils literal notranslate"><span class="pre">Node</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.node.Node.compute"><code class="docutils literal notranslate"><span class="pre">Node.compute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.node.Node.validate"><code class="docutils literal notranslate"><span class="pre">Node.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.node.NodeDbRead"><code class="docutils literal notranslate"><span class="pre">NodeDbRead</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.node.NodeDbRead.validate"><code class="docutils literal notranslate"><span class="pre">NodeDbRead.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.node.NodeFunc"><code class="docutils literal notranslate"><span class="pre">NodeFunc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.node.NodeFunc.validate"><code class="docutils literal notranslate"><span class="pre">NodeFunc.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.node.NodeMerge"><code class="docutils literal notranslate"><span class="pre">NodeMerge</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.node.NodeMerge.validate"><code class="docutils literal notranslate"><span class="pre">NodeMerge.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.node.node_from_raw_cfg"><code class="docutils literal notranslate"><span class="pre">node_from_raw_cfg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.node.node_type"><code class="docutils literal notranslate"><span class="pre">node_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html#module-pipeline.node_executor">pipeline.node_executor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.node_executor.NodeExecutor"><code class="docutils literal notranslate"><span class="pre">NodeExecutor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.node_executor.NodeExecutor.callback"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.callback()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.node_executor.NodeExecutor.clear"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.node_executor.NodeExecutor.from_raw_cfg"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.from_raw_cfg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.node_executor.NodeExecutor.run"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.node_executor.not_found_callback"><code class="docutils literal notranslate"><span class="pre">not_found_callback()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html#module-pipeline.object">pipeline.object module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.object.ObjectConstraint"><code class="docutils literal notranslate"><span class="pre">ObjectConstraint</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.object.ObjectConstraint.columns"><code class="docutils literal notranslate"><span class="pre">ObjectConstraint.columns</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.object.ObjectConstraint.from_raw_cfg"><code class="docutils literal notranslate"><span class="pre">ObjectConstraint.from_raw_cfg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.object.ObjectConstraint.type"><code class="docutils literal notranslate"><span class="pre">ObjectConstraint.type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.object.ObjectConstraint.validate"><code class="docutils literal notranslate"><span class="pre">ObjectConstraint.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.object.Row"><code class="docutils literal notranslate"><span class="pre">Row</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.object.Row.validate"><code class="docutils literal notranslate"><span class="pre">Row.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.object.Table"><code class="docutils literal notranslate"><span class="pre">Table</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.object.Table.append"><code class="docutils literal notranslate"><span class="pre">Table.append()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.object.Table.validate"><code class="docutils literal notranslate"><span class="pre">Table.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.object.object_type"><code class="docutils literal notranslate"><span class="pre">object_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.object.primitive_type"><code class="docutils literal notranslate"><span class="pre">primitive_type()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html#module-pipeline">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.NodeExecutor"><code class="docutils literal notranslate"><span class="pre">NodeExecutor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.NodeExecutor.callback"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.callback()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.NodeExecutor.clear"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.NodeExecutor.from_raw_cfg"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.from_raw_cfg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.NodeExecutor.run"><code class="docutils literal notranslate"><span class="pre">NodeExecutor.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.Row"><code class="docutils literal notranslate"><span class="pre">Row</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.Row.validate"><code class="docutils literal notranslate"><span class="pre">Row.validate()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pipeline.html#pipeline.Table"><code class="docutils literal notranslate"><span class="pre">Table</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.Table.append"><code class="docutils literal notranslate"><span class="pre">Table.append()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pipeline.html#pipeline.Table.validate"><code class="docutils literal notranslate"><span class="pre">Table.validate()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ratings.html">ratings package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ratings.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ratings.html#ratings-place-generator-module">ratings.place_generator module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ratings.html#ratings-score-generator-module">ratings.score_generator module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ratings.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ratings.html#module-ratings.place_generator">ratings.place_generator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.place_generator.MiddleSchoolIndividualPlaceGenerator"><code class="docutils literal notranslate"><span class="pre">MiddleSchoolIndividualPlaceGenerator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.place_generator.PlaceGenerator"><code class="docutils literal notranslate"><span class="pre">PlaceGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ratings.html#ratings.place_generator.PlaceGenerator.compute"><code class="docutils literal notranslate"><span class="pre">PlaceGenerator.compute()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.place_generator.PrimarySchoolIndividualPlaceGenerator"><code class="docutils literal notranslate"><span class="pre">PrimarySchoolIndividualPlaceGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ratings.html#module-ratings.score_generator">ratings.score_generator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.score_generator.MiddleSchoolIndividualScoreGenerator"><code class="docutils literal notranslate"><span class="pre">MiddleSchoolIndividualScoreGenerator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.score_generator.PrimarySchoolIndividualScoreGenerator"><code class="docutils literal notranslate"><span class="pre">PrimarySchoolIndividualScoreGenerator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.score_generator.ScoreGenerator"><code class="docutils literal notranslate"><span class="pre">ScoreGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ratings.html#ratings.score_generator.ScoreGenerator.compute"><code class="docutils literal notranslate"><span class="pre">ScoreGenerator.compute()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ratings.html#module-ratings">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.MiddleSchoolIndividualPlaceGenerator"><code class="docutils literal notranslate"><span class="pre">MiddleSchoolIndividualPlaceGenerator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.MiddleSchoolIndividualScoreGenerator"><code class="docutils literal notranslate"><span class="pre">MiddleSchoolIndividualScoreGenerator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.PlaceGenerator"><code class="docutils literal notranslate"><span class="pre">PlaceGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ratings.html#ratings.PlaceGenerator.compute"><code class="docutils literal notranslate"><span class="pre">PlaceGenerator.compute()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.PrimarySchoolIndividualPlaceGenerator"><code class="docutils literal notranslate"><span class="pre">PrimarySchoolIndividualPlaceGenerator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.PrimarySchoolIndividualScoreGenerator"><code class="docutils literal notranslate"><span class="pre">PrimarySchoolIndividualScoreGenerator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ratings.html#ratings.ScoreGenerator"><code class="docutils literal notranslate"><span class="pre">ScoreGenerator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ratings.html#ratings.ScoreGenerator.compute"><code class="docutils literal notranslate"><span class="pre">ScoreGenerator.compute()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="tests.html">tests package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tests.html#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="tests.pipeline.html">tests.pipeline package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tests.pipeline.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tests.pipeline.html#tests-pipeline-test-node-module">tests.pipeline.test_node module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tests.pipeline.html#tests-pipeline-test-node-executor-module">tests.pipeline.test_node_executor module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tests.pipeline.html#tests-pipeline-test-object-module">tests.pipeline.test_object module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tests.pipeline.html#module-tests.pipeline.test_node">tests.pipeline.test_node module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tests.pipeline.html#module-tests.pipeline.test_node_executor">tests.pipeline.test_node_executor module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tests.pipeline.html#module-tests.pipeline.test_object">tests.pipeline.test_object module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tests.pipeline.html#module-tests.pipeline">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tests.utils.html">tests.utils package</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="tests.utils.html#submodules">Submodules</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tests.utils.html#tests-utils-test-converts-module">tests.utils.test_converts module</a></li>
-<li class="toctree-l4"><a class="reference internal" href="tests.utils.html#tests-utils-test-read-module">tests.utils.test_read module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tests.utils.html#module-tests.utils.test_converts">tests.utils.test_converts module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tests.utils.html#module-tests.utils.test_read">tests.utils.test_read module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="tests.utils.html#module-tests.utils">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="tests.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-ratings-place-generator-module">tests.test_ratings_place_generator module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html#tests-test-ratings-score-generator-module">tests.test_ratings_score_generator module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_ratings_place_generator">tests.test_ratings_place_generator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tests.html#tests.test_ratings_place_generator.test_base_place_generator"><code class="docutils literal notranslate"><span class="pre">test_base_place_generator()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.html#tests.test_ratings_place_generator.test_middle_school_ind_place_generator"><code class="docutils literal notranslate"><span class="pre">test_middle_school_ind_place_generator()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.html#tests.test_ratings_place_generator.test_middle_school_sorting_in_place_generator"><code class="docutils literal notranslate"><span class="pre">test_middle_school_sorting_in_place_generator()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.html#tests.test_ratings_place_generator.test_primary_school_ind_place_generator"><code class="docutils literal notranslate"><span class="pre">test_primary_school_ind_place_generator()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests.test_ratings_score_generator">tests.test_ratings_score_generator module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tests.html#tests.test_ratings_score_generator.test_base_score_generator"><code class="docutils literal notranslate"><span class="pre">test_base_score_generator()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.html#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_no_args"><code class="docutils literal notranslate"><span class="pre">test_middle_school_ind_score_generator_no_args()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.html#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_no_key_args"><code class="docutils literal notranslate"><span class="pre">test_middle_school_ind_score_generator_no_key_args()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.html#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_normalization_by_participant"><code class="docutils literal notranslate"><span class="pre">test_middle_school_ind_score_generator_normalization_by_participant()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.html#tests.test_ratings_score_generator.test_middle_school_ind_score_generator_normalization_by_theoretical_maximum"><code class="docutils literal notranslate"><span class="pre">test_middle_school_ind_score_generator_normalization_by_theoretical_maximum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="tests.html#tests.test_ratings_score_generator.test_primary_school_ind_score_generator"><code class="docutils literal notranslate"><span class="pre">test_primary_school_ind_score_generator()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="tests.html#module-tests">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">utils package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils.html#utils-converts-module">utils.converts module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils.html#utils-read-module">utils.read module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="utils.html#module-utils">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#module-utils.converts">utils.converts module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.converts.math_round"><code class="docutils literal notranslate"><span class="pre">math_round()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.converts.sorted_dict_keys"><code class="docutils literal notranslate"><span class="pre">sorted_dict_keys()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#module-utils.read">utils.read module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.read.read_from_yaml_file"><code class="docutils literal notranslate"><span class="pre">read_from_yaml_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.read.read_from_yaml_str"><code class="docutils literal notranslate"><span class="pre">read_from_yaml_str()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#module-utils">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.math_round"><code class="docutils literal notranslate"><span class="pre">math_round()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.read_from_yaml_file"><code class="docutils literal notranslate"><span class="pre">read_from_yaml_file()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.read_from_yaml_str"><code class="docutils literal notranslate"><span class="pre">read_from_yaml_str()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html#utils.sorted_dict_keys"><code class="docutils literal notranslate"><span class="pre">sorted_dict_keys()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
