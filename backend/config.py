@@ -15,3 +15,4 @@ class Config:
     HOST = 'http://iti.univers.su/'
     SCANNER_VERSION = os.getenv('SCANNER_VERSION')
     BOT_KEY = os.getenv('TELEGRAM_ITI_API_KEY')
+    SUPER_GAME_API_KEY = os.getenv('SUPER_GAME_API_KEY')

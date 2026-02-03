@@ -15,3 +15,4 @@ import backend.queries.excel
 import backend.queries.phone_api
 import backend.queries.bot_api
 import backend.queries.scanner_web
+import backend.queries.super_game
