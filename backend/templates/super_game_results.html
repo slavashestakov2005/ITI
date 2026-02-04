@@ -30,6 +30,7 @@
             <th width="20%">Дата</th>
             <th width="45%">Команды</th>
             <th width="30%">Победитель</th>
+            <th width="10%">Действие</th>
         </tr>
     </thead>
     <tbody>
@@ -43,6 +44,15 @@
                     Ничья
                 {% elif row.winner %}
                     {{ row.winner }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td>
+                {% if full or adm %}
+                <form method="POST" action="/super_game_results/delete/{{ row.id }}" onsubmit="return confirm('Удалить матч #{{ row.id }}?');">
+                    <input type="submit" value="Удалить">
+                </form>
                 {% else %}
                     —
                 {% endif %}

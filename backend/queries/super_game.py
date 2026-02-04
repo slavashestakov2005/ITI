@@ -2,14 +2,14 @@ import json
 import time
 from typing import List
 
-from flask import jsonify, make_response, render_template, request
+from flask import jsonify, make_response, redirect, render_template, request
 from flask_cors import cross_origin
 from flask_login import login_required
 
 from backend import app
 from backend.config import Config
 from backend.database import Iti, SuperGameResult
-from backend.help import UserRoleLogin
+from backend.help import check_role, forbidden_error, not_found_error, UserRoleGlobal, UserRoleIti, UserRoleLogin
 from backend.help.file_manager import krsk_time
 from .help import check_access
 
@@ -60,6 +60,18 @@ def _parse_iti_id(value) -> int | None:
     return iti_id if Iti.select(iti_id) is not None else None
 
 
+def _parse_int(value, default: int, *, min_value: int | None = None, max_value: int | None = None) -> int:
+    try:
+        result = int(value)
+    except Exception:
+        result = default
+    if min_value is not None:
+        result = max(min_value, result)
+    if max_value is not None:
+        result = min(max_value, result)
+    return result
+
+
 def _build_rating(rows: List[SuperGameResult]) -> List[dict]:
     stats = {}
     for row in rows:
@@ -81,6 +93,37 @@ def _build_rating(rows: List[SuperGameResult]) -> List[dict]:
         stats.values(),
         key=lambda item: (-item["wins"], -item["games_played"], item["name"].lower()),
     )
+
+
+@app.route('/api/v1/super_game_result', methods=['GET'])
+@cross_origin()
+def super_game_result_get_all():
+    if not _check_api_key():
+        return make_response(jsonify({'status': 'FAIL', 'message': 'Доступ запрещён'}), 403)
+    iti_id = _parse_iti_id(request.args.get('iti_id'))
+    if iti_id is None:
+        return make_response(jsonify({'status': 'FAIL', 'message': 'Некорректный ITI'}), 400)
+
+    limit = _parse_int(request.args.get('limit'), 200, min_value=1, max_value=1000)
+    offset = _parse_int(request.args.get('offset'), 0, min_value=0)
+
+    rows = sorted(SuperGameResult.select_by_iti(iti_id), key=lambda r: r.id, reverse=True)
+    total = len(rows)
+    rows = rows[offset: offset + limit]
+
+    matches = []
+    for row in rows:
+        matches.append(
+            {
+                'id': row.id,
+                'iti_id': row.iti_id,
+                'teams': row.teams_list(),
+                'winner': row.winner,
+                'is_draw': bool(row.is_draw),
+                'created_at': row.created_at,
+            }
+        )
+    return make_response(jsonify({'status': 'OK', 'total': total, 'matches': matches}), 200)
 
 
 @app.route('/api/v1/super_game_result', methods=['POST'])
@@ -109,6 +152,33 @@ def super_game_result_post():
     )
     SuperGameResult.insert(row)
     return make_response(jsonify({'status': 'OK'}), 200)
+
+
+@app.route('/api/v1/super_game_result/<int:item_id>', methods=['DELETE'])
+@app.route('/api/v1/super_game_result/del/<int:item_id>', methods=['DELETE'])  # backward-compatible
+@cross_origin()
+def super_game_result_delete(item_id: int):
+    if not _check_api_key():
+        return make_response(jsonify({'status': 'FAIL', 'message': 'Доступ запрещён'}), 403)
+    row = SuperGameResult.select(item_id)
+    if row is None:
+        return make_response(jsonify({'status': 'FAIL', 'message': 'ID не существует'}), 404)
+    SuperGameResult.delete(item_id)
+    return make_response(jsonify({'status': 'OK'}), 200)
+
+
+@app.route('/super_game_results/delete/<int:item_id>', methods=['POST'])
+@cross_origin()
+@login_required
+@check_access(roles=[UserRoleLogin.LOGIN_LOCAL])
+def super_game_results_delete_page(item_id: int):
+    row = SuperGameResult.select(item_id)
+    if row is None:
+        return not_found_error()
+    if not check_role(roles=[UserRoleGlobal.FULL]) and not check_role(roles=[UserRoleIti.ADMIN], iti_id=row.iti_id):
+        return forbidden_error()
+    SuperGameResult.delete(item_id)
+    return redirect(f"/super_game_results?iti={row.iti_id}")
 
 
 @app.route('/api/v1/super_game_rating')
