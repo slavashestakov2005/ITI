@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Результаты суперигры</h1>
+<p><a href="/admin_panel">Назад в админ-панель</a></p>
+
+{% if itis %}
+<h2>Выбор года</h2>
+<ul>
+    {% for y in itis %}
+        <li>
+            <a href="/super_game_results?iti={{ y.id }}">
+                {{ y.name_in_list }}{% if iti and iti.id == y.id %} (текущий){% endif %}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if iti %}
+<p>Показаны данные для: <strong>{{ iti.name_in_list }}</strong></p>
+{% endif %}
+
+<h2>Матчи</h2>
+{% if results %}
+<table border="1">
+    <thead>
+        <tr>
+            <th width="5%">ID</th>
+            <th width="20%">Дата</th>
+            <th width="45%">Команды</th>
+            <th width="30%">Победитель</th>
+            <th width="10%">Действие</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in results %}
+        <tr>
+            <td>{{ row.id }}</td>
+            <td>{{ row.created_at_str }}</td>
+            <td>{{ row.teams|join(', ') }}</td>
+            <td>
+                {% if row.is_draw %}
+                    Ничья
+                {% elif row.winner %}
+                    {{ row.winner }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td>
+                {% if full or adm %}
+                <form method="POST" action="/super_game_results/delete/{{ row.id }}" onsubmit="return confirm('Удалить матч #{{ row.id }}?');">
+                    <input type="submit" value="Удалить">
+                </form>
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Пока нет записей.</p>
+{% endif %}
+
+<h2>Рейтинг</h2>
+{% if rating %}
+<table border="1">
+    <thead>
+        <tr>
+            <th width="50%">Команда</th>
+            <th width="25%">Игры</th>
+            <th width="25%">Победы</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in rating %}
+        <tr>
+            <td>{{ row.name }}</td>
+            <td>{{ row.games_played }}</td>
+            <td>{{ row.wins }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Пока нет данных для рейтинга.</p>
+{% endif %}
+{% endblock %}
